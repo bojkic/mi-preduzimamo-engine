@@ -1,0 +1,16 @@
+<% add_decidim_page_title(t(".title")) %>
+<div class="wrapper">
+  <div class="mi-auth">
+    <%= render "decidim/bih/phone_sessions/form", challenge_pending: @challenge_pending %>
+
+    <p class="mi-auth__foot">
+      <%= t(".signup_prompt") %>
+      <%#- Decidim::Bih.registration_path, never Devise's own: a host that
+           serves the one-step form at a root path (/registracija) points
+           this at it, and on a host that has not moved anywhere the default
+           IS Devise's path. Sending citizens through /users/sign_up there
+           is a redirect hop at best. -%>
+      <%= link_to t(".signup_link"), Decidim::Bih.registration_path, class: "mi-auth__link" %>
+    </p>
+  </div>
+</div>

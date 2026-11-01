@@ -1,0 +1,914 @@
+<%#
+  Read-mostly "Goodwill economy" admin dashboard: headline ledger figures, top
+  earners, recent redemptions, reward fulfillment, matched-giving and spending
+  queues, report-forwarding handoffs, and recent transactions (each reversible
+  once). Volunteer review lives in the volunteering roster.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.goodwill.index.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :goodwill %>
+
+<div class="card" id="goodwill-stats" data-goodwill-active-tab="<%= @active_goodwill_tab %>">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.goodwill.index.intro") %></p>
+    <div class="row">
+      <div class="columns">
+        <strong style="font-size: 2rem;"><%= number_with_delimiter(@total_issued, delimiter: ".") %></strong>
+        <div><%= t("decidim.bih.admin.goodwill.index.total_issued") %></div>
+      </div>
+    </div>
+    <nav id="goodwill-workflow-nav" aria-label="<%= t("decidim.bih.admin.goodwill.index.workflow_nav_label") %>" style="display:flex; gap:0.45rem; flex-wrap:wrap; margin-top:1rem;">
+      <%= link_to t("decidim.bih.admin.goodwill.index.workflow_overview"),
+                  goodwill_dashboard_path(tab: "overview"),
+                  class: ["button", "button__sm", (@active_goodwill_tab == "overview" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_goodwill_tab == "overview") },
+                  data: { goodwill_workflow_tab: "overview" } %>
+      <%= link_to t("decidim.bih.admin.goodwill.index.workflow_reward_fulfillment"),
+                  goodwill_dashboard_path(tab: "rewards"),
+                  class: ["button", "button__sm", (@active_goodwill_tab == "rewards" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_goodwill_tab == "rewards") },
+                  data: { goodwill_workflow_tab: "rewards" } %>
+      <%= link_to t("decidim.bih.admin.goodwill.index.workflow_matched_giving"),
+                  goodwill_dashboard_path(tab: "matched_giving"),
+                  class: ["button", "button__sm", (@active_goodwill_tab == "matched_giving" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_goodwill_tab == "matched_giving") },
+                  data: { goodwill_workflow_tab: "matched_giving" } %>
+      <%= link_to t("decidim.bih.admin.goodwill.index.workflow_organization_spending"),
+                  goodwill_dashboard_path(tab: "organization_spending"),
+                  class: ["button", "button__sm", (@active_goodwill_tab == "organization_spending" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_goodwill_tab == "organization_spending") },
+                  data: { goodwill_workflow_tab: "organization_spending" } %>
+      <%= link_to t("decidim.bih.admin.goodwill.index.workflow_reports"),
+                  goodwill_dashboard_path(tab: "reports"),
+                  class: ["button", "button__sm", (@active_goodwill_tab == "reports" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_goodwill_tab == "reports") },
+                  data: { goodwill_workflow_tab: "reports" } %>
+      <%= link_to t("decidim.bih.admin.goodwill.index.workflow_volunteer_review"),
+                  admin_bih_volunteering_path,
+                  class: "button button__sm button__transparent-secondary",
+                  data: { goodwill_workflow_tab: "volunteering" } %>
+      <%= link_to t("decidim.bih.admin.goodwill.index.workflow_ledger_review"),
+                  goodwill_dashboard_path(tab: "ledger"),
+                  class: ["button", "button__sm", (@active_goodwill_tab == "ledger" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_goodwill_tab == "ledger") },
+                  data: { goodwill_workflow_tab: "ledger" } %>
+    </nav>
+  </div>
+</div>
+
+<% if @active_goodwill_tab == "overview" %>
+<div class="card" id="goodwill-metrics">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.metrics_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.goodwill.index.metrics_intro", days: @metrics[:window_days]) %></p>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.metric") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.metric_current") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.metric_previous") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% %i(active_earners points_issued redemptions referrals gifts capped_actions corroborations pending_referrals_created).each do |metric| %>
+            <tr>
+              <td><%= t("decidim.bih.admin.goodwill.index.metrics.#{metric}") %></td>
+              <td><strong><%= number_with_delimiter(@metrics[:current][metric], delimiter: ".") %></strong></td>
+              <td><%= number_with_delimiter(@metrics[:previous][metric], delimiter: ".") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<% end %>
+
+<% if @active_goodwill_tab == "overview" && @monitoring %>
+  <div class="card" id="goodwill-monitoring"><div class="card-section">
+    <h2><%= t("decidim.bih.admin.goodwill.index.monitoring.title") %></h2>
+    <p><%= t("decidim.bih.admin.goodwill.index.monitoring.context") %></p>
+    <p><%= t("decidim.bih.admin.goodwill.index.monitoring.status", status: t("decidim.bih.admin.goodwill.index.monitoring.statuses.#{@monitoring[:status]}"), time: l(@monitoring[:computed_at], format: :short)) %></p>
+    <% if @monitoring[:status] != "failed" %>
+      <dl>
+        <% %i(at_cap_accounts corroboration_actors rejected_reports duplicate_reports largest_referrer_cohort largest_current_area_referral_cohort observed_referral_depth pending_recoveries).each do |key| %>
+          <dt><%= t("decidim.bih.admin.goodwill.index.monitoring.#{key}") %></dt><dd><%= @monitoring[key] %></dd>
+        <% end %>
+      </dl>
+      <p><%= t("decidim.bih.admin.goodwill.index.monitoring.admissions_since", time: @monitoring[:admissions_since] ? l(@monitoring[:admissions_since], format: :short) : "—") %></p>
+      <ul><% @monitoring[:referral_counts].each do |status, count| %>
+        <li><%= t("decidim.bih.admin.goodwill.index.monitoring.referrals_#{status}") %>: <%= count %></li>
+      <% end %></ul>
+      <ul><% @monitoring[:admission_outcomes].each do |(action, period, outcome), count| %>
+        <li><%= t("decidim.bih.goodwill.actions.#{action}", default: action.humanize) %> · <%= t("decidim.bih.admin.goodwill.index.monitoring.periods.#{period}") %> · <%= t("decidim.bih.admin.goodwill.index.monitoring.outcomes.#{outcome}") %>: <%= count %></li>
+      <% end %></ul>
+    <% end %>
+  </div></div>
+<% end %>
+<% if @anomaly_scan && @anomaly_scan[:status] != "complete" %>
+  <div class="callout warning" id="goodwill-scan-incomplete">
+    <%= t("decidim.bih.admin.goodwill.index.anomalies.scan_incomplete", status: @anomaly_scan[:status]) %>
+  </div>
+<% end %>
+<% if @active_goodwill_tab == "overview" || @anomalies.any? %>
+<div class="card" id="goodwill-anomalies">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.anomalies_title") %></h2>
+  </div>
+  <% if @anomalies.any? %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.goodwill.index.anomalies_intro") %></p></div>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.anomaly_severity") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.anomaly_type") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.citizen") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.anomaly_detail") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @anomalies.each do |flag| %>
+            <tr>
+              <td><%= t("decidim.bih.admin.goodwill.index.severity.#{flag[:severity]}", default: flag[:severity]) %></td>
+              <td><%= t("decidim.bih.admin.goodwill.index.anomaly_types.#{flag[:type]}", default: flag[:type]) %></td>
+              <td><%= flag[:user_name] || "##{flag[:user_id]}" %></td>
+              <td><%= flag[:detail] %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t(@anomaly_scan && @anomaly_scan[:status] == "complete" ? "decidim.bih.admin.goodwill.index.no_anomalies" : "decidim.bih.admin.goodwill.index.anomalies.scan_unavailable") %></p></div>
+  <% end %>
+</div>
+<% end %>
+
+<% if @active_goodwill_tab == "matched_giving" %>
+<div class="card" id="goodwill-match-requests">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.match_requests_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.goodwill.index.match_requests_intro") %></p>
+    <div class="callout secondary" id="goodwill-match-finance-checklist">
+      <strong><%= t("decidim.bih.admin.goodwill.index.match_finance_checklist_title") %></strong>
+      <ol style="margin-bottom:0;">
+        <li><%= t("decidim.bih.admin.goodwill.index.match_finance_checklist_approve") %></li>
+        <li><%= t("decidim.bih.admin.goodwill.index.match_finance_checklist_external") %></li>
+        <li><%= t("decidim.bih.admin.goodwill.index.match_finance_checklist_reference") %></li>
+      </ol>
+    </div>
+    <% if @pending_match_requests_total > 0 %>
+      <p><em><%= t("decidim.bih.admin.goodwill.index.showing_n_of_m", shown: @pending_match_requests.size, total: @pending_match_requests_total) %></em></p>
+    <% end %>
+    <%#
+      Match request form: the operator types a name/nickname to resolve the org
+      user-group. The controller resolves the string within the org and errors
+      clearly when ambiguous or not found — no raw ID field needed.
+    %>
+    <% if bih_allowed?(:match_request_create) %>
+      <%= form_tag(create_match_request_goodwill_path, method: :post, style: "display:flex; gap:0.5rem; flex-wrap:wrap; align-items:flex-end;", class: "form form-defaults") do %>
+        <label>
+          <%= t("decidim.bih.admin.goodwill.index.match_owner_name") %><br>
+          <%= text_field_tag :owner_name, nil,
+                             placeholder: t("decidim.bih.admin.goodwill.index.match_owner_name_placeholder"),
+                             required: true,
+                             style: "min-width:14rem;" %>
+        </label>
+        <label>
+          <%= t("decidim.bih.admin.goodwill.index.match_points") %><br>
+          <%= number_field_tag :points, nil, min: 1 %>
+        </label>
+        <%= submit_tag t("decidim.bih.admin.goodwill.index.match_submit"), class: "button button__sm button__secondary" %>
+      <% end %>
+    <% end %>
+  </div>
+  <% if @pending_match_requests.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_beneficiary") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_points") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @pending_match_requests.each do |req| %>
+            <tr>
+              <td><%= Decidim::Bih::Goodwill::PartnerOwner.display_name(req.owner) %></td>
+              <td><%= number_with_delimiter(req.points, delimiter: ".") %></td>
+              <td style="display:flex; gap:0.4rem;">
+                <% if bih_allowed?(:match_request_decide) %>
+                  <%= button_to t("decidim.bih.admin.goodwill.index.match_approve"),
+                                decide_match_request_goodwill_path(id: req.id, decision: "approved"),
+                                method: :post, class: "button button__sm button__secondary" %>
+                  <%= button_to t("decidim.bih.admin.goodwill.index.match_reject"),
+                                decide_match_request_goodwill_path(id: req.id, decision: "rejected"),
+                                method: :post, class: "button button__sm button__transparent-secondary mi-admin-action--danger" %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.goodwill.index.no_match_requests") %></p></div>
+  <% end %>
+  <div class="card-section">
+    <h3 class="heading6"><%= t("decidim.bih.admin.goodwill.index.match_payouts_title") %></h3>
+    <p><%= t("decidim.bih.admin.goodwill.index.match_payouts_intro") %></p>
+    <% if @approved_match_payouts_total > 0 %>
+      <p><em><%= t("decidim.bih.admin.goodwill.index.showing_n_of_m", shown: @approved_match_payouts.size, total: @approved_match_payouts_total) %></em></p>
+    <% end %>
+  </div>
+  <% if @approved_match_payouts.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_beneficiary") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_points") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_decided") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_payout_amount") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_payout") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @approved_match_payouts.each do |req| %>
+            <tr>
+              <td><%= Decidim::Bih::Goodwill::PartnerOwner.display_name(req.owner) %></td>
+              <td><%= number_with_delimiter(req.points, delimiter: ".") %></td>
+              <td>
+                <%= req.decided_by.try(:name) || req.decided_by.try(:nickname) || "##{req.decided_by_id}" %><br>
+                <small><%= l(req.decided_at, format: :short) if req.decided_at %></small>
+              </td>
+              <td>
+                <% if bih_allowed?(:match_payout_record) %>
+                  <label>
+                    <%= t("decidim.bih.admin.goodwill.index.match_payout_amount") %><br>
+                    <%= number_field_tag :payout_amount_minor_units, nil,
+                                         form: "match-payout-#{req.id}",
+                                         id: "match_payout_amount_minor_units_#{req.id}",
+                                         min: 1,
+                                         required: true,
+                                         style: "width:8rem;" %>
+                  </label>
+                  <label>
+                    <%= t("decidim.bih.admin.goodwill.index.match_payout_currency") %><br>
+                    <%= text_field_tag :payout_currency, "BAM",
+                                       form: "match-payout-#{req.id}",
+                                       id: "match_payout_currency_#{req.id}",
+                                       maxlength: 3,
+                                       required: true,
+                                       style: "width:5rem;" %>
+                  </label>
+                  <label>
+                    <%= t("decidim.bih.admin.goodwill.index.match_payout_paid_on") %><br>
+                    <%= date_field_tag :payout_paid_on, Date.current,
+                                       form: "match-payout-#{req.id}",
+                                       id: "match_payout_paid_on_#{req.id}",
+                                       required: true %>
+                  </label>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td>
+                <% if bih_allowed?(:match_payout_record) %>
+                  <%= form_with url: record_match_payout_goodwill_path(id: req.id), method: :post,
+                                html: { id: "match-payout-#{req.id}", style: "display:flex; gap:0.35rem; align-items:flex-end; flex-wrap:wrap;" }, class: "form form-defaults" do %>
+                    <label>
+                      <%= t("decidim.bih.admin.goodwill.index.match_payout_reference") %><br>
+                      <%= text_field_tag :payout_reference, nil,
+                                         id: "match_payout_reference_#{req.id}",
+                                         required: true,
+                                         maxlength: 255,
+                                         placeholder: t("decidim.bih.admin.goodwill.index.match_payout_reference_placeholder"),
+                                         style: "min-width:10rem;" %>
+                    </label>
+                    <label>
+                      <%= t("decidim.bih.admin.goodwill.index.match_payout_note") %><br>
+                      <%= text_field_tag :payout_note, nil,
+                                         id: "match_payout_note_#{req.id}",
+                                         maxlength: Decidim::Bih::Goodwill::MatchRequest::MAX_PAYOUT_NOTE_LENGTH,
+                                         style: "min-width:12rem;" %>
+                    </label>
+                    <%= submit_tag t("decidim.bih.admin.goodwill.index.match_record_payout"),
+                                   class: "button button__sm button__secondary" %>
+                  <% end %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.goodwill.index.no_match_payouts") %></p></div>
+  <% end %>
+  <div class="card-section">
+    <h3 class="heading6"><%= t("decidim.bih.admin.goodwill.index.match_paid_title") %></h3>
+  </div>
+  <% if @recent_paid_match_requests.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_beneficiary") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_points") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_payout_amount") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_payout_reference") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_paid") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.match_payout_note") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_paid_match_requests.each do |req| %>
+            <tr>
+              <td><%= Decidim::Bih::Goodwill::PartnerOwner.display_name(req.owner) %></td>
+              <td><%= number_with_delimiter(req.points, delimiter: ".") %></td>
+              <td>
+                <%= number_with_precision(req.payout_amount_minor_units.to_i / 100.0, precision: 2, delimiter: ".") %>
+                <%= req.payout_currency %>
+              </td>
+              <td><%= req.payout_reference %></td>
+              <td>
+                <%= req.payout_recorded_by.try(:name) || req.payout_recorded_by.try(:nickname) || "##{req.payout_recorded_by_id}" %><br>
+                <small>
+                  <%= l(req.payout_paid_on, format: :short) if req.payout_paid_on %>
+                  <% if req.payout_recorded_at %>
+                    - <%= l(req.payout_recorded_at, format: :short) %>
+                  <% end %>
+                </small>
+              </td>
+              <td><%= truncate(req.payout_note, length: 80) if req.payout_note.present? %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.goodwill.index.no_match_paid") %></p></div>
+  <% end %>
+</div>
+<% end %>
+
+<% if @active_goodwill_tab == "organization_spending" %>
+<div class="card" id="goodwill-organization-spending">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.organization_spending_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.goodwill.index.organization_spending_intro") %></p>
+    <% if @pending_organization_spending_total.to_i > 0 %>
+      <p><em><%= t("decidim.bih.admin.goodwill.index.showing_n_of_m", shown: @pending_organization_spending.size, total: @pending_organization_spending_total) %></em></p>
+    <% end %>
+  </div>
+  <% if @pending_organization_spending.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.organization_spending_source") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.organization_spending_type") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.organization_spending_detail") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.points") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @pending_organization_spending.each do |request| %>
+            <tr>
+              <td>
+                <%= request.source_partner_profile.display_name %><br>
+                <small><%= request.requested_by.try(:name) || request.requested_by.try(:nickname) || "##{request.requested_by_id}" %></small>
+              </td>
+              <td><%= t("decidim.bih.organizations.spending_request_types.#{request.request_type}") %></td>
+              <td>
+                <strong><%= request.category_label %></strong>
+                <% if request.inter_org_support? %>
+                  <br><%= request.target_partner_profile&.display_name %>
+                <% else %>
+                  <br><%= request.reward_title %>
+                  <small>
+                    <%= t("decidim.bih.admin.goodwill.index.organization_spending_reward_detail",
+                          stock: request.reward_stock,
+                          cost: request.reward_cost) %>
+                  </small>
+                <% end %>
+              </td>
+              <td><%= number_with_delimiter(request.points, delimiter: ".") %></td>
+              <td style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                <% if request.requested_by && bih_allowed?(:operator_message_send) %>
+                  <%= link_to t("decidim.bih.admin.citizens.show.message_user"),
+                              new_operator_message_path(context_type: "organization_spending_request", context_id: request.id),
+                              class: "button button__sm button__transparent-secondary" %>
+                <% end %>
+                <% if bih_allowed?(:organization_spending_decide) %>
+                  <%= button_to t("decidim.bih.admin.goodwill.index.organization_spending_approve"),
+                                decide_organization_spending_request_goodwill_path(id: request.id, decision: "approved"),
+                                method: :post, class: "button button__sm button__secondary" %>
+                  <%= form_with url: decide_organization_spending_request_goodwill_path(id: request.id, decision: "rejected"),
+                                method: :post,
+                                html: { style: "display:flex; gap:0.35rem; align-items:center; flex-wrap:wrap;" }, class: "form form-defaults" do %>
+                    <input type="text" name="rejection_reason" required placeholder="<%= t("decidim.bih.admin.goodwill.index.reject_reason_placeholder") %>" style="max-width:12rem;">
+                    <%= submit_tag t("decidim.bih.admin.goodwill.index.organization_spending_reject"), class: "button button__sm button__transparent-secondary" %>
+                  <% end %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.goodwill.index.no_organization_spending") %></p></div>
+  <% end %>
+</div>
+<% end %>
+
+<% if @active_goodwill_tab == "rewards" %>
+<div class="card" id="goodwill-reward-fulfillments">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.reward_fulfillments_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.goodwill.index.reward_fulfillments_intro") %></p>
+    <div class="callout secondary" id="goodwill-reward-fulfillment-checklist">
+      <strong><%= t("decidim.bih.admin.goodwill.index.reward_checklist_title") %></strong>
+      <ol style="margin-bottom:0;">
+        <li><%= t("decidim.bih.admin.goodwill.index.reward_checklist_reserve") %></li>
+        <li><%= t("decidim.bih.admin.goodwill.index.reward_checklist_pickup") %></li>
+        <li><%= t("decidim.bih.admin.goodwill.index.reward_checklist_notify") %></li>
+      </ol>
+    </div>
+    <%= form_tag(goodwill_dashboard_path, method: :get, class: "form form-defaults mi-admin-filter") do %>
+      <%= hidden_field_tag :tab, "rewards" %>
+      <label>
+        <%= t("decidim.bih.admin.goodwill.index.filter_reward_status") %><br>
+        <%= select_tag :reward_fulfillment_status,
+              options_for_select(
+                [[t("decidim.bih.admin.goodwill.index.reward_status_filter.open"), "open"],
+                 [t("decidim.bih.admin.goodwill.index.reward_status_filter.all"), "all"]] +
+                Decidim::Bih::Goodwill::RewardFulfillment::STATUSES.map { |status|
+                  [t("decidim.bih.admin.goodwill.index.reward_status.#{status}", default: status), status]
+                },
+                @reward_fulfillment_status_filter
+              ),
+              style: "min-width:11rem;" %>
+      </label>
+      <label>
+        <%= t("decidim.bih.admin.goodwill.index.filter_reward") %><br>
+        <%= select_tag :reward_key,
+              options_for_select(
+                [[t("decidim.bih.admin.goodwill.index.all_rewards"), ""]] +
+                @reward_fulfillment_reward_options.map { |key|
+                  reward = @reward_catalog_by_key[key]
+                  [reward&.name || key, key]
+                },
+                @reward_fulfillment_reward_filter.to_s
+              ),
+              style: "min-width:14rem;" %>
+      </label>
+      <%= submit_tag t("decidim.bih.admin.goodwill.index.filter_apply"), class: "button button__sm button__secondary" %>
+      <%= link_to t("decidim.bih.admin.goodwill.index.filter_clear"),
+                  goodwill_dashboard_path(tab: "rewards", anchor: "goodwill-reward-fulfillments"),
+                  class: "button button__sm button__transparent-secondary" %>
+      <% if bih_allowed?(:reward_fulfillment_export) %>
+        <%= link_to t("decidim.bih.admin.goodwill.index.export_reward_fulfillments"),
+                    export_reward_fulfillments_goodwill_path(
+                      format: :csv,
+                      reward_fulfillment_status: @reward_fulfillment_status_filter,
+                      reward_key: @reward_fulfillment_reward_filter
+                    ),
+                    class: "button button__sm button__transparent-secondary" %>
+      <% end %>
+    <% end %>
+    <% if @pending_reward_fulfillments_total > 0 %>
+      <p><em><%= t("decidim.bih.admin.goodwill.index.showing_n_of_m", shown: @pending_reward_fulfillments.size, total: @pending_reward_fulfillments_total) %></em></p>
+    <% end %>
+  </div>
+  <% if @pending_reward_fulfillments.any? %>
+    <%= form_tag(batch_update_reward_fulfillments_goodwill_path, method: :post, id: "reward-fulfillment-batch-form", class: "form form-defaults") do %>
+      <%= hidden_field_tag :reward_fulfillment_status,
+                           @reward_fulfillment_status_filter,
+                           id: "batch_reward_fulfillment_status" %>
+      <%= hidden_field_tag :reward_key,
+                           @reward_fulfillment_reward_filter,
+                           id: "batch_reward_key" %>
+    <% end %>
+    <% if bih_allowed?(:reward_fulfillment_update) || bih_allowed?(:goodwill_reverse_transaction) %>
+      <div class="card-section" id="goodwill-reward-fulfillment-batch" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:flex-end;">
+        <label>
+          <%= t("decidim.bih.admin.goodwill.index.batch_reward_status") %><br>
+          <%= select_tag :batch_status,
+                options_for_select(
+                  Decidim::Bih::Admin::GoodwillController::REWARD_FULFILLMENT_BATCH_STATUSES.select { |status|
+                    status == "canceled" ? bih_allowed?(:goodwill_reverse_transaction) : bih_allowed?(:reward_fulfillment_update)
+                  }.map { |status|
+                    [t("decidim.bih.admin.goodwill.index.reward_status.#{status}", default: status), status]
+                  }
+                ),
+                form: "reward-fulfillment-batch-form",
+                style: "min-width:10rem;" %>
+        </label>
+        <label>
+          <%= t("decidim.bih.admin.private_action_reason.label", default: "Private operator reason") %><br>
+          <%= text_field_tag :private_reason,
+                             nil,
+                             form: "reward-fulfillment-batch-form",
+                             maxlength: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH,
+                             aria: { describedby: "batch-private-reason-help" } %>
+        </label>
+        <%= submit_tag t("decidim.bih.admin.goodwill.index.batch_update_rewards"),
+                       class: "button button__sm button__secondary",
+                       form: "reward-fulfillment-batch-form",
+                       data: {
+                         confirm: t(
+                           "decidim.bih.admin.goodwill.index.batch_update_rewards_confirm",
+                           default: "Update the selected open reward requests? Canceling refunds points and may notify multiple citizens."
+                         )
+                       } %>
+        <p id="batch-private-reason-help" style="flex-basis:100%; margin:0;">
+          <small><%= t("decidim.bih.admin.private_action_reason.help",
+                       count: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH,
+                       default: "Required for cancellation or reversal (maximum %{count} characters). Stored in the private operator audit.") %></small>
+        </p>
+      </div>
+    <% end %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.select") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.when") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.citizen") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.reward") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.points") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.stock") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.status") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.handled") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.audit") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @pending_reward_fulfillments.each do |fulfillment| %>
+            <%
+              reward = @reward_catalog_by_key[fulfillment.reward_key] ||
+                       Decidim::Bih::Goodwill::RewardsCatalog.find(fulfillment.reward_key, current_organization)
+              reward_name = reward&.name || fulfillment.reward_key
+              remaining_stock = reward&.remaining_stock(current_organization)
+            %>
+            <tr>
+              <td>
+                <% if fulfillment.open? %>
+                  <%= check_box_tag "fulfillment_ids[]", fulfillment.id, false,
+                                    form: "reward-fulfillment-batch-form",
+                                    aria: { label: t("decidim.bih.admin.goodwill.index.select_reward", reward: reward_name) } %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td><%= l(fulfillment.created_at, format: :short) %></td>
+              <td><%= fulfillment.user.try(:name) || fulfillment.user.try(:nickname) || "##{fulfillment.decidim_user_id}" %></td>
+              <td><%= reward_name %></td>
+              <td><%= number_with_delimiter(fulfillment.cost, delimiter: ".") %></td>
+              <td>
+                <% if reward.nil? %>
+                  <%= t("decidim.bih.admin.goodwill.index.stock_unknown") %>
+                <% elsif reward.stock.blank? %>
+                  <%= t("decidim.bih.admin.goodwill.index.stock_unlimited") %>
+                <% elsif fulfillment.status.in?(%w(canceled reversed)) %>
+                  <%= t("decidim.bih.admin.goodwill.index.stock_released") %>
+                <% else %>
+                  <%= t("decidim.bih.admin.goodwill.index.stock_remaining",
+                        remaining: remaining_stock,
+                        total: reward.stock) %>
+                <% end %>
+                <% if fulfillment.reward_expires_at.present? %>
+                  <br>
+                  <small>
+                    <%= t("decidim.bih.admin.goodwill.index.reward_expires_at",
+                          date: l(fulfillment.reward_expires_at, format: :short)) %>
+                  </small>
+                <% end %>
+              </td>
+              <td><%= t("decidim.bih.admin.goodwill.index.reward_status.#{fulfillment.status}", default: fulfillment.status) %></td>
+              <td>
+                <% if fulfillment.handled_at.present? %>
+                  <%= fulfillment.handled_by.try(:name) || fulfillment.handled_by.try(:nickname) || "##{fulfillment.handled_by_id}" %><br>
+                  <small><%= l(fulfillment.handled_at, format: :short) %></small>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td>
+                <% recent_events = fulfillment.events.sort_by { |event| [event.occurred_at, event.id || 0] }.last(3).reverse %>
+                <% if recent_events.any? %>
+                  <ul style="margin:0; padding-left:1rem;">
+                    <% recent_events.each do |event| %>
+                      <li>
+                        <strong><%= t("decidim.bih.admin.goodwill.events.types.#{event.event_type}", default: event.event_type) %></strong>
+                        <small>
+                          <%= l(event.occurred_at, format: :short) %>,
+                          <%= event.actor_label %>
+                          <% if event.metadata["action"].present? %>
+                            · <%= t("decidim.bih.admin.goodwill.events.actions.#{event.metadata["action"]}", default: event.metadata["action"]) %>
+                          <% end %>
+                        </small>
+                      </li>
+                    <% end %>
+                  </ul>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                <% if fulfillment.user && bih_allowed?(:operator_message_send) %>
+                  <%= link_to t("decidim.bih.admin.citizens.show.message_user"),
+                              new_operator_message_path(context_type: "reward_fulfillment", context_id: fulfillment.id),
+                              class: "button button__sm button__transparent-secondary" %>
+                <% end %>
+                <% if fulfillment.status == "requested" && bih_allowed?(:reward_fulfillment_update) %>
+                  <%= button_to t("decidim.bih.admin.goodwill.index.reserve_reward"),
+                                update_reward_fulfillment_goodwill_path(id: fulfillment.id,
+                                                                        status: "reserved",
+                                                                        reward_fulfillment_status: @reward_fulfillment_status_filter,
+                                                                        reward_key: @reward_fulfillment_reward_filter),
+                                method: :post, class: "button button__sm button__secondary" %>
+                <% end %>
+                <% if fulfillment.open? && bih_allowed?(:reward_fulfillment_update) %>
+                  <%= button_to t("decidim.bih.admin.goodwill.index.fulfill_reward"),
+                                update_reward_fulfillment_goodwill_path(id: fulfillment.id,
+                                                                        status: "fulfilled",
+                                                                        reward_fulfillment_status: @reward_fulfillment_status_filter,
+                                                                        reward_key: @reward_fulfillment_reward_filter),
+                                method: :post, class: "button button__sm button__secondary mi-admin-action--success" %>
+                <% end %>
+                <% if fulfillment.open? && bih_allowed?(:goodwill_reverse_transaction) %>
+                  <details style="max-width:12rem;">
+                    <summary><%= t("decidim.bih.admin.goodwill.index.cancel_reward") %></summary>
+                  <%= form_tag(update_reward_fulfillment_goodwill_path(id: fulfillment.id, status: "canceled"), method: :post, class: "form form-defaults") do %>
+                    <%= hidden_field_tag :reward_fulfillment_status, @reward_fulfillment_status_filter %>
+                    <%= hidden_field_tag :reward_key, @reward_fulfillment_reward_filter %>
+                    <label for="reward_fulfillment_<%= fulfillment.id %>_private_reason">
+                      <%= t("decidim.bih.admin.private_action_reason.label", default: "Private operator reason") %>
+                    </label>
+                    <%= text_field_tag :private_reason,
+                                       nil,
+                                       id: "reward_fulfillment_#{fulfillment.id}_private_reason",
+                                       required: true,
+                                       maxlength: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH %>
+                    <small><%= t("decidim.bih.admin.private_action_reason.help",
+                                 count: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH,
+                                 default: "Required for cancellation or reversal (maximum %{count} characters). Stored in the private operator audit.") %></small>
+                    <%= submit_tag t("decidim.bih.admin.goodwill.index.cancel_reward"),
+                                   class: "button button__sm button__transparent-secondary mi-admin-action--danger",
+                                   data: {
+                                     confirm: t(
+                                       "decidim.bih.admin.goodwill.index.cancel_reward_confirm",
+                                       points: fulfillment.cost,
+                                       default: "Cancel this reward request and refund %{points} points? The citizen may be notified."
+                                     )
+                                   } %>
+                  <% end %>
+                  </details>
+                <% end %>
+                <% unless fulfillment.open? || bih_allowed?(:reward_fulfillment_update) || bih_allowed?(:goodwill_reverse_transaction) %>
+                  —
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.goodwill.index.no_reward_fulfillments") %></p></div>
+  <% end %>
+</div>
+<% end %>
+
+<% if @active_goodwill_tab == "reports" %>
+<div class="card" id="goodwill-report-forwarding-failures">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.report_forwarding_failures_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.goodwill.index.report_forwarding_failures_intro") %></p>
+    <% if @report_forwarding_failures_total > 0 %>
+      <p><em><%= t("decidim.bih.admin.goodwill.index.showing_n_of_m", shown: @report_forwarding_failures.size, total: @report_forwarding_failures_total) %></em></p>
+    <% end %>
+  </div>
+  <% if @report_forwarding_failures.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.report_reference") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.last_failure") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.failure_count") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @report_forwarding_failures.each do |report| %>
+            <tr>
+              <td><%= report.reference %></td>
+              <td><%= l(report.forwarding_failed_at, format: :short) if report.forwarding_failed_at %></td>
+              <td><%= report.forwarding_failure_count.to_i %></td>
+              <td>
+                <%= link_to t("decidim.bih.admin.goodwill.index.review_report"),
+                            admin_bih_report_path(reference: report.reference),
+                            class: "button button__sm button__transparent-secondary" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.goodwill.index.no_report_forwarding_failures") %></p></div>
+  <% end %>
+</div>
+
+<div class="card" id="goodwill-stale-reports">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.stale_reports_title") %></h2>
+  </div>
+  <div class="card-section">
+    <% if @stale_reports_count > 0 %>
+      <p>
+        <%= t("decidim.bih.admin.goodwill.stale_reports_count", count: @stale_reports_count) %>
+        <% if @oldest_stale_report %>
+          <%= t("decidim.bih.admin.goodwill.stale_oldest",
+                reference: @oldest_stale_report.reference,
+                date: l(@oldest_stale_report.created_at, format: :short)) %>
+        <% end %>
+      </p>
+      <%= link_to t("decidim.bih.admin.goodwill.manage_stale_reports"),
+                  admin_bih_reports_path,
+                  class: "button button__sm button__transparent-secondary" %>
+    <% else %>
+      <p><%= t("decidim.bih.admin.goodwill.no_stale_reports") %></p>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<% if @active_goodwill_tab == "overview" %>
+<div class="card" id="goodwill-top-earners">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.top_earners") %></h2>
+  </div>
+  <% if @top_earners.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.citizen") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.contribution") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @top_earners.each do |row| %>
+            <tr>
+              <td><%= row[:owner_name] || "##{row[:owner_id]}" %></td>
+              <td><%= number_with_delimiter(row[:score], delimiter: ".") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.goodwill.index.no_earners") %></p></div>
+  <% end %>
+</div>
+<% end %>
+
+<% if @active_goodwill_tab == "overview" %>
+<div class="card" id="goodwill-volunteering-handoff">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.volunteering_handoff_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.goodwill.index.volunteering_handoff_body") %></p>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+      <%= link_to t("decidim.bih.admin.goodwill.index.pending_opportunities"),
+                  admin_bih_volunteering_path(subqueue: "pending_opportunities"),
+                  class: "button button__sm button__transparent-secondary" %>
+      <%= link_to t("decidim.bih.admin.goodwill.index.pending_logs"),
+                  admin_bih_volunteering_path(subqueue: "pending_logs"),
+                  class: "button button__sm button__transparent-secondary" %>
+    </div>
+  </div>
+</div>
+<% end %>
+
+<% if %w(overview ledger).include?(@active_goodwill_tab) %>
+<div class="card" id="goodwill-redemptions">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.recent_redemptions") %></h2>
+  </div>
+  <% if @recent_redemptions.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.when") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.reason") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_redemptions.each do |txn| %>
+            <tr>
+              <td><%= l(txn.created_at, format: :short) %></td>
+              <td><%= txn.reason %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.goodwill.index.no_redemptions") %></p></div>
+  <% end %>
+</div>
+<% end %>
+
+<% if @active_goodwill_tab == "ledger" %>
+<div class="card" id="goodwill-transactions">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill.index.recent_transactions") %></h2>
+  </div>
+  <%= form_tag goodwill_dashboard_path, method: :get, class: "form form-defaults" do %>
+    <%= hidden_field_tag :tab, "ledger" %>
+    <%= select_tag :history_kind, options_for_select([[t("decidim.bih.admin.goodwill.index.history_all"), ""]] + Decidim::Bih::Goodwill::Transaction::KINDS.map { |kind| [t("decidim.bih.admin.goodwill.index.kinds.#{kind}", default: kind), kind] }, params[:history_kind]) %>
+    <%= submit_tag t("decidim.bih.admin.goodwill.index.history_filter"), class: "button button__sm button__secondary" %>
+  <% end %>
+  <%= paginate @recent_transactions, param_name: :history_page %>
+  <% if @recent_transactions.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.when") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.kind") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.reason") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_transactions.each do |txn| %>
+            <tr>
+              <td><%= l(txn.created_at, format: :short) %></td>
+              <td><%= txn.kind %></td>
+              <td><%= txn.reason %></td>
+              <td>
+                <% if !txn.reversing? && bih_allowed?(:goodwill_reverse_transaction) %>
+                  <%= form_tag(reverse_transaction_goodwill_path(id: txn.id), method: :post, class: "form form-defaults") do %>
+                    <label for="transaction_<%= txn.id %>_private_reason">
+                      <%= t("decidim.bih.admin.private_action_reason.label", default: "Private operator reason") %>
+                    </label>
+                    <%= text_field_tag :private_reason,
+                                       nil,
+                                       id: "transaction_#{txn.id}_private_reason",
+                                       required: true,
+                                       maxlength: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH %>
+                    <small><%= t("decidim.bih.admin.private_action_reason.help",
+                                 count: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH,
+                                 default: "Required for cancellation or reversal (maximum %{count} characters). Stored in the private operator audit.") %></small>
+                    <%= submit_tag t("decidim.bih.admin.goodwill.index.reverse"),
+                                   data: { confirm: t("decidim.bih.admin.goodwill.index.reverse_confirm") },
+                                   class: "button button__sm button__transparent-secondary mi-admin-action--danger" %>
+                  <% end %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.goodwill.index.no_transactions") %></p></div>
+  <% end %>
+</div>
+<% end %>

@@ -1,0 +1,16 @@
+<% w = "decidim.bih.review_workspace" %>
+<% add_decidim_page_title(t("#{w}.batch.results")) %>
+<link rel="stylesheet" href="/mi/report-review-batch.css?v=1">
+<div class="report-batch-page">
+<h1><%= t("#{w}.batch.results") %></h1>
+<p><%= t("#{w}.batch.results_help") %></p>
+<ul>
+<% @results.each do |row| %><li>
+<strong><%= row.reference.presence || t("#{w}.batch.unknown") %></strong> — <%= t("#{w}.batch.states.#{row.state}") %>
+<% if row.error %><p><%= row.error %></p><% end %>
+<% if row.reference.present? %><%= link_to t("#{w}.open"), admin_bih_report_path(reference: row.reference, return_to: @queue_context.path) %><% end %>
+</li><% end %>
+</ul>
+<%= link_to t("#{w}.batch.back"), admin_bih_report_review_batch_path(return_to: @queue_context.path) %>
+
+</div>

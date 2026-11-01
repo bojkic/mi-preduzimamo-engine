@@ -1,0 +1,45 @@
+en:
+  decidim:
+    bih:
+      admin:
+        concierge_metrics:
+          title: Milica answer metrics
+          intro: Counts of recorded answer boundaries for complete days. The table
+            and CSV use the same filters and denominator.
+          limits: Captured and legacy cohorts overlap and must not be added together.
+            Unclassified traffic may include testing. Outcomes do not measure helpfulness,
+            factual accuracy, unique people or sessions. Legacy releases are rollup
+            checkout stamps; captured releases are process boot checkout stamps. Missing
+            buckets do not establish zero demand. Legacy counters were global and
+            assigned to an organization only at rollup; captured counters are partitioned
+            by organization.
+          period: Complete days
+          cohort: Measurement cohort
+          traffic: Traffic provenance
+          apply: Apply
+          sample: Recorded answers in the sample
+          unknown: Unknown / withheld
+          suppression: Buckets below %{minimum} recorded answers and the exact total
+            are withheld. Hidden bucket labels are not exported.
+          cohorts:
+            captured: Captured topic and facet
+            legacy: Legacy counts (dimensions unknown)
+          traffic_kinds:
+            all: All recorded traffic
+            unclassified: Unclassified (testing may be included)
+            synthetic: Explicitly marked synthetic
+          statuses:
+            recorded_buckets_only: Observed buckets only; completeness is not established.
+            not_recorded: No rolled-up evidence in this window; demand is unknown.
+            unsupported_legacy_filter: Historical synthetic provenance was not recorded;
+              this filter is unavailable.
+          fields:
+            topic: Topic
+            facet: Question facet
+            typed_outcome: Typed outcome
+            traffic_kind: Traffic provenance
+            release_sha: Process / rollup checkout
+            count: Recorded answers
+        analytics:
+          datasets:
+            mi_bot_metrics: Milica answer metrics

@@ -1,0 +1,193 @@
+<%#
+  "Trka komšiluka" — ONE table, TWO winners.
+
+  The two leader cards are not decoration: without them a selo komšiluk reads
+  itself off the bottom of a single long list and gives up, even though it only
+  ever competes against other selo komšiluci.
+
+  Everything here comes from the cached Race::Standing rows. No scoring happens
+  during a request.
+
+  LAYOUT follows the leaderboard and rewards tabs — strip card, centred header,
+  pill sub-filter, one <ol> of rows — because they sit behind neighbouring tabs
+  of the same hub and a citizen should not have to re-learn the page. The seven
+  columns of the old <table> became a rank badge, a name with its breakdown
+  underneath and the score on the right: the same anatomy as /tabla, and it
+  survives a 320px phone, which a seven-column table never did.
+
+  URLS: the zone filters and "prikaži sve" are built through a `race_url`
+  lambda so the same table can hang under a different route. The hub passes
+  nothing and gets its own ?tab=trka links; the host's /trka page passes a
+  builder pointing at itself. Keep it a lambda of one Hash, not a base string —
+  the two routes spell their parameters differently.
+%>
+<%
+  race_url = local_assigns.fetch(:race_url) do
+    ->(opts) { community_hub_path(**opts.merge(tab: "trka")) }
+  end
+
+  # A host page that already carries the race title, lead and countdown in its
+  # own hero passes false rather than printing all three of them twice.
+  race_show_header = local_assigns.fetch(:show_header, true)
+
+  # Rank shown is the in-zone rank when a zone filter is on, so filtering
+  # renumbers 1..n inside that league instead of showing gapped overall ranks.
+  race_visible_limit = params[:sve].present? ? @race_rows.size : 15
+  race_shown = @race_rows.first(race_visible_limit)
+  race_zone_labels = Decidim::Bih::LocalArea::ZONES.index_with do |zone|
+    t("decidim.bih.community_hub.race.zone.#{zone}", default: zone.to_s)
+  end
+%>
+<% if @race_scores_visible == false %>
+  <p class="mi-race__hidden"><%= t("decidim.bih.community_hub.race.hidden") %></p>
+  <% (@race_winners || {}).each do |zone, name| %>
+    <% if name %><p><%= t("decidim.bih.community_hub.race.zone.#{zone}") %>: <strong><%= name %></strong></p><% end %>
+  <% end %>
+<% else %>
+<section class="mi-race" id="trka">
+  <div class="mi-surface-card mi-surface-card--strip mi-community-panel">
+    <div class="mi-card-strip acc-coral"></div>
+    <div class="mi-surface-card__body mi-community-panel__body">
+
+      <% if race_show_header %>
+      <header class="mi-race__head">
+        <p class="mi-eyebrow"><%= t("decidim.bih.community_hub.race.eyebrow") %></p>
+        <h2 class="heading3"><%= t("decidim.bih.community_hub.race.title") %></h2>
+        <p class="mi-race__rule"><%= t("decidim.bih.community_hub.race.rule", registration_points: @race_config.weights[:registered], report_points: @race_config.weights[:report], proposal_points: @race_config.weights[:proposal], report_cap: @race_config.caps[:report], proposal_cap: @race_config.caps[:proposal]) %></p>
+        <p class="mi-race__clock">
+          <% if @race_frozen %>
+            <strong><%= t("decidim.bih.community_hub.race.finished") %></strong>
+          <% elsif @race_closed %>
+            <strong><%= t("decidim.bih.community_hub.race.under_review") %></strong>
+          <% else %>
+            <strong><%= t("decidim.bih.community_hub.race.remaining",
+                          time: distance_of_time_in_words(Time.current, @race_config.window_to)) %></strong>
+          <% end %>
+          <% if @race_computed_at %>
+            <span class="mi-race__updated">
+              <%= t("decidim.bih.community_hub.race.updated_at", time: l(@race_computed_at, format: :short)) %>
+            </span>
+          <% end %>
+        </p>
+      </header>
+      <% end %>
+
+      <div class="mi-race__leaders">
+        <% Decidim::Bih::LocalArea::ZONES.each do |zone| %>
+          <% leader = @race_leaders[zone] %>
+          <article class="mi-race__leader mi-race__leader--<%= zone %>">
+            <span class="mi-race__leader-medal" aria-hidden="true"><%= zone == "grad" ? "🏙️" : "🌾" %></span>
+            <span class="mi-race__leader-body">
+              <span class="mi-race__leader-label">
+                <%= t("decidim.bih.community_hub.race.leader_#{zone}") %>
+              </span>
+              <% if leader %>
+                <strong class="mi-race__leader-name"><%= leader.display_name %></strong>
+                <span class="mi-race__leader-score">
+                  <%= number_with_delimiter(leader.score, delimiter: ".") %>
+                  <span><%= t("decidim.bih.community_hub.race.columns.score").downcase %></span>
+                </span>
+              <% else %>
+                <strong class="mi-race__leader-name mi-race__leader-name--empty">
+                  <%= t("decidim.bih.community_hub.race.empty") %>
+                </strong>
+              <% end %>
+            </span>
+          </article>
+        <% end %>
+      </div>
+
+      <nav class="mi-race__filter" aria-label="<%= t("decidim.bih.community_hub.race.columns.zona") %>">
+        <%= link_to t("decidim.bih.community_hub.race.filter_all"),
+                    race_url.call({}),
+                    class: "mi-race__pill #{"is-active" if @race_zone.blank?}",
+                    "aria-current": (@race_zone.blank? ? "true" : nil) %>
+        <% Decidim::Bih::LocalArea::ZONES.each do |zone| %>
+          <%= link_to t("decidim.bih.community_hub.race.filter_#{zone}"),
+                      race_url.call(zona: zone),
+                      class: "mi-race__pill #{"is-active" if @race_zone == zone}",
+                      "aria-current": (@race_zone == zone ? "true" : nil) %>
+        <% end %>
+      </nav>
+
+      <% if @race_viewer_row %>
+        <p class="mi-race__mine">
+          <span class="mi-race__mine-label"><%= t("decidim.bih.community_hub.race.your_komsiluk") %></span>
+          <strong><%= @race_viewer_row.display_name %></strong>
+          <span class="mi-race__mine-rank">
+            <%= t("decidim.bih.community_hub.race.position_overall", rank: @race_viewer_row.rank_overall) %>
+            &middot;
+            <%= t("decidim.bih.community_hub.race.position_in_zone",
+                  rank: @race_viewer_row.rank_in_zone,
+                  zone: race_zone_labels[@race_viewer_row.zona] || @race_viewer_row.zona.to_s) %>
+          </span>
+        </p>
+      <% end %>
+
+      <%# The rank is the reason a citizen is on this tab, and a registration is
+          worth a point, so the one action that moves the number belongs directly
+          under it. Signed-in only: the invite tab hands out a link built from the
+          citizen's own nickname, which a visitor does not have. %>
+      <% if @race_viewer_row && !@race_frozen %>
+        <p class="mi-race__invite">
+          <% unless @race_closed %>
+          <%= link_to t("decidim.bih.community_hub.race.invite_cta"),
+                      Decidim::Bih.invite_path,
+                      class: "mi-btn mi-btn--primary mi-btn--sm" %>
+          <span class="mi-race__invite-hint"><%= t("decidim.bih.community_hub.race.invite_hint", points: @race_referral_points) %></span>
+          <% end %>
+        </p>
+      <% end %>
+
+      <% if race_shown.empty? %>
+        <div class="mi-race__empty">
+          <p class="mi-race__empty-mark" aria-hidden="true">🌱</p>
+          <p class="mi-race__empty-text"><%= t("decidim.bih.community_hub.race.empty") %></p>
+        </div>
+      <% else %>
+        <ol class="mi-race__list">
+          <% race_shown.each do |row| %>
+            <%
+              rank = @race_zone.present? ? row.rank_in_zone : row.rank_overall
+              medal = { 1 => "mi-race__rank--gold", 2 => "mi-race__rank--silver", 3 => "mi-race__rank--bronze" }[rank]
+              mine = @race_viewer_row && row.komsiluk_id == @race_viewer_row.komsiluk_id
+            %>
+            <li class="mi-race__row <%= "is-mine" if mine %>">
+              <span class="mi-race__rank <%= medal %>"><%= rank %></span>
+              <span class="mi-race__who">
+                <span class="mi-race__name">
+                  <%= row.display_name %>
+                  <span class="mi-race__zone-tag"><%= race_zone_labels[row.zona] || row.zona.to_s %></span>
+                </span>
+                <%# The score formula in longhand, so a komšiluk can see WHICH
+                    of the three numbers it is behind on rather than only that
+                    it is behind. Same three counts the old columns carried. %>
+                <span class="mi-race__breakdown">
+                  <%= row.registered %> <%= t("decidim.bih.community_hub.race.columns.registered").downcase %>
+                  &middot;
+                  <%= row.reports %> <%= t("decidim.bih.community_hub.race.columns.reports").downcase %>
+                  &middot;
+                  <%= row.proposals %> <%= t("decidim.bih.community_hub.race.columns.proposals").downcase %>
+                </span>
+              </span>
+              <span class="mi-race__score">
+                <%= number_with_delimiter(row.score, delimiter: ".") %>
+                <span><%= t("decidim.bih.community_hub.race.columns.score").downcase %></span>
+              </span>
+            </li>
+          <% end %>
+        </ol>
+      <% end %>
+
+      <% if @race_rows.size > race_visible_limit %>
+        <p class="mi-race__more">
+          <%= link_to t("decidim.bih.community_hub.race.show_all"),
+                      race_url.call(zona: @race_zone, sve: 1),
+                      class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+        </p>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<% end %>

@@ -1,0 +1,28 @@
+<%#
+  Verification-method nudge: shown to a signed-in citizen who has completed
+  neither phone nor postal verification. Individual features may still require
+  phone specifically, so the linked explainer owns the entitlement details.
+%>
+<%
+  viewer =
+    if current_user && current_organization && current_user.respond_to?(:organization) && current_user.organization == current_organization
+      current_user
+    elsif current_user && current_organization && current_user.respond_to?(:decidim_organization_id) && current_user.decidim_organization_id == current_organization.id
+      current_user
+    end
+%>
+<% if viewer && Decidim::Authorization.where(user: viewer, name: %w[sms postal_letter]).where.not(granted_at: nil).none? %>
+  <div style="background: #fdf6d6; border: 1px solid var(--mi-line); border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1.1rem; color: var(--mi-navy-700); display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+    <span style="flex: 1 1 auto;">
+      <strong><%= t("decidim.bih.goodwill.verify_cta.title") %></strong>
+      <%= t("decidim.bih.goodwill.verify_cta.message") %>
+    </span>
+    <span style="flex: 0 0 auto; display: inline-flex; gap: 0.5rem; align-items: center;">
+      <%= link_to t("decidim.bih.goodwill.verify_cta.action"), decidim_verifications.authorizations_path,
+                  class: "button button__sm",
+                  style: "background: var(--mi-navy-700); border-color: var(--mi-navy-700);" %>
+      <%= link_to t("decidim.bih.goodwill.verify_cta.why"), decidim_bih.verification_explainer_path,
+                  style: "color: var(--mi-navy-700); text-decoration: underline; font-size: 0.85rem; font-weight: 700;" %>
+    </span>
+  </div>
+<% end %>

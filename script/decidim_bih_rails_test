@@ -1,0 +1,227 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -d "${RBENV_ROOT:-${HOME}/.rbenv}" ]]; then
+  export RBENV_ROOT="${RBENV_ROOT:-${HOME}/.rbenv}"
+  export PATH="$RBENV_ROOT/versions/${RUBY_VERSION:-3.4.12}/bin:$PATH"
+fi
+
+if [[ -n "${DECIDIM_BIH_RAILS_TEST_ENV_FILE:-}" ]]; then
+  # shellcheck source=/dev/null
+  source "$DECIDIM_BIH_RAILS_TEST_ENV_FILE"
+fi
+
+ENGINE_ROOT="${ENGINE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+# Fail before generating a host when Redis is not an explicit test endpoint.
+# rails_test/test_helper.rb repeats this check before the host boots. Like the
+# helper, the guard child runs without gems and without an inherited RUBYOPT or
+# RUBYLIB (a bundler/setup or -r preload must not decide what it loads). Exit 3 means
+# the guard refused; any other failure means the check itself broke. Both stop.
+redis_guard_status=0
+env -u RUBYOPT -u RUBYLIB ruby --disable-gems -I"$ENGINE_ROOT/lib" -rdecidim/bih/redis_endpoint \
+  -e 'begin; Decidim::Bih::RedisEndpoint.guard_test_environment!(ENV); rescue Decidim::Bih::RedisEndpoint::Error => e; warn "Refusing test Redis configuration: #{e.message}"; exit 3; end' \
+  || redis_guard_status=$?
+if [[ "$redis_guard_status" -ne 0 ]]; then
+  if [[ "$redis_guard_status" -ne 3 ]]; then
+    echo "Redis guard check crashed (exit $redis_guard_status); refusing to generate a host." >&2
+  fi
+  exit 64
+fi
+DATABASE_HELPER="$ENGINE_ROOT/script/decidim_bih_generated_host_database"
+# shellcheck source=decidim_bih_generated_host_database
+source "$DATABASE_HELPER"
+WORK_ROOT="${WORK_ROOT:-${TMPDIR:-/tmp}/decidim-bih-rails-test}"
+RUN_NONCE="${DECIDIM_BIH_GENERATED_HOST_NONCE:-${BASHPID}_${RANDOM}_${RANDOM}}"
+APP_NAME="${APP_NAME:-decidim_bih_rails_test_$(date -u +%Y%m%d%H%M%S)_${RUN_NONCE}}"
+APP_ROOT="$WORK_ROOT/$APP_NAME"
+WRAPPER_ROOT="$WORK_ROOT/npm-wrapper-$APP_NAME"
+MOUNT_PATH="${MOUNT_PATH:-/moja-platforma}"
+SHORT_MAGIC_LINKS="${SHORT_MAGIC_LINKS:-0}"
+KEEP_WORKDIR="${KEEP_DECIDIM_BIH_RAILS_TEST:-0}"
+export npm_config_omit="${npm_config_omit:-dev}"
+
+log() {
+  printf '[decidim-bih-rails-test] %s\n' "$*"
+}
+
+require_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    printf 'Missing required command: %s\n' "$1" >&2
+    exit 127
+  fi
+}
+
+resolve_decidim_executable() {
+  if [[ -n "${DECIDIM_EXECUTABLE:-}" ]]; then
+    printf '%s\n' "$DECIDIM_EXECUTABLE"
+    return
+  fi
+
+  (
+    cd "$ENGINE_ROOT"
+    bundle exec ruby -e 'spec = Gem::Specification.find_by_name("decidim-generators"); print File.join(spec.gem_dir, spec.bindir, "decidim")'
+  )
+}
+
+truthy() {
+  [[ "$1" =~ ^(1|true|yes)$ ]]
+}
+
+decidim_bih_prepare_database_isolation rails_test "$APP_NAME"
+
+cleanup() {
+  local status=$?
+  local cleanup_status=0
+  local isolation_target
+
+  (
+    cd "$ENGINE_ROOT"
+    unset BUNDLE_GEMFILE
+    decidim_bih_cleanup_database_isolation >/dev/null 2>&1
+  ) || cleanup_status=$?
+
+  if [[ "$cleanup_status" != "0" ]]; then
+    isolation_target="${DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA:-${DECIDIM_BIH_GENERATED_HOST_TARGET_DATABASE:-unknown}}"
+    printf 'Failed to clean generated-host database isolation mode=%s target=%s status=%s\n' \
+      "${DECIDIM_BIH_GENERATED_HOST_DATABASE_MODE:-unknown}" "$isolation_target" "$cleanup_status" >&2
+    [[ "$status" != "0" ]] || status="$cleanup_status"
+  fi
+
+  if truthy "$KEEP_WORKDIR"; then
+    log "kept workdir: $APP_ROOT"
+    exit "$status"
+  fi
+
+  rm -rf "$APP_ROOT"
+  rm -rf "$WRAPPER_ROOT"
+  exit "$status"
+}
+
+trap cleanup EXIT
+
+require_command bundle
+require_command npm
+require_command ruby
+
+DECIDIM_EXECUTABLE="$(resolve_decidim_executable)"
+if [[ ! -x "$DECIDIM_EXECUTABLE" ]]; then
+  printf 'Resolved Decidim generator is not executable: %s\n' "$DECIDIM_EXECUTABLE" >&2
+  exit 127
+fi
+
+mkdir -p "$WORK_ROOT"
+rm -rf "$APP_ROOT"
+rm -rf "$WRAPPER_ROOT"
+
+REAL_NPM_PATH="$(command -v npm)"
+DECIDIM_NPM_VERSION="${DECIDIM_NPM_VERSION:-0.32.2}"
+export REAL_NPM_PATH DECIDIM_NPM_VERSION
+mkdir -p "$WRAPPER_ROOT"
+cat > "$WRAPPER_ROOT/npm" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -f package.json ]]; then
+  ruby -rjson -e '
+    path = "package.json"
+    version = ENV.fetch("DECIDIM_NPM_VERSION")
+    package = JSON.parse(File.read(path))
+    %w[dependencies devDependencies].each do |section|
+      next unless package[section].is_a?(Hash)
+
+      package[section].each do |name, value|
+        next unless name.start_with?("@decidim/") && value.to_s.start_with?("file:packages/")
+
+        package[section][name] = version
+      end
+    end
+    File.write(path, "#{JSON.pretty_generate(package)}\n")
+  '
+fi
+
+exec "$REAL_NPM_PATH" "$@"
+SH
+chmod +x "$WRAPPER_ROOT/npm"
+export PATH="$WRAPPER_ROOT:$PATH"
+
+log "generating disposable Decidim host: $APP_ROOT"
+(
+  cd "$WORK_ROOT"
+  "$DECIDIM_EXECUTABLE" "$APP_NAME" --force_ssl=false --locales=en,bs,hr,sr
+)
+
+cd "$APP_ROOT"
+decidim_bih_patch_generated_database_config "config/database.yml"
+decidim_bih_install_schema_extension_guard "config/initializers/decidim_bih_generated_host_database_guard.rb"
+
+log "registering Decidim's SMS verification workflow like the production host"
+cat > "config/initializers/decidim_bih_generated_host_sms.rb" <<'RUBY'
+# frozen_string_literal: true
+
+# Mirrors the production host (config/initializers/decidim_sms.rb): the SMS
+# verification workflow registers only when a gateway is configured.
+Decidim.sms_gateway_service = "Decidim::Bih::Sms::InfobipGateway"
+RUBY
+
+log "creating disposable test database isolation"
+decidim_bih_preflight_database_isolation "db/migrate"
+decidim_bih_create_database_isolation
+
+log "migrating generated Decidim baseline"
+baseline_migration_log="tmp/decidim_bih_rails_test_baseline_db_migrate.log"
+if ! env RAILS_ENV=test DISABLE_SPRING=1 bin/rails db:migrate > "$baseline_migration_log" 2>&1; then
+  tail -200 "$baseline_migration_log" >&2 || true
+  exit 1
+fi
+
+log "adding decidim-bih from $ENGINE_ROOT"
+ruby -e 'path = ARGV.fetch(0); File.open("Gemfile", "a") { |file| file.puts; file.puts %(gem "decidim-bih", path: "#{path}") }' "$ENGINE_ROOT"
+
+log "installing generated host bundle"
+read -r -a bundle_install_flags <<< "${BUNDLE_INSTALL_FLAGS:-}"
+bundle install "${bundle_install_flags[@]}"
+
+generator_args=(--mount-path="$MOUNT_PATH")
+if truthy "$SHORT_MAGIC_LINKS"; then
+  generator_args+=(--short-magic-links)
+else
+  generator_args+=(--no-short-magic-links)
+fi
+
+log "running decidim:bih:install ${generator_args[*]}"
+env DISABLE_SPRING=1 bin/rails generate decidim:bih:install "${generator_args[@]}"
+
+log "mounting Decidim::Bih::Engine before Decidim root"
+export MOUNT_PATH SHORT_MAGIC_LINKS
+ruby <<'RUBY'
+path = "config/routes.rb"
+routes = File.read(path)
+core_route = /^\s*mount Decidim::Core::Engine => ['"]\/['"].*$/
+abort "Could not find Decidim::Core root mount in #{path}" unless routes.match?(core_route)
+
+short_magic_links = !ENV.fetch("SHORT_MAGIC_LINKS", "0").match?(/\A(false|0|no)\z/i)
+insert = %(  mount Decidim::Bih::Engine => "#{ENV.fetch("MOUNT_PATH")}"\n)
+if short_magic_links
+  insert << %(  get "/v/:token", to: "decidim/bih/magic_links#show"\n)
+  insert << %(  post "/v/:token", to: "decidim/bih/magic_links#consume"\n)
+end
+
+routes = routes.sub(core_route) { |line| routes.include?("Decidim::Bih::Engine") ? line : "#{insert}#{line}" }
+File.write(path, routes)
+RUBY
+
+log "migrating disposable test database with decidim-bih"
+decidim_bih_preflight_database_isolation "db/migrate"
+migration_log="tmp/decidim_bih_rails_test_db_migrate.log"
+if ! env RAILS_ENV=test DISABLE_SPRING=1 bin/rails db:migrate > "$migration_log" 2>&1; then
+  tail -200 "$migration_log" >&2 || true
+  exit 1
+fi
+
+log "running Rails-backed test harness"
+test_files=("$ENGINE_ROOT"/rails_test/*_test.rb)
+env RAILS_ENV=test DISABLE_SPRING=1 PARALLEL_WORKERS=1 \
+  DECIDIM_BIH_RAILS_APP="$APP_ROOT" ENGINE_ROOT="$ENGINE_ROOT" \
+  ruby -I"$ENGINE_ROOT/rails_test" -e 'ARGV.each { |file| require File.expand_path(file) }' "${test_files[@]}"
+
+log "Rails-backed test harness passed"

@@ -1,0 +1,78 @@
+<% add_decidim_page_title(t("decidim.bih.komsiluk_board.index.title")) %>
+<%= render "assets" %>
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide mi-board" data-board-draft-scope="<%= current_organization.id %>:<%= current_user.id %>:<%= @citizen_profile.komsiluk_id %>">
+    <header class="mi-surface-header mi-board-header">
+      <div>
+        <p class="mi-eyebrow"><%= @citizen_profile.komsiluk.translated_name %></p>
+        <h1><%= t("decidim.bih.komsiluk_board.index.title") %></h1>
+      </div>
+      <p class="mi-surface-header__intro"><%= board_t("intro") %></p>
+    </header>
+    <div class="mi-board-toolbar">
+      <nav class="mi-filter-pills" aria-label="<%= board_t('views') %>">
+        <%= link_to t("decidim.bih.komsiluk_board.index.all_categories"), decidim_bih.komsiluk_board_index_path,
+                    class: "mi-filter-pill #{'is-active' unless @mine}", aria: { current: (@mine ? nil : 'page') } %>
+        <%= link_to t("decidim.bih.komsiluk_board.index.my_posts"), decidim_bih.komsiluk_board_index_path(view: 'mine'),
+                    class: "mi-filter-pill #{'is-active' if @mine}", aria: { current: (@mine ? 'page' : nil) } %>
+      </nav>
+      <div class="mi-board-actions">
+      <%= link_to board_t("compose"), decidim_bih.komsiluk_board_index_path(board_filter_params.merge(compose: 1, anchor: "komsiluk-compose")), class: "mi-btn mi-btn--primary", data: { board_compose: true } %>
+        <%= link_to board_t("change_area"), decidim_bih.edit_komsiluk_path(return_to: board_list_path), class: "mi-btn mi-btn--primary" %>
+      </div>
+    </div>
+    <details id="komsiluk-compose" class="mi-board-composer" <%= 'open' if @compose_open %>>
+      <summary><%= board_t("compose") %></summary>
+      <% if @can_write %>
+        <%= render "form", editing: false %>
+      <% else %>
+        <p><%= board_t("verification.help") %></p>
+        <%= link_to board_t("verification.action"), board_verification_path, class: "mi-btn mi-btn--primary" %>
+        <%= link_to t("decidim.bih.onboarding.verification.board_link"), decidim_bih.verification_explainer_path %>
+      <% end %>
+    </details>
+    <div class="mi-board-layout">
+      <div class="mi-board-feed">
+        <% if @priority_posts.present? %>
+          <section class="mi-board-priority" aria-labelledby="board-priority-title">
+            <h2 id="board-priority-title"><%= board_t('priority') %></h2>
+            <ul><% @priority_posts.each do |post| %><li><%= link_to(board_public_source_state(post)[:updating] ? board_t("source_update.title") : post.title, decidim_bih.komsiluk_board_path(post)) %><% if !board_public_source_state(post)[:updating] && post.expires_at %><span><%= board_t('valid_until', at: board_datetime(post.expires_at)) %></span><% end %></li><% end %></ul>
+          </section>
+        <% end %>
+        <details class="mi-board-filter-panel" open data-board-filters data-board-filter-active="<%= @query.present? || @category_filter || @origin_filter || @status_filter ? '1' : '0' %>">
+          <summary><%= board_t('search') %></summary>
+          <%= form_tag decidim_bih.komsiluk_board_index_path, method: :get, class: 'mi-board-filters', role: 'search' do %>
+            <%= hidden_field_tag :view, 'mine' if @mine %>
+            <label for="board-search"><%= board_t("search") %><%= search_field_tag :q, @query, id: 'board-search', maxlength: 120 %></label>
+            <label for="board-category"><%= t('decidim.bih.komsiluk_board.index.category_label') %>
+              <%= select_tag :cat, options_for_select([[board_t('any_category'), '']] + Decidim::Bih::KomsilukPost::CATEGORIES.map { |value| [t("decidim.bih.komsiluk_board.categories.#{value}"), value] }, @category_filter), id: 'board-category' %>
+            </label>
+            <label for="board-origin"><%= board_t('origin_label') %>
+              <%= select_tag :origin, options_for_select([[board_t('any_origin'), '']] + Decidim::Bih::KomsilukPost::ORIGINS.map { |value| [board_t("origins.#{value}"), value] }, @origin_filter), id: 'board-origin' %>
+            </label>
+            <% if @mine %>
+              <label for="board-status"><%= board_t('status') %><%= select_tag :status, options_for_select([[board_t('any_status'), '']] + Decidim::Bih::KomsilukPost::STATUSES.map { |value| [t("decidim.bih.komsiluk_board.statuses.#{value}"), value] }, @status_filter), id: 'board-status' %></label>
+            <% end %>
+            <%= submit_tag board_t('filter'), class: 'mi-btn mi-btn--ghost mi-btn--sm' %>
+          <% end %>
+        </details>
+        <p class="mi-board-result-count" role="status"><%= board_t('result_count', count: @total_posts) %></p>
+        <section id="komsiluk-posts" aria-label="<%= board_t('notices') %>">
+          <% if @posts.any? %>
+            <% @posts.each do |post| %><%= render "card", post: post, detail: false %><% end %>
+          <% else %>
+            <div class="mi-empty-state">
+              <h2><%= @query.present? || @category_filter || @origin_filter || @status_filter ? board_t('filtered_empty') : t("decidim.bih.komsiluk_board.index.#{@mine ? 'my_posts_empty' : 'empty'}") %></h2>
+              <p><%= board_t('empty_help') %></p>
+              <%= link_to board_t('reset_filters'), decidim_bih.komsiluk_board_index_path(view: ('mine' if @mine)) %>
+            </div>
+          <% end %>
+        </section>
+        <% if @posts.total_pages > 1 %>
+          <nav aria-label="<%= board_t('pagination') %>"><%= paginate @posts, params: { cat: @category_filter, origin: @origin_filter, status: @status_filter, q: @query.presence, view: ('mine' if @mine) } %></nav>
+        <% end %>
+      </div>
+      <%= render 'context' %>
+    </div>
+  </div>
+</main>

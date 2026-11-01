@@ -1,0 +1,5 @@
+# Preserve verbatim upstream licence whitespace.
+public/leaflet/LICENSE whitespace=-blank-at-eol
+public/mi/fonts/JOST-OFL.txt whitespace=-blank-at-eol
+public/mi/fonts/MULISH-OFL.txt whitespace=-blank-at-eol
+public/mi/fonts/SOURCE-SANS-PRO-OFL.txt whitespace=-blank-at-eol

@@ -1,0 +1,22 @@
+<section class="card" id="admin-registration-funnel">
+  <div class="item_show__header"><h2 class="item_show__header-title"><%= t("decidim.bih.simplified_registration.analytics.title") %></h2></div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.simplified_registration.analytics.note") %></p>
+    <h3><%= t("decidim.bih.simplified_registration.analytics.waiting") %></h3>
+    <dl>
+      <% @registration_funnel.fetch("waiting").each do |bucket, count| %>
+        <dt><%= t("decidim.bih.simplified_registration.analytics.#{bucket}") %></dt><dd><%= count %></dd>
+      <% end %>
+    </dl>
+    <div class="table-stacked" style="overflow-x:auto;">
+      <table><thead><tr>
+        <% %w(day created verified komsiluk).each do |key| %><th scope="col"><%= t("decidim.bih.simplified_registration.analytics.#{key}") %></th><% end %>
+      </tr></thead><tbody>
+        <% @registration_funnel.fetch("daily").reverse_each do |row| %><tr>
+          <th scope="row"><%= row.fetch("day") %></th>
+          <% %w(created verified komsiluk).each do |key| %><td><%= row.fetch(key) %></td><% end %>
+        </tr><% end %>
+      </tbody></table>
+    </div>
+  </div>
+</section>

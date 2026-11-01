@@ -1,0 +1,106 @@
+<%#
+  "Bodovi zajedništva" hub — four deep-linkable tabs:
+    tabla   = leaderboard (default)
+    nagrade = rewards catalog
+    pozovi  = invite/referral
+    kako    = how it works
+  Each tab is server-rendered behind a ?tab= param so every URL is shareable.
+%>
+<% add_decidim_page_title(t("decidim.bih.community_hub.title")) %>
+<%
+  active_tab = @tab
+  tabs = [
+    { key: "tabla",   label: t("decidim.bih.community_hub.tabs.tabla") },
+    { key: "trka",    label: t("decidim.bih.community_hub.tabs.trka") },
+    { key: "nagrade", label: t("decidim.bih.community_hub.tabs.nagrade") },
+    { key: "podrzi", label: t("decidim.bih.wallet.show.support_org") },
+    { key: "pozovi",  label: t("decidim.bih.community_hub.tabs.pozovi") },
+    { key: "kako",    label: t("decidim.bih.community_hub.tabs.kako") }
+  ]
+  tabs.reject! { |tab| tab[:key] == "trka" } if Decidim::Bih::Race::Standings.new(current_organization).final?
+  viewer =
+    if current_user && current_organization
+      if current_user.respond_to?(:organization) && current_user.organization == current_organization
+        current_user
+      elsif current_user.respond_to?(:decidim_organization_id) && current_user.decidim_organization_id == current_organization.id
+        current_user
+      end
+    end
+%>
+<div class="wrapper mi-goodwill-page">
+  <div class="mi-surface">
+      <%= render "decidim/bih/shared/surface_header",
+                 eyebrow: t("decidim.bih.community_hub.eyebrow"),
+                 title: t("decidim.bih.community_hub.title"),
+                 intro: t("decidim.bih.community_hub.subtitle") %>
+
+      <% if viewer && @viewer_level %>
+        <section class="mi-account-panel mi-community-summary">
+          <div class="mi-account-panel__head">
+            <h2><%= t("decidim.bih.wallet.show.title", default: "Moj doprinos") %></h2>
+            <%= link_to t("decidim.bih.wallet.show.title", default: "Moj doprinos"), wallet_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+          </div>
+          <div class="mi-metric-grid">
+            <article class="mi-metric-card">
+              <strong><%= number_with_delimiter(@viewer_contribution, delimiter: ".") %></strong>
+              <span><%= t("decidim.bih.wallet.show.contribution", default: "Doprinos") %></span>
+            </article>
+            <article class="mi-metric-card">
+              <strong><%= number_with_delimiter(@viewer_balance, delimiter: ".") %></strong>
+              <span><%= t("decidim.bih.wallet.show.balance", default: "Bodovi") %></span>
+            </article>
+            <article class="mi-metric-card mi-metric-card--level">
+              <strong><%= @viewer_level.title %></strong>
+              <span><%= t("decidim.bih.account.show.dashboard.level", default: "Nivo") %></span>
+            </article>
+          </div>
+
+        </section>
+      <% end %>
+
+      <%# ---- Tab navigation --------------------------------------------- %>
+      <nav class="mi-surface-tabs mi-volunteer-tabs" aria-label="<%= t("decidim.bih.community_hub.tabs.aria") %>">
+        <% tabs.each do |tab| %>
+          <%
+            is_active = (active_tab == tab[:key])
+            href = community_hub_path(tab: tab[:key], anchor: tab[:key])
+          %>
+          <%= link_to tab[:label], href,
+                      "aria-current": (is_active ? "page" : nil),
+                      class: ["mi-surface-tab", ("is-active" if is_active)].compact.join(" ") %>
+        <% end %>
+      </nav>
+
+      <%= render "decidim/bih/community_hub/tab_content", active_tab: active_tab, viewer: viewer %>
+
+      <%#
+        Cross-module "pillars" — where the points come from. Each chip deep-links
+        to the feature that earns recognition, so the hub is a hub: report a
+        problem, volunteer, join your komšiluk, donate, and see the public impact.
+        Shown on every tab so the journey between modules always coheres.
+      %>
+      <section style="margin-top: 1.8rem;" aria-label="<%= t("decidim.bih.community_hub.pillars.aria") %>">
+        <p class="mi-eyebrow" style="text-align: center; margin: 0 0 0.85rem;">
+          <%= t("decidim.bih.community_hub.pillars.title") %>
+        </p>
+        <%
+          pillars = [
+            { key: "report",   href: new_report_path,             icon: "map-pin-line" },
+            { key: "volunteer", href: volunteer_path,             icon: "hand-heart-line" },
+            { key: "komsiluk", href: komsiluk_board_index_path,   icon: "home-heart-line" },
+            { key: "donate",   href: community_projects_path,     icon: "heart-2-line" },
+            { key: "impact",   href: impact_path,                 icon: "bar-chart-box-line" }
+          ]
+        %>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+          <% pillars.each do |pillar| %>
+            <%= link_to pillar[:href],
+                        style: "display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 1rem; border-radius: 999px; background: var(--mi-cream-100); border: 1px solid var(--mi-line); color: var(--mi-navy-700); font-weight: 700; font-size: 0.88rem; text-decoration: none;" do %>
+              <%= icon pillar[:icon], "aria-hidden": true, style: "width: 1rem; height: 1rem;" %>
+              <%= t("decidim.bih.community_hub.pillars.#{pillar[:key]}") %>
+            <% end %>
+          <% end %>
+        </div>
+      </section>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="mi-account-grid">
+  <section id="zavrsi-nalog" class="mi-account-panel mi-account-panel--wide" aria-labelledby="mi-account-setup-title">
+    <div class="mi-account-panel__head">
+      <div>
+        <p class="mi-eyebrow"><%= t("decidim.bih.account.show.setup.eyebrow") %></p>
+        <h2 id="mi-account-setup-title" class="heading4"><%= t("decidim.bih.account.show.setup.title") %></h2>
+      </div>
+      <%= link_to t("decidim.bih.account.show.setup.all_settings"), "#osnovni-podaci", class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+    </div>
+
+    <ol class="mi-setup-list">
+      <% @summary.setup_steps.each do |step| %>
+        <li class="mi-setup-step mi-setup-step--<%= step.state %>">
+          <span class="mi-setup-step__icon"><%= icon step.icon, role: "img", "aria-hidden": true %></span>
+          <span class="mi-setup-step__body">
+            <span class="mi-setup-step__title"><%= t("#{setup_t}.#{step.title_key}") %></span>
+            <span class="mi-setup-step__text">
+              <%= t("#{setup_t}.#{step.text_key}", komsiluk: @summary.komsiluk_name) %>
+            </span>
+          </span>
+          <span class="mi-status-pill mi-status-pill--<%= step.state %>">
+            <%= t("#{status_t}.#{step.state}") %>
+          </span>
+          <%= link_to t("decidim.bih.account.show.setup.open_step"), step_href.call(step), class: "mi-setup-step__link" %>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+
+  <aside class="mi-account-panel" aria-labelledby="mi-account-verification-title">
+    <p class="mi-eyebrow"><%= t("decidim.bih.account.show.verification.eyebrow") %></p>
+    <h2 id="mi-account-verification-title" class="heading5"><%= t("decidim.bih.account.show.verification.title") %></h2>
+    <p><%= t("decidim.bih.account.show.verification.body") %></p>
+    <div class="mi-verification-options">
+      <div>
+        <strong><%= t("decidim.bih.account.show.verification.phone.title") %></strong>
+        <span><%= @summary.sms_verified? ? t("decidim.bih.account.show.verification.phone.done") : t("decidim.bih.account.show.verification.phone.todo") %></span>
+      </div>
+      <div>
+        <strong><%= t("decidim.bih.account.show.verification.postal.title") %></strong>
+        <span>
+          <%= t("decidim.bih.account.show.verification.postal.statuses.#{@summary.postal_status}") %>
+          <% if @summary.postal_status_date %>
+            <%= t("decidim.bih.account.show.verification.postal.status_date", date: l(@summary.postal_status_date, format: :decidim_short)) %>
+          <% end %>
+        </span>
+      </div>
+    </div>
+    <div class="mi-verification-actions">
+      <% unless @summary.postal_verified? %>
+        <%= link_to t("decidim.bih.account.show.verification.postal.request_cta"), @summary.postal_request_path, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+        <% if @summary.postal_status == :sent %>
+          <%= link_to t("decidim.bih.account.show.verification.postal.confirm_cta"), @summary.postal_confirm_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+        <% end %>
+      <% end %>
+      <%= link_to t("decidim.bih.account.show.verification.cta"), decidim_verifications.authorizations_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+    </div>
+    <p class="mi-verification-privacy"><%= t("decidim.bih.account.show.verification.postal.privacy") %></p>
+  </aside>
+</div>

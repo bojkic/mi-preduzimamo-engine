@@ -1,0 +1,26 @@
+<div class="mi-public-profile-details">
+  <p class="mi-eyebrow"><%= t("decidim.bih.public_profile.eyebrow") %></p>
+  <h1>
+    <%= presented_profile.name %>
+    <span class="sr-only"><%= user_tabs.find { |tab_item| profile_tab_active?(tab_item[:path]) }&.dig(:text) %> (<%= presented_profile.name %>)</span>
+    <%= render :badge if show_badge? %>
+  </h1>
+
+  <div class="mi-public-profile-details__pills">
+    <% details_items.each do |detail| %>
+      <span class="mi-public-profile-pill">
+        <%= icon detail[:icon] %>
+        <% if detail[:url].present? %>
+          <%= link_to(detail[:text], detail[:url], rel: "nofollow noopener noreferrer") %>
+        <% else %>
+          <%= detail[:text] %>
+        <% end %>
+      </span>
+    <% end %>
+  </div>
+
+  <% if description.present? %>
+    <p class="mi-public-profile-details__about"><%= description %></p>
+  <% end %>
+</div>
+<%= render_hook(:user_profile_bottom) %>

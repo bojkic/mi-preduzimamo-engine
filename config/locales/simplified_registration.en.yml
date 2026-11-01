@@ -1,0 +1,32 @@
+en:
+  decidim:
+    bih:
+      simplified_registration:
+        title: Register
+        intro: Verify your phone, then choose the neighbourhood where you live.
+        submit: Send me a code
+        recovery: A registration has already been started for this number. Open the
+          link in the message on your phone to continue. Resending is limited to once
+          a minute and five messages in 15 minutes.
+        komsiluk_intro: 'One more step: choose the neighbourhood where you live, so
+          you receive local information and your participation counts for your neighbourhood.'
+        analytics:
+          title: 'Registration: last 30 days'
+          note: Steps are counted by their Sarajevo date, not as a single cohort.
+            Counts use surviving citizen accounts and stored timestamps; deleted unverified
+            accounts are unavailable.
+          waiting: Phone verified, neighbourhood not chosen
+          day: Date
+          created: Accounts created
+          verified: Phones verified
+          komsiluk: Neighbourhoods confirmed
+          under_hour: Under one hour
+          under_day: One to 24 hours
+          under_week: One to seven days
+          over_week: Seven days or more
+        komsiluk_list_title: Choose your neighbourhood
+        komsiluk_list_hint: Select the neighbourhood where you live from the list.
+        komsiluk_title: Choose your neighbourhood
+        komsiluk_filter: Search neighbourhood names
+        komsiluk_help: Cannot find your neighbourhood? Contact us.
+        name_label: Your name

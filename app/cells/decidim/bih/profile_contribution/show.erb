@@ -1,0 +1,47 @@
+<section id="mi-public-profile-doprinos" class="mi-public-profile-panel">
+  <% if public_profile.own_profile? %>
+    <div class="mi-public-profile-notice">
+      <%= icon "eye-line" %>
+      <p>
+        <%= sanitize(
+              t("decidim.bih.public_profile.owner_notice_html",
+                account_url: public_profile.account_url,
+                wallet_url: public_profile.wallet_url),
+              tags: %w(a),
+              attributes: %w(href)
+            ) %>
+      </p>
+    </div>
+  <% end %>
+
+  <% if public_profile.recognition_visible? %>
+    <div class="mi-public-profile-section-head">
+      <p class="mi-eyebrow"><%= t("decidim.bih.public_profile.tabs.contribution") %></p>
+      <h2><%= t("decidim.bih.public_profile.contribution.title") %></h2>
+    </div>
+
+    <div class="mi-public-profile-summary-grid">
+      <% public_profile.summary_items.each do |item| %>
+        <% if item[:url].present? %>
+          <%= link_to item[:url], class: "mi-public-profile-summary-card" do %>
+            <%= icon item[:icon] %>
+            <span><%= item[:label] %></span>
+            <strong><%= item[:value] %></strong>
+          <% end %>
+        <% else %>
+          <div class="mi-public-profile-summary-card">
+            <%= icon item[:icon] %>
+            <span><%= item[:label] %></span>
+            <strong><%= item[:value] %></strong>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="mi-public-profile-empty">
+      <%= icon "shield-check-line" %>
+      <h2><%= t("decidim.bih.public_profile.hidden.title") %></h2>
+      <p><%= t("decidim.bih.public_profile.hidden.text") %></p>
+    </div>
+  <% end %>
+</section>

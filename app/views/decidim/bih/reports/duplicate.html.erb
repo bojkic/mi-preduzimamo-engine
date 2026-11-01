@@ -1,0 +1,96 @@
+<% add_decidim_page_title(t(".title")) %>
+<%#
+  Possible-duplicate interstitial for the "Bice riseno" WEB intake. When a new
+  submission looks like an already-open report at the same spot, we offer the
+  citizen two paths instead of silently filing another report:
+
+    (a) "Same problem / corroborate" -> POST corroborate: a public +1 on the existing
+        report, redirecting to its tracker. No new report created.
+    (b) "It's different - submit anyway" -> resubmit the SAME form data with a
+        confirmed_new flag so creation proceeds normally.
+
+  PII-safe: only the EXISTING report's reference + category + status + tracker
+  link are shown — never its description or any reporter contact.
+%>
+<%
+  status = Decidim::Bih::ReportStatusPresenter.status_key(@duplicate)
+  tone = Decidim::Bih::ReportStatusPresenter.tone(status)
+  actions_help_id = "bih-duplicate-actions-help"
+  photo_hint_id = "bih-duplicate-photo-hint"
+%>
+<div class="wrapper">
+  <div class="row column">
+    <div class="card" style="max-width: 38rem; margin: 0 auto; padding: 0; overflow: hidden;">
+      <div style="height: 5px; background: var(--mi-coral-600);"></div>
+      <div style="padding: 1.5rem;">
+        <p class="mi-eyebrow" style="margin-bottom: 0.5rem;"><%= t(".eyebrow") %></p>
+        <h1 class="heading4" style="margin: 0 0 0.85rem; color: var(--mi-navy-700);"><%= t(".title") %></h1>
+        <p style="color: var(--mi-navy-600);"><%= t(".intro") %></p>
+
+        <div style="margin: 1.1rem 0; padding: 1rem 1.1rem; background: var(--mi-cream-100); border: 1.5px solid var(--mi-line); border-radius: var(--mi-radius-card);">
+          <p style="margin: 0 0 0.5rem; font-family: var(--mi-font-display); font-weight: 700; letter-spacing: 0.02em; color: var(--mi-navy-700);">
+            <span style="display: block; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.12em; color: var(--mi-navy-400);"><%= t(".existing_reference") %></span>
+            <%= @duplicate.reference %>
+          </p>
+
+          <% if @duplicate.category.present? %>
+            <p style="margin: 0 0 0.5rem; color: var(--mi-navy-700);">
+              <span style="font-family: var(--mi-font-display); font-weight: 600; color: var(--mi-navy-400);"><%= t("decidim.bih.reports.show.category") %>:</span>
+              <%= t("decidim.bih.reports.categories.#{@duplicate.category}", default: @duplicate.category) %>
+            </p>
+          <% end %>
+
+          <span style="display: inline-flex; align-items: center; gap: 0.45rem; background: <%= tone[0] %>; color: <%= tone[1] %>; border-radius: 999px; padding: 0.35rem 0.85rem; font-family: var(--mi-font-display); font-weight: 600; font-size: 0.85rem;">
+            <span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: <%= tone[2] %>;"></span>
+            <%= Decidim::Bih::ReportStatusPresenter.label(status) %>
+          </span>
+
+          <p style="margin: 0.75rem 0 0;">
+            <%= link_to t(".view_existing"), report_path(reference: @duplicate.reference), class: "mi-btn mi-btn--ghost" %>
+          </p>
+        </div>
+
+        <p id="<%= actions_help_id %>" class="help-text" style="margin-top: 0;">
+          <%= t(".actions_help") %>
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 0.85rem; align-items: stretch;">
+          <%# (a) Corroborate / me too — public +1, no subscription or new report. %>
+          <%= button_to corroborate_report_path(reference: @duplicate.reference),
+                        method: :post,
+                        params: { photo_draft_token: @form.photo_draft_token },
+                        class: "mi-btn mi-btn--primary",
+                        style: "flex: 1; min-width: 14rem;",
+                        aria: { describedby: actions_help_id } do %>
+            <%= t(".follow_it") %>
+          <% end %>
+
+          <%# (b) It's different — resubmit the SAME data with confirmed_new=1.
+              The session-bound token preserves the already uploaded photo. %>
+          <%= form_with url: reports_path, method: :post,
+                        html: { multipart: true, style: "flex: 1; min-width: 14rem; display: flex; flex-direction: column; gap: 0.5rem;" } do %>
+            <% @form.duplicate_resubmission_attributes.each do |field, value| %>
+              <%= hidden_field_tag "report[#{field}]", value %>
+            <% end %>
+            <% if @form.photo_draft_token.present? %>
+              <p id="<%= photo_hint_id %>" class="help-text"><%= t("decidim.bih.photo_draft.saved") %></p>
+              <label for="report_remove_saved_photo">
+                <%= check_box_tag "report[remove_saved_photo]", "1", false, id: "report_remove_saved_photo" %>
+                <%= t("decidim.bih.photo_draft.remove") %>
+              </label>
+            <% end %>
+            <%= submit_tag t(".submit_anyway"), class: "mi-btn mi-btn--ghost", style: "width: 100%;" %>
+          <% end %>
+        </div>
+
+        <p style="margin: 1rem 0 0; color: var(--mi-navy-400); font-size: 0.85rem;">
+          <%= t(".note") %>
+        </p>
+      </div>
+    </div>
+
+    <p style="text-align: center; margin-top: 1.25rem;">
+      <%= link_to t("decidim.bih.reports.show.back"), new_report_path, class: "mi-btn mi-btn--ghost" %>
+    </p>
+  </div>
+</div>

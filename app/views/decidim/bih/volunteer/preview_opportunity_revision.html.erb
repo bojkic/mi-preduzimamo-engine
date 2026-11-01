@@ -1,0 +1,39 @@
+<% add_decidim_page_title(t("decidim.bih.volunteer.revision.preview_title")) %>
+<main class="row column mi-volunteer-revision">
+  <h1><%= t("decidim.bih.volunteer.revision.preview_title") %></h1>
+  <p><%= t("decidim.bih.volunteer.revision.preview_intro") %></p>
+  <h2><%= @revision_terms.first.title %></h2>
+  <p><%= @revision_terms.first.description %></p>
+  <% @revision_terms.each do |term| %>
+    <section class="callout">
+      <h3><%= t("decidim.bih.volunteer.revision.term", number: term.series_position || term.id) %></h3>
+      <p><%= term.starts_at&.in_time_zone("Europe/Sarajevo")&.strftime("%d.%m.%Y %H:%M") %> →
+         <%= term.ends_at&.in_time_zone("Europe/Sarajevo")&.strftime("%d.%m.%Y %H:%M") %></p>
+      <% if term.starts_at && term.ends_at %>
+        <p><%= t("decidim.bih.volunteer.revision.duration", hours: ((term.ends_at - term.starts_at) / 1.hour).round(1)) %></p>
+      <% end %>
+      <p><%= t("decidim.bih.volunteer.revision.deadline") %>:
+         <%= term.signup_deadline_at&.in_time_zone("Europe/Sarajevo")&.strftime("%d.%m.%Y %H:%M") || "—" %></p>
+      <p><%= t("decidim.bih.volunteer.revision.capacity") %>: <%= term.capacity || "—" %></p>
+    </section>
+  <% end %>
+  <% if @revision_result.warnings.present? %>
+    <div class="callout warning" role="note">
+      <strong><%= t("decidim.bih.volunteer.revision.overlap_warning") %></strong>
+      <ul><% @revision_result.warnings.each do |warning| %><li><%= warning %></li><% end %></ul>
+    </div>
+  <% end %>
+  <%= form_with url: resubmit_volunteer_opportunity_revision_path(@revision_opportunity), method: :patch do %>
+    <%= hidden_field_tag :preview_confirmed, "1" %>
+    <% @revision_shared.each do |field, value| %>
+      <%= hidden_field_tag "shared[#{field}]", value %>
+    <% end %>
+    <% @revision_term_params.each do |id, attributes| %>
+      <% attributes.each do |field, value| %>
+        <%= hidden_field_tag "terms[#{id}][#{field}]", value %>
+      <% end %>
+    <% end %>
+    <%= submit_tag t("decidim.bih.volunteer.revision.submit"), class: "button" %>
+  <% end %>
+  <p><%= link_to t("decidim.bih.volunteer.revision.back"), edit_volunteer_opportunity_revision_path(@revision_opportunity) %></p>
+</main>

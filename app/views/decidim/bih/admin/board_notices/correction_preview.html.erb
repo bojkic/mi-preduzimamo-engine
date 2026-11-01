@@ -1,0 +1,32 @@
+<% copy = "decidim.bih.admin.board_correction"; payload = @preview[:payload]; summary = @preview[:summary]; intent = @preview[:intent] %>
+<% add_decidim_page_title(t("#{copy}.preview")) %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :staff_publication %>
+<section class="card" id="board-correction-preview"><div class="card-section">
+  <h1><%= t("#{copy}.preview") %></h1>
+  <% if summary[:blockers].any? %><div class="callout alert" role="alert"><% summary[:blockers].each do |key| %><p><%= notice_text("reasons.#{key}", default: notice_text("blocked")) %></p><% end %></div><% end %>
+  <h2><%= payload[:title] %></h2>
+  <p style="white-space:pre-wrap;overflow-wrap:anywhere"><%= payload[:body] %></p>
+  <dl>
+    <dt><%= notice_text("category") %></dt><dd><%= notice_text("categories.#{payload[:category]}") %></dd>
+    <dt><%= notice_text("expires_at") %></dt><dd><%= l(Time.iso8601(payload[:expires_at]).in_time_zone("Europe/Sarajevo"), format: :long) %></dd>
+    <dt><%= notice_text("areas") %></dt><dd><%= @preview[:posts].map { |post| post.komsiluk.translated_name }.join(", ") %></dd>
+    <dt><%= t("#{copy}.notifications") %></dt><dd><%= t("#{copy}.#{payload[:notify] ? 'notify' : 'minor'}") %></dd>
+    <% if payload[:notify] %><dt><%= notice_text("audience") %></dt><dd><%= summary[:total] %></dd><% end %>
+  </dl>
+  <% if summary[:hidden_count].positive? || summary[:archived_count].positive? %><p class="callout warning"><%= t("#{copy}.retained_states", hidden: summary[:hidden_count], archived: summary[:archived_count]) %></p><% end %>
+  <% if @preview[:source] %>
+    <details open><summary><%= t("#{copy}.current_source") %></summary>
+      <h2><%= @preview[:source][:title] %></h2>
+      <p style="white-space:pre-wrap;overflow-wrap:anywhere"><%= @preview[:source][:body] %></p>
+    </details>
+  <% end %>
+  <p><%= t("#{copy}.holds") %></p>
+  <% if !@confirmation_refused && summary[:blockers].empty? && bih_allowed?(:broadcast_send_bell) %>
+    <%= form_tag admin_bih_board_notices_confirm_path, class: "form form-defaults" do %>
+      <%= hidden_field_tag :confirmation_token, intent.confirmation_token %>
+      <%= submit_tag t("#{copy}.confirm"), class: "button button__secondary" %>
+    <% end %>
+  <% end %>
+  <%= link_to notice_text("edit_preview"), edit_admin_bih_board_notice_path(payload[:post_id], draft: intent.id) %>
+  <%= link_to t("#{copy}.back"), admin_bih_komsiluk_post_path(payload[:post_id]) %>
+</div></section>

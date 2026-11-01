@@ -1,0 +1,36 @@
+---
+sr:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            komsiluk_delivery_data: Privatni podaci dostave objava sa komšiluk tabli
+bs:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            komsiluk_delivery_data: Privatni podaci dostave objava s komšiluk tabli
+hr:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            komsiluk_delivery_data: Privatni podaci dostave objava s ploča susjedstva
+en:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            komsiluk_delivery_data: Private neighborhood notice delivery data
+sr-Cyrl:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            komsiluk_delivery_data: Приватни подаци доставе објава са комшилук табли

@@ -1,0 +1,199 @@
+<%#
+  "Moj doprinos" — owner-only goodwill wallet, rewards status and statement.
+%>
+<% add_decidim_page_title(t(".title")) %>
+<%
+  reason_label = lambda do |entry|
+    txn = entry.ledger_transaction
+    case txn.kind
+    when "earn" then t("decidim.bih.goodwill.actions.#{txn.reason}", default: txn.reason.to_s.humanize)
+    when "gift" then t("decidim.bih.goodwill.history.gift")
+    when "regrant" then t("decidim.bih.goodwill.history.regrant")
+    when "redeem" then t("decidim.bih.goodwill.history.redeem")
+    else t("decidim.bih.goodwill.history.adjustment")
+    end
+  end
+%>
+
+<main class="wrapper mi-goodwill-page mi-wallet-page">
+  <div class="mi-surface">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: @level.title,
+               action_label: t("decidim.bih.account.show.links.account", default: "Moj nalog"),
+               action_path: account_overview_path,
+               action_class: "mi-btn mi-btn--ghost" %>
+
+    <section class="mi-metric-grid" aria-label="<%= t(".title") %>">
+      <article class="mi-metric-card">
+        <strong><%= number_with_delimiter(@contribution, delimiter: ".") %></strong>
+        <span><%= t(".contribution") %></span>
+      </article>
+      <article class="mi-metric-card">
+        <strong><%= number_with_delimiter(@balance, delimiter: ".") %></strong>
+        <span><%= t(".balance") %></span>
+      </article>
+      <article class="mi-metric-card">
+        <strong><%= @level.title %></strong>
+        <span><%= t("decidim.bih.account.show.dashboard.level", default: "Nivo") %></span>
+      </article>
+      <article class="mi-metric-card">
+        <strong><%= @streak.to_i %></strong>
+        <span><%= t(".streak") %></span>
+      </article>
+      <% if @season_score %>
+        <article class="mi-metric-card">
+          <strong><%= number_with_delimiter(@season_score, delimiter: ".") %></strong>
+          <span><%= t(".season") %></span>
+        </article>
+      <% end %>
+    </section>
+
+    <% if @level.next? %>
+      <section class="mi-account-progress" style="margin-bottom: 1rem;">
+        <strong><%= @level.progress_percent %>%</strong>
+        <span><%= t(".to_next", points: @level.points_to_next) %></span>
+        <div class="mi-account-progress__bar">
+          <span style="width: <%= @level.progress_percent %>%;"></span>
+        </div>
+      </section>
+    <% end %>
+
+    <nav class="mi-surface-tabs mi-volunteer-tabs" aria-label="<%= t(".title") %>">
+      <% [["pregled", t(".title")], ["nagrade", t(".rewards")], ["podrzi", t(".support_org")], ["pozovi", t(".invite")], ["kako", t("decidim.bih.community_hub.tabs.kako")]].each do |key, label| %>
+        <%= link_to label, wallet_path(tab: key, locale: I18n.locale), class: "mi-surface-tab #{'is-active' if @tab == key}", aria: { current: (@tab == key ? "page" : nil) } %>
+      <% end %>
+    </nav>
+
+    <% if @tab == "pregled" %>
+    <section class="mi-account-grid">
+      <div class="mi-account-panel mi-account-panel--wide">
+        <div class="mi-account-panel__head">
+          <h2><%= t(".my_rewards") %></h2>
+          <%= link_to t(".rewards"), wallet_path(tab: "nagrade", locale: I18n.locale), class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+        </div>
+        <p><%= t(".reward_requests_intro") %></p>
+        <% if @reward_fulfillments.any? %>
+          <ul class="mi-data-list">
+            <% @reward_fulfillments.each do |fulfillment| %>
+              <% reward_name = Decidim::Bih::Goodwill::RewardsCatalog.find(fulfillment.reward_key, current_organization)&.name || fulfillment.reward_key %>
+              <li class="mi-account-activity__summary" style="display: flex; justify-content: space-between; gap: 1rem; min-height: auto;">
+                <span>
+                  <strong><%= reward_name %></strong>
+                  <span><%= l(fulfillment.created_at, format: :short) %></span>
+                </span>
+                <span style="text-align: right;">
+                  <strong><%= number_with_delimiter(fulfillment.cost, delimiter: ".") %></strong>
+                  <span><%= t(".reward_status.#{fulfillment.status}", default: fulfillment.status) %></span>
+                </span>
+              </li>
+            <% end %>
+          </ul>
+          <%= paginate @reward_fulfillments, param_name: :rewards_page %>
+        <% else %>
+          <%= link_to wallet_path(tab: "nagrade", locale: I18n.locale), class: "mi-account-activity__empty" do %>
+            <strong><%= t(".rewards") %></strong>
+            <span><%= t("decidim.bih.rewards.show.empty", default: "Katalog nagrada je trenutno prazan.") %></span>
+          <% end %>
+        <% end %>
+      </div>
+
+      <aside class="mi-account-panel">
+        <h2><%= t(".komsiluk_step.not_assigned", default: "Komšiluk") %></h2>
+        <% if defined?(@citizen_profile) && @citizen_profile&.assigned? %>
+          <p><%= t(".komsiluk_step.assigned", name: @citizen_profile.komsiluk.translated_name) %></p>
+          <p class="mi-action-row">
+            <%= link_to t("decidim.bih.menu.komsiluk_board"), komsiluk_board_index_path, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+            <%= link_to t(".komsiluk_step.pick_link"), edit_komsiluk_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+          </p>
+        <% else %>
+          <p><%= t(".komsiluk_step.not_assigned_hint") %></p>
+          <%= link_to t(".komsiluk_step.pick_link"), edit_komsiluk_path, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+        <% end %>
+      </aside>
+    </section>
+
+    <% if @monthly_statement.present? %>
+      <section class="mi-account-panel" style="margin-bottom: 1rem;">
+        <div class="mi-account-panel__head">
+          <h2><%= t(".statement.title", default: "Mjesečni pregled") %></h2>
+        </div>
+        <p><%= t(".statement.intro", default: "Tvoji bodovi, mjesec po mjesec — osvojeni, potrošeni i tekuće stanje.") %></p>
+        <div class="mi-wallet-months">
+          <% @monthly_statement.each do |month| %>
+            <article class="mi-surface-card mi-wallet-month">
+              <h3 class="heading5" style="margin-top: 0;"><%= l(month[:month], format: "%B %Y") %></h3>
+              <div class="mi-metric-grid mi-wallet-month__totals">
+                <div class="mi-metric-card">
+                  <strong>+<%= number_with_delimiter(month[:earned], delimiter: ".") %></strong>
+                  <span><%= t(".statement.earned", default: "Osvojeno") %></span>
+                </div>
+                <div class="mi-metric-card">
+                  <strong><%= number_with_delimiter(month[:spent], delimiter: ".") %></strong>
+                  <span><%= t(".statement.spent", default: "Potrošeno") %></span>
+                </div>
+                <div class="mi-metric-card">
+                  <strong><%= number_with_delimiter(month[:running_balance], delimiter: ".") %></strong>
+                  <span><%= t(".statement.running_balance", default: "Stanje") %></span>
+                </div>
+              </div>
+              <dl>
+                <% month[:by_category].except("earned", "spent").each do |category, amount| %>
+                  <dt><%= t(".statement.categories.#{category}") %></dt><dd><%= amount %></dd>
+                <% end %>
+                <dt><%= t(".statement.net") %></dt><dd><%= month[:net] %></dd>
+                <% if month[:recognition_adjustment] != 0 %>
+                  <dt><%= t(".statement.recognition_adjustment") %></dt><dd><%= month[:recognition_adjustment] %></dd>
+                <% end %>
+              </dl>
+            </article>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+
+    <% if @source_corrections.any? %>
+      <section class="mi-account-panel" id="my-source-corrections">
+        <h2><%= t(".corrections_title") %></h2>
+        <p><%= t(".corrections_intro") %></p>
+        <ul class="mi-data-list"><% @source_corrections.each do |correction| %>
+          <li>
+            <% reference = @correction_report_references[correction.source_key.delete_prefix("bih_report:").to_i] if correction.source_key.start_with?("bih_report:") %>
+            <strong><%= reference || t("decidim.bih.goodwill.actions.#{correction.original_transaction.reason}", default: t(".correction_activity")) %> / #<%= correction.id %>: <%= correction.previous_target %> → <%= correction.target_amount %></strong>
+            <span><%= t("decidim.bih.admin.goodwill_corrections.statuses.#{correction.settlement&.status || 'pending'}") %></span>
+            <span><%= l(correction.created_at, format: :short) %></span>
+          </li>
+        <% end %></ul>
+        <%= paginate @source_corrections, param_name: :corrections_page %>
+      </section>
+    <% end %>
+
+    <section class="mi-account-panel">
+      <div class="mi-account-panel__head">
+        <h2><%= t(".history") %></h2>
+      </div>
+      <% if @entries.empty? %>
+        <p><%= t(".empty") %></p>
+      <% else %>
+        <ul class="mi-data-list">
+          <% @entries.each do |entry| %>
+            <li class="mi-account-activity__summary" style="display: flex; justify-content: space-between; gap: 1rem; min-height: auto;">
+              <span>
+                <strong><%= reason_label.call(entry) %></strong>
+                <span><%= l(entry.created_at, format: :short) %></span>
+              </span>
+              <strong style="color: <%= entry.amount.negative? ? 'var(--mi-navy-400)' : 'var(--mi-park-600, #7a9a3f)' %>;">
+                <%= entry.amount.positive? ? "+" : "" %><%= number_with_delimiter(entry.amount, delimiter: ".") %>
+              </strong>
+            </li>
+          <% end %>
+        </ul>
+        <%= paginate @entries %>
+      <% end %>
+    </section>
+    <% else %>
+      <%= render "decidim/bih/community_hub/tab_content", active_tab: @tab, viewer: current_user %>
+    <% end %>
+  </div>
+</main>

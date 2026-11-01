@@ -1,0 +1,19 @@
+hr:
+  decidim:
+    bih:
+      report_questions:
+        exact_location: "Hvala na prijavi. Da bi služba mogla izaći na teren, molimo označite tačno mjesto na mapi ili napišite najbližu adresu ili orijentir (npr. broj kuće, raskrsnicu, objekat)."
+        landmark: "Možete li navesti najbliži prepoznatljiv objekat ili raskrsnicu?"
+        extent: "Koliki dio prostora je zahvaćen problemom?"
+        since_when: "Od kada primjećujete ovaj problem?"
+        recurring: "Da li se problem javlja jednom, povremeno ili stalno?"
+        safety_risk: "Da li je trenutno ugrožena nečija bezbjednost?"
+        property_owner: "Da li se problem odnosi na javnu površinu ili privatni posjed?"
+        photo_helpful: "Ako želite, možete dodati fotografiju koja pojašnjava problem."
+        access_blocked: "Da li je pristup ili prolaz blokiran?"
+        supplement: "Dostavljamo traženu dopunu: %{text}"
+        answer_city: "Podaci iz prijave: %{text}"
+        remind_city: "Molimo odgovor o postupanju u ovom predmetu."
+        city_answered: "Služba je odgovorila: %{text}"
+        city_planned: "Služba navodi plan: %{text}. Datum koji je služba navela: %{date}."
+        city_reports_resolved: "Služba navodi da je problem riješen: %{text}"

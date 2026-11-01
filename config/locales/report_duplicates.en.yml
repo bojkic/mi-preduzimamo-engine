@@ -1,0 +1,27 @@
+{
+  "en": {
+    "decidim": {
+      "bih": {
+        "reports": {
+          "public_statuses": {
+            "duplicate": "Duplicate — linked report"
+          },
+          "statuses": {
+            "duplicate": "Duplicate — linked report"
+          },
+          "duplicate_display": {
+            "explanation": "We are handling this problem through report %{reference}. Your report and additional information have been preserved.",
+            "unavailable": "This report is linked to another report about the same problem.",
+            "main_status": "Main report status: %{status}",
+            "activity": "Report %{reference} was linked to report %{main_reference}."
+          }
+        },
+        "report_case": {
+          "states": {
+            "duplicate": "Duplicate — linked report"
+          }
+        }
+      }
+    }
+  }
+}

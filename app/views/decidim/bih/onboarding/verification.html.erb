@@ -1,0 +1,87 @@
+<%#
+  "Zašto verifikacija?" — short explainer for why verification is required:
+  prevents abuse, enables points/board/notifications, and explains both SMS and
+  postal proof. CTA links to the authorizations page. Linked from the onboarding
+  guide, the community hub and the spots that gate on verification.
+%>
+<% add_decidim_page_title(t("decidim.bih.onboarding.verification.title")) %>
+<%
+  reasons = %w(abuse unlock privacy)
+%>
+<div class="wrapper">
+  <div class="row column">
+    <div style="max-width: 42rem; margin: 0 auto;">
+
+      <%# ---- Header ------------------------------------------------------ %>
+      <div style="text-align: center; margin-bottom: 1.6rem;">
+        <p class="mi-eyebrow"><%= t("decidim.bih.onboarding.verification.eyebrow") %></p>
+        <h1 class="heading2" style="color: var(--mi-navy-700); margin: 0 0 0.4rem;">
+          <%= t("decidim.bih.onboarding.verification.title") %>
+        </h1>
+        <p style="color: var(--mi-navy-400); max-width: 34rem; margin: 0 auto;">
+          <%= t("decidim.bih.onboarding.verification.subtitle") %>
+        </p>
+      </div>
+
+      <%# ---- Reasons ----------------------------------------------------- %>
+      <div class="card" style="margin-bottom: 1.2rem; padding: 0; overflow: hidden;">
+        <div style="height: 5px; background: var(--mi-navy-700);"></div>
+        <div class="card-section">
+          <ul style="list-style: none; margin: 0; padding: 0;">
+            <% reasons.each_with_index do |reason, index| %>
+              <li style="padding: 0.85rem 0; <%= 'border-bottom: 1px solid var(--mi-line);' unless index == reasons.length - 1 %>">
+                <h2 class="heading6" style="color: var(--mi-navy-700); margin: 0 0 0.25rem;">
+                  <%= t("decidim.bih.onboarding.verification.reasons.#{reason}.title") %>
+                </h2>
+                <p style="color: var(--mi-navy-400); margin: 0;">
+                  <%= t("decidim.bih.onboarding.verification.reasons.#{reason}.text") %>
+                </p>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+      <%# ---- Privacy reassurance ----------------------------------------- %>
+      <div style="background: #fdf6d6; border: 1px solid var(--mi-line); border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 1.4rem; color: var(--mi-navy-700);">
+        <strong><%= t("decidim.bih.onboarding.verification.privacy_note_title") %></strong>
+        <%= t("decidim.bih.onboarding.verification.privacy_note") %>
+      </div>
+
+      <%# ---- Verification options ---------------------------------------- %>
+      <div class="mi-verification-options" style="margin-bottom:1.4rem;">
+        <div>
+          <strong><%= t("decidim.bih.onboarding.verification.options.phone.title") %></strong>
+          <span><%= t("decidim.bih.onboarding.verification.options.phone.text") %></span>
+        </div>
+        <div>
+          <strong><%= t("decidim.bih.onboarding.verification.options.postal.title") %></strong>
+          <span><%= t("decidim.bih.onboarding.verification.options.postal.text") %></span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.4rem; padding:0; overflow:hidden;">
+        <div class="card-section">
+          <h2 class="heading5"><%= t("decidim.bih.onboarding.verification.entitlements.title") %></h2>
+          <ul>
+            <% %w[account phone postal participation].each do |entitlement| %>
+              <li><%= t("decidim.bih.onboarding.verification.entitlements.#{entitlement}") %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+      <%# ---- CTA --------------------------------------------------------- %>
+      <div style="text-align: center;">
+        <%= link_to t("decidim.bih.onboarding.verification.cta"), decidim_verifications.authorizations_path,
+                    class: "button",
+                    style: "background: var(--mi-coral-600); border-color: var(--mi-coral-600);" %>
+        <p style="margin: 0.9rem 0 0;">
+          <%= link_to t("decidim.bih.onboarding.verification.back_to_guide"), onboarding_guide_path,
+                      style: "color: var(--mi-navy-400); text-decoration: underline; font-size: 0.9rem;" %>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>

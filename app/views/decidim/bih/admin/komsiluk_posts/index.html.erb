@@ -1,0 +1,98 @@
+<% copy = "decidim.bih.admin.board_review" %>
+<% add_decidim_page_title(t("#{copy}.title")) %>
+<div class="mi-board-admin">
+  <%= render "navigation" %>
+  <header class="mi-board-admin-header" id="komsiluk-posts-header">
+    <h1><%= t("#{copy}.title") %></h1>
+    <div class="mi-board-admin-actions">
+      <% if bih_allowed?(:broadcast_preview) && respond_to?(:new_admin_bih_board_notice_path) %>
+        <%= link_to t("#{copy}.new_notice"), new_admin_bih_board_notice_path, class: "button button__sm button__secondary" %>
+      <% end %>
+      <% if bih_allowed?(:komsiluk_notification_policy_manage) %>
+        <%= link_to t("#{copy}.tabs.settings"), admin_bih_board_notice_settings_path, class: "button button__sm button__transparent-secondary" %>
+      <% end %>
+    </div>
+  </header>
+
+  <nav class="mi-board-admin-tabs" aria-label="<%= t("#{copy}.tabs_label") %>">
+    <% Decidim::Bih::Komsiluk::ModerationQueue::VISIBLE_TABS.each do |tab| %>
+      <%= link_to admin_bih_komsiluk_posts_path(@queue.filters.merge(tab:)), aria: { current: @queue.tab == tab ? "page" : nil } do %>
+        <%= t("#{copy}.tabs.#{tab}") %>
+        <% if @queue.counts.key?(tab) %><span class="mi-board-admin-count"><%= @queue.counts[tab] %></span><% end %>
+      <% end %>
+    <% end %>
+  </nav>
+  <% if @queue.tab != "delivery" %>
+    <p><%= link_to t("decidim.bih.admin.board_delivery_operations.title"), admin_bih_komsiluk_posts_path(@queue.filters.merge(tab: "delivery")), class: "button button__sm button__transparent-secondary" %></p>
+  <% end %>
+
+  <% if @queue.tab == "delivery" %>
+    <p class="mi-board-admin-active-filters"><%= t("decidim.bih.admin.board_delivery_operations.intro") %></p>
+  <% end %>
+
+  <% if @queue.filters.any? %>
+      <div class="mi-board-admin-active-filters">
+        <ul aria-label="<%= t("#{copy}.filters") %>">
+          <% board_active_filters.each do |label, value| %><li><strong><%= label %>:</strong> <%= value %></li><% end %>
+        </ul>
+        <%= link_to t("#{copy}.clear"), admin_bih_komsiluk_posts_path(tab: @queue.tab), class: "button button__sm button__transparent-secondary" %>
+      </div>
+    <% end %>
+    <details class="mi-board-admin-filters">
+      <summary><%= t("#{copy}.filters") %><% if @queue.filters.any? %> (<%= @queue.filters.size %>)<% end %></summary>
+      <%= form_tag admin_bih_komsiluk_posts_path, method: :get, class: "form form-defaults mi-board-admin-filter-grid" do %>
+        <%= hidden_field_tag :tab, @queue.tab %>
+        <label><%= t("#{copy}.search") %><%= text_field_tag :q, @queue.filters[:q], maxlength: 80, size: nil %></label>
+        <label><%= t("#{copy}.category") %><%= select_tag :category, options_for_select([[t("#{copy}.any"), ""]] + Decidim::Bih::KomsilukPost::CATEGORIES.map { |value| [t("decidim.bih.komsiluk_board.categories.#{value}"), value] }, @queue.filters[:category]) %></label>
+        <label><%= t("#{copy}.origin") %><%= select_tag :origin, options_for_select([[t("#{copy}.any"), ""]] + Decidim::Bih::Komsiluk::ModerationQueue::ORIGINS.map { |value| [t("#{copy}.origins.#{value}"), value] }, @queue.filters[:origin]) %></label>
+        <label><%= t("#{copy}.area") %><%= select_tag :komsiluk_id, options_for_select([[t("#{copy}.any"), ""]] + @komsiluk_options.map { |area| [area.translated_name, area.id] }, @queue.filters[:komsiluk_id]) %></label>
+        <label><%= t("#{copy}.from") %><%= date_field_tag :from, @queue.filters[:from] %></label>
+        <label><%= t("#{copy}.to") %><%= date_field_tag :to, @queue.filters[:to] %></label>
+        <div class="mi-board-admin-actions">
+          <%= submit_tag t("#{copy}.apply"), class: "button button__sm button__secondary" %>
+          <%= link_to t("#{copy}.clear"), admin_bih_komsiluk_posts_path(tab: @queue.tab), class: "button button__sm button__transparent-secondary" %>
+        </div>
+      <% end %>
+    </details>
+    <% if @queue.tab == "delivery" %>
+      <%= render "delivery_operations" %>
+    <% else %>
+    <p class="mi-board-admin-result-count"><%= t("#{copy}.showing", shown: @posts.size, total: @queue.total) %></p>
+    <section id="komsiluk-posts-list" tabindex="-1" aria-label="<%= t("#{copy}.tabs.#{@queue.tab}") %>">
+      <% if @posts.empty? %>
+        <div class="mi-board-admin-empty"><h2><%= t("#{copy}.empty.#{@queue.tab}") %></h2><p><%= t("#{copy}.empty_help") %></p></div>
+      <% else %>
+        <ol class="mi-board-admin-list">
+          <% @posts.each do |post| %>
+            <li class="mi-board-admin-row" data-board-post-id="<%= post.id %>">
+              <div class="mi-board-admin-content">
+                <div class="mi-board-admin-meta">
+                  <span class="mi-board-admin-badge"><%= t("#{copy}.origins.#{post.origin}") %></span>
+                  <span><%= t("decidim.bih.komsiluk_board.categories.#{post.category}") %></span>
+                  <strong><%= t("decidim.bih.komsiluk_board.statuses.#{board_effective_status(post)}") %></strong>
+                </div>
+                <h2><%= link_to post.title, admin_bih_komsiluk_post_path(post, @queue.query_params) %></h2>
+                <% if post.body.present? %><p><%= truncate(post.sanitized_body, length: 180) %></p><% else %><p><%= t("#{copy}.scrubbed") %></p><% end %>
+                <p class="mi-board-admin-meta">
+                  <strong><%= post.komsiluk&.translated_name %></strong>
+                  <% if board_mz_names(post.komsiluk).any? %><span><%= board_mz_names(post.komsiluk).join(" / ") %></span><% end %>
+                  <time datetime="<%= post.created_at.iso8601 %>"><%= l(post.created_at, format: :short) %></time>
+                  <% if post.expires_at %><span><%= t("#{copy}.expires", date: l(post.expires_at, format: :short)) %></span><% end %>
+                  <% if post.flagged_count.positive? %><span><%= t("#{copy}.flags", count: post.flagged_count) %></span><% end %>
+                </p>
+              </div>
+              <%= link_to t("#{copy}.review"), admin_bih_komsiluk_post_path(post, @queue.query_params), class: "button button__sm button__secondary" %>
+            </li>
+          <% end %>
+        </ol>
+      <% end %>
+    </section>
+    <%= render "pagination" %>
+    <% end %>
+    <% if bih_allowed?(:analytics_export) %>
+      <details class="mi-board-admin-secondary" id="komsiluk-activity-review-handoff">
+        <summary><%= t("decidim.bih.admin.komsiluk_posts.index.activity_review_title") %></summary>
+        <%= link_to t("decidim.bih.admin.komsiluk_posts.index.activity_review_export"), admin_bih_analytics_export_path(dataset: "komsiluk_activity_review", format: :csv) %>
+      </details>
+    <% end %>
+</div>

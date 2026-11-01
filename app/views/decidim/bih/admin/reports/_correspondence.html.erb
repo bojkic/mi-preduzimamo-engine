@@ -1,0 +1,8 @@
+<section aria-label="<%= t('decidim.bih.report_mailbox.correspondence') %>">
+<h2><%= t('decidim.bih.report_mailbox.correspondence') %></h2>
+<% Decidim::Bih::InboundEmailLink.where(report: @report).includes(:inbound_email).order(:created_at).each do |link| %>
+  <article><strong><%= link.inbound_email.from_domain %></strong> · <%= link.assurance %> · <%= l(link.inbound_email.internal_date, format: :short) %>
+  <pre style="white-space:pre-wrap"><%= link.inbound_email.body_text %></pre>
+  <% if Decidim::Bih::OperatorAuthorization.allowed?(current_user, :reports_mailbox_manage, organization: current_organization) %><%= link_to t('decidim.bih.report_mailbox.open'), report_inbound_email_path(link.inbound_email) %><% end %></article>
+<% end %>
+</section>

@@ -1,0 +1,45 @@
+<div class="mi-public-profile">
+  <section class="mi-public-profile-hero">
+    <div class="mi-public-profile-hero__avatar">
+      <%= render :avatar %>
+    </div>
+
+    <div class="mi-public-profile-hero__body">
+      <%= render :details %>
+    </div>
+
+    <div class="mi-public-profile-hero__actions">
+      <%= cell "decidim/profile_actions", profile_holder, profile_child_context %>
+    </div>
+  </section>
+
+  <% if public_profile.recognition_visible? %>
+    <section class="mi-public-profile-summary" aria-label="<%= t("decidim.bih.public_profile.summary.aria") %>">
+      <% public_profile.summary_items.each do |item| %>
+        <% if item[:url].present? %>
+          <%= link_to item[:url], class: "mi-public-profile-summary__item" do %>
+            <%= icon item[:icon] %>
+            <span><%= item[:label] %></span>
+            <strong><%= item[:value] %></strong>
+          <% end %>
+        <% else %>
+          <div class="mi-public-profile-summary__item">
+            <%= icon item[:icon] %>
+            <span><%= item[:label] %></span>
+            <strong><%= item[:value] %></strong>
+          </div>
+        <% end %>
+      <% end %>
+    </section>
+  <% end %>
+
+  <nav class="mi-public-profile-tabs" aria-label="<%= t("decidim.bih.public_profile.tabs.aria") %>">
+    <ul>
+      <%= render :tabs %>
+    </ul>
+  </nav>
+
+  <section class="mi-public-profile-content">
+    <%= cell content_cell, profile_holder, profile_child_context %>
+  </section>
+</div>

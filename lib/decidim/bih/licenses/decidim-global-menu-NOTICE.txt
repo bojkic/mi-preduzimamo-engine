@@ -1,0 +1,10 @@
+GlobalMenuCell compatibility
+
+Derived from the Decidim project's decidim-core0.31.7 implementation:
+https://github.com/decidim/decidim/blob/v0.31.7/decidim-core/app/cells/decidim/content_blocks/global_menu_cell.rb
+
+Original work: Decidim contributors, under the GNU Affero General Public License.
+The AGPLv3 text is retained in LICENSE-AGPLv3.txt at the repository root.
+The compatibility class preserves the existing homepage global_menu feature
+when using Decidim0.32. Project-specific rendering/cache adaptations remain
+separate from the upstream-derived base class.

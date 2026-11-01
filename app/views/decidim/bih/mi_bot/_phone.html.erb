@@ -1,0 +1,91 @@
+<%#
+  One conversation phone: device frame -> channel chat header -> the chat body
+  (bubbles / quick replies / cards / stickers / time dividers) -> input bar.
+  `channel` is a chrome theme hash; `conversation` carries the flow label + steps.
+  All per-channel colours are passed as inline custom properties so the static
+  stylesheet can stay channel-agnostic.
+%>
+<%
+  ch = channel
+  vars = [
+    "--ch-brand: #{ch[:brand]}",
+    "--ch-header-bg: #{ch[:header_bg]}",
+    "--ch-header-ink: #{ch[:header_ink]}",
+    "--ch-chat-bg: #{ch[:chat_bg]}",
+    "--ch-out-bubble: #{ch[:out_bubble]}",
+    "--ch-out-ink: #{ch[:out_ink]}",
+    "--ch-in-bubble: #{ch[:in_bubble]}",
+    "--ch-in-ink: #{ch[:in_ink]}",
+    "--ch-status-ink: #{ch[:status_ink]}",
+    "--ch-send-bg: #{ch[:send_bg]}",
+    "--ch-quick-bg: #{ch[:light] ? '#fff' : 'rgba(255,255,255,0.92)'}",
+    "--ch-input-bg: #{ch[:light] ? '#f0f0f2' : '#fff'}",
+    "--ch-input-bar-bg: #{ch[:light] ? '#fff' : ch[:chat_bg]}",
+    "--ch-note-ink: #{ch[:light] ? '#9a9aa0' : 'rgba(80,80,90,0.7)'}"
+  ].join("; ")
+%>
+<div class="mi-bot-phone-wrap">
+  <div class="mi-bot-phone" style="<%= vars %>" data-channel="<%= ch[:id] %>">
+    <div class="mi-bot-phone__screen">
+      <%# ---- Chat header ---- %>
+      <div class="mi-bot-chat-header<%= " is-dark" unless ch[:light] %>">
+        <div class="mi-bot-statusbar">
+          <span class="mi-bot-statusbar__time">9:41</span>
+          <span class="mi-bot-statusbar__icons">
+            <%= mi_bot_icon("signal", size: 15, stroke: 2.4) %>
+            <%= mi_bot_icon("wifi", size: 15, stroke: 2.4) %>
+            <%= mi_bot_icon("battery-full", size: 17, stroke: 2) %>
+          </span>
+        </div>
+        <div class="mi-bot-chat-header__row">
+          <%= mi_bot_icon("chevron-left", size: 24) %>
+          <span class="mi-bot-chat-header__avatar"><img src="/mi/heart-mark.png" alt="" aria-hidden="true"></span>
+          <div class="mi-bot-chat-header__id">
+            <div class="mi-bot-chat-header__name">
+              <%= t("decidim.bih.mi_bot.show.phone_header", default: t("decidim.bih.concierge.widget.header_title", default: "Platform assistant")) %>
+              <%= mi_bot_icon("badge-check", size: 15, color: ch[:light] ? ch[:brand] : "#fff") %>
+            </div>
+            <div class="mi-bot-chat-header__status"><%= ch[:status] %></div>
+          </div>
+          <%= mi_bot_icon(ch[:icon], size: 20) %>
+          <%= mi_bot_icon("more-vertical", size: 20, css_class: "mi-bot-chat-header__more") %>
+        </div>
+      </div>
+
+      <%# ---- Chat body ---- %>
+      <div class="mi-bot-chat-body">
+        <% conversation[:steps].each do |step| %>
+          <% if step[:note] %>
+            <div class="mi-bot-note"><%= step[:note] %></div>
+          <% elsif step[:quick] %>
+            <div class="mi-bot-quick">
+              <% step[:quick].each do |opt| %>
+                <span class="mi-bot-quick__chip"><%= opt %></span>
+              <% end %>
+            </div>
+          <% elsif step[:card] %>
+            <div class="mi-bot-card-bubble">
+              <%= render "decidim/bih/mi_bot/card", card: step[:card], accent: nil, standalone: false %>
+            </div>
+          <% elsif step[:sticker] %>
+            <% st = @stickers.find { |s| s[:id] == step[:sticker] } %>
+            <div class="mi-bot-chat-sticker">
+              <%= render "decidim/bih/mi_bot/sticker", sticker: st, size: 128 %>
+            </div>
+          <% else %>
+            <div class="mi-bot-bubble-row<%= step[:who] == "me" ? " is-out" : "" %>">
+              <div class="mi-bot-bubble"><%= step[:t] %></div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <%# ---- Input bar ---- %>
+      <div class="mi-bot-inputbar">
+        <span class="mi-bot-inputbar__field"><%= ch[:input_placeholder] %></span>
+        <span class="mi-bot-inputbar__send"><%= mi_bot_icon("send", size: 17, color: "#fff") %></span>
+      </div>
+    </div>
+  </div>
+  <span class="mi-bot-phone-label"><%= conversation[:flow] %></span>
+</div>

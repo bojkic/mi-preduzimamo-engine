@@ -1,0 +1,35 @@
+<div class="wrapper">
+  <h1><%= t("decidim.bih.channel_connections.title") %></h1>
+  <p><%= t("decidim.bih.channel_connections.explanation") %></p>
+  <% @channels.each do |channel| %>
+    <section>
+      <h2><%= { "whatsapp" => "WhatsApp", "messenger" => "Facebook Messenger", "instagram" => "Instagram" }.fetch(channel) %></h2>
+      <% connection = Decidim::Bih::ChannelConnections.for_user(user: @user, organization: current_organization, channel: channel) %>
+      <% if connection %>
+        <p><%= t("decidim.bih.channel_connections.connected") %></p>
+        <%= button_to t("decidim.bih.channel_connections.disconnect"), channel_connection_path(channel: channel), method: :delete %>
+      <% elsif Decidim::Bih::ChannelConnections.configured_sender(channel).present? %>
+        <%= button_to t("decidim.bih.channel_connections.connect"), channel_connections_path, params: { channel: channel } %>
+      <% else %>
+        <p><%= t("decidim.bih.channel_connections.unavailable") %></p>
+      <% end %>
+    </section>
+  <% end %>
+  <% if @challenge %>
+    <section>
+      <h2><%= t("decidim.bih.channel_connections.finish") %></h2>
+      <% if @command %>
+        <p><%= t("decidim.bih.channel_connections.send_command", channel: @challenge.channel.titleize) %></p>
+        <%= label_tag :channel_connection_command, t("decidim.bih.channel_connections.command_label") %>
+        <%= text_area_tag :channel_connection_command, @command, readonly: true, rows: 2, class: "w-full", autocomplete: "off", spellcheck: false %>
+      <% end %>
+      <p><%= t("decidim.bih.channel_connections.confirm_help") %></p>
+      <%= form_with url: confirm_channel_connections_path, method: :post, builder: ActionView::Helpers::FormBuilder do |form| %>
+        <%= form.label :channel_confirmation, t("decidim.bih.channel_connections.code") %>
+        <%= form.text_field :channel_confirmation, required: true, maxlength: 12, autocomplete: "off" %>
+        <%= form.submit t("decidim.bih.channel_connections.confirm") %>
+      <% end %>
+    </section>
+  <% end %>
+  <%= link_to t("decidim.bih.channel_connections.back"), account_overview_path %>
+</div>

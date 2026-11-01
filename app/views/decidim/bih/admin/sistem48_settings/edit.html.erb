@@ -1,0 +1,90 @@
+<%#
+  Admin editor for the Sistem 48 forwarding targets: the central intake mailbox
+  and per-category routing. Each field's placeholder shows the current default
+  (ENV/built-in); leaving a field blank CLEARS the override and restores that
+  default — fallback discipline keeps an empty store forwarding as before.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.sistem48_settings.edit.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :sistem48_settings %>
+
+<%= form_tag sistem48_settings_path, method: :patch, class: "form form-defaults" do %>
+  <div class="card" id="sistem48-settings-header">
+    <div class="item_show__header">
+      <h1 class="item_show__header-title"><%= t("decidim.bih.admin.sistem48_settings.edit.title") %></h1>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.sistem48_settings.edit.intro") %></p>
+      <p><em><%= t("decidim.bih.admin.sistem48_settings.edit.blank_hint") %></em></p>
+      <div class="callout warning" id="sistem48-settings-impact">
+        <strong><%= t("decidim.bih.admin.sistem48_settings.edit.impact_title") %></strong>
+        <p style="margin-bottom:0;"><%= t("decidim.bih.admin.sistem48_settings.edit.impact_body") %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="sistem48-settings-central">
+    <div class="card-divider">
+      <h2 class="card-title"><%= t("decidim.bih.admin.sistem48_settings.edit.central_title") %></h2>
+    </div>
+    <div class="card-section">
+      <div class="row">
+        <div class="columns medium-8">
+          <label>
+            <%= t("decidim.bih.admin.sistem48_settings.edit.central_intake") %>
+            <input type="email" name="settings[central_intake]"
+                   value="<%= @overrides[Decidim::Bih::Sistem48::DepartmentRouting::CENTRAL_INTAKE_KEY] %>"
+                   placeholder="<%= @central_default %>">
+          </label>
+          <small><%= t("decidim.bih.admin.sistem48_settings.edit.central_hint", default_email: @central_default) %></small>
+          <small class="mi-admin-setting__values">
+            <%= t("decidim.bih.admin.settings_values.default", value: @central_default.presence || t("decidim.bih.admin.settings_values.none")) %> ·
+            <%= t("decidim.bih.admin.settings_values.override", value: @overrides[Decidim::Bih::Sistem48::DepartmentRouting::CENTRAL_INTAKE_KEY].presence || t("decidim.bih.admin.settings_values.none")) %> ·
+            <%= t("decidim.bih.admin.settings_values.effective", value: @central_effective.presence || t("decidim.bih.admin.settings_values.none")) %>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="sistem48-settings-categories">
+    <div class="card-divider">
+      <h2 class="card-title"><%= t("decidim.bih.admin.sistem48_settings.edit.categories_title") %></h2>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.sistem48_settings.edit.categories_intro") %></p>
+      <div class="row">
+        <% @categories.each do |category| %>
+          <div class="columns medium-6" style="margin-bottom:1rem;">
+            <label>
+              <%= t("decidim.bih.admin.sistem48_settings.categories.#{category}", default: category.to_s.humanize) %>
+              <input type="email" name="categories[<%= category %>]"
+                     value="<%= @overrides[category.to_s] %>"
+                     placeholder="<%= @category_defaults[category] %>">
+            </label>
+            <small class="mi-admin-setting__values">
+              <%= t("decidim.bih.admin.settings_values.default", value: @category_defaults[category].presence || t("decidim.bih.admin.settings_values.none")) %> ·
+              <%= t("decidim.bih.admin.settings_values.override", value: @overrides[category.to_s].presence || t("decidim.bih.admin.settings_values.none")) %> ·
+              <%= t("decidim.bih.admin.settings_values.effective", value: @category_effective[category].presence || t("decidim.bih.admin.settings_values.none")) %>
+            </small>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-section">
+      <label>
+        <%= t("decidim.bih.admin.sistem48_settings.edit.approval_rationale") %>
+        <input type="text"
+               name="approval_rationale"
+               value="<%= params[:approval_rationale].to_s %>"
+               required
+               placeholder="<%= t("decidim.bih.admin.sistem48_settings.edit.approval_rationale_placeholder") %>">
+      </label>
+      <small><%= t("decidim.bih.admin.sistem48_settings.edit.approval_rationale_hint") %></small>
+      <%= submit_tag t("decidim.bih.admin.sistem48_settings.edit.submit"), class: "button button__secondary" %>
+    </div>
+  </div>
+<% end %>

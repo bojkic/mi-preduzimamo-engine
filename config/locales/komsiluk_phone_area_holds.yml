@@ -1,0 +1,96 @@
+---
+sr:
+  decidim:
+    bih:
+      admin:
+        phone_area_holds:
+          title: Pauze slanja na telefone
+          intro: Izaberite komšiluke u kojima privremeno zaustavljate slanje Viber, WhatsApp i SMS poruka.
+          inbox: Objave na tabli, obavještenja na platformi i dozvoljeni push nastavljaju da rade za sve kategorije objava.
+          legend: Komšiluci sa pauziranim slanjem na telefone
+          hint: Promjena liste zahtijeva novi pregled prije potvrde slanja. Uklanjanje pauze ne šalje stare poruke automatski.
+          selected: Pauzirani komšiluci
+          save: Sačuvaj pauze slanja
+          saved: Pauze slanja na telefone su sačuvane.
+          legacy_title: Ranija utišavanja — samo pregled
+          legacy_hint: Ovo je sačuvana lista iz ranijih pravila. Pregledajte je i posebno označite komšiluke iznad za pauzu slanja na telefone. Ranije kategorije i utišavanja više ne upravljaju obavještenjima na platformi i push porukama.
+          sms_title: Podešavanja SMS-a
+        board_notices:
+          reasons:
+            invalid_areas: Odaberite važeće komšiluke ove organizacije.
+bs:
+  decidim:
+    bih:
+      admin:
+        phone_area_holds:
+          title: Pauze slanja na telefone
+          intro: Izaberite komšiluke u kojima privremeno zaustavljate slanje Viber, WhatsApp i SMS poruka.
+          inbox: Objave na tabli, obavještenja na platformi i dozvoljeni push nastavljaju raditi za sve kategorije objava.
+          legend: Komšiluci s pauziranim slanjem na telefone
+          hint: Promjena liste zahtijeva novi pregled prije potvrde slanja. Uklanjanje pauze ne šalje stare poruke automatski.
+          selected: Pauzirani komšiluci
+          save: Sačuvaj pauze slanja
+          saved: Pauze slanja na telefone su sačuvane.
+          legacy_title: Ranija utišavanja — samo pregled
+          legacy_hint: Ovo je sačuvana lista iz ranijih pravila. Pregledajte je i posebno označite komšiluke iznad za pauzu slanja na telefone. Ranije kategorije i utišavanja više ne upravljaju obavještenjima na platformi i push porukama.
+          sms_title: Postavke SMS-a
+        board_notices:
+          reasons:
+            invalid_areas: Odaberite važeće komšiluke ove organizacije.
+hr:
+  decidim:
+    bih:
+      admin:
+        phone_area_holds:
+          title: Pauze slanja na telefone
+          intro: Odaberite susjedstva u kojima privremeno zaustavljate slanje Viber, WhatsApp i SMS poruka.
+          inbox: Objave na ploči, obavijesti na platformi i dopušteni push nastavljaju raditi za sve kategorije objava.
+          legend: Susjedstva s pauziranim slanjem na telefone
+          hint: Promjena popisa zahtijeva novi pregled prije potvrde slanja. Uklanjanje pauze ne šalje stare poruke automatski.
+          selected: Pauzirana susjedstva
+          save: Spremi pauze slanja
+          saved: Pauze slanja na telefone su spremljene.
+          legacy_title: Ranija utišavanja — samo pregled
+          legacy_hint: Ovo je spremljeni popis iz ranijih pravila. Pregledajte ga i posebno označite susjedstva iznad za pauzu slanja na telefone. Ranije kategorije i utišavanja više ne upravljaju obavijestima na platformi i push porukama.
+          sms_title: Postavke SMS-a
+        board_notices:
+          reasons:
+            invalid_areas: Odaberite važeća susjedstva ove organizacije.
+en:
+  decidim:
+    bih:
+      admin:
+        phone_area_holds:
+          title: Pause phone delivery by neighborhood
+          intro: Choose neighborhoods where Viber, WhatsApp and SMS delivery should be paused.
+          inbox: Board publication, platform notifications and eligible push continue for every notice category.
+          legend: Neighborhoods with phone delivery paused
+          hint: Changing this list requires a fresh preview before confirming a send. Removing a pause does not automatically send old messages.
+          selected: Paused neighborhoods
+          save: Save phone pauses
+          saved: Phone delivery pauses saved.
+          legacy_title: Previous muted areas — read only
+          legacy_hint: This list is retained from the earlier policy. Review it and explicitly select neighborhoods above to pause phone delivery. Earlier categories and muted areas no longer control platform notifications or push.
+          sms_title: SMS settings
+        board_notices:
+          reasons:
+            invalid_areas: Choose valid neighborhoods belonging to this organization.
+sr-Cyrl:
+  decidim:
+    bih:
+      admin:
+        phone_area_holds:
+          title: Паузе слања на телефоне
+          intro: Изаберите комшилуке у којима привремено заустављате слање Вибер, WhatsApp и СМС порука.
+          inbox: Објаве на табли, обавјештења на платформи и дозвољени пусх настављају да раде за све категорије објава.
+          legend: Комшилуци са паузираним слањем на телефоне
+          hint: Промјена листе захтијева нови преглед прије потврде слања. Уклањање паузе не шаље старе поруке аутоматски.
+          selected: Паузирани комшилуци
+          save: Сачувај паузе слања
+          saved: Паузе слања на телефоне су сачуване.
+          legacy_title: Ранија утишавања — само преглед
+          legacy_hint: Ово је сачувана листа из ранијих правила. Прегледајте је и посебно означите комшилуке изнад за паузу слања на телефоне. Раније категорије и утишавања више не управљају обавјештењима на платформи и пусх порукама.
+          sms_title: Подешавања СМС-а
+        board_notices:
+          reasons:
+            invalid_areas: Одаберите важеће комшилуке ове организације.

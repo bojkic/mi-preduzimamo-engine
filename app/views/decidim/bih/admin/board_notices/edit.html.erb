@@ -1,0 +1,37 @@
+<% copy = "decidim.bih.admin.board_correction" %>
+<% add_decidim_page_title(t("#{copy}.title")) %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :staff_publication %>
+<section class="card" id="board-notice-correction"><div class="card-section">
+  <h1><%= t("#{copy}.title") %></h1>
+  <p><%= t("#{copy}.intro", count: @correction_context[:posts].size) %></p>
+  <p><%= @correction_context[:posts].map { |post| post.komsiluk.translated_name }.join(", ") %></p>
+  <% if @correction_context[:source_required] && @correction_context[:source].nil? %>
+    <p class="callout alert"><%= t("#{copy}.source_unavailable") %></p>
+  <% else %>
+    <% if @correction_context[:source] %>
+      <details open class="callout secondary"><summary><%= t("#{copy}.current_source") %></summary>
+        <h2><%= @correction_context[:source][:title] %></h2>
+        <p style="white-space:pre-wrap;overflow-wrap:anywhere"><%= @correction_context[:source][:body] %></p>
+      </details>
+    <% end %>
+    <%= form_tag admin_bih_board_notice_correction_preview_path(@post), class: "form form-defaults" do %>
+      <%= label_tag :correction_title, notice_text("title") %>
+      <%= text_field_tag "notice[title]", @values[:title], id: :correction_title, required: true, maxlength: Decidim::Bih::KomsilukPost::TITLE_MAX %>
+      <%= label_tag :correction_body, notice_text("body") %>
+      <%= text_area_tag "notice[body]", @values[:body], id: :correction_body, required: true, maxlength: Decidim::Bih::KomsilukPost::BODY_MAX, rows: 6 %>
+      <%= label_tag :correction_category, notice_text("category") %>
+      <%= select_tag "notice[category]", options_for_select(Decidim::Bih::KomsilukPost::CATEGORIES.map { |key| [notice_text("categories.#{key}"), key] }, @values[:category]), id: :correction_category %>
+      <%= label_tag :correction_expires_at, notice_text("expires_at") %>
+      <%= datetime_local_field_tag "notice[expires_at]", notice_input_datetime(@values[:expires_at]), id: :correction_expires_at, required: true %>
+      <small><%= notice_text("time_zone") %></small>
+      <fieldset>
+        <legend><%= t("#{copy}.notifications") %></legend>
+        <label><%= radio_button_tag "notice[notify]", "0", !ActiveModel::Type::Boolean.new.cast(@values[:notify]) %> <%= t("#{copy}.minor") %></label>
+        <label><%= radio_button_tag "notice[notify]", "1", ActiveModel::Type::Boolean.new.cast(@values[:notify]) %> <%= t("#{copy}.notify") %></label>
+      </fieldset>
+      <p><%= t("#{copy}.holds") %></p>
+      <%= submit_tag t("#{copy}.preview"), class: "button button__secondary" %>
+    <% end %>
+  <% end %>
+  <%= link_to notice_text("back_to_boards"), admin_bih_komsiluk_post_path(@post) %>
+</div></section>

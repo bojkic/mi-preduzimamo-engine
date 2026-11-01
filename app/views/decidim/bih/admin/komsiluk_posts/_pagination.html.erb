@@ -1,0 +1,7 @@
+<% if @queue.pages > 1 %>
+  <nav class="mi-board-admin-pagination" aria-label="<%= t("decidim.bih.admin.board_review.pagination") %>">
+    <% if @queue.page > 1 %><%= link_to t("decidim.bih.admin.board_review.previous"), admin_bih_komsiluk_posts_path(@queue.query_params.merge(page: @queue.page - 1)), rel: "prev" %><% end %>
+    <span><%= t("decidim.bih.admin.board_review.page", page: @queue.page, pages: @queue.pages) %></span>
+    <% if @queue.page < @queue.pages %><%= link_to t("decidim.bih.admin.board_review.next"), admin_bih_komsiluk_posts_path(@queue.query_params.merge(page: @queue.page + 1)), rel: "next" %><% end %>
+  </nav>
+<% end %>

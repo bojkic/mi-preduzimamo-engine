@@ -1,0 +1,36 @@
+{
+  "sr-Cyrl": {
+    "decidim": {
+      "bih": {
+        "reports": {
+          "public_statuses": {
+            "needs_information": "Чекамо допуну",
+            "under_review": "У прегледу",
+            "reviewed": "Прегледано"
+          },
+          "statuses": {
+            "needs_information": "Чекамо допуну",
+            "under_review": "У прегледу",
+            "reviewed": "Прегледано"
+          }
+        },
+        "content_blocks": {
+          "mi_hub": {
+            "modules": {
+              "eyebrow": "Дајемо ти много начина да узмеш ствари у своје руке"
+            }
+          },
+          "mi_hero": {
+            "stats": {
+              "reports_sent": {
+                "one": "пријава послата службама",
+                "few": "пријаве послате службама",
+                "other": "пријава послатих службама"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

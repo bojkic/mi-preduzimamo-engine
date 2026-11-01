@@ -1,0 +1,8 @@
+<% scope = "decidim.bih.admin.board_notices"; result = Decidim::Bih::Komsiluk::NoticePhonePolicy.summary(post) %>
+<section class="card" id="notice-delivery"><div class="card-section"><h2><%= t("#{scope}.delivery_title") %></h2><p><%= t("#{scope}.evidence_hint") %></p>
+  <dl><% %i(audience publication_receipts inbox_created push_queued push_device_attempts push_service_accepted browser_displayed inbox_read cancelled).each do |key| %><dt><%= t("#{scope}.metrics.#{key}") %></dt><dd><%= result[key] %></dd><% end %></dl>
+  <h3><%= t("#{scope}.phone_title") %></h3>
+  <% if result[:phone].empty? %><p><%= t("#{scope}.no_phone") %></p><% else %><dl><% result[:phone].each do |status, count| %><dt><%= t("#{scope}.outcomes.#{status}") %></dt><dd><%= count %></dd><% end %><% result[:skipped].each do |reason, count| %><dt><%= t("#{scope}.reasons.#{reason}", default: t("#{scope}.blocked")) %></dt><dd><%= count %></dd><% end %></dl><% end %>
+  <p><%= t("#{scope}.handoff_hint") %></p>
+  <% if bih_allowed?(:broadcast_preview) && (post.display_origin != "city_service" || bih_allowed?(:city_alerts_manage)) && Decidim::Bih::Komsiluk::NoticePublishing.current_post?(post) %><%= link_to t("#{scope}.phone_preview"), admin_bih_board_notice_phone_path(post), class: "button button__secondary" %><% end %>
+</div></section>

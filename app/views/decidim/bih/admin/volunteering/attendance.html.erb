@@ -1,0 +1,39 @@
+<% add_decidim_page_title(t("decidim.bih.admin.volunteering.attendance.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :volunteering %>
+
+<div class="card" id="admin-volunteering-attendance">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.volunteering.attendance.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.volunteering.attendance.intro") %></p>
+    <dl>
+      <dt><%= t("decidim.bih.admin.volunteering.attendance.opportunity") %></dt>
+      <dd><%= @opportunity.title %></dd>
+      <dt><%= t("decidim.bih.admin.volunteering.attendance.citizen") %></dt>
+      <dd><%= @signup.user.name.presence || @signup.user.nickname || "##{@signup.user.id}" %></dd>
+      <dt><%= t("decidim.bih.admin.volunteering.attendance.status") %></dt>
+      <dd>
+        <% if @signup.attendance_confirmed? %>
+          <%= t("decidim.bih.admin.volunteering.attendance.already_confirmed",
+                date: l(@signup.attendance_confirmed_at, format: :short),
+                source: @signup.attendance_source) %>
+        <% else %>
+          <%= t("decidim.bih.admin.volunteering.attendance.waiting") %>
+        <% end %>
+      </dd>
+    </dl>
+
+    <% if !@signup.attendance_confirmed? && bih_allowed?(:volunteering_attendance_confirm) %>
+      <%= button_to t("decidim.bih.admin.volunteering.attendance.confirm"),
+                    confirm_volunteer_attendance_path(token: params[:token]),
+                    method: :post,
+                    class: "button button__secondary" %>
+    <% end %>
+
+    <%= link_to t("decidim.bih.admin.volunteering.attendance.back"),
+                admin_bih_volunteering_path(anchor: "volunteer-opportunity-#{@opportunity.id}"),
+                class: "button button__transparent-secondary" %>
+  </div>
+</div>

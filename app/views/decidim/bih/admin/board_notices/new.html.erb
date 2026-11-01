@@ -1,0 +1,31 @@
+<% add_decidim_page_title(notice_text("new_title")) %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :staff_publication %>
+<div class="card" id="board-notice-compose">
+  <div class="item_show__header"><h1 class="item_show__header-title"><%= notice_text("new_title") %></h1></div>
+  <div class="card-section">
+    <p><%= notice_text("publication_hint") %></p>
+    <%= link_to notice_text(bih_allowed?(:komsiluk_posts_read) ? "back_to_boards" : "back_to_publications"),
+                (bih_allowed?(:komsiluk_posts_read) ? admin_bih_komsiluk_posts_path : decidim_admin_bih.operations_path) %>
+    <%= form_tag admin_bih_board_notices_preview_path, class: "form form-defaults" do %>
+      <% if @values[:source_kind].present? %>
+        <%= hidden_field_tag "notice[source_kind]", @values[:source_kind] %><%= hidden_field_tag "notice[source_id]", @values[:source_id] %>
+        <p><%= notice_text("source_prefill") %></p>
+      <% end %>
+      <div><%= label_tag "notice_title", notice_text("title") %><%= text_field_tag "notice[title]", @values[:title], id: "notice_title", required: true, maxlength: Decidim::Bih::KomsilukPost::TITLE_MAX %></div>
+      <div><%= label_tag "notice_body", notice_text("body") %><%= text_area_tag "notice[body]", @values[:body], id: "notice_body", rows: 6, required: true, maxlength: Decidim::Bih::KomsilukPost::BODY_MAX %></div>
+      <div><%= label_tag "notice_category", notice_text("category") %><%= select_tag "notice[category]", options_for_select(Decidim::Bih::KomsilukPost::CATEGORIES.map { |key| [notice_text("categories.#{key}"), key] }, @values[:category]), id: "notice_category" %></div>
+      <div><%= label_tag "notice_expires_at", notice_text("expires_at") %><%= datetime_local_field_tag "notice[expires_at]", @values[:expires_at].respond_to?(:in_time_zone) ? @values[:expires_at].in_time_zone("Europe/Sarajevo").strftime("%Y-%m-%dT%H:%M") : @values[:expires_at], id: "notice_expires_at", required: true %><small><%= notice_text("time_zone") %></small></div>
+      <%= render "area_picker", areas: @areas, selected_ids: @values[:area_ids], name_prefix: "notice" %>
+      <details <%= "open" if Array(@values[:channels]).any? %>><summary><%= notice_text("optional_phone") %></summary>
+        <fieldset class="mi-board-notice-channels"><legend><%= notice_text("channels") %></legend><% %w(viber whatsapp sms).each do |channel| %><label><%= check_box_tag "notice[channels][]", channel, Array(@values[:channels]).include?(channel) %> <%= notice_text("channels_labels.#{channel}") %></label><% end %><p><%= notice_text("channel_order") %></p></fieldset>
+        <div><%= render "delivery_modes", selected_mode: @values[:mode] %></div>
+        <div><%= label_tag "notice_text", notice_text("phone_text") %><%= text_area_tag "notice[text]", @values[:text], id: "notice_text", rows: 4, maxlength: 1000 %><small><%= notice_text("phone_default") %> <%= notice_text("link_hint") %></small></div>
+        <div><%= label_tag "notice_sms_text", notice_text("sms_text") %><%= text_area_tag "notice[sms_text]", @values[:sms_text], id: "notice_sms_text", rows: 3, maxlength: 1000 %><small><%= notice_text("sms_hint") %></small></div>
+        <div><%= label_tag "notice_urgency_reason", notice_text("urgency_reason") %><%= text_field_tag "notice[urgency_reason]", @values[:urgency_reason], id: "notice_urgency_reason", maxlength: 300 %></div>
+      </details>
+      <%= submit_tag notice_text("preview"), class: "button button__sm button__secondary" %>
+    <% end %>
+  </div>
+</div>
+<% if @recent.any? %><section class="card"><div class="card-section"><h2><%= notice_text("recent") %></h2><ul><% @recent.each do |post| %><li><%= link_to post.title, admin_bih_komsiluk_post_path(post) %> — <%= post.komsiluk.translated_name %></li><% end %></ul></div></section><% end %>
+<% if @legacy.any? %><details class="card"><summary><%= notice_text("legacy_history") %></summary><div class="card-section"><% @legacy.each do |broadcast| %><p><%= l(broadcast.created_at.in_time_zone("Europe/Sarajevo"), format: :short) %>: <%= broadcast.message %> (<%= broadcast.recipients_count %>)</p><% end %></div></details><% end %>

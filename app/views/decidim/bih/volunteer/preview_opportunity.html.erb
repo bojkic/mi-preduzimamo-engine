@@ -1,0 +1,77 @@
+<% add_decidim_page_title(t("decidim.bih.volunteer.proposal_preview.title")) %>
+<main class="row column mi-volunteer-schedule-preview">
+  <h1><%= t("decidim.bih.volunteer.proposal_preview.title") %></h1>
+  <p><%= t("decidim.bih.volunteer.proposal_preview.intro") %></p>
+  <h2><%= @proposal_payload["title"] %></h2>
+  <p><%= @proposal_payload["description"] %></p>
+  <p class="help-text"><%= t("decidim.bih.volunteer.proposal_preview.time_zone") %></p>
+
+  <ol class="mi-data-list">
+    <% @proposal_preview.terms.each do |term| %>
+      <li class="mi-surface-card" id="proposal-preview-term-<%= term.number %>">
+        <h3><%= t("decidim.bih.volunteer.proposal_preview.term", number: term.number) %></h3>
+        <% if term.starts_at && term.ends_at %>
+          <p><%= l(term.starts_at.in_time_zone("Europe/Sarajevo"), format: :long) %> →
+             <%= l(term.ends_at.in_time_zone("Europe/Sarajevo"), format: :long) %></p>
+          <p><%= t("decidim.bih.volunteer.proposal_preview.duration",
+                    local: term.local_hours.round(1), elapsed: term.elapsed_hours.round(1)) %></p>
+        <% else %>
+          <p><%= t("decidim.bih.volunteer.proposal_preview.no_fixed_date") %></p>
+        <% end %>
+        <% if term.signup_deadline_at %>
+          <p><%= t("decidim.bih.volunteer.proposal_preview.deadline",
+                    date: l(term.signup_deadline_at.in_time_zone("Europe/Sarajevo"), format: :long)) %></p>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+
+  <% if @proposal_preview.long_terms.any? %>
+    <div class="callout warning" role="note">
+      <strong><%= t("decidim.bih.volunteer.proposal_preview.long_programme_warning") %></strong>
+      <p><%= t("decidim.bih.volunteer.proposal_preview.long_programme_terms",
+                terms: @proposal_preview.long_terms.map(&:number).join(", ")) %></p>
+    </div>
+  <% end %>
+  <% if @proposal_preview.overlaps.any? %>
+    <div class="callout warning" role="note">
+      <strong><%= t("decidim.bih.volunteer.proposal_preview.overlap_warning") %></strong>
+      <ul>
+        <% @proposal_preview.overlaps.each do |first, second| %>
+          <li><%= t("decidim.bih.volunteer.proposal_preview.overlap_pair", first:, second:) %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with url: volunteer_opportunities_path, method: :post do %>
+    <% @proposal_payload.each do |field, value| %>
+      <% if value.is_a?(Array) %>
+        <% value.each do |entry| %>
+          <%= hidden_field_tag "#{field}[]", entry %>
+        <% end %>
+      <% else %>
+        <%= hidden_field_tag field, value %>
+      <% end %>
+    <% end %>
+    <%= hidden_field_tag :preview_token, @preview_token %>
+    <label>
+      <%= check_box_tag :schedule_preview_confirmed, "1", false, required: true %>
+      <%= t("decidim.bih.volunteer.proposal_preview.confirm") %>
+    </label>
+    <%= submit_tag t("decidim.bih.volunteer.proposal_preview.submit"), class: "mi-btn mi-btn--primary" %>
+  <% end %>
+
+  <%= form_with url: edit_volunteer_opportunity_preview_path, method: :post do %>
+    <% @proposal_payload.each do |field, value| %>
+      <% if value.is_a?(Array) %>
+        <% value.each do |entry| %>
+          <%= hidden_field_tag "#{field}[]", entry %>
+        <% end %>
+      <% else %>
+        <%= hidden_field_tag field, value %>
+      <% end %>
+    <% end %>
+    <%= submit_tag t("decidim.bih.volunteer.proposal_preview.edit"), class: "mi-btn mi-btn--ghost" %>
+  <% end %>
+</main>

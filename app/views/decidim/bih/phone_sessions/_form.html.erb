@@ -1,0 +1,30 @@
+<% phone_copy = "decidim.bih.phone_sessions.new" %>
+<% if challenge_pending %>
+  <section class="mi-auth__card mi-auth__code" id="mi-auth-code" aria-labelledby="mi-auth-code-title">
+    <h2 class="mi-auth__title" id="mi-auth-code-title"><%= t("#{phone_copy}.code_title") %></h2>
+    <p class="mi-auth__intro"><%= t("#{phone_copy}.code_intro") %></p>
+    <%= form_with url: decidim_bih.verify_phone_login_code_path, method: :post, builder: ActionView::Helpers::FormBuilder,
+                  html: { class: "mi-auth__form", id: "mi-auth-code-form" } do |f| %>
+      <div class="mi-auth__field">
+        <%= f.label :verification_code, t("#{phone_copy}.code_label"), for: "mi-auth-verification-code" %>
+        <%= f.text_field :verification_code, id: "mi-auth-verification-code", autocomplete: "one-time-code",
+                                             inputmode: "numeric", maxlength: 6, pattern: "[0-9]{6}", required: true %>
+      </div>
+      <button type="submit" class="mi-btn mi-btn--primary mi-auth__submit"><%= t("#{phone_copy}.code_submit") %></button>
+    <% end %>
+  </section>
+<% end %>
+
+<section class="mi-auth__card" aria-labelledby="mi-auth-phone-title">
+  <h2 class="mi-auth__title" id="mi-auth-phone-title"><%= t(challenge_pending ? "#{phone_copy}.resend_title" : "decidim.bih.devise.sessions.phone_title") %></h2>
+  <p class="mi-auth__intro"><%= t(challenge_pending ? "#{phone_copy}.resend_intro" : "decidim.bih.devise.sessions.phone_intro") %></p>
+  <%= form_with url: decidim_bih.phone_login_path, method: :post, builder: ActionView::Helpers::FormBuilder,
+                html: { class: "mi-auth__form", id: "mi-auth-phone-form" } do |f| %>
+    <div class="mi-auth__field">
+      <%= f.label :phone, t("#{phone_copy}.phone_label"), for: "mi-auth-phone" %>
+      <%= f.telephone_field :phone, id: "mi-auth-phone", autocomplete: "tel", inputmode: "tel",
+                                    placeholder: "06X XXX XXX", required: true %>
+    </div>
+    <button type="submit" class="mi-btn mi-btn--primary mi-auth__submit"><%= t("#{phone_copy}.submit") %></button>
+  <% end %>
+</section>

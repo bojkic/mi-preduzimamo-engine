@@ -1,0 +1,431 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -d "${RBENV_ROOT:-${HOME}/.rbenv}" ]]; then
+  export RBENV_ROOT="${RBENV_ROOT:-${HOME}/.rbenv}"
+  export PATH="$RBENV_ROOT/versions/${RUBY_VERSION:-3.4.12}/bin:$PATH"
+fi
+
+if [[ -n "${DECIDIM_BIH_CLEAN_HOST_ENV_FILE:-}" ]]; then
+  # shellcheck source=/dev/null
+  source "$DECIDIM_BIH_CLEAN_HOST_ENV_FILE"
+fi
+
+ENGINE_ROOT="${ENGINE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+# Fail before generating a host when Redis is not the test endpoint the shared
+# guard accepts (mode aware once the dedicated test instance exists; plan
+# item 7). Same child-interpreter check as script/decidim_bih_rails_test:
+# exit 3 means refused, anything else means the check itself broke.
+redis_guard_status=0
+env -u RUBYOPT -u RUBYLIB ruby --disable-gems -I"$ENGINE_ROOT/lib" -rdecidim/bih/redis_endpoint \
+  -e 'begin; Decidim::Bih::RedisEndpoint.guard_test_environment!(ENV); rescue Decidim::Bih::RedisEndpoint::Error => e; warn "Refusing test Redis configuration: #{e.message}"; exit 3; end' \
+  || redis_guard_status=$?
+if [[ "$redis_guard_status" -ne 0 ]]; then
+  if [[ "$redis_guard_status" -ne 3 ]]; then
+    echo "Redis guard check crashed (exit $redis_guard_status); refusing to generate a host." >&2
+  fi
+  exit 64
+fi
+DATABASE_HELPER="$ENGINE_ROOT/script/decidim_bih_generated_host_database"
+# shellcheck source=decidim_bih_generated_host_database
+source "$DATABASE_HELPER"
+WORK_ROOT="${WORK_ROOT:-$ENGINE_ROOT/tmp/clean-host-boot}"
+RUN_NONCE="${DECIDIM_BIH_GENERATED_HOST_NONCE:-${BASHPID}_${RANDOM}_${RANDOM}}"
+APP_NAME="${APP_NAME:-decidim_bih_clean_host_$(date -u +%Y%m%d%H%M%S)_${RUN_NONCE}}"
+APP_ROOT="$WORK_ROOT/$APP_NAME"
+WRAPPER_ROOT="$WORK_ROOT/npm-wrapper-$APP_NAME"
+MOUNT_PATH="${MOUNT_PATH:-/moja-platforma}"
+SHORT_MAGIC_LINKS="${SHORT_MAGIC_LINKS:-0}"
+KEEP_WORKDIR="${KEEP_DECIDIM_BIH_CLEAN_HOST:-0}"
+GENERATOR_GEMFILE="${DECIDIM_BIH_CLEAN_HOST_GENERATOR_GEMFILE:-}"
+# Some released Decidim generators ship a development package.json with
+# monorepo-only file:packages/* dev references. They are irrelevant for this
+# boot smoke and break npm when generating from the released gem.
+export npm_config_omit="${npm_config_omit:-dev}"
+
+log() {
+  printf '[decidim-bih-clean-host] %s\n' "$*"
+}
+
+require_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    printf 'Missing required command: %s\n' "$1" >&2
+    exit 127
+  fi
+}
+
+truthy() {
+  [[ "$1" =~ ^(1|true|yes)$ ]]
+}
+
+decidim_bih_prepare_database_isolation clean_host "$APP_NAME"
+
+prune_unbundled_decidim_migrations() {
+  local pruned
+
+  pruned="$(
+    bundle exec ruby <<'RUBY'
+require "bundler"
+require "set"
+
+spec_names = Bundler.locked_gems.specs.map(&:name).to_set
+pruned = []
+
+Dir.glob("db/migrate/*.decidim_*.rb").sort.each do |migration|
+  suffix = File.basename(migration, ".rb").split(".").last
+  gem_name = suffix.sub(/\Adecidim_/, "decidim-")
+  next if spec_names.include?(gem_name)
+
+  File.delete(migration)
+  pruned << "#{File.basename(migration)} (missing #{gem_name})"
+end
+
+puts pruned
+RUBY
+  )"
+
+  if [[ -z "$pruned" ]]; then
+    log "no unbundled Decidim module migrations to prune"
+    return
+  fi
+
+  while IFS= read -r migration; do
+    log "pruned unbundled Decidim module migration: $migration"
+  done <<< "$pruned"
+}
+
+cleanup() {
+  local status=$?
+  local cleanup_status=0
+  local isolation_target
+
+  (
+    cd "$ENGINE_ROOT"
+    unset BUNDLE_GEMFILE
+    decidim_bih_cleanup_database_isolation >/dev/null 2>&1
+  ) || cleanup_status=$?
+
+  if [[ "$cleanup_status" != "0" ]]; then
+    isolation_target="${DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA:-${DECIDIM_BIH_GENERATED_HOST_TARGET_DATABASE:-unknown}}"
+    printf 'Failed to clean generated-host database isolation mode=%s target=%s status=%s\n' \
+      "${DECIDIM_BIH_GENERATED_HOST_DATABASE_MODE:-unknown}" "$isolation_target" "$cleanup_status" >&2
+    [[ "$status" != "0" ]] || status="$cleanup_status"
+  fi
+
+  if truthy "$KEEP_WORKDIR"; then
+    log "kept workdir: $APP_ROOT"
+    exit "$status"
+  fi
+
+  rm -rf "$APP_ROOT"
+  rm -rf "$WRAPPER_ROOT"
+  exit "$status"
+}
+
+trap cleanup EXIT
+
+require_command bundle
+require_command npm
+require_command ruby
+if [[ -z "$GENERATOR_GEMFILE" ]]; then
+  require_command decidim
+elif [[ ! -f "$GENERATOR_GEMFILE" ]]; then
+  printf 'Missing DECIDIM_BIH_CLEAN_HOST_GENERATOR_GEMFILE: %s\n' "$GENERATOR_GEMFILE" >&2
+  exit 127
+fi
+
+mkdir -p "$WORK_ROOT"
+rm -rf "$APP_ROOT"
+rm -rf "$WRAPPER_ROOT"
+
+REAL_NPM_PATH="$(command -v npm)"
+DECIDIM_NPM_VERSION="${DECIDIM_NPM_VERSION:-0.32.2}"
+export REAL_NPM_PATH DECIDIM_NPM_VERSION
+mkdir -p "$WRAPPER_ROOT"
+cat > "$WRAPPER_ROOT/npm" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -f package.json ]]; then
+  ruby -rjson -e '
+    path = "package.json"
+    version = ENV.fetch("DECIDIM_NPM_VERSION")
+    package = JSON.parse(File.read(path))
+    %w[dependencies devDependencies].each do |section|
+      next unless package[section].is_a?(Hash)
+
+      package[section].each do |name, value|
+        next unless name.start_with?("@decidim/") && value.to_s.start_with?("file:packages/")
+
+        package[section][name] = version
+      end
+    end
+    File.write(path, "#{JSON.pretty_generate(package)}\n")
+  '
+fi
+
+exec "$REAL_NPM_PATH" "$@"
+SH
+chmod +x "$WRAPPER_ROOT/npm"
+export PATH="$WRAPPER_ROOT:$PATH"
+
+log "generating disposable Decidim host: $APP_ROOT"
+(
+  cd "$WORK_ROOT"
+  if [[ -n "$GENERATOR_GEMFILE" ]]; then
+    env BUNDLE_GEMFILE="$GENERATOR_GEMFILE" bundle exec decidim "$APP_NAME" --force_ssl=false --locales=en,bs,hr,sr
+  else
+    decidim "$APP_NAME" --force_ssl=false --locales=en,bs,hr,sr
+  fi
+)
+
+cd "$APP_ROOT"
+decidim_bih_patch_generated_database_config "config/database.yml"
+decidim_bih_install_schema_extension_guard "config/initializers/decidim_bih_generated_host_database_guard.rb"
+
+# The generator may run under a different bundle. Install this host's own
+# final lockfile before any bundle exec command consumes it.
+log "installing generated Decidim baseline bundle"
+read -r -a bundle_install_flags <<< "${BUNDLE_INSTALL_FLAGS:-}"
+bundle install "${bundle_install_flags[@]}"
+
+log "checking copied Decidim migrations against generated host bundle"
+prune_unbundled_decidim_migrations
+
+log "creating disposable test database isolation"
+decidim_bih_preflight_database_isolation "db/migrate"
+decidim_bih_create_database_isolation
+
+log "migrating generated Decidim baseline"
+baseline_migration_log="tmp/decidim_bih_clean_host_baseline_db_migrate.log"
+if ! env RAILS_ENV=test DISABLE_SPRING=1 bin/rails db:migrate > "$baseline_migration_log" 2>&1; then
+  tail -200 "$baseline_migration_log" >&2 || true
+  exit 1
+fi
+
+log "adding decidim-bih from $ENGINE_ROOT"
+ruby -e 'path = ARGV.fetch(0); File.open("Gemfile", "a") { |file| file.puts; file.puts %(gem "decidim-bih", path: "#{path}") }' "$ENGINE_ROOT"
+
+log "installing generated host bundle"
+bundle install "${bundle_install_flags[@]}"
+
+generator_args=(--mount-path="$MOUNT_PATH")
+if truthy "$SHORT_MAGIC_LINKS"; then
+  generator_args+=(--short-magic-links)
+else
+  generator_args+=(--no-short-magic-links)
+fi
+
+log "running decidim:bih:install ${generator_args[*]}"
+env DISABLE_SPRING=1 bin/rails generate decidim:bih:install "${generator_args[@]}"
+
+log "mounting Decidim::Bih::Engine before Decidim root"
+export MOUNT_PATH SHORT_MAGIC_LINKS
+ruby <<'RUBY'
+path = "config/routes.rb"
+routes = File.read(path)
+core_route = /^\s*mount Decidim::Core::Engine => ['"]\/['"].*$/
+abort "Could not find Decidim::Core root mount in #{path}" unless routes.match?(core_route)
+
+short_magic_links = !ENV.fetch("SHORT_MAGIC_LINKS", "0").match?(/\A(false|0|no)\z/i)
+insert = %(  mount Decidim::Bih::Engine => "#{ENV.fetch("MOUNT_PATH")}"\n)
+if short_magic_links
+  insert << %(  get "/v/:token", to: "decidim/bih/magic_links#show"\n)
+  insert << %(  post "/v/:token", to: "decidim/bih/magic_links#consume"\n)
+end
+
+routes = routes.sub(core_route) { |line| routes.include?("Decidim::Bih::Engine") ? line : "#{insert}#{line}" }
+File.write(path, routes)
+RUBY
+
+log "migrating disposable test database with decidim-bih"
+migration_log="tmp/decidim_bih_clean_host_db_migrate.log"
+if ! env RAILS_ENV=test DISABLE_SPRING=1 bin/rails db:migrate > "$migration_log" 2>&1; then
+  tail -200 "$migration_log" >&2 || true
+  exit 1
+fi
+
+assertions="tmp/decidim_bih_clean_host_assertions.rb"
+cat > "$assertions" <<'RUBY'
+Rails.application.eager_load!
+
+engine_root = File.expand_path(ENV.fetch("ENGINE_ROOT"))
+loaded_root = File.expand_path(Gem.loaded_specs.fetch("decidim-bih").full_gem_path)
+raise "decidim-bih loaded from #{loaded_root}, expected #{engine_root}" unless loaded_root == engine_root
+
+expected_mount = Decidim::Bih.normalize_public_mount_path(ENV.fetch("MOUNT_PATH"))
+raise "mount path mismatch" unless Decidim::Bih.normalized_public_mount_path == expected_mount
+
+expected_short_magic_links = !ENV.fetch("SHORT_MAGIC_LINKS", "0").match?(/\A(false|0|no)\z/i)
+unless Decidim::Bih.magic_link_short_path_enabled == expected_short_magic_links
+  raise "short magic-link setting mismatch"
+end
+
+Rails.application.routes.recognize_path(Decidim::Bih.public_path("mapa"), method: :get)
+Rails.application.routes.recognize_path("/admin/bih/goodwill", method: :get)
+
+missing_assets = Decidim::Bih.required_public_assets.reject do |path|
+  File.file?(Rails.root.join("public", path.delete_prefix("/")))
+end
+raise "missing public assets: #{missing_assets.join(", ")}" if missing_assets.any?
+
+missing_outputs = %w[
+  config/initializers/decidim_bih.rb
+  config/initializers/decidim_bih_rack_attack.rb
+  docs/decidim_bih_host_contract.md
+].reject { |path| File.file?(Rails.root.join(path)) }
+raise "missing generator outputs: #{missing_outputs.join(", ")}" if missing_outputs.any?
+
+contract_doc = File.read(Rails.root.join("docs/decidim_bih_host_contract.md"))
+unless contract_doc.include?("## Public Surface Review") &&
+       contract_doc.include?("## Brand Asset Review") &&
+       contract_doc.include?("## Hard Decidim Module Dependencies")
+  raise "generated host contract doc is missing public surface, brand asset, or Decidim module sections"
+end
+
+manifest = Decidim::Bih.host_contract_manifest(
+  mount_path: expected_mount,
+  short_magic_links: expected_short_magic_links
+)
+public_surfaces = manifest.fetch(:required_public_surfaces)
+surface_ids = public_surfaces.map { |surface| surface.fetch(:id) }
+%w[reports.new reports_map.show community_hub.show mz_directory.index web_chat.create].each do |id|
+  raise "missing public surface contract #{id}" unless surface_ids.include?(id)
+end
+
+surface_paths = public_surfaces.flat_map { |surface| surface.fetch(:paths) }
+bad_surface_paths = surface_paths.select { |path| path.include?("/biceriseno") }
+raise "public surface paths did not honor custom mount: #{bad_surface_paths.join(", ")}" if bad_surface_paths.any?
+
+brand_asset_ids = manifest.fetch(:required_brand_asset_reviews).map { |asset| asset.fetch(:id) }
+%w[theme_and_fonts mi_mark stickers chat_and_install_helpers].each do |id|
+  raise "missing brand asset review family #{id}" unless brand_asset_ids.include?(id)
+end
+
+required_module_gems = manifest.fetch(:required_decidim_modules).map { |mod| mod.fetch(:gem) }
+%w[decidim-core decidim-budgets decidim-forms decidim-meetings decidim-proposals decidim-verifications].each do |gem_name|
+  raise "missing hard Decidim module dependency #{gem_name}" unless required_module_gems.include?(gem_name)
+end
+
+def sample_public_surface_path(path)
+  path
+    .gsub(":reference", "BR-2026-0001")
+    .gsub(":slug", "centar")
+    .gsub(":id", "1")
+end
+
+public_surfaces.each do |surface|
+  Array(surface.fetch(:paths)).each do |path|
+    sample_path = sample_public_surface_path(path)
+    surface.fetch(:methods).each do |method|
+      Rails.application.routes.recognize_path(sample_path, method: method.downcase.to_sym)
+    end
+  end
+end
+
+expected_throttles = Decidim::Bih.required_public_throttles.map { |throttle| throttle.fetch(:name) }
+missing_throttles = expected_throttles - Rack::Attack.throttles.keys
+raise "missing Rack::Attack throttles: #{missing_throttles.join(", ")}" if missing_throttles.any?
+
+Decidim::Bih.required_public_throttles.each do |contract|
+  throttle = Rack::Attack.throttles.fetch(contract.fetch(:name))
+  unless throttle.limit == contract.fetch(:limit)
+    raise "Rack::Attack throttle #{contract.fetch(:name)} limit mismatch: #{throttle.limit.inspect}"
+  end
+  unless throttle.period == contract.fetch(:period)
+    raise "Rack::Attack throttle #{contract.fetch(:name)} period mismatch: #{throttle.period.inspect}"
+  end
+end
+
+def rack_request(path:, method:, params: {}, session_id: nil)
+  env = Rack::MockRequest.env_for(
+    path,
+    method: method.to_s.upcase,
+    params: params,
+    "REMOTE_ADDR" => "203.0.113.10"
+  )
+  env["rack.session"] = Struct.new(:id).new(session_id) if session_id
+  Rack::Request.new(env)
+end
+
+def assert_throttle(name, path:, method:, expected:, params: {}, session_id: nil)
+  request = rack_request(path: path, method: method, params: params, session_id: session_id)
+  actual = Rack::Attack.throttles.fetch(name).block.call(request)
+  return if actual == expected
+
+  raise "Rack::Attack throttle #{name} returned #{actual.inspect} for #{method.to_s.upcase} #{path}, expected #{expected.inspect}"
+end
+
+client_ip = "203.0.113.10"
+community_session_id = "community-contribution-session"
+community_session_key = "s:#{Digest::SHA256.hexdigest(community_session_id)[0, 32]}"
+komsiluk_session_id = "komsiluk-cookie-session"
+komsiluk_session_key = "s:#{Digest::SHA256.hexdigest(komsiluk_session_id)[0, 32]}"
+phone_number = "+12025550101"
+phone_key = Decidim::Bih::Throttling.phone_key(phone_number)
+
+assert_throttle("bih/reports.create/ip", path: Decidim::Bih.public_path("prijave"), method: :post, expected: client_ip)
+assert_throttle("bih/reports.corroborate/ip", path: Decidim::Bih.public_path("prijave/BR-2026-0001/potvrdi"), method: :post, expected: client_ip)
+assert_throttle("bih/chat.create/ip", path: Decidim::Bih.public_path("chat"), method: :post, expected: client_ip)
+assert_throttle("bih/chat.feedback/ip", path: Decidim::Bih.public_path("chat/feedback"), method: :post, expected: client_ip)
+assert_throttle(
+  "bih/community-contributions.write/ip",
+  path: Decidim::Bih.public_path("volontiranje/potrebe/123/ponude"),
+  method: :post,
+  expected: client_ip
+)
+assert_throttle(
+  "bih/community-contributions.write/session",
+  path: Decidim::Bih.public_path("projekti/prijave/123"),
+  method: :patch,
+  session_id: community_session_id,
+  expected: community_session_key
+)
+assert_throttle("bih/viber.webhook/ip", path: Decidim::Bih.public_path("viber/webhook"), method: :post, expected: client_ip)
+assert_throttle("bih/komsiluk-board.write/ip", path: Decidim::Bih.public_path("komsiluk-board/123/prijavi"), method: :post, expected: client_ip)
+assert_throttle(
+  "bih/komsiluk-board.write/session",
+  path: Decidim::Bih.public_path("komsiluk-board/123/zatvori"),
+  method: :patch,
+  session_id: komsiluk_session_id,
+  expected: komsiluk_session_key
+)
+assert_throttle("bih/magic-link", path: Decidim::Bih.public_path("v/token-123"), method: :post, expected: client_ip)
+assert_throttle("bih/magic-link", path: "/v/token-123", method: :post, expected: expected_short_magic_links ? client_ip : nil)
+assert_throttle(
+  "bih/phone-login/ip",
+  path: Decidim::Bih.public_path("prijava"),
+  method: :post,
+  params: { phone: phone_number },
+  expected: client_ip
+)
+assert_throttle(
+  "bih/phone-login/phone",
+  path: Decidim::Bih.public_path("prijava"),
+  method: :post,
+  params: { phone: phone_number },
+  expected: phone_key
+)
+assert_throttle(
+  "bih/phone-login/phone",
+  path: Decidim::Bih.public_path("prijava"),
+  method: :post,
+  params: { phone: " +1 202/555-0101 " },
+  expected: phone_key
+)
+assert_throttle(
+  "bih/phone-login/phone",
+  path: Decidim::Bih.public_path("prijava"),
+  method: :post,
+  params: { phone: "not-a-phone" },
+  expected: nil
+)
+
+puts "clean host boot ok: mount=#{expected_mount} short_magic_links=#{expected_short_magic_links}"
+RUBY
+
+log "eager-loading and checking BIH host contract"
+env RAILS_ENV=test DISABLE_SPRING=1 ENGINE_ROOT="$ENGINE_ROOT" MOUNT_PATH="$MOUNT_PATH" SHORT_MAGIC_LINKS="$SHORT_MAGIC_LINKS" \
+  bin/rails runner "$assertions"
+
+log "clean-host smoke passed"

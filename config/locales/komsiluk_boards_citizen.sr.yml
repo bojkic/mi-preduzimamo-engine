@@ -1,0 +1,146 @@
+{
+  "sr": {
+    "decidim": {
+      "bih": {
+        "boards": {
+          "intro": "Obavještenja, aktivnosti i pomoć u tvom komšiluku.",
+          "change_area": "Promijeni komšiluk",
+          "views": "Prikaz table",
+          "compose": "Objavi obavještenje",
+          "search": "Pretraži objave",
+          "any_category": "Sve kategorije",
+          "origin_label": "Ko objavljuje",
+          "any_origin": "Svi izvori",
+          "status": "Stanje",
+          "any_status": "Sva stanja",
+          "filter": "Prikaži",
+          "result_count": {
+            "one": "%{count} objava",
+            "few": "%{count} objave",
+            "other": "%{count} objava"
+          },
+          "notices": "Objave komšiluka",
+          "filtered_empty": "Nema objava za ove filtere.",
+          "empty_help": "Ovdje možeš pročitati lokalne obavijesti i objaviti svoju.",
+          "reset_filters": "Očisti filtere",
+          "pagination": "Stranice objava",
+          "source_update": {
+            "title": "Objava se ažurira",
+            "body": "Povezani javni zapis se promijenio. Fondacija provjerava ovu objavu.",
+            "open_source": "Pogledaj trenutni izvorni zapis"
+          },
+          "read_notice": "Pročitaj objavu",
+          "edit": "Ispravi objavu",
+          "save": "Sačuvaj ispravku",
+          "cancel": "Odustani",
+          "back": "Nazad na tablu",
+          "updated": "Ispravka je sačuvana.",
+          "edited": "Ispravljeno %{at}",
+          "valid_until": "Važi do %{at}",
+          "flag": "Prijavi sadržaj",
+          "audience": "Objavu vide članovi komšiluka %{area}.",
+          "publication_effect": "Nova objava stiže u obavještenja članova. Push se šalje tamo gdje je omogućen. Telefonsko slanje bira ovlašćeni operator.",
+          "limits": "Najviše %{limit} novih objava dnevno. Danas možeš objaviti još %{remaining}.",
+          "expiry": "Važi do (lokalno vrijeme)",
+          "expiry_help": "Najviše 90 dana. Aktivnost mora imati kraj. Bez izbora: izgubljeni ljubimac i bezbjednost 30 dana, opšta objava ostaje dok je ne zatvoriš.",
+          "material_update": "Ovo je važna promjena — obavijesti članove ponovo.",
+          "minor_update": "Sitne ispravke se čuvaju bez nove poruke. Skrivena objava ostaje skrivena do pregleda.",
+          "hidden_author": "Objava je skrivena članovima. Tvoja ispravka ide na ponovni pregled; ne vraća je automatski na tablu.",
+          "completion": "Šta se desilo?",
+          "complete": "Završi objavu",
+          "origins": {
+            "citizen": "Objava komšije",
+            "staff": "Obavještenje fondacije",
+            "city_service": "Gradsko obavještenje",
+            "legacy": "Ranija objava"
+          },
+          "outcomes": {
+            "resolved": "Riješeno",
+            "completed": "Završeno",
+            "closed": "Zatvoreno"
+          },
+          "context": {
+            "title": "U mom komšiluku"
+          },
+          "notifications": {
+            "title": "Obavještenja za moj komšiluk",
+            "inbox": "Sve nove objave ostaju dostupne u obavještenjima na platformi.",
+            "enabled": "Lokalne poruke su uključene. Za push je potrebna dozvola na ovom uređaju.",
+            "disabled": "Dodatne lokalne poruke su isključene. Objave i obavještenja na platformi su dostupni.",
+            "settings": "Podesi obavještenja i uređaj"
+          },
+          "verification": {
+            "help": "Možeš čitati tablu. Prije objavljivanja potvrdi broj telefona, pa se vrati ovdje.",
+            "action": "Potvrdi telefon i nastavi"
+          },
+          "source": {
+            "title": "Izvor i područje",
+            "starts_at": "Početak",
+            "ends_at": "Kraj",
+            "link": "Otvori izvor %{number}"
+          },
+          "activity": {
+            "title": "Detalji aktivnosti (opciono)",
+            "starts_at": "Početak aktivnosti",
+            "place_label": "Mjesto susreta",
+            "action_url": "Link ka aktivnosti ili prijavi",
+            "action": "Pogledaj aktivnost"
+          },
+          "photo": {
+            "label": "Fotografija (opciono)",
+            "help": "Jedna JPG, PNG ili WebP fotografija, do 5 MB. Vidljiva je samo onima koji imaju pristup objavi. Podaci o lokaciji iz fotografije se uklanjaju.",
+            "alt": "Fotografija uz objavu",
+            "remove": "Ukloni fotografiju"
+          },
+          "draft": {
+            "help": "Tekst nacrta se čuva u ovoj kartici najviše dva sata. Fotografiju izaberi ponovo ako zatvoriš karticu.",
+            "saved": "Nacrt je sačuvan u ovoj kartici, najviše dva sata.",
+            "discard": "Obriši nacrt"
+          },
+          "help": {
+            "enable": "Dozvoli komšijama da ponude pomoć",
+            "title": "Možeš pomoći?",
+            "consent": "Autor će vidjeti tvoj javni nadimak i moći da otvori tvoj profil. Ponudu možeš povući. Ovo nije prijava za volontiranje ili rezervacija.",
+            "action": "Pošalji autoru da mogu pomoći",
+            "withdraw": "Povuci ponudu pomoći",
+            "received": "Ponuđena pomoć",
+            "owner_help": "Ovdje vidiš samo komšije koje su ti dobrovoljno ponudile pomoć. Otvori profil za kontakt.",
+            "none": "Još nema ponuda pomoći.",
+            "saved": "Tvoja odluka je sačuvana.",
+            "unavailable": "Ponuda pomoći trenutno nije dostupna.",
+            "notification": "Neko je ponudio pomoć uz tvoju komšiluk objavu."
+          },
+          "errors": {
+            "link": "Unesi ispravan http ili https link.",
+            "date": "Unesi ispravan datum i vrijeme.",
+            "end_before_start": "Kraj mora biti poslije početka aktivnosti.",
+            "expiry": "Kraj mora biti u budućnosti, najviše 90 dana od danas.",
+            "photo": "Fotografija nije dostupna ili nije ispravna. Izaberi JPG, PNG ili WebP do 5 MB.",
+            "stale": "Objava je u međuvremenu izmijenjena. Pregledaj sačuvanu verziju prije ponovnog čuvanja.",
+            "expired_form": "Ovaj obrazac je istekao ili je komšiluk promijenjen. Pregledaj podatke i ponovo objavi."
+          },
+          "unavailable": {
+            "title": "Objava više nije dostupna",
+            "body": "Objava je uklonjena, više nije aktuelna ili nemaš pristup ovoj tabli.",
+            "closed": "Autor je zatvorio objavu.",
+            "expired": "Vrijeme važenja objave je isteklo.",
+            "hidden": "Objava je povučena sa table zbog pregleda."
+          },
+          "priority": "Važno za tvoj komšiluk"
+        }
+      }
+    },
+    "activerecord": {
+      "attributes": {
+        "decidim/bih/komsiluk_post": {
+          "title": "Naslov",
+          "body": "Tekst",
+          "category": "Kategorija",
+          "expires_at": "Važi do",
+          "photo": "Fotografija",
+          "details": "Detalji aktivnosti"
+        }
+      }
+    }
+  }
+}

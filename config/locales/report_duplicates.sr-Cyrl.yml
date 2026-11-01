@@ -1,0 +1,27 @@
+{
+  "sr-Cyrl": {
+    "decidim": {
+      "bih": {
+        "reports": {
+          "public_statuses": {
+            "duplicate": "Дупликат — повезана пријава"
+          },
+          "statuses": {
+            "duplicate": "Дупликат — повезана пријава"
+          },
+          "duplicate_display": {
+            "explanation": "Овај проблем обрађујемо кроз пријаву %{reference}. Ваша пријава и допуне су сачуване.",
+            "unavailable": "Пријава је повезана с другом пријавом истог проблема.",
+            "main_status": "Статус главне пријаве: %{status}",
+            "activity": "Пријава %{reference} повезана је с пријавом %{main_reference}."
+          }
+        },
+        "report_case": {
+          "states": {
+            "duplicate": "Дупликат — повезана пријава"
+          }
+        }
+      }
+    }
+  }
+}

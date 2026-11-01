@@ -1,0 +1,146 @@
+{
+  "en": {
+    "decidim": {
+      "bih": {
+        "boards": {
+          "intro": "Notices, activities and help in your neighbourhood.",
+          "change_area": "Change neighbourhood",
+          "views": "Board views",
+          "compose": "Publish a notice",
+          "search": "Search notices",
+          "any_category": "All categories",
+          "origin_label": "Posted by",
+          "any_origin": "All sources",
+          "status": "Status",
+          "any_status": "All statuses",
+          "filter": "Show",
+          "result_count": {
+            "one": "%{count} notice",
+            "few": "%{count} notices",
+            "other": "%{count} notices"
+          },
+          "notices": "Neighbourhood notices",
+          "filtered_empty": "No notices match these filters.",
+          "empty_help": "Read local notices and share your own here.",
+          "reset_filters": "Clear filters",
+          "pagination": "Notice pages",
+          "source_update": {
+            "title": "Notice being updated",
+            "body": "The linked public record changed. The foundation is reviewing this notice.",
+            "open_source": "View the current source record"
+          },
+          "read_notice": "Read notice",
+          "edit": "Correct notice",
+          "save": "Save correction",
+          "cancel": "Cancel",
+          "back": "Back to the board",
+          "updated": "The correction was saved.",
+          "edited": "Updated %{at}",
+          "valid_until": "Valid until %{at}",
+          "flag": "Report this content",
+          "audience": "Members of %{area} can read this notice.",
+          "publication_effect": "New notices appear in members’ platform notifications. Push is sent where enabled. An authorized operator chooses any phone delivery.",
+          "limits": "Up to %{limit} new notices per day. You can publish %{remaining} more today.",
+          "expiry": "Valid until (local time)",
+          "expiry_help": "Up to 90 days. Activities need an end time. If left blank: lost-pet and safety notices last 30 days; general notices remain until you close them.",
+          "material_update": "This is a material change — notify members again.",
+          "minor_update": "Small corrections are saved without another message. Hidden content remains hidden until reviewed.",
+          "hidden_author": "This notice is hidden from members. Your correction requests review and does not automatically restore it.",
+          "completion": "What happened?",
+          "complete": "Finish notice",
+          "origins": {
+            "citizen": "Neighbour notice",
+            "staff": "Foundation notice",
+            "city_service": "City service notice",
+            "legacy": "Earlier notice"
+          },
+          "outcomes": {
+            "resolved": "Resolved",
+            "completed": "Completed",
+            "closed": "Closed"
+          },
+          "context": {
+            "title": "In my neighbourhood"
+          },
+          "notifications": {
+            "title": "My neighbourhood notifications",
+            "inbox": "All new notices remain available in platform notifications.",
+            "enabled": "Local messages are enabled. Push needs permission on this device.",
+            "disabled": "Additional local messages are disabled. The board and platform notifications remain available.",
+            "settings": "Set up notifications and this device"
+          },
+          "verification": {
+            "help": "You can read the board. Verify your phone before publishing, then return here.",
+            "action": "Verify phone and continue"
+          },
+          "source": {
+            "title": "Source and coverage",
+            "starts_at": "Starts",
+            "ends_at": "Ends",
+            "link": "Open source %{number}"
+          },
+          "activity": {
+            "title": "Activity details (optional)",
+            "starts_at": "Activity starts",
+            "place_label": "Meeting place",
+            "action_url": "Activity or registration link",
+            "action": "View activity"
+          },
+          "photo": {
+            "label": "Photo (optional)",
+            "help": "One JPG, PNG or WebP photo, up to 5 MB. Only people with access to the notice can view it. Embedded location metadata is removed.",
+            "alt": "Photo attached to the notice",
+            "remove": "Remove photo"
+          },
+          "draft": {
+            "help": "Draft text is stored in this tab for up to two hours. Select the photo again if you close the tab.",
+            "saved": "Draft saved in this tab for up to two hours.",
+            "discard": "Discard draft"
+          },
+          "help": {
+            "enable": "Allow neighbours to offer help",
+            "title": "Can you help?",
+            "consent": "The author will see your public nickname and can open your profile. You can withdraw your offer. This does not create a volunteer registration or booking.",
+            "action": "Tell the author I can help",
+            "withdraw": "Withdraw offer",
+            "received": "Offers of help",
+            "owner_help": "Only neighbours who volunteered to help you appear here. Open their profile to contact them.",
+            "none": "No offers of help yet.",
+            "saved": "Your choice was saved.",
+            "unavailable": "An offer of help is currently unavailable.",
+            "notification": "Someone offered help with your neighbourhood notice."
+          },
+          "errors": {
+            "link": "Enter a valid http or https link.",
+            "date": "Enter a valid date and time.",
+            "end_before_start": "The end must follow the activity start.",
+            "expiry": "The end must be in the future, within 90 days.",
+            "photo": "The photo is unavailable or invalid. Choose JPG, PNG or WebP up to 5 MB.",
+            "stale": "The notice changed in another session. Review the saved version before saving again.",
+            "expired_form": "This form expired or the neighbourhood changed. Review your input and publish again."
+          },
+          "unavailable": {
+            "title": "This notice is no longer available",
+            "body": "The notice was removed, is no longer current, or you do not have access to this board.",
+            "closed": "The author closed this notice.",
+            "expired": "This notice has expired.",
+            "hidden": "This notice was removed from the board for review."
+          },
+          "priority": "Important in your neighbourhood"
+        }
+      }
+    },
+    "activerecord": {
+      "attributes": {
+        "decidim/bih/komsiluk_post": {
+          "title": "Title",
+          "body": "Text",
+          "category": "Category",
+          "expires_at": "Valid until",
+          "photo": "Photo",
+          "details": "Activity details"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,311 @@
+<%#
+  PII-safe host analytics. This page and its CSV exports show aggregate rows
+  only: no reporter descriptions, contacts, member lists, recipients, user names,
+  emails, or phone numbers.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.analytics.index.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :analytics %>
+
+<div class="card" id="admin-analytics-header" data-analytics-active-tab="<%= @active_analytics_tab %>">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.analytics.index.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.analytics.index.intro") %></p>
+    <p><em><%= t("decidim.bih.admin.analytics.index.privacy_note") %></em></p>
+    <nav id="admin-analytics-workflow-nav" aria-label="<%= t("decidim.bih.admin.analytics.index.workflow_nav_label") %>" style="display:flex; gap:0.45rem; flex-wrap:wrap;">
+      <%= link_to t("decidim.bih.admin.analytics.index.workflow_exports"),
+                  admin_bih_analytics_path(tab: "exports"),
+                  class: ["button", "button__sm", (@active_analytics_tab == "exports" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_analytics_tab == "exports") },
+                  data: { analytics_workflow_tab: "exports" } %>
+      <%= link_to t("decidim.bih.admin.analytics.index.workflow_mi_bot_review"),
+                  admin_bih_analytics_path(tab: "mi_bot_review"),
+                  class: ["button", "button__sm", (@active_analytics_tab == "mi_bot_review" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_analytics_tab == "mi_bot_review") },
+                  data: { analytics_workflow_tab: "mi_bot_review" } %>
+      <% if bih_allowed?(:mi_bot_examples_read) %>
+        <%= link_to t("decidim.bih.admin.analytics.index.workflow_mi_bot_examples"),
+                    admin_bih_analytics_path(tab: "examples"),
+                    class: ["button", "button__sm", (@active_analytics_tab == "examples" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                    aria: { current: ("page" if @active_analytics_tab == "examples") },
+                    data: { analytics_workflow_tab: "examples" } %>
+      <% end %>
+      <%= link_to t("decidim.bih.admin.analytics.index.workflow_trends"),
+                  admin_bih_analytics_path(tab: "trends"),
+                  class: ["button", "button__sm", (@active_analytics_tab == "trends" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_analytics_tab == "trends") },
+                  data: { analytics_workflow_tab: "trends" } %>
+      <%= link_to t("decidim.bih.admin.analytics.index.workflow_previews"),
+                  admin_bih_analytics_path(tab: "previews"),
+                  class: ["button", "button__sm", (@active_analytics_tab == "previews" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_analytics_tab == "previews") },
+                  data: { analytics_workflow_tab: "previews" } %>
+      <%= link_to t("decidim.bih.admin.analytics.index.workflow_chat_health"),
+                  admin_bih_analytics_path(tab: "chat_health"),
+                  class: ["button", "button__sm", (@active_analytics_tab == "chat_health" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_analytics_tab == "chat_health") },
+                  data: { analytics_workflow_tab: "chat_health" } %>
+      <%= link_to t("decidim.bih.admin.concierge_metrics.title"), admin_bih_analytics_path(tab: "metrics"),
+                  class: "button button__sm button__transparent-secondary", aria: { current: ("page" if @active_analytics_tab == "metrics") },
+                  data: { analytics_workflow_tab: "metrics" } %>
+    </nav>
+  </div>
+</div>
+
+<% if @active_analytics_tab == "exports" %>
+<%= render "decidim/bih/admin/analytics/registration_funnel" %>
+<div class="card" id="admin-analytics-exports">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.analytics.index.exports_title") %></h2>
+  </div>
+  <div class="card-section">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(14rem, 1fr)); gap:0.75rem;">
+      <% Decidim::Bih::Admin::AnalyticsSummary::DATASETS.each do |dataset| %>
+        <div style="border:1px solid #ddd; border-radius:4px; padding:0.75rem;">
+          <h3 style="font-size:1rem; margin:0 0 0.35rem;">
+            <%= t("decidim.bih.admin.analytics.datasets.#{dataset}") %>
+          </h3>
+          <p style="margin:0 0 0.5rem;">
+            <%= t("decidim.bih.admin.analytics.index.rows", count: @overview.fetch(dataset).to_i) %>
+          </p>
+          <% if bih_allowed?(:analytics_export) %>
+            <%= link_to t("decidim.bih.admin.analytics.index.download_csv"),
+                        admin_bih_analytics_export_path(dataset: dataset, format: :csv),
+                        class: "button button__sm button__transparent-secondary" %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+<% end %>
+
+<% if @active_analytics_tab == "mi_bot_review" %>
+<div class="card" id="admin-mi-bot-answer-review">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.analytics.index.mi_bot_review_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.analytics.index.mi_bot_review_intro") %></p>
+    <p><em><%= t("decidim.bih.admin.analytics.index.mi_bot_review_privacy") %></em></p>
+    <div class="callout secondary">
+      <strong><%= t("decidim.bih.admin.analytics.index.mi_bot_review_handoff_title", default: "Kako završiti pregled") %></strong>
+      <p><%= t("decidim.bih.admin.analytics.index.mi_bot_review_handoff_body", default: "Ova stranica nije sistem zadataka i ne dodjeljuje vlasnika. Analitičar prepoznaje obrazac i dijeli zbirni red sa vlasnikom biblioteke odgovora ili gradskih podataka; osoba sa odgovarajućom dozvolom pravi izmjenu, a analitičar zatim prati naredni period. Ne kopiraj poruke građana u vanjske zadatke.") %></p>
+    </div>
+    <% if bih_allowed?(:analytics_export) %>
+      <p>
+        <%= link_to t("decidim.bih.admin.analytics.index.download_mi_bot_review_csv"),
+                    admin_bih_analytics_export_path(dataset: "mi_bot_review", format: :csv),
+                    class: "button button__sm button__transparent-secondary" %>
+      </p>
+    <% end %>
+
+    <% if @mi_bot_answer_review_rows.any? %>
+      <div class="table-stacked" style="display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+        <table class="table-list">
+          <thead>
+            <tr>
+              <th><%= t("decidim.bih.admin.analytics.headers.review_priority") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.review_action") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.answer_intent") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.outcome") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.locale") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.feedback_count") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.not_helpful_rate") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.last_feedback_on") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @mi_bot_answer_review_rows.each do |row| %>
+              <tr>
+                <td><strong><%= t("decidim.bih.admin.analytics.review_priorities.#{row[:review_priority]}") %></strong></td>
+                <td><%= t("decidim.bih.admin.analytics.review_actions.#{row[:review_action]}") %></td>
+                <td>
+                  <%= t("decidim.bih.admin.analytics.answer_intents.#{row[:answer_intent]}", default: t("decidim.bih.admin.analytics.answer_intents.unknown", default: "Druga namjera")) %>
+                  <details><summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary><code><%= row[:answer_intent] %></code></details>
+                </td>
+                <td>
+                  <%= t("decidim.bih.admin.analytics.outcomes.#{row[:outcome]}", default: t("decidim.bih.admin.analytics.outcomes.unknown", default: "Drugi ishod")) %>
+                  <details><summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary><code><%= row[:outcome] %></code></details>
+                </td>
+                <td><%= row[:locale] %></td>
+                <td><%= row[:feedback_count] %></td>
+                <td><%= row[:not_helpful_rate].presence || "—" %></td>
+                <td><%= row[:last_feedback_on].presence || "—" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p><em><%= t("decidim.bih.admin.analytics.index.mi_bot_review_empty") %></em></p>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<% if @active_analytics_tab == "trends" %>
+<div class="card" id="admin-mi-bot-review-comparison">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.analytics.index.mi_bot_comparison_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.analytics.index.mi_bot_comparison_intro") %></p>
+    <p><em><%= t("decidim.bih.admin.analytics.index.mi_bot_comparison_privacy") %></em></p>
+    <% if bih_allowed?(:analytics_export) %>
+      <p>
+        <%= link_to t("decidim.bih.admin.analytics.index.download_mi_bot_comparison_csv"),
+                    admin_bih_analytics_export_path(dataset: "mi_bot_review_comparison", format: :csv),
+                    class: "button button__sm button__transparent-secondary" %>
+      </p>
+    <% end %>
+
+    <% if @mi_bot_review_comparison_rows.any? %>
+      <div class="table-stacked" style="display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+        <table class="table-list">
+          <thead>
+            <tr>
+              <th><%= t("decidim.bih.admin.analytics.headers.answer_intent") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.outcome") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.locale") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.current_not_helpful_count") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.previous_not_helpful_count") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.change_value") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.decreased") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @mi_bot_review_comparison_rows.each do |row| %>
+              <tr>
+                <td>
+                  <%= t("decidim.bih.admin.analytics.answer_intents.#{row[:answer_intent]}", default: t("decidim.bih.admin.analytics.answer_intents.unknown", default: "Druga namjera")) %>
+                  <details><summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary><code><%= row[:answer_intent] %></code></details>
+                </td>
+                <td>
+                  <%= t("decidim.bih.admin.analytics.outcomes.#{row[:outcome]}", default: t("decidim.bih.admin.analytics.outcomes.unknown", default: "Drugi ishod")) %>
+                  <details><summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary><code><%= row[:outcome] %></code></details>
+                </td>
+                <td><%= row[:locale] %></td>
+                <td><%= row[:current_not_helpful_count] %></td>
+                <td><%= row[:previous_not_helpful_count] %></td>
+                <td><%= row[:change_value] %></td>
+                <td><%= row[:decreased] ? t("decidim.bih.admin.analytics.booleans.yes") : t("decidim.bih.admin.analytics.booleans.no") %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p><em><%= t("decidim.bih.admin.analytics.index.mi_bot_comparison_empty") %></em></p>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<% if @active_analytics_tab == "examples" %>
+<div class="card" id="admin-mi-bot-feedback-examples">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.analytics.index.mi_bot_examples_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.analytics.index.mi_bot_examples_intro") %></p>
+    <p><em><%= t("decidim.bih.admin.analytics.index.mi_bot_examples_privacy") %></em></p>
+
+    <% if @mi_bot_answer_review_examples.any? %>
+      <div class="table-stacked" style="display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+        <table class="table-list">
+          <thead>
+            <tr>
+              <th><%= t("decidim.bih.admin.analytics.headers.rating") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.review_action") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.answer_intent") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.outcome") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.locale") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.feedback_on") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.citizen_message") %></th>
+              <th><%= t("decidim.bih.admin.analytics.headers.bot_reply_text") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @mi_bot_answer_review_examples.each do |row| %>
+              <tr>
+                <td><strong><%= t("decidim.bih.admin.analytics.ratings.#{row[:rating]}", default: row[:rating]) %></strong></td>
+                <td><%= t("decidim.bih.admin.analytics.review_actions.#{row[:review_action]}") %></td>
+                <td>
+                  <%= t("decidim.bih.admin.analytics.answer_intents.#{row[:answer_intent]}", default: t("decidim.bih.admin.analytics.answer_intents.unknown", default: "Druga namjera")) %>
+                  <details><summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary><code><%= row[:answer_intent] %></code></details>
+                </td>
+                <td>
+                  <%= t("decidim.bih.admin.analytics.outcomes.#{row[:outcome]}", default: t("decidim.bih.admin.analytics.outcomes.unknown", default: "Drugi ishod")) %>
+                  <details><summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary><code><%= row[:outcome] %></code></details>
+                </td>
+                <td><%= row[:locale] %></td>
+                <td><%= row[:feedback_on].presence || "—" %></td>
+                <td style="min-width:16rem; max-width:28rem; white-space:normal;"><%= row[:citizen_message] %></td>
+                <td style="min-width:20rem; max-width:36rem; white-space:normal;"><%= row[:bot_reply_text] %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p><em><%= t("decidim.bih.admin.analytics.index.mi_bot_examples_empty") %></em></p>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<% if @active_analytics_tab == "chat_health" && @chat_health %>
+  <%= render "decidim/bih/admin/analytics/chat_health", health: @chat_health %>
+<% end %>
+
+<% if @active_analytics_tab == "previews" %>
+<div class="card" id="admin-analytics-preview">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.analytics.index.preview_title") %></h2>
+  </div>
+  <div class="card-section">
+    <% Decidim::Bih::Admin::AnalyticsSummary::DATASETS.each do |dataset| %>
+      <% rows = @summary.rows_for(dataset).first(6) %>
+      <h3 style="font-size:1rem; margin-top:1rem;"><%= t("decidim.bih.admin.analytics.datasets.#{dataset}") %></h3>
+      <% if rows.any? %>
+        <div class="table-stacked" style="display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+          <table class="table-list">
+            <thead>
+              <tr>
+                <% Decidim::Bih::Admin::AnalyticsSummary::HEADERS.fetch(dataset).each do |header| %>
+                  <th><%= t("decidim.bih.admin.analytics.headers.#{header}", default: header.humanize) %></th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <% rows.each do |row| %>
+                <tr>
+                  <% Decidim::Bih::Admin::AnalyticsSummary::HEADERS.fetch(dataset).each do |header| %>
+                    <td>
+                      <% value = row[header.to_sym] %>
+                      <% if dataset == "trends" && header == "metric" && value.present? %>
+                        <%= t("decidim.bih.admin.analytics.trend_metrics.#{value}", default: value) %>
+                      <% else %>
+                        <%= value.presence || "—" %>
+                      <% end %>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p><em><%= t("decidim.bih.admin.analytics.index.empty") %></em></p>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<% if @active_analytics_tab == "metrics" %>
+  <%= render "decidim/bih/admin/analytics/concierge_metrics", metrics: @concierge_metrics %>
+<% end %>

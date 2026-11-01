@@ -1,0 +1,7 @@
+<% provider = Decidim::Bih::Komsiluk::NoticeComposer.source_provider %>
+<% if provider && current_user && provider.call(organization: current_organization, actor: current_user, kind: source_kind, id: source_id) %>
+  <%= link_to t("decidim.bih.komsiluk_notice_sources.prepare"),
+              Decidim::Bih::AdminEngine.routes.url_helpers.new_admin_bih_board_notice_path(
+                source_kind:, source_id:, script_name: "/admin/bih"
+              ), class: local_assigns.fetch(:button_class, "button button__sm button__secondary"), data: { prepare_board_notice: source_kind } %>
+<% end %>

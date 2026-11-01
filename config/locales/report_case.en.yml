@@ -1,0 +1,123 @@
+{
+  "en": {
+    "decidim": {
+      "bih": {
+        "report_case": {
+          "second_reminder_due": "Please add the requested information by %{due}. After that, the report may be closed and removed from public view.",
+          "evidence": "Report evidence",
+          "private_help": "Private review for authorized staff. The description and photo are not public.",
+          "address": "Location",
+          "photo": "Report photo",
+          "anonymous": "Publicly anonymous",
+          "yes": "Yes",
+          "no": "No",
+          "review": "Review and ownership",
+          "decision": "Review decision",
+          "category": "Category",
+          "department": "Responsible department",
+          "severity": "Priority",
+          "recipient": "Recipient",
+          "recipient_help": "Addresses come from Sistem48 settings. An administrator can update them. Confirm responsibility before sending.",
+          "owner": "Assigned staff member",
+          "due": "Next-action deadline (local time)",
+          "rejection_reason": "Rejection reason (public)",
+          "resolution": "Resolution evidence or explanation",
+          "resolution_help": "The reporter can read this through their private link. Save it before marking the report resolved.",
+          "save_review": "Save review",
+          "conversation": "Report conversation",
+          "message": "Message",
+          "ask_information": "Request more information and set a deadline",
+          "message_help": "The message stays in this private case. Linked accounts receive a bell alert, opted-in push and an external notification through eligible messaging channels. WhatsApp uses an approved report-status template; the full conversation stays here. Unlinked reporters need their saved private link.",
+          "send_message": "Send message",
+          "forwarding": "Forward report",
+          "preview": "Preview before sending",
+          "record_external": "Record an external submission",
+          "external_reference": "External receipt or submission reference",
+          "confirm_external": "I confirm this report was already submitted outside the platform. This action sends no message.",
+          "confirm_send": "I reviewed the recipient and content and want to send this report.",
+          "send_now": "Send report",
+          "back": "Back to report",
+          "no_messages": "No messages yet.",
+          "opened": "Opened",
+          "feedback": "Reporter feedback",
+          "reply": "Send reply",
+          "saved": "Review saved.",
+          "message_saved": "Message saved.",
+          "send_queued": "Sending queued. The outcome will appear in the event history.",
+          "external_recorded": "External submission recorded. The platform sent no message.",
+          "new_message": "New message about report %{reference}.",
+          "overdue": "Report %{reference} has passed its deadline.",
+          "states": {
+            "pending": "Awaiting review",
+            "validated": "Validated",
+            "needs_information": "Waiting for more information",
+            "rejected": "Rejected"
+          },
+          "roles": {
+            "staff": "Report team",
+            "citizen": "Reporter"
+          },
+          "delivery": {
+            "pending": "Notification pending",
+            "bell_created": "Account notification created",
+            "no_recipient": "No linked account to notify; the conversation is available through the private link"
+          },
+          "feedback_options": {
+            "accepted": "I confirm this is resolved",
+            "problem_persists": "The problem persists"
+          },
+          "errors": {
+            "already_forwarded": "Already forwarded; submission details cannot be overwritten.",
+            "invalid_owner": "Choose an active authorized staff member in this organization.",
+            "invalid_recipient": "Choose a configured recipient and category.",
+            "invalid_decision": "Choose a valid review decision.",
+            "rejection_reason": "Provide a rejection reason.",
+            "invalid_due": "Questions require a future deadline. Check the date format.",
+            "terminal": "Reopen this closed report before sending a question.",
+            "not_resolved": "Resolution feedback is available for resolved reports.",
+            "invalid_feedback": "Choose valid feedback.",
+            "external_reference": "Provide an external receipt or submission reference (up to 240 characters).",
+            "not_validated": "Validate the report, choose a recipient and save the review before forwarding.",
+            "preview_required": "The preview expired or the case changed. Preview and confirm again.",
+            "confirm_external": "Confirm that this was already submitted outside the platform.",
+            "use_forward": "Use preview and send, or separately record an external submission. Changing status does not send the report.",
+            "resolution_evidence": "Save resolution evidence in the case review before marking it resolved.",
+            "confirm_review": "I reviewed the evidence and confirm this validation or rejection."
+          },
+          "forwarding_note": "Additional information approved for the recipient (conversation is not forwarded automatically)",
+          "confirm_review": "I reviewed the evidence and confirm this validation or rejection.",
+          "owners": {
+            "mine": "Assigned to me",
+            "unassigned": "Unassigned"
+          },
+          "external_delivery": "Messaging app copy",
+          "external_ineligible": "No eligible messaging channel: the account must enable report updates and meet the channel requirements. The private message and bell notification remain available.",
+          "reply_link": "Reply to your report (private link)",
+          "external_states": {
+            "pending": "Pending",
+            "sending": "Sending",
+            "accepted": "Provider accepted; delivery not yet confirmed",
+            "rejected": "Rejected",
+            "failed": "Failed",
+            "unknown": "Outcome unknown",
+            "skipped": "Skipped",
+            "delivered": "Delivery confirmed"
+          }
+        },
+        "admin": {
+          "reports": {
+            "events": {
+              "types": {
+                "case_reviewed": "Review saved",
+                "case_message_created": "Case message recorded",
+                "case_assignment_updated": "Assignment updated",
+                "case_external_submission_recorded": "External submission recorded",
+                "case_deadline_reminded": "Deadline reminder created"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

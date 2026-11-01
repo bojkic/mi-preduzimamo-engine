@@ -1,0 +1,24 @@
+en:
+  decidim:
+    bih:
+      case_agent:
+        shadow: "Case assistant suggestion. Accepting fills in the decision below; you confirm the action."
+        nothing_to_accept: "The AI suggests waiting for now; there is no decision to accept."
+        passed: "passed"
+        failed: "failed"
+        actions:
+          send_initial: "Prepare initial submission"
+          ask: "Ask the citizen"
+          supplement: "Prepare a supplement"
+          answer_city: "Prepare a service reply"
+          resolve: "Review the reported repair"
+          close: "Review closure"
+          duplicate: "Review a duplicate"
+          review: "Review the report"
+          plan: "Review a planning proposal"
+          reopen: "Review reopening"
+          wait: "Wait — no action for now"
+        signals:
+          validators: "Structure and evidence checks"
+          agreement: "Agreement between assessments"
+          deterministic: "Rule checks"

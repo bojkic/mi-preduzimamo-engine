@@ -1,0 +1,33 @@
+<%#
+  Result of the one-tap "potvrdi dolazak" link from the invitation message.
+  Reached by POST (the tap) or by GET when the invitation is already confirmed.
+  Shows the reservation number only while the invitation is still live: the
+  citizen already holds it in the message, and at the door it is what counts.
+%>
+<% add_decidim_page_title(t(".title")) %>
+<% live = @invitation.status == "reserved" %>
+<main class="wrapper">
+  <div class="mi-surface mi-magic-link">
+    <div class="mi-surface-card mi-surface-card--strip acc-coral">
+      <div class="mi-card-strip"></div>
+      <div class="mi-surface-card__body mi-magic-link__body">
+        <span class="mi-magic-link__mark" aria-hidden="true"><img src="/mi/heart-mark.png" alt=""></span>
+        <h1 class="heading3"><%= t(".title") %></h1>
+        <p class="mi-magic-link__intro" role="status"><%= t(".#{@outcome}") %></p>
+        <% if live %>
+          <p style="margin: 0.8rem 0 0; color: var(--mi-navy-400);"><%= t(".number_label") %></p>
+          <p style="font-family: var(--mi-font-display); font-weight: 800; font-size: 1.6rem; letter-spacing: 0.08em; margin: 0.2rem 0;">
+            <%= @invitation.entry_code %>
+          </p>
+          <div style="max-width: 200px;" aria-hidden="true">
+            <%= Decidim::Bih::Goodwill::LaunchInvitation.qr_svg(@invitation.entry_code)&.html_safe %>
+          </div>
+          <p style="color: var(--mi-navy-400);"><%= t(".door_note") %></p>
+        <% end %>
+        <p class="mi-action-row" style="justify-content:center; margin-top: 0.6rem;">
+          <%= link_to t(".hub_link"), decidim_bih.community_hub_path(tab: "nagrade"), class: "mi-btn mi-btn--ghost" %>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>

@@ -1,0 +1,35 @@
+---
+hr:
+  decidim:
+    bih:
+      report_tasks:
+        title: Otvoreni zadaci tima
+        help: Ovo je ono što tim još treba riješiti na ovoj prijavi.
+        what: Šta treba uraditi
+        due: rok
+        closes_with_decision: Zatvara se sam kada doneseš bilo koju odluku ispod (poruka građaninu, upit službi, potvrda pregleda…).
+        closes_here_only: 'Ne zatvara se odlukom ispod: kada je riješeno, označi ga ovdje.'
+        close: Označi kao riješeno
+        close_help: Ne šalje ništa i ne mijenja status prijave; bilježi se u istoriji.
+        closed: Zadatak je označen kao riješen.
+        explain:
+          approve_police_channel_and_referral: Odluči da li prijavu uputiti Saobraćajnoj policiji. Policija nema objavljen mejl za ovakve prijave (telefon %{phone}). Ako si građanina uputio da sam kontaktira policiju ili odlučio da prijavu ne šalješ policiji, označi kao riješeno.
+          confirm_receipt_and_assess_protective_response: 'Prijava navodi moguću opasnost: „%{quote}“. Provjeri da je služba primila prijavu i da li treba tražiti hitnu zaštitnu mjeru. Kada je provjereno, označi kao riješeno ili pošalji upit službi.'
+          parking_capacity_planning: Dio prijave o nedostatku parking-mjesta treba ući u plansku zbirku. Kada je dodan, označi kao riješeno.
+          mail_review: 'Stigao je mejl službe (%{date}): „%{subject}“. Pročitaj ga u dijelu „Prepiska sa službama“ i odluči ispod: zabilježi odgovor službe, obavijesti građanina ili odgovori službi.'
+          provider_undeliverable: Poruka građaninu nije isporučena. Pokušaj drugim kanalom ili zatvori prijavu ako građanin nije dostupan.
+          citizen_replied_via_channel: Građanin je poslije podsjetnika pisao preko Vibera/WhatsAppa (poruka je otišla Milici, ne u prijavu). Automatsko zatvaranje je zaustavljeno; odluči ispod.
+          second_reminder_undelivered: Podsjetnik građaninu preko Vibera/WhatsAppa nije isporučen, pa se prijava neće zatvoriti sama. Građanin nije odgovorio na pitanje; odluči ispod (npr. zatvori kao „građanin nije odgovorio“).
+          city_overdue_after_reply: Grad je već odgovorio na prijavu, ali rok za konačan odgovor je istekao. Automatski podsjetnik se ne šalje jer bi zanemario njihov odgovor; odluči ispod (npr. pitaj Grad za potvrdu ili pitaj građanina da potvrdi da je riješeno).
+          assessment_not_authorized: Građanin je poslao fotografiju koju AI ne pregleda. Pogledaj fotografiju u razgovoru.
+        kinds:
+          review: Pregledaj prijavu i donesi odluku ispod.
+          dispatch_approval: Odluči o slanju prijave novom primaocu.
+          mail_review: Pročitaj novu prepisku sa službom i odluči o sljedećem koraku.
+          delivery_exception: Poruka nije isporučena; odluči kako dalje.
+          closure_approval: Odluči o zatvaranju prijave.
+          dispute_review: Pregledaj osporavanje građanina.
+        reasons:
+          done: Riješeno
+          not_needed: Nije potrebno
+          handled_elsewhere: Riješeno drugim putem

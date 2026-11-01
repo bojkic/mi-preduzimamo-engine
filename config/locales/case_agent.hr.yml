@@ -1,0 +1,24 @@
+hr:
+  decidim:
+    bih:
+      case_agent:
+        shadow: "Prijedlog AI asistenta za cijeli tijek prijave. Prihvaćanjem se popunjava odluka ispod; radnju potvrđuješ ti."
+        nothing_to_accept: "AI predlaže da se za sada pričeka; nema odluke za prihvaćanje."
+        passed: "prošlo"
+        failed: "nije prošlo"
+        actions:
+          send_initial: "Pripremiti prvo slanje"
+          ask: "Pitati građanina"
+          supplement: "Pripremiti dopunu"
+          answer_city: "Pripremiti odgovor službi"
+          resolve: "Pregledati prijavljenu popravku"
+          close: "Pregledati zatvaranje"
+          duplicate: "Provjeriti duplikat"
+          review: "Pregledati prijavu"
+          plan: "Razmotriti planski prijedlog"
+          reopen: "Pregledati ponovno otvaranje"
+          wait: "Pričekati — za sada bez radnje"
+        signals:
+          validators: "Provjera strukture i dokaza"
+          agreement: "Slaganje dvije procjene"
+          deterministic: "Provjera pravila"

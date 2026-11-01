@@ -1,0 +1,36 @@
+{
+  "bs": {
+    "decidim": {
+      "bih": {
+        "reports": {
+          "public_statuses": {
+            "needs_information": "Čekamo dopunu",
+            "under_review": "U pregledu",
+            "reviewed": "Pregledano"
+          },
+          "statuses": {
+            "needs_information": "Čekamo dopunu",
+            "under_review": "U pregledu",
+            "reviewed": "Pregledano"
+          }
+        },
+        "content_blocks": {
+          "mi_hub": {
+            "modules": {
+              "eyebrow": "Dajemo ti mnogo načina da uzmeš stvari u svoje ruke"
+            }
+          },
+          "mi_hero": {
+            "stats": {
+              "reports_sent": {
+                "one": "prijava poslata službama",
+                "few": "prijave poslate službama",
+                "other": "prijava poslatih službama"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

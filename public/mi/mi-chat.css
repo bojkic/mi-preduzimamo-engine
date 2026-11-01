@@ -1,0 +1,457 @@
+/* ============================================================
+   MI bot — floating web-chat widget
+   Self-contained, site-wide bubble + chat panel that talks to the
+   host-provided chat endpoint. Palette, typography, radii and
+   shadows come from the --mi-* tokens in mi-theme.css. Everything
+   here is scoped under .mi-chat so it never leaks into Decidim's UI
+   or the .mi-bot showcase. Served statically from /public.
+   ============================================================ */
+
+.mi-chat {
+  /* Local chat tokens, derived from the brand palette so this file is the one
+     place the widget's look is tuned. */
+  --mic-header-bg: var(--mi-navy-800, #033653);
+  --mic-header-ink: #fff;
+  --mic-status-ink: #aed6e8;
+  --mic-body-bg: var(--mi-cream-100, #faf7ec);
+  --mic-in-bubble: #fff;
+  --mic-in-ink: var(--mi-navy-700, #1c3d53);
+  --mic-out-bubble: var(--mi-coral-600, #d86b4a);
+  --mic-out-ink: #fff;
+  --mic-brand: var(--mi-coral-600, #d86b4a);
+  --mic-brand-strong: var(--mi-coral-700, #b6502f);
+  --mic-quick-bg: #fff;
+  --mic-input-bar-bg: #fff;
+  --mic-input-bg: #f1efe6;
+
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  z-index: 2147483000; /* above Decidim chrome, below nothing of ours */
+  font-family: var(--mi-font-body, system-ui, sans-serif);
+  transition: bottom 180ms var(--mi-ease, ease);
+}
+.mi-chat *,
+.mi-chat *::before,
+.mi-chat *::after { box-sizing: border-box; }
+
+.mi-chat.mi-chat--consent-open:not(.is-open) {
+  bottom: calc(var(--mi-consent-offset, 0px) + 20px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ============================================================
+   Bubble launcher
+   ============================================================ */
+.mi-chat__bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  height: 60px;
+  border: none;
+  border-radius: var(--mi-radius-pill, 999px);
+  background: var(--mic-brand);
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 10px 26px rgba(182, 80, 47, .38), 0 2px 6px rgba(28, 61, 83, .18);
+  transition: transform 160ms var(--mi-ease, ease), background-color 160ms var(--mi-ease, ease),
+              box-shadow 160ms var(--mi-ease, ease), gap 200ms var(--mi-ease, ease),
+              padding 200ms var(--mi-ease, ease);
+}
+.mi-chat__bubble:hover {
+  background: var(--mic-brand-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(182, 80, 47, .45), 0 3px 8px rgba(28, 61, 83, .2);
+}
+.mi-chat__bubble:focus-visible {
+  outline: 3px solid var(--mi-sun-500, #fbe48f);
+  outline-offset: 2px;
+}
+.mi-chat__bubble-icon {
+  width: 60px;
+  height: 60px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.mi-chat__bubble-icon svg { width: 28px; height: 28px; }
+.mi-chat__bubble-label {
+  font-family: var(--mi-font-display, sans-serif);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .005em;
+  white-space: nowrap;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 220ms var(--mi-ease, ease), opacity 160ms var(--mi-ease, ease),
+              padding 220ms var(--mi-ease, ease);
+  padding-right: 0;
+}
+/* Reveal the label on hover/focus on pointer devices. */
+@media (hover: hover) and (pointer: fine) {
+  .mi-chat__bubble:hover .mi-chat__bubble-label,
+  .mi-chat__bubble:focus-visible .mi-chat__bubble-label {
+    max-width: 180px;
+    opacity: 1;
+    padding-right: 20px;
+  }
+}
+
+/* Hide the bubble while the panel is open (the panel replaces it). */
+.mi-chat.is-open .mi-chat__bubble { display: none; }
+
+/* Unread/attention dot (reserved; toggled by JS in future). */
+.mi-chat__bubble-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--mi-sun-500, #fbe48f);
+  border: 2px solid var(--mic-brand);
+  display: none;
+}
+
+/* ============================================================
+   Panel
+   ============================================================ */
+.mi-chat__panel {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 376px;
+  max-width: calc(100vw - 32px);
+  height: 600px;
+  max-height: calc(100vh - 32px);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--mic-body-bg);
+  border-radius: 22px;
+  box-shadow: 0 28px 60px rgba(28, 61, 83, .32), 0 4px 14px rgba(28, 61, 83, .18);
+  transform-origin: bottom right;
+}
+.mi-chat.is-open .mi-chat__panel {
+  display: flex;
+  animation: mi-chat-in 220ms var(--mi-ease, ease);
+}
+@keyframes mi-chat-in {
+  from { opacity: 0; transform: translateY(14px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- Header ---- */
+.mi-chat__header {
+  background: var(--mic-header-bg);
+  color: var(--mic-header-ink);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 14px 13px;
+  flex: none;
+}
+.mi-chat__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .18);
+}
+.mi-chat__avatar img { height: 30px; width: auto; }
+.mi-chat__id { flex: 1; min-width: 0; }
+.mi-chat__name {
+  font-family: var(--mi-font-display, sans-serif);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.15;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mi-chat__status {
+  font-size: 12px;
+  color: var(--mic-status-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mi-chat__status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mi-park-500, #b6cf7d);
+  flex: none;
+}
+.mi-chat__close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+  cursor: pointer;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 140ms var(--mi-ease, ease);
+}
+.mi-chat__close:hover { background: rgba(255, 255, 255, .22); }
+.mi-chat__close:focus-visible { outline: 2px solid var(--mi-sun-500, #fbe48f); outline-offset: 2px; }
+.mi-chat__close svg { width: 18px; height: 18px; }
+
+/* ---- Body / transcript ---- */
+.mi-chat__body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  scroll-behavior: smooth;
+}
+
+/* ---- Bubbles ---- */
+.mi-chat__row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.mi-chat__row.is-out { align-items: flex-end; }
+.mi-chat__bubble-msg {
+  max-width: 82%;
+  background: var(--mic-in-bubble);
+  color: var(--mic-in-ink);
+  padding: 9px 13px;
+  border-radius: 17px;
+  border-bottom-left-radius: 5px;
+  font-size: 14.5px;
+  line-height: 1.44;
+  white-space: pre-line;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-shadow: 0 1px 1.5px rgba(0, 0, 0, .1);
+}
+.mi-chat__row.is-out .mi-chat__bubble-msg {
+  background: var(--mic-out-bubble);
+  color: var(--mic-out-ink);
+  border-bottom-left-radius: 17px;
+  border-bottom-right-radius: 5px;
+}
+.mi-chat__bubble-msg a { color: inherit; text-decoration: underline; }
+.mi-chat__row.is-in .mi-chat__bubble-msg a { color: var(--mic-brand-strong); }
+
+/* ---- Answer feedback ---- */
+.mi-chat__feedback {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 0 2px;
+  max-width: 82%;
+}
+.mi-chat__feedback-button {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--mi-line, #e4e9ed);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .78);
+  color: var(--mi-navy-600, #38576d);
+  cursor: pointer;
+  font: 600 12px/1 var(--mi-font-display, sans-serif);
+  padding: 7px 9px;
+}
+.mi-chat__feedback-button:hover {
+  border-color: var(--mic-brand);
+  color: var(--mic-brand-strong);
+}
+.mi-chat__feedback-button[aria-pressed="true"] {
+  background: var(--mic-brand);
+  border-color: var(--mic-brand);
+  color: #fff;
+}
+.mi-chat__feedback-button:disabled { cursor: default; opacity: .82; }
+.mi-chat__feedback-button:focus-visible { outline: 2px solid var(--mi-sun-500, #fbe48f); outline-offset: 2px; }
+.mi-chat__feedback-button svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.mi-chat__feedback-status {
+  flex-basis: 100%;
+  color: var(--mi-navy-500, #526f82);
+  font-size: 12px;
+  line-height: 1.3;
+  min-height: 1em;
+}
+
+/* ---- Sticker ---- */
+.mi-chat__sticker { display: flex; justify-content: flex-start; padding: 2px 0; }
+.mi-chat__sticker img {
+  width: 116px;
+  height: 116px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(28, 61, 83, .18));
+}
+
+/* ---- Typing indicator ---- */
+.mi-chat__typing {
+  align-self: flex-start;
+  background: var(--mic-in-bubble);
+  border-radius: 17px;
+  border-bottom-left-radius: 5px;
+  padding: 12px 15px;
+  display: inline-flex;
+  gap: 5px;
+  box-shadow: 0 1px 1.5px rgba(0, 0, 0, .1);
+}
+.mi-chat__typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mi-navy-400, #6f8a9e);
+  animation: mi-chat-blink 1.2s infinite ease-in-out both;
+}
+.mi-chat__typing span:nth-child(2) { animation-delay: .18s; }
+.mi-chat__typing span:nth-child(3) { animation-delay: .36s; }
+@keyframes mi-chat-blink {
+  0%, 80%, 100% { opacity: .25; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* ---- Quick replies ---- */
+.mi-chat__quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 2px 0 2px;
+}
+.mi-chat__chip {
+  font-family: var(--mi-font-display, sans-serif);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--mic-brand);
+  background: var(--mic-quick-bg);
+  border: 1.5px solid var(--mic-brand);
+  padding: 8px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 140ms var(--mi-ease, ease), color 140ms var(--mi-ease, ease);
+}
+.mi-chat__chip:hover { background: var(--mic-brand); color: #fff; }
+.mi-chat__chip:focus-visible { outline: 2px solid var(--mi-sun-500, #fbe48f); outline-offset: 2px; }
+
+/* ---- Input bar ---- */
+.mi-chat__inputbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  padding: 10px 12px 13px;
+  background: var(--mic-input-bar-bg);
+  border-top: 1px solid var(--mi-line, #e4e9ed);
+  flex: none;
+}
+.mi-chat__field {
+  flex: 1;
+  resize: none;
+  border: none !important;
+  background: var(--mic-input-bg);
+  border-radius: 20px;
+  padding: 11px 15px;
+  font-family: var(--mi-font-body, sans-serif);
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--mi-navy-700, #1c3d53);
+  max-height: 96px;
+  min-height: 42px;
+}
+.mi-chat__field:focus { outline: none; box-shadow: 0 0 0 2px var(--mi-sava-300, #aed6e8); }
+.mi-chat__field::placeholder { color: #8a8a90; }
+.mi-chat__locate,
+.mi-chat__send {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  flex: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 140ms var(--mi-ease, ease), transform 140ms var(--mi-ease, ease);
+}
+.mi-chat__locate {
+  background: #fff;
+  color: var(--mi-navy-600, #38576d);
+  border: 1px solid var(--mi-line, #e4e9ed);
+}
+.mi-chat__send {
+  background: var(--mic-brand);
+  color: #fff;
+}
+.mi-chat__locate:hover,
+.mi-chat__locate.is-active {
+  background: var(--mi-sava-100, #e8f4f8);
+  color: var(--mic-brand-strong);
+}
+.mi-chat__send:hover { background: var(--mic-brand-strong); }
+.mi-chat__locate:active,
+.mi-chat__send:active { transform: scale(.94); }
+.mi-chat__locate:disabled,
+.mi-chat__send:disabled { opacity: .5; cursor: default; }
+.mi-chat__locate:focus-visible,
+.mi-chat__send:focus-visible { outline: 2px solid var(--mi-sun-500, #fbe48f); outline-offset: 2px; }
+.mi-chat__locate svg,
+.mi-chat__send svg { width: 19px; height: 19px; }
+
+/* ============================================================
+   Mobile — near-fullscreen panel
+   ============================================================ */
+@media (max-width: 480px) {
+  .mi-chat {
+    right: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  }
+  .mi-chat.mi-chat--consent-open:not(.is-open) {
+    bottom: calc(var(--mi-consent-offset, 0px) + 14px + env(safe-area-inset-bottom, 0px));
+  }
+  .mi-chat.mi-chat--consent-open:not(.is-open) .mi-chat__bubble {
+    display: none;
+  }
+  .mi-chat__panel {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .mi-chat,
+  .mi-chat__bubble,
+  .mi-chat__bubble-label,
+  .mi-chat__send,
+  .mi-chat__locate,
+  .mi-chat__close { transition: none; }
+  .mi-chat.is-open .mi-chat__panel { animation: none; }
+  .mi-chat__typing span { animation: none; opacity: .6; }
+  .mi-chat__body { scroll-behavior: auto; }
+}

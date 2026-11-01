@@ -1,0 +1,24 @@
+{
+  "en": {
+    "decidim": {
+      "bih": {
+        "report_evidence": {
+          "photo": "Photograph (optional)",
+          "photo_help": "JPG, PNG or WebP, up to 5 MB. Photos stay in the private conversation and are sent to the service after review.",
+          "download": "Download photograph",
+          "invalid_photo": "Photo not accepted. Choose a valid JPG, PNG or WebP up to 5 MB and submit again.",
+          "mail_too_large": "Photos exceed the total 15 MB limit. Nothing was sent; contact an administrator to prepare the attachments.",
+          "attachments": "Photographs attached to the email",
+          "service_response": "Service response",
+          "references": "File numbers in the response (keep together if the mapping is unconfirmed)",
+          "response_help": "Stores the response privately and returns the case to staff review. No citizen message is sent. Do not assign individual file numbers without confirmation."
+        },
+        "review_workspace": {
+          "actions": {
+            "service_response": "Record service response"
+          }
+        }
+      }
+    }
+  }
+}

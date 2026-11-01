@@ -1,0 +1,12 @@
+en:
+  decidim:
+    bih:
+      report_staff_alert:
+        title: "New report %{reference} is ready for review."
+      admin:
+        reports:
+          events:
+            types:
+              staff_alerts_created: "Staff alerts created"
+            metadata:
+              recipient_count: "Recipients"

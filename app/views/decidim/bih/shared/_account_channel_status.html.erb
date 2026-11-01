@@ -1,0 +1,18 @@
+<% channel_t = "decidim.bih.account_channels" %>
+<section class="mi-account-panel" aria-label="<%= t("#{channel_t}.connections") %>">
+  <h2 class="heading4"><%= t("#{channel_t}.connections") %></h2>
+  <p><%= t("#{channel_t}.connection_help") %></p>
+  <ul>
+    <% Decidim::Bih::AccountChannelStatus.for(user: user, organization: organization).each do |item| %>
+      <li><strong><%= t("#{channel_t}.channels.#{item[:channel]}") %>:</strong> <%= t("#{channel_t}.states.#{item[:state]}") %></li>
+    <% end %>
+  </ul>
+  <% latest = Decidim::Bih::AccountNotification.where(user: user, organization: organization).order(created_at: :desc).first %>
+  <p><strong><%= t("#{channel_t}.last_delivery") %>:</strong>
+    <% if latest %>
+      <%= t("#{channel_t}.delivery_states.#{latest.status}") %> · <%= l(latest.created_at, format: :short) %>
+    <% else %>
+      <%= t("#{channel_t}.no_delivery") %>
+    <% end %>
+  </p>
+</section>

@@ -1,0 +1,19 @@
+<%
+  summary = local_assigns.fetch(:summary, {})
+  cards = [
+    [t("decidim.bih.shared.report_summary.total", default: "Ukupno prijava"), summary[:total].to_i],
+    [t("decidim.bih.shared.report_summary.open", default: "Otvoreno"), summary[:open].to_i],
+    [t("decidim.bih.shared.report_summary.resolved", default: "Riješeno"), summary[:resolved].to_i],
+    [t("decidim.bih.shared.report_summary.recent", default: "Zadnjih 7 dana"), summary[:recent].to_i],
+    [t("decidim.bih.shared.report_summary.located", default: "Na mapi"), summary[:located].to_i]
+  ]
+%>
+
+<section class="mi-metric-grid mi-metric-grid--compact" aria-label="<%= t("decidim.bih.shared.report_summary.aria", default: "Sažetak prijava") %>">
+  <% cards.each do |label, value| %>
+    <article class="mi-metric-card">
+      <strong><%= number_with_delimiter(value, delimiter: ".") %></strong>
+      <span><%= label %></span>
+    </article>
+  <% end %>
+</section>

@@ -1,0 +1,244 @@
+<%#
+  Private "Moj nalog" setup overview. Keep wallet history on /moj-doprinos and
+  use this page as the simple next-step hub after registration.
+%>
+<% add_decidim_page_title(t("decidim.bih.account.show.title")) %>
+<%
+  setup_t = "decidim.bih.account.show.setup.steps"
+  status_t = "decidim.bih.account.show.setup.status"
+  step_href = lambda do |step|
+    case step.href_key
+    when :account
+      "#osnovni-podaci"
+    when :authorizations
+      decidim_verifications.authorizations_path
+    when :phone_verification
+      decidim_bih.phone_verification_path
+    when :postal
+      @summary.postal_status == :sent ? @summary.postal_confirm_path : @summary.postal_request_path
+    when :komsiluk
+      edit_komsiluk_path
+    when :new_report
+      new_report_path
+    when :notifications
+      account_notification_settings_path
+    when :invite
+      Decidim::Bih.invite_path
+    end
+  end
+  profile_path = decidim.profile_path(@user.nickname) if @summary.public_profile_ready?
+  following_path = @summary.public_profile_ready? ? decidim.profile_following_path(nickname: @user.nickname) : decidim.notifications_path
+  activity_path = @summary.public_profile_ready? ? decidim.profile_activity_path(nickname: @user.nickname) : decidim.notifications_path
+%>
+
+<div class="mi-account-page">
+    <section class="mi-account-overview" aria-labelledby="mi-account-title">
+      <div class="mi-account-hero">
+        <div class="mi-account-hero__copy">
+          <h1 id="mi-account-title" class="heading2"><%= t(".title") %></h1>
+          <p><%= t(".subtitle") %></p>
+        </div>
+      </div>
+
+      <div class="mi-account-dashboard" aria-label="<%= t(".stats.aria") %>">
+        <%= link_to "#zavrsi-nalog", class: "mi-account-card mi-account-card--progress", aria: { label: t(".setup.progress_aria") } do %>
+          <span><%= t(".setup.progress_label", completed: @summary.completed_required_steps, total: @summary.required_steps_count) %></span>
+          <strong><%= @summary.completion_percent %>%</strong>
+          <div class="mi-account-progress__bar">
+            <span style="width:<%= @summary.completion_percent %>%;"></span>
+          </div>
+        <% end %>
+        <%= link_to wallet_path, class: "mi-account-card mi-account-card--combined" do %>
+          <strong><%= number_with_delimiter(@summary.contribution, delimiter: ".") %></strong>
+          <span><%= t(".stats.community_summary.title") %></span>
+          <div class="mi-account-card__level">
+            <span><%= t(".stats.level") %></span>
+            <strong><%= @summary.level.title %></strong>
+          </div>
+          <small><%= t(".stats.community_summary.balance", count: number_with_delimiter(@summary.balance, delimiter: ".")) %></small>
+        <% end %>
+        <%= link_to reports_path(view: "mine"), class: "mi-account-card" do %>
+          <strong><%= number_with_delimiter(@summary.report_count, delimiter: ".") %></strong>
+          <span><%= t(".stats.reports", open: @summary.open_report_count) %></span>
+        <% end %>
+        <%= link_to wallet_path, class: "mi-account-card" do %>
+          <strong>
+            <% if @summary.points_to_next_level %>
+              <%= number_with_delimiter(@summary.points_to_next_level, delimiter: ".") %>
+            <% else %>
+              <%= t(".rhythm.top_level") %>
+            <% end %>
+          </strong>
+          <span><%= t(".rhythm.next_level") %></span>
+          <div class="mi-account-progress__bar" aria-hidden="true">
+            <span style="width:<%= @summary.level_progress_percent %>%;"></span>
+          </div>
+        <% end %>
+        <%= link_to community_hub_path(tab: "tabla"), class: "mi-account-card" do %>
+          <strong>
+            <% if @summary.season_started? %>
+              <%= number_with_delimiter(@summary.season_score, delimiter: ".") %>
+            <% else %>
+              <%= t(".rhythm.no_season") %>
+            <% end %>
+          </strong>
+          <span><%= t(".rhythm.season_score") %></span>
+        <% end %>
+        <%= link_to volunteer_path, class: "mi-account-card" do %>
+          <strong><%= number_with_delimiter(@summary.available_volunteer_opportunity_count, delimiter: ".") %></strong>
+          <span><%= t(".rhythm.available_volunteering") %></span>
+        <% end %>
+        <%= link_to mi_bot_path, class: "mi-account-card" do %>
+          <strong><%= t(".rhythm.viber.#{@summary.viber_linked? ? "linked" : "missing"}") %></strong>
+          <span><%= t(".rhythm.viber.label") %></span>
+        <% end %>
+      </div>
+
+      <%= render "setup_and_verification", setup_t:, status_t:, step_href: %>
+
+      <%= render "settings", profile_path: profile_path %>
+
+      <p><%= link_to t("decidim.bih.account_channels.title"), account_notification_settings_path, class: "mi-btn mi-btn--primary" %></p>
+      <%= render "email_confirmation" %>
+
+      <section class="mi-account-panel mi-account-activity" aria-labelledby="mi-account-activity-title">
+        <div class="mi-account-panel__head">
+          <div>
+            <p class="mi-eyebrow"><%= t(".activity.eyebrow") %></p>
+            <h2 id="mi-account-activity-title" class="heading4"><%= t(".activity.title") %></h2>
+          </div>
+        </div>
+
+        <div class="mi-account-activity__grid">
+          <div class="mi-account-activity__section">
+            <h3><%= link_to t(".activity.reports.title"), reports_path(view: "mine"), class: "mi-account-activity__title-link" %></h3>
+            <% if @summary.latest_report_items.any? %>
+              <ul>
+                <% @summary.latest_report_items.each do |item| %>
+                  <li>
+                    <%= link_to item.href do %>
+                      <strong><%= t(".activity.reports.item", reference: item.title) %></strong>
+                      <span><%= item.meta %></span>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <%= link_to reports_path(view: "mine"), class: "mi-account-activity__empty" do %>
+                <span><%= t(".activity.reports.empty") %></span>
+              <% end %>
+            <% end %>
+          </div>
+
+          <div class="mi-account-activity__section">
+            <h3><%= link_to t(".activity.rewards.title"), community_hub_path(tab: "nagrade"), class: "mi-account-activity__title-link" %></h3>
+            <% if @summary.recent_reward_items.any? %>
+              <ul>
+                <% @summary.recent_reward_items.each do |item| %>
+                  <li>
+                    <%= link_to item.href do %>
+                      <strong><%= item.title %></strong>
+                      <span><%= t(".activity.rewards.statuses.#{item.status}", default: item.status) %></span>
+                    <% end %>
+                    <% if item.cancel_path.present? %>
+                      <%= button_to t(".activity.rewards.cancel"), item.cancel_path, method: :post,
+                                    class: "mi-btn mi-btn--ghost mi-btn--sm",
+                                    data: { confirm: t(".activity.rewards.cancel_confirm") } %>
+                    <% end %>
+                    <% if item.certificate_path.present? %>
+                      <%= link_to t("decidim.bih.rewards.certificate.title"), item.certificate_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <%= link_to community_hub_path(tab: "nagrade"), class: "mi-account-activity__empty" do %>
+                <span><%= t(".activity.rewards.empty") %></span>
+              <% end %>
+            <% end %>
+          </div>
+
+          <div class="mi-account-activity__section">
+            <h3><%= link_to t(".activity.volunteer.title"), volunteer_path, class: "mi-account-activity__title-link" %></h3>
+            <% if @summary.active_volunteer_items.any? %>
+              <ul>
+                <% @summary.active_volunteer_items.each do |item| %>
+                  <li>
+                    <%= link_to item.href do %>
+                      <strong><%= item.title %></strong>
+                      <span>
+                        <%= t(".activity.volunteer.statuses.#{item.status}", default: item.status) %>
+                        <% if item.meta.present? %>
+                          · <%= item.meta %>
+                        <% end %>
+                      </span>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            <% else %>
+              <%= link_to volunteer_path, class: "mi-account-activity__empty" do %>
+                <span><%= t(".activity.volunteer.empty") %></span>
+              <% end %>
+            <% end %>
+          </div>
+
+          <div class="mi-account-activity__section">
+            <h3><%= link_to t(".activity.follows.title"), following_path, class: "mi-account-activity__title-link" %></h3>
+            <%= link_to following_path, class: "mi-account-activity__summary" do %>
+              <span class="mi-account-activity__count"><%= number_with_delimiter(@summary.followed_thread_count, delimiter: ".") %></span>
+              <span><%= t(".activity.follows.summary", count: @summary.followed_thread_count) %></span>
+            <% end %>
+          </div>
+
+          <div class="mi-account-activity__section">
+            <h3><%= link_to t(".activity.replies.title"), activity_path, class: "mi-account-activity__title-link" %></h3>
+            <%= link_to activity_path, class: "mi-account-activity__summary" do %>
+              <span class="mi-account-activity__count"><%= number_with_delimiter(@summary.authored_reply_count, delimiter: ".") %></span>
+              <span><%= t(".activity.replies.summary", count: @summary.authored_reply_count) %></span>
+            <% end %>
+          </div>
+        </div>
+      </section>
+
+      <section class="mi-account-panel" aria-labelledby="mi-account-links-title">
+        <div class="mi-account-panel__head">
+          <div>
+            <p class="mi-eyebrow"><%= t(".links.eyebrow") %></p>
+            <h2 id="mi-account-links-title" class="heading4"><%= t(".links.title") %></h2>
+          </div>
+        </div>
+        <div class="mi-account-links">
+          <%= link_to new_organization_profile_path do %>
+            <strong><%= t(".links.submit_organization.title") %></strong>
+            <span><%= t(".links.submit_organization.text") %></span>
+          <% end %>
+          <% if @summary.partner_membership_count.positive? %>
+            <%= link_to organizations_path do %>
+              <strong><%= t(".links.organizations.title") %></strong>
+              <span><%= t(".links.organizations.text", count: @summary.partner_membership_count) %></span>
+            <% end %>
+          <% end %>
+          <% @summary.verified_partner_memberships.each do |membership| %>
+            <% profile = membership.partner_profile %>
+            <%= link_to organization_path(profile.slug) do %>
+              <strong><%= t(".links.organization_profile.title", name: profile.display_name) %></strong>
+              <span><%= t(".links.organization_profile.text", role: t("decidim.bih.partner_memberships.roles.#{membership.role}")) %></span>
+            <% end %>
+          <% end %>
+          <%# One settings screen, not two: this card and the button above now
+              lead to the same canonical communication page. %>
+          <%= link_to account_notification_settings_path do %>
+            <strong><%= t(".links.notifications.title") %></strong>
+            <span><%= t(".links.notifications.text") %></span>
+          <% end %>
+          <% if profile_path %>
+            <%= link_to profile_path do %>
+              <strong><%= t(".links.public_profile.title") %></strong>
+              <span><%= t(".links.public_profile.text") %></span>
+            <% end %>
+          <% end %>
+        </div>
+      </section>
+    </section>
+</div>

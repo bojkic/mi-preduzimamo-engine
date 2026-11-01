@@ -1,0 +1,48 @@
+<% w = "decidim.bih.review_workspace" %>
+<% if (Decidim::Bih::ReportReviewAssistant.active?(current_organization)) %>
+<% proposal = Decidim::Bih::ReportReviewProposal.for_review(report) %>
+<% waiting_for_delivery = report.dispatches.exists?(state: %w(queued sending unknown)) %>
+<section class="card card-section" id="report-ai-proposal">
+<h2><%= t("#{w}.ai.title") %></h2>
+<p><%= t("#{w}.ai.help") %></p>
+<% shadow_agreement = Decidim::Bih::ReportAiAgreement.summary(current_organization) %>
+<% if shadow_agreement[:compared].positive? %><p data-ai-shadow-agreement><small><%= t("#{w}.ai.shadow_agreement", agreed: shadow_agreement[:agreed], compared: shadow_agreement[:compared], percent: (100.0 * shadow_agreement[:agreed] / shadow_agreement[:compared]).round) %></small></p><% end %>
+<% if waiting_for_delivery %>
+<p data-ai-waiting-for-delivery><%= t("#{w}.ai.waiting_for_delivery") %></p>
+<% elsif proposal&.data_redacted_at %>
+<p><%= t("#{w}.retention_removed") %></p>
+<% elsif proposal&.state == "ready" %>
+<% value = proposal.proposal; current = proposal.current?; case_proposal = proposal.prompt_version == Decidim::Bih::Ai::CaseAgent::PROMPT_VERSION %>
+<% if case_proposal %>
+<p class="callout warning" data-case-agent-shadow><%= t("decidim.bih.case_agent.shadow") %></p>
+<p><strong><%= t("decidim.bih.case_agent.actions.#{value['proposed_action']}") %></strong> · <%= t("decidim.bih.reports.categories.#{value.dig('routing', 'category')}", default: "—") %></p>
+<ul><% value.fetch("signals", {}).each do |signal, passed| %><li><%= t("decidim.bih.case_agent.signals.#{signal}") %>: <%= t("decidim.bih.case_agent.#{passed ? 'passed' : 'failed'}") %></li><% end %></ul>
+<% end %>
+<% unless current %><p class="callout warning"><%= t("#{w}.ai.stale") %></p><% end %>
+<% unless case_proposal %><p data-historical-proposal><%= t("#{w}.ai.historical") %></p><% end %>
+<%= simple_format(value["rationale"]) %>
+<details><summary><%= t("#{w}.ai.evidence") %></summary>
+<% value.fetch("facts", []).each do |fact| %><p><%= fact["text"] %></p><blockquote><%= fact["quote"] %></blockquote><small><%= render "review_source", report: report, source_id: fact["source_id"] %></small><% end %>
+</details>
+<% if value["uncertainties"].present? %><h3><%= t("#{w}.ai.uncertainties") %></h3><ul><% value["uncertainties"].each do |text| %><li><%= text %></li><% end %></ul><% end %>
+<p><small><%= t("#{w}.ai.generated") %> · <%= l(proposal.created_at, format: :short) %> · <%= proposal.model %></small></p>
+<% if current && case_proposal && proposal.suggested_values["draft_action"].blank? %><p data-ai-nothing-to-accept><%= t("decidim.bih.case_agent.nothing_to_accept") %></p><% end %>
+<% if current && proposal.suggested_values["draft_action"].present? && bih_allowed?(:reports_update_status) %>
+<%= form_tag admin_bih_report_review_proposal_adopt_path(reference: report.reference, id: proposal.id), class: "form form-defaults" do %>
+<%= hidden_field_tag :input_version, Decidim::Bih::ReportReviewVersion.digest(report) %><%= hidden_field_tag :return_to, @queue_context.path %>
+<% if report.review_draft.present? %><label><%= check_box_tag :replace_draft, "1", false, required: true %> <%= t("#{w}.ai.confirm_replace") %></label><% end %>
+<p><small><%= t("#{w}.ai.adopt_help") %></small></p>
+<%= submit_tag t("#{w}.ai.adopt"), class: "button button__secondary", data: { ai_adopt: true } %>
+<% end %>
+<% end %>
+<% else %>
+<p><%= t("#{w}.ai.states.#{proposal&.state || 'missing'}") %></p>
+<% if proposal&.state == "unavailable" && proposal.error_code == "context_too_large" %>
+<p class="callout warning" data-ai-context-too-large><%= t("#{w}.ai.context_too_large") %></p>
+<% end %>
+<% end %>
+<% if bih_allowed?(:reports_update_status) && Decidim::Bih::ReportReviewAssistant.eligible?(report) %>
+<%= button_to t("#{w}.ai.refresh"), admin_bih_report_review_proposals_path(reference: report.reference), params: { return_to: @queue_context.path }, class: "button button__sm button__transparent-secondary" %>
+<% end %>
+</section>
+<% end %>

@@ -1,0 +1,11 @@
+<% add_decidim_page_title(t('decidim.bih.boards.unavailable.title')) %>
+<main class="wrapper">
+  <div class="mi-surface mi-empty-state">
+    <h1><%= t('decidim.bih.boards.unavailable.title') %></h1>
+    <p><%= t('decidim.bih.boards.unavailable.body') %></p>
+    <% if @withdrawal_post_id %>
+      <%= button_to t('decidim.bih.boards.help.withdraw'), decidim_bih.help_komsiluk_board_path(@withdrawal_post_id), params: { withdraw: '1' }, class: 'mi-btn mi-btn--ghost' %>
+    <% end %>
+    <%= link_to t('decidim.bih.boards.back'), board_list_path %>
+  </div>
+</main>

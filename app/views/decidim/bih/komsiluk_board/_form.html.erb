@@ -1,0 +1,60 @@
+<% path = editing ? decidim_bih.komsiluk_board_path(@post, board_filter_params) : decidim_bih.komsiluk_board_index_path %>
+<%= form_tag path, method: (editing ? :patch : :post), multipart: true, id: 'komsiluk-post-form', class: 'mi-account-settings-form mi-board-form', data: { board_form: true, discard_url: (editing ? decidim_bih.edit_komsiluk_board_path(@post, board_filter_params) : decidim_bih.komsiluk_board_index_path(board_filter_params.merge(compose: 1))), draft_key: (editing ? @post.id : 'new'), draft_saved: board_t('draft.saved') } do %>
+  <% if @post.errors.any? %>
+    <div class="form-error is-visible" role="alert" tabindex="-1" data-board-errors aria-labelledby="komsiluk-post-errors-title">
+      <strong id="komsiluk-post-errors-title"><%= t('decidim.bih.komsiluk_board.index.error_summary') %></strong>
+      <ul><% @post.errors.each do |error| %><li><%= link_to error.full_message, "##{board_error_target(error.attribute)}" %></li><% end %></ul>
+    </div>
+  <% end %>
+  <p><%= board_t('audience', area: (@post.persisted? ? @post.komsiluk : @citizen_profile.komsiluk).translated_name) %></p>
+  <p class="help-text"><%= board_t('publication_effect') %></p>
+  <%= hidden_field_tag 'komsiluk_post[publication_token]', @publication_token unless editing %>
+  <% board_filter_params.each do |field, value| %><%= hidden_field_tag field, value %><% end %>
+  <%= hidden_field_tag 'komsiluk_post[content_revision]', @post.content_revision if editing %>
+  <div class="mi-board-form-grid">
+    <label for="komsiluk_post_category"><%= t('decidim.bih.komsiluk_board.index.category_label') %>
+      <%= select_tag 'komsiluk_post[category]', options_for_select(Decidim::Bih::KomsilukPost::CATEGORIES.map { |value| [t("decidim.bih.komsiluk_board.categories.#{value}"), value] }, board_form_value(:category, @post.category.presence || 'general')), id: 'komsiluk_post_category', data: { board_field: true } %>
+    </label>
+    <label for="komsiluk_post_title"><%= t('decidim.bih.komsiluk_board.index.title_label') %>
+      <%= text_field_tag 'komsiluk_post[title]', board_form_value(:title, @post.title), id: 'komsiluk_post_title', size: nil, required: true, maxlength: Decidim::Bih::KomsilukPost::TITLE_MAX, aria: { describedby: 'board-title-count' }, data: { board_field: true, count_target: 'board-title-count' } %>
+      <span id="board-title-count" class="help-text" aria-live="polite"></span>
+    </label>
+  </div>
+  <label for="komsiluk_post_body"><%= t('decidim.bih.komsiluk_board.index.body_label') %>
+    <%= text_area_tag 'komsiluk_post[body]', board_form_value(:body, @post.body), id: 'komsiluk_post_body', rows: 5, required: true, maxlength: Decidim::Bih::KomsilukPost::BODY_MAX, aria: { describedby: 'board-body-count komsiluk-post-limits' }, data: { board_field: true, count_target: 'board-body-count' } %>
+    <span id="board-body-count" class="help-text" aria-live="polite"></span>
+  </label>
+  <p id="komsiluk-post-limits" class="help-text"><%= board_t('limits', limit: Decidim::Bih::Komsiluk::PostCreator::DAILY_LIMIT, remaining: [Decidim::Bih::Komsiluk::PostCreator::DAILY_LIMIT - @posts_today.to_i, 0].max) %></p>
+  <label for="komsiluk_post_expires_at"><%= board_t('expiry') %>
+    <%= datetime_local_field_tag 'komsiluk_post[expires_at]', board_form_value(:expires_at, board_input_date(@post.expires_at)), id: 'komsiluk_post_expires_at', aria: { describedby: 'board-expiry-help' }, data: { board_field: true } %>
+  </label>
+  <p id="board-expiry-help" class="help-text"><%= board_t('expiry_help') %></p>
+  <details id="board-activity" <%= 'open' if @post.category == 'activity' || @post.activity_details.present? %>>
+    <summary><%= board_t('activity.title') %></summary>
+    <label for="board-starts"><%= board_t('activity.starts_at') %><%= datetime_local_field_tag 'komsiluk_post[activity][starts_at]', board_activity_value(:starts_at), id: 'board-starts', data: { board_field: true } %></label>
+    <label for="board-place"><%= board_t('activity.place_label') %><%= text_field_tag 'komsiluk_post[activity][place_label]', board_activity_value(:place_label), id: 'board-place', size: nil, maxlength: 150, data: { board_field: true } %></label>
+    <label for="board-action"><%= board_t('activity.action_url') %><%= url_field_tag 'komsiluk_post[activity][action_url]', board_activity_value(:action_url), id: 'board-action', maxlength: 300, data: { board_field: true } %></label>
+  </details>
+  <label for="komsiluk_post_photo"><%= board_t('photo.label') %><%= file_field_tag 'komsiluk_post[photo]', id: 'komsiluk_post_photo', accept: 'image/jpeg,image/png,image/webp', aria: { describedby: 'board-photo-help' } %></label>
+  <p id="board-photo-help" class="help-text"><%= board_t('photo.help') %></p>
+  <% if @photo_draft %>
+    <%= hidden_field_tag 'komsiluk_post[photo_draft_token]', @photo_draft.token %>
+    <%= image_tag decidim_bih.komsiluk_draft_photo_path(draft_id: @photo_draft.id), alt: board_t('photo.alt'), class: 'mi-board-photo' %>
+    <label class="mi-board-check"><%= check_box_tag 'komsiluk_post[remove_saved_photo]', '1', false %><%= board_t('photo.remove') %></label>
+  <% elsif editing && @post.photo.attached? %>
+    <%= image_tag decidim_bih.photo_komsiluk_board_path(@post), alt: board_t('photo.alt'), class: 'mi-board-photo' %>
+    <label class="mi-board-check"><%= check_box_tag 'komsiluk_post[remove_photo]', '1', false %><%= board_t('photo.remove') %></label>
+  <% end %>
+  <%= hidden_field_tag 'komsiluk_post[help_enabled]', '0' %>
+  <label class="mi-board-check"><%= check_box_tag 'komsiluk_post[help_enabled]', '1', board_form_value(:help_enabled, @post.help_enabled? ? '1' : '0') == '1', data: { board_field: true } %><%= board_t('help.enable') %></label>
+  <% if editing %>
+    <label class="mi-board-check"><%= check_box_tag 'komsiluk_post[notify]', '1', board_form_value(:notify, '0') == '1' %><%= board_t('material_update') %></label>
+    <p class="help-text"><%= board_t('minor_update') %></p>
+  <% end %>
+  <p class="help-text" data-board-draft-status role="status"><%= board_t('draft.help') %></p>
+  <div class="mi-board-actions">
+    <%= submit_tag editing ? board_t('save') : t('decidim.bih.komsiluk_board.index.submit'), class: 'mi-btn mi-btn--primary' %>
+    <button type="button" class="mi-btn mi-btn--ghost" data-board-discard><%= board_t('draft.discard') %></button>
+    <% if editing %><%= link_to board_t('cancel'), decidim_bih.komsiluk_board_path(@post, board_filter_params), class: 'mi-btn mi-btn--ghost' %><% end %>
+  </div>
+<% end %>

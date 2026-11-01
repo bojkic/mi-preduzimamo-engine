@@ -1,0 +1,442 @@
+      <%# ================================================================== %>
+      <%# TAB: tabla (leaderboard)                                           %>
+      <%# ================================================================== %>
+      <% if active_tab == "tabla" %>
+        <section id="tabla">
+          <div class="mi-surface-card mi-surface-card--strip mi-community-panel">
+            <div class="mi-card-strip acc-coral"></div>
+            <div class="mi-surface-card__body mi-community-panel__body">
+              <div style="text-align: center; margin-bottom: 1.4rem;">
+                <p class="mi-eyebrow" style="margin-bottom: 0.35rem;">
+                  <%= t("decidim.bih.leaderboard.show.eyebrow") %>
+                </p>
+                <h2 class="heading3" style="margin: 0 0 0.35rem; color: var(--mi-navy-700);">
+                  <%= t("decidim.bih.leaderboard.show.title") %>
+                </h2>
+                <p style="margin: 0; color: var(--mi-navy-400);">
+                  <%= t("decidim.bih.leaderboard.show.subtitle") %>
+                </p>
+              </div>
+
+              <% if @citizen_of_the_month %>
+                <div style="display: flex; align-items: center; gap: 0.9rem; margin: 0 0 1.3rem; padding: 0.85rem 1rem; border-radius: 0.75rem; background: var(--mi-cream-100); border: 1px solid var(--mi-line);">
+                  <span style="flex: 0 0 auto; font-size: 1.6rem;">🏅</span>
+                  <span style="flex: 1 1 auto; min-width: 0;">
+                    <span style="display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mi-coral-600);">
+                      <%= t("decidim.bih.leaderboard.show.citizen_of_the_month") %>
+                    </span>
+                    <%= link_to decidim.profile_path(nickname: @citizen_of_the_month[:user].nickname),
+                                style: "color: var(--mi-navy-700); font-weight: 800; text-decoration: none; font-size: 1.05rem;" do %>
+                      <%= @citizen_of_the_month[:user].name %>
+                    <% end %>
+                    <span style="color: var(--mi-navy-400); font-size: 0.85rem;">
+                      &middot; <%= number_with_delimiter(@citizen_of_the_month[:score], delimiter: ".") %>
+                      <%= t("decidim.bih.leaderboard.show.score") %>
+                    </span>
+                  </span>
+                </div>
+              <% end %>
+
+              <%# Period sub-filter: passes both ?tab=tabla and ?period= %>
+              <nav style="display: flex; gap: 0.4rem; justify-content: center; margin-bottom: 1.3rem;"
+                   aria-label="<%= t("decidim.bih.leaderboard.show.periods.aria") %>">
+                <% Decidim::Bih::LeaderboardController::PERIODS.each do |period| %>
+                  <%
+                    active = (@period == period)
+                    tab_bg  = active ? "var(--mi-coral-600)" : "var(--mi-cream-100)"
+                    tab_ink = active ? "#fff" : "var(--mi-navy-400)"
+                  %>
+                  <%= link_to t("decidim.bih.leaderboard.show.periods.#{period}"),
+                              community_hub_path(tab: "tabla", period: period, anchor: "tabla"),
+                              style: "padding: 0.35rem 0.9rem; border-radius: 999px; font-weight: 700; font-size: 0.82rem; text-decoration: none; background: #{tab_bg}; color: #{tab_ink}; border: 1px solid var(--mi-line);" %>
+                <% end %>
+              </nav>
+
+              <% if @rows.blank? %>
+                <div style="text-align: center; padding: 1.75rem 1rem;">
+                  <p style="font-size: 2rem; margin: 0 0 0.4rem;" aria-hidden="true">🌱</p>
+                  <p style="margin: 0 0 0.25rem; font-weight: 700; color: var(--mi-navy-700);">
+                    <%= t("decidim.bih.leaderboard.show.empty_title") %>
+                  </p>
+                  <p style="margin: 0 0 1rem; color: var(--mi-navy-400);">
+                    <%= t("decidim.bih.leaderboard.show.empty") %>
+                  </p>
+                  <%= link_to t("decidim.bih.leaderboard.show.empty_cta"),
+                              community_hub_path(tab: "kako", anchor: "kako"),
+                              style: "display: inline-block; padding: 0.45rem 1.2rem; border-radius: 999px; font-weight: 700; font-size: 0.88rem; text-decoration: none; background: var(--mi-coral-600); color: #fff;" %>
+                </div>
+              <% else %>
+                <ol style="list-style: none; margin: 0; padding: 0;">
+                  <% @rows.each_with_index do |row, index| %>
+                    <%
+                      rank     = index + 1
+                      medal    = { 1 => "#fbe48f", 2 => "#d6dde2", 3 => "#e8c9a0" }[rank]
+                      badge_bg  = medal || "var(--mi-cream-100)"
+                      badge_ink = medal ? "var(--mi-navy-700)" : "var(--mi-navy-400)"
+                    %>
+                    <li class="mi-reward-row" style="display: flex; align-items: center; gap: 0.85rem; padding: 0.7rem 0.35rem; border-bottom: 1px solid var(--mi-line);">
+                      <span style="flex: 0 0 2rem; height: 2rem; border-radius: 50%; background: <%= badge_bg %>; color: <%= badge_ink %>; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; font-size: 0.95rem;">
+                        <%= rank %>
+                      </span>
+                      <span style="flex: 1 1 auto; min-width: 0;">
+                        <%= link_to decidim.profile_path(nickname: row[:user].nickname),
+                                    style: "color: var(--mi-navy-700); font-weight: 700; text-decoration: none;" do %>
+                          <%= row[:user].name %>
+                        <% end %>
+                        <span style="display: block; color: var(--mi-navy-400); font-size: 0.85rem;">
+                          @<%= row[:user].nickname %>
+                          <span style="display: inline-block; margin-left: 0.35rem; padding: 0.05rem 0.5rem; border-radius: 999px; background: var(--mi-cream-100); border: 1px solid var(--mi-line); color: var(--mi-navy-700); font-weight: 700; font-size: 0.72rem;">
+                            <%= row[:level].title %>
+                          </span>
+                          <% if row[:operator] %>
+                            <span style="display: inline-block; margin-left: 0.35rem; padding: 0.05rem 0.5rem; border-radius: 999px; background: #eef6ff; border: 1px solid var(--mi-line); color: var(--mi-navy-700); font-weight: 700; font-size: 0.72rem;">
+                              <%= t("decidim.bih.leaderboard.show.operator_level") %>
+                            </span>
+                          <% end %>
+                        </span>
+                      </span>
+                      <span style="flex: 0 0 auto; font-family: var(--mi-font-display); font-weight: 800; color: var(--mi-coral-600); font-size: 1.15rem;">
+                        <%= number_with_delimiter(row[:score], delimiter: ".") %>
+                        <span style="font-size: 0.7rem; color: var(--mi-navy-400); font-weight: 600;">
+                          <%= t("decidim.bih.leaderboard.show.score") %>
+                        </span>
+                      </span>
+                    </li>
+                  <% end %>
+                </ol>
+              <% end %>
+            </div>
+          </div>
+        </section>
+      <% end %>
+
+      <%# ================================================================== %>
+      <%# TAB: trka (trka komšiluka)                                         %>
+      <%# ================================================================== %>
+      <% if active_tab == "trka" %>
+        <%= render "decidim/bih/community_hub/trka" %>
+      <% end %>
+
+      <%# ================================================================== %>
+      <%# TAB: nagrade (rewards catalog)                                     %>
+      <%# ================================================================== %>
+      <% if active_tab == "nagrade" %>
+        <section id="nagrade">
+          <% if @launch_invitations_remaining.present? %>
+            <div class="mi-surface-card mi-community-panel">
+              <div class="mi-surface-card__body mi-community-panel__body">
+                <h2 class="heading5" style="color: var(--mi-navy-700);">
+                  <%= t("decidim.bih.goodwill.launch_invitation.counter_title") %>
+                </h2>
+                <p style="font-family: var(--mi-font-display); font-weight: 800; font-size: 2rem; margin: 0.2rem 0; color: var(--mi-coral-600);">
+                  <%= @launch_invitations_remaining %>
+                </p>
+                <p style="color: var(--mi-navy-400); margin: 0;">
+                  <%= t("decidim.bih.goodwill.launch_invitation.counter_note") %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @my_launch_invitation.present? %>
+            <div class="mi-surface-card mi-community-panel">
+              <div class="mi-surface-card__body mi-community-panel__body">
+                <h2 class="heading5"><%= t("decidim.bih.goodwill.launch_invitation.my_title") %></h2>
+                <p style="font-family: var(--mi-font-display); font-weight: 800; font-size: 1.6rem; letter-spacing: 0.08em;">
+                  <%= @my_launch_invitation.entry_code %>
+                </p>
+                <div style="max-width: 200px;" aria-hidden="true">
+                  <%= Decidim::Bih::Goodwill::LaunchInvitation.qr_svg(@my_launch_invitation.entry_code)&.html_safe %>
+                </div>
+                <p><%= t("decidim.bih.goodwill.launch_invitation.entry_note") %></p>
+                <% if @my_launch_invitation.attendance_confirmed_at.present? %>
+                  <p><%= t("decidim.bih.goodwill.launch_invitation.confirmed") %></p>
+                <% else %>
+                  <%= button_to t("decidim.bih.goodwill.launch_invitation.confirm_cta"),
+                                decidim_bih.confirm_launch_invitation_path, method: :post %>
+                  <p><%= t("decidim.bih.goodwill.launch_invitation.confirm_deadline",
+                           deadline: l(@my_launch_invitation.confirmation_deadline_at, format: :long)) %></p>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
+          <div class="mi-surface-card mi-surface-card--strip mi-community-panel">
+            <div class="mi-card-strip acc-coral"></div>
+            <div class="mi-surface-card__body mi-community-panel__body">
+              <div style="text-align: center; margin-bottom: 1.4rem;">
+                <p class="mi-eyebrow" style="margin-bottom: 0.35rem;">
+                  <%= t("decidim.bih.rewards.show.eyebrow") %>
+                </p>
+                <h2 class="heading3" style="margin: 0 0 0.35rem; color: var(--mi-navy-700);">
+                  <%= t("decidim.bih.rewards.show.title") %>
+                </h2>
+                <p style="margin: 0; color: var(--mi-navy-400);">
+                  <%= t("decidim.bih.rewards.show.subtitle") %>
+                </p>
+                <p style="margin: 0.55rem auto 0; max-width: 32rem; color: var(--mi-navy-400); font-size: 0.9rem;">
+                  <%= t("decidim.bih.rewards.show.policy_note") %>
+                </p>
+                <% if @balance %>
+                  <p style="margin: 0.85rem 0 0; font-weight: 700; color: var(--mi-navy-700);">
+                    <%= t("decidim.bih.rewards.show.your_balance") %>:
+                    <span style="color: var(--mi-coral-600);">
+                      <%= number_with_delimiter(@balance, delimiter: ".") %>
+                    </span>
+                  </p>
+                <% end %>
+              </div>
+
+              <%= render "decidim/bih/shared/verify_cta" %>
+
+              <% visible_rewards = @rewards.reject(&:expired?) %>
+              <% if visible_rewards.empty? %>
+                <p style="text-align: center; color: var(--mi-navy-400); padding: 1.5rem 0;">
+                  <%= t("decidim.bih.rewards.show.empty") %>
+                </p>
+              <% else %>
+                <ul style="list-style: none; margin: 0; padding: 0;">
+                  <% visible_rewards.each do |reward| %>
+                    <%
+                      affordable   = @balance && @balance >= reward.cost
+                      remaining    = reward.stock.present? ? reward.remaining_stock(current_organization) : nil
+                      out_of_stock = remaining.present? && remaining <= 0
+                    %>
+                    <li class="mi-reward-row" style="display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 0.35rem; border-bottom: 1px solid var(--mi-line);">
+                      <span style="flex: 1 1 auto;">
+                        <span style="display: block; color: var(--mi-navy-700); font-weight: 700;"><%= reward.name %></span>
+                        <% if reward.description.present? %>
+                          <span style="display: block; margin-top: 0.15rem; color: var(--mi-navy-400); font-size: 0.84rem;"><%= reward.description %></span>
+                        <% end %>
+                        <% if reward.fulfillment.present? %>
+                          <span style="display: block; margin-top: 0.15rem; color: var(--mi-navy-400); font-size: 0.78rem;"><%= reward.fulfillment %></span>
+                        <% end %>
+                        <% if remaining.present? %>
+                          <span style="display: block; margin-top: 0.2rem; font-size: 0.8rem; color: <%= out_of_stock ? '#c0392b' : 'var(--mi-navy-400)' %>;">
+                            <% if out_of_stock %>
+                              <%= t("decidim.bih.rewards.show.out_of_stock") %>
+                            <% else %>
+                              <%= t("decidim.bih.rewards.show.remaining_stock", count: remaining) %>
+                            <% end %>
+                          </span>
+                        <% end %>
+                      </span>
+                      <span style="flex: 0 0 auto; font-family: var(--mi-font-display); font-weight: 800; color: var(--mi-coral-600);">
+                        <%= number_with_delimiter(reward.cost, delimiter: ".") %>
+                        <span style="font-size: 0.72rem; color: var(--mi-navy-400); font-weight: 600;">
+                          <%= t("decidim.bih.leaderboard.show.score") %>
+                        </span>
+                      </span>
+                      <span style="flex: 0 0 auto;">
+                        <% if viewer %>
+                          <%= button_to t("decidim.bih.rewards.show.redeem"),
+                                        redeem_reward_path(reward_key: reward.key),
+                                        method: :post,
+                                        disabled: !affordable || out_of_stock,
+                                        class: "button button__sm",
+                                        form_class: "button--inline",
+                                        params: { redemption_confirmed: "1", redemption_request_key: SecureRandom.uuid, from_wallet: (controller_name == "wallet" ? "1" : nil) },
+                                        data: { confirm: t("decidim.bih.rewards.show.redeem_confirm", reward: reward.name, cost: reward.cost) },
+                                        style: (affordable && !out_of_stock) ? "background: var(--mi-coral-600); border-color: var(--mi-coral-600);" : "opacity: 0.5; cursor: not-allowed;" %>
+                        <% else %>
+                          <span style="color: var(--mi-navy-400); font-size: 0.85rem;">
+                            <%= t("decidim.bih.rewards.show.login_to_redeem") %>
+                          </span>
+                        <% end %>
+                      </span>
+                    </li>
+                  <% end %>
+                </ul>
+                <p style="margin: 1rem 0 0; color: var(--mi-navy-400); font-size: 0.86rem;">
+                  <%= t("decidim.bih.rewards.show.fulfillment_note") %>
+                </p>
+              <% end %>
+            </div>
+          </div>
+        </section>
+      <% end %>
+
+      <%# ================================================================== %>
+      <%# TAB: pozovi (invite / referral)                                    %>
+      <%# ================================================================== %>
+      <% if active_tab == "pozovi" %>
+        <section id="pozovi">
+          <div class="mi-surface-card mi-surface-card--strip mi-community-panel mi-community-panel--narrow">
+            <div class="mi-card-strip acc-coral"></div>
+            <div class="mi-surface-card__body mi-community-panel__body">
+              <div style="text-align: center; margin-bottom: 1.4rem;">
+                <p class="mi-eyebrow"><%= t("decidim.bih.invite.show.eyebrow") %></p>
+                <h2 class="heading3" style="color: var(--mi-navy-700);">
+                  <%= t("decidim.bih.invite.show.title") %>
+                </h2>
+                <p style="color: var(--mi-navy-400);">
+                  <%= t("decidim.bih.invite.show.subtitle") %>
+                </p>
+              </div>
+
+              <% if @links %>
+                <label style="display: block; font-weight: 700; color: var(--mi-navy-700); margin-bottom: 0.3rem;">
+                  <%= t("decidim.bih.invite.show.your_link") %>
+                </label>
+                <input type="text" readonly value="<%= @links.landing_url %>" onclick="this.select()"
+                       style="width: 100%; margin-bottom: 1rem;">
+                <% if (qr = @links.qr_svg) %>
+                  <div class="mi-invite-qr" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <div style="width: 148px; height: 148px; background: #fff; padding: 6px; border-radius: 8px; border: 1px solid var(--mi-navy-100, #e2e6ef);"
+                         role="img" aria-label="<%= t("decidim.bih.invite.show.qr_alt") %>">
+                      <%= qr.html_safe %>
+                    </div>
+                    <div>
+                      <p style="margin: 0 0 0.4rem; color: var(--mi-navy-700); font-weight: 700;"><%= t("decidim.bih.invite.show.qr_title") %></p>
+                      <p style="margin: 0 0 0.6rem; color: var(--mi-navy-400); font-size: 0.9rem;"><%= t("decidim.bih.invite.show.qr_hint") %></p>
+                      <a class="button button__sm button__secondary"
+                         href="data:image/svg+xml;charset=utf-8,<%= ERB::Util.url_encode(qr) %>"
+                         download="pozovi-<%= @links.code.parameterize %>.svg"><%= t("decidim.bih.invite.show.qr_download") %></a>
+                    </div>
+                  </div>
+                <% end %>
+                <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                  <%= link_to t("decidim.bih.invite.show.via_whatsapp"), @links.whatsapp_url,
+                              target: "_blank", rel: "noopener", class: "button button__sm",
+                              style: "background: #25D366; border-color: #25D366;" %>
+                  <%= link_to t("decidim.bih.invite.show.via_viber"), @links.viber_url,
+                              class: "button button__sm", style: "background: #7360f2; border-color: #7360f2;" %>
+                  <%= link_to t("decidim.bih.invite.show.via_facebook"), @links.facebook_url,
+                              target: "_blank", rel: "noopener", class: "button button__sm",
+                              style: "background: #1877F2; border-color: #1877F2;" %>
+                </div>
+              <% else %>
+                <p style="text-align: center; color: var(--mi-navy-400);">
+                  <%= t("decidim.bih.invite.show.login_to_invite") %>
+                </p>
+                <p class="mi-action-row" style="justify-content: center;">
+                  <%= link_to t("decidim.bih.invite.show.register_cta"),
+                              Decidim::Bih.registration_path_for(params[:ref].present? ? "?ref=#{CGI.escape(params[:ref].to_s)}" : nil),
+                              class: "button button__sm" %>
+                </p>
+              <% end %>
+            </div>
+          </div>
+        </section>
+      <% end %>
+
+      <%# ================================================================== %>
+      <%# TAB: kako (how it works)                                           %>
+      <%# ================================================================== %>
+      <% if active_tab == "kako" %>
+        <% action_label = lambda do |key|
+             t("decidim.bih.goodwill.actions.#{key}", default: key.to_s.humanize)
+           end %>
+        <section id="kako">
+          <%= render "decidim/bih/shared/verify_cta" %>
+          <%= render "decidim/bih/community_hub/points_rules", rules: @earning_rules %>
+
+          <%# NO-VOTE / NO-CASH POLICY — stated explicitly and prominently so the
+              walled-off recognition economy is never misread as buying influence. %>
+          <div class="mi-surface-card mi-surface-card--strip mi-community-panel">
+            <div class="mi-card-strip acc-sava"></div>
+            <div class="mi-surface-card__body mi-community-panel__body">
+              <h2 class="heading5" style="color: var(--mi-navy-700); margin: 0 0 0.4rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span aria-hidden="true">🛡️</span>
+                <%= t("decidim.bih.kako.show.no_vote_title") %>
+              </h2>
+              <p style="color: var(--mi-navy-700); margin: 0;">
+                <%= t("decidim.bih.kako.show.no_vote_policy") %>
+              </p>
+            </div>
+          </div>
+
+          <%# EARN %>
+          <div class="mi-surface-card mi-community-panel">
+            <div class="mi-surface-card__body mi-community-panel__body">
+              <h2 class="heading5" style="color: var(--mi-navy-700);">
+                <%= t("decidim.bih.kako.show.earn_title") %>
+              </h2>
+              <p style="color: var(--mi-navy-400);"><%= t("decidim.bih.kako.show.earn_intro") %></p>
+              <p style="color: var(--mi-navy-400);"><%= t("decidim.bih.kako.show.verification_note") %></p>
+              <ul style="list-style: none; margin: 0; padding: 0;">
+                <% @schedule.each do |action, points| %>
+                  <% next unless points.to_i.positive? %>
+                  <li style="display: flex; justify-content: space-between; padding: 0.45rem 0.2rem; border-bottom: 1px solid var(--mi-line);">
+                    <span style="color: var(--mi-navy-700);">
+                      <%= action_label.call(action) %>
+                      <% if @daily_caps[action].present? %>
+                        <small style="display: block; color: var(--mi-navy-400); font-size: 0.8rem;">
+                          <%= t("decidim.bih.kako.show.#{@cap_periods[action] == :month ? "monthly" : "daily"}_limit", count: @daily_caps[action]) %>
+                        </small>
+                      <% end %>
+                    </span>
+                    <span style="font-family: var(--mi-font-display); font-weight: 800; color: var(--mi-park-600, #7a9a3f);">+<%= points %></span>
+                  </li>
+                <% end %>
+              </ul>
+              <% if Decidim::Bih.volunteer_work_award_unit.to_sym == :day %>
+                <p style="color: var(--mi-navy-400); margin-top: 0.8rem;">
+                  <%= t("decidim.bih.kako.show.volunteer_daily_rule",
+                        day_points: @schedule[:volunteer_day], proposal_points: @schedule[:volunteer_opportunity]) %>
+                </p>
+              <% end %>
+            </div>
+          </div>
+
+          <%# LEVELS %>
+          <div class="mi-surface-card mi-community-panel">
+            <div class="mi-surface-card__body mi-community-panel__body">
+              <h2 class="heading5" style="color: var(--mi-navy-700);">
+                <%= t("decidim.bih.kako.show.levels_title") %>
+              </h2>
+              <p style="color: var(--mi-navy-400);"><%= t("decidim.bih.kako.show.levels_intro") %></p>
+              <ul style="list-style: none; margin: 0; padding: 0;">
+                <% @levels.each do |lvl| %>
+                  <li style="display: flex; justify-content: space-between; padding: 0.45rem 0.2rem; border-bottom: 1px solid var(--mi-line);">
+                    <span style="color: var(--mi-navy-700); font-weight: 600;">
+                      <%= t("decidim.bih.goodwill.levels.#{lvl[:key]}") %>
+                    </span>
+                    <span style="color: var(--mi-navy-400);">
+                      <%= t("decidim.bih.kako.show.from_points", points: lvl[:threshold]) %>
+                    </span>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+
+          <%# SPEND %>
+          <div class="mi-surface-card mi-community-panel">
+            <div class="mi-surface-card__body mi-community-panel__body">
+              <h2 class="heading5" style="color: var(--mi-navy-700);">
+                <%= t("decidim.bih.kako.show.spend_title") %>
+              </h2>
+              <p style="color: var(--mi-navy-400);"><%= t("decidim.bih.kako.show.spend_intro") %></p>
+              <p style="color: var(--mi-navy-400);"><%= t("decidim.bih.kako.show.spend_policy") %></p>
+              <p style="color: var(--mi-navy-400);"><%= t("decidim.bih.kako.show.reward_fulfillment_note") %></p>
+              <% if @rewards.any? %>
+                <ul style="list-style: none; margin: 0; padding: 0;">
+                  <% @rewards.each do |reward| %>
+                    <li style="display: flex; justify-content: space-between; gap: 1rem; padding: 0.45rem 0.2rem; border-bottom: 1px solid var(--mi-line);">
+                      <span style="color: var(--mi-navy-700);">
+                        <span style="display: block;"><%= reward.name %></span>
+                        <% if reward.description.present? %>
+                          <span style="display: block; margin-top: 0.12rem; color: var(--mi-navy-400); font-size: 0.82rem;">
+                            <%= reward.description %>
+                          </span>
+                        <% end %>
+                      </span>
+                      <span style="font-family: var(--mi-font-display); font-weight: 800; color: var(--mi-coral-600);">
+                        <%= reward.cost %>
+                      </span>
+                    </li>
+                  <% end %>
+                </ul>
+              <% else %>
+                <p style="color: var(--mi-navy-400);"><%= t("decidim.bih.kako.show.spend_empty") %></p>
+              <% end %>
+            </div>
+          </div>
+        </section>
+      <% end %>
+
+
+<% if active_tab == "podrzi" %>
+  <%= render "decidim/bih/gifts/content", viewer: viewer %>
+<% end %>

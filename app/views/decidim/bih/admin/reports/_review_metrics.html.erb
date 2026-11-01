@@ -1,0 +1,22 @@
+<% w = "decidim.bih.review_workspace.metrics" %>
+<section class="card" id="report-review-metrics">
+<div class="card-section">
+<h2><%= t("#{w}.title") %></h2>
+<p><%= t("#{w}.scope") %></p>
+<div class="table-stacked"><table class="table-list"><thead><tr><th scope="col"><%= t("#{w}.measure") %></th><th scope="col"><%= t("#{w}.value") %></th><th scope="col"><%= t("#{w}.coverage") %></th></tr></thead><tbody>
+<% %i(first_review reply_review).each do |key| %>
+<% item = metrics.fetch(key) %>
+<tr><th scope="row"><%= t("#{w}.#{key}") %></th>
+<td><%= item[:median_seconds] ? t("#{w}.hours", value: number_with_precision(item[:median_seconds] / 3600.0, precision: 1)) : "—" %></td>
+<td><%= t("#{w}.measured", measured: item[:measured], total: item[:total]) %></td></tr>
+<% end %>
+<% %i(submitted duplicates planned overdue unknown_delivery).each do |key| %><tr><th scope="row"><%= t("#{w}.#{key}") %></th><td><%= metrics.fetch(key) %></td><td>—</td></tr><% end %>
+</tbody></table></div>
+<p><%= t("#{w}.timing_help") %></p>
+<details><summary><%= t("#{w}.ai_title") %></summary>
+<p><%= t("#{w}.ai_counts", reviewed: metrics[:ai_decisions], changed: metrics[:ai_changed]) %></p>
+<% if metrics[:ai_changes_by_action].any? %><ul><% metrics[:ai_changes_by_action].each do |action, count| %><li><%= t("decidim.bih.review_workspace.actions.#{action}") %>: <%= count %></li><% end %></ul><% end %>
+<p><%= t("#{w}.ai_help") %></p>
+</details>
+</div>
+</section>

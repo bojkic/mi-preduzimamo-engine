@@ -1,0 +1,28 @@
+{
+  "hr": {
+    "decidim": {
+      "bih": {
+        "channel_connections": {
+          "title": "Povezani kanali za poruke",
+          "explanation": "Povežite razgovor sa svojim računom. Ovo ne uključuje obavijesti ni prijavu na račun. Dopuštenja za obavijesti birate odvojeno. Automatske Messenger i Instagram poruke zahtijevaju vašu nedavnu poruku.",
+          "connected": "Povezano s ovim računom.",
+          "disconnected": "Veza je uklonjena.",
+          "disconnect": "Prekini vezu",
+          "connect": "Poveži",
+          "unavailable": "Ovaj kanal još nije dostupan.",
+          "finish": "Završite povezivanje",
+          "send_command": "Pošaljite ovu točnu naredbu u naš postojeći %{channel} razgovor u roku od 10 minuta. Nemojte je dijeliti.",
+          "confirm_help": "Unesite poseban kod koji stigne u vaš razgovor. Potvrdite samo kod koji ste dobili u svom razgovoru. Ako naredba više nije vidljiva, počnite ponovo.",
+          "code": "Kod potvrde iz vašeg razgovora",
+          "confirm": "Potvrdi povezivanje",
+          "back": "Natrag na moj račun",
+          "invalid": "Kod za povezivanje nije valjan ili je istekao. Počnite ponovno sa svog računa.",
+          "chat_confirmation": "Za povezivanje svog računa unesite %{code} na stranici računa gdje ste započeli. Nemojte dijeliti ovaj kod. Ako niste započeli povezivanje, zanemarite ovu poruku.",
+          "opted_out": "Obavijesti putem ovog kanala su isključene. Ovo možete promijeniti u postavkama računa.",
+          "command_label": "Naredba za povezivanje — pritisnite i zadržite da kopirate",
+          "opt_out_unmatched": "Nismo mogli povezati ovaj razgovor s računom, pa postavke obavijesti nisu promijenjene. Prijavite se da isključite obavijesti putem poruka: %{url}"
+        }
+      }
+    }
+  }
+}

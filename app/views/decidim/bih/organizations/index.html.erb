@@ -1,0 +1,92 @@
+<% add_decidim_page_title(t(".title")) %>
+
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: t(".subtitle"),
+               action_label: t(".new_profile"),
+               action_path: new_organization_profile_path,
+               action_class: "mi-btn mi-btn--ghost" %>
+
+    <% if @pending_memberships.present? %>
+      <section class="mi-account-panel" aria-labelledby="organization-invitations-title">
+        <div class="mi-account-panel__head">
+          <div>
+            <h2 id="organization-invitations-title"><%= t(".invitations") %></h2>
+            <p><%= t(".invitations_help") %></p>
+          </div>
+        </div>
+        <ul class="mi-data-list">
+          <% @pending_memberships.each do |membership| %>
+            <li class="mi-account-activity__summary">
+              <span>
+                <strong><%= membership.partner_profile.display_name %></strong>
+                <span><%= t("decidim.bih.partner_memberships.roles.#{membership.role}") %> · <%= t(".public_after_accept") %></span>
+              </span>
+              <span class="mi-account-settings__actions">
+                <%= button_to t(".accept_invitation"), accept_organization_membership_path(membership), method: :patch, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                <%= button_to t(".decline_invitation"), decline_organization_membership_path(membership), method: :patch, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+              </span>
+            </li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
+
+    <% if @my_memberships.present? %>
+      <section class="mi-account-panel">
+        <div class="mi-account-panel__head">
+          <h2><%= t(".my_organizations") %></h2>
+        </div>
+        <ul class="mi-data-list">
+          <% @my_memberships.each do |membership| %>
+            <% profile = membership.partner_profile %>
+            <li class="mi-account-activity__summary">
+              <span>
+                <strong><%= profile.display_name %></strong>
+                <span><%= t("decidim.bih.partner_profiles.statuses.#{profile.verification_status}") %> · <%= t("decidim.bih.partner_memberships.roles.#{membership.role}") %></span>
+              </span>
+              <% if profile.verified? %>
+                <%= link_to t(".open"), organization_path(profile.slug), class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+              <% end %>
+              <% if profile.rejected? && Decidim::Bih::PartnerMembership::MANAGER_ROLES.include?(membership.role) %>
+                <span><%= t(".rejection_reason", reason: profile.rejection_reason.presence || t(".rejection_reason_missing")) %></span>
+                <%= link_to t(".correct_and_resubmit"), edit_organization_profile_path(profile), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+              <% end %>
+              <% if membership.may_leave? %>
+                <%= button_to t(".leave"), leave_organization_membership_path(membership), method: :delete, class: "mi-btn mi-btn--ghost mi-btn--sm", data: { confirm: t(".leave_confirm", organization: profile.display_name) } %>
+              <% elsif Decidim::Bih::PartnerMembership::MANAGER_ROLES.include?(membership.role) %>
+                <small><%= t(".last_manager_help") %></small>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
+
+    <section class="mi-report-grid">
+      <% @profiles.each do |profile| %>
+        <article class="mi-surface-card mi-surface-card--strip">
+          <span class="mi-card-strip acc-coral"></span>
+          <div class="mi-surface-card__body">
+            <h2 class="heading5"><%= link_to profile.display_name, organization_path(profile.slug) %></h2>
+            <p class="mi-report-card__meta">
+              <span><%= t("decidim.bih.partner_profiles.kinds.#{profile.kind}") %></span>
+              <% if profile.goodwill_eligible? %>
+                <span><%= t(".goodwill_eligible") %></span>
+              <% end %>
+              <% if profile.official_publisher? %>
+                <span><%= t(".official_publisher") %></span>
+              <% end %>
+            </p>
+            <% if profile.public_description.present? %>
+              <p><%= truncate(profile.public_description, length: 180) %></p>
+            <% end %>
+          </div>
+        </article>
+      <% end %>
+    </section>
+  </div>
+</main>

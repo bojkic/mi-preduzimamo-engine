@@ -1,0 +1,151 @@
+<%#
+  Public introduction to the one configured platform assistant. The actual
+  conversation opens through the same lazy-loaded MI chat widget used elsewhere.
+  Viber appears only when the host's launch-readiness gate enables it.
+%>
+<% add_decidim_page_title("#{t(".hero.title_lead")} #{t(".hero.title_accent")}") %>
+<% mi_bot_css_v = (File.mtime(Rails.root.join("public/mi/mi-bot.css")).to_i rescue 1) %>
+<link rel="stylesheet" href="/mi/mi-bot.css?v=<%= mi_bot_css_v %>" media="all">
+
+<div class="mi-bot" data-theme="poster">
+  <%# ---------- Hero ---------- %>
+  <section class="mi-bot-hero">
+    <img src="/mi/heart-mark.png" alt="" aria-hidden="true" class="mi-bot-hero__mark">
+    <div class="mi-bot-wrap mi-bot-hero__layout">
+      <div class="mi-bot-hero__inner">
+        <p class="mi-bot-eyebrow mi-bot-eyebrow--sun"><%= t(".hero.eyebrow") %></p>
+        <h1 class="mi-bot-display mi-bot-hero__title">
+          <%= t(".hero.title_lead") %> <span class="mi-bot-hero__accent"><%= t(".hero.title_accent") %></span>
+        </h1>
+        <p class="mi-bot-hero__lead"><%= t(".hero.lead") %></p>
+        <p class="mi-bot-hero__lead"><%= t(".hero.web_boundary") %></p>
+        <div class="mi-action-row">
+          <button type="button" class="mi-btn mi-btn--primary" data-mi-chat-open="true"><%= t(".cta.try_bot") %></button>
+          <%= link_to t(".cta.report"), new_report_path, class: "mi-btn mi-btn--ghost" %>
+        </div>
+        <p class="mi-bot-hero__lead"><%= t(".hero.channel_note") %></p>
+      </div>
+      <% if Decidim::Bih.mi_bot_persona_image_path.present? %>
+        <picture class="mi-bot-hero__persona">
+          <source media="(prefers-reduced-motion: reduce)" srcset="<%= Decidim::Bih.mi_bot_persona_static_image_path %>">
+          <img src="<%= Decidim::Bih.mi_bot_persona_image_path %>"
+               alt="<%= t("decidim.bih.concierge.media.milica_wave.alt") %>"
+               decoding="async">
+        </picture>
+      <% end %>
+    </div>
+  </section>
+
+  <%# ---------- Capabilities ---------- %>
+  <section class="mi-bot-section mi-bot-wrap">
+    <%= render "decidim/bih/mi_bot/section_head",
+               kicker: t(".capabilities.kicker"),
+               title: t(".capabilities.title"),
+               desc: t(".capabilities.desc"), light: false %>
+    <div class="mi-bot-capability-grid">
+      <% [
+           { key: "transport", icon: "clock", tone: "sava" },
+           { key: "parking", icon: "map-pin", tone: "coral" },
+           { key: "waste", icon: "bell", tone: "park" },
+           { key: "service_notices", icon: "info", tone: "sun" },
+           { key: "environment", icon: "sprout", tone: "sava" },
+           { key: "city_services", icon: "landmark", tone: "navy" },
+           { key: "reports", icon: "check-check", tone: "sun" },
+           { key: "community", icon: "message-circle", tone: "park" }
+         ].each do |item| %>
+        <article class="mi-bot-capability-card">
+          <div class="mi-bot-capability-card__head">
+            <span class="mi-bot-capability-card__icon mi-tone-<%= item[:tone] %>">
+              <%= mi_bot_icon(item[:icon], size: 26, stroke: 2) %>
+            </span>
+            <h3><%= t(".capabilities.items.#{item[:key]}.title") %></h3>
+          </div>
+          <p><%= t(".capabilities.items.#{item[:key]}.body") %></p>
+          <p class="mi-bot-capability-card__source">
+            <strong><%= t(".capabilities.source_label") %></strong>
+            <%= t(".capabilities.items.#{item[:key]}.source") %>
+          </p>
+        </article>
+      <% end %>
+    </div>
+    <p class="mi-bot-source-note"><%= t(".capabilities.note") %></p>
+  </section>
+
+  <% if @viber_business_onboarding_enabled %>
+    <section class="mi-bot-section mi-bot-wrap mi-bot-onboarding" data-viber-bm-onboarding="public">
+      <%= render "decidim/bih/mi_bot/section_head",
+                 kicker: t(".viber_business_onboarding.kicker"),
+                 title: t(".viber_business_onboarding.title"),
+                 desc: t(".viber_business_onboarding.desc"), light: false %>
+      <p><%= t(".viber_business_onboarding.start") %></p>
+      <p class="mi-bot-onboarding__privacy"><%= t(".viber_business_onboarding.report_note") %></p>
+    </section>
+  <% end %>
+
+  <% if @viber_onboarding_enabled %>
+    <%# ---------- Viber Onboarding ---------- %>
+    <section class="mi-bot-section mi-bot-wrap mi-bot-onboarding" data-viber-onboarding="public">
+      <%= render "decidim/bih/mi_bot/section_head",
+                 kicker: t(".viber_onboarding.kicker"),
+                 title: t(".viber_onboarding.title"),
+                 desc: t(".viber_onboarding.desc"), light: false %>
+      <div class="mi-bot-onboarding__grid">
+        <div class="mi-bot-onboarding__steps">
+          <h2><%= t(".viber_onboarding.steps_title") %></h2>
+          <ol>
+            <% t(".viber_onboarding.steps").each do |_key, step| %>
+              <li><%= step %></li>
+            <% end %>
+          </ol>
+          <%= link_to t(".viber_onboarding.cta"), @viber_onboarding_url, class: "button" %>
+        </div>
+        <div class="mi-bot-onboarding__panel">
+          <h2><%= t(".viber_onboarding.recovery_title") %></h2>
+          <p><%= t(".viber_onboarding.recovery_body") %></p>
+          <p class="mi-bot-onboarding__privacy"><%= t(".viber_onboarding.privacy_note") %></p>
+        </div>
+      </div>
+    </section>
+  <% end %>
+
+  <% if Array(@external_chat_onboarding_links).any? %>
+    <%# ---------- Launch-gated external chat channels ---------- %>
+    <section class="mi-bot-section mi-bot-wrap mi-bot-onboarding" data-external-chat-onboarding="public">
+      <%= render "decidim/bih/mi_bot/section_head",
+                 kicker: t(".external_chat_onboarding.kicker"),
+                 title: t(".external_chat_onboarding.title"),
+                 desc: t(".external_chat_onboarding.desc"), light: false %>
+      <div class="mi-bot-onboarding__grid">
+        <div class="mi-bot-onboarding__steps">
+          <h2><%= t(".external_chat_onboarding.channels_title") %></h2>
+          <div class="mi-action-row">
+            <% @external_chat_onboarding_links.each do |link| %>
+              <%= link_to t(".external_chat_onboarding.channels.#{link.fetch(:channel)}"),
+                          link.fetch(:url),
+                          class: "button",
+                          rel: "external nofollow noopener" %>
+            <% end %>
+          </div>
+        </div>
+        <div class="mi-bot-onboarding__panel">
+          <h2><%= t(".external_chat_onboarding.boundary_title") %></h2>
+          <p><%= t(".external_chat_onboarding.boundary_body") %></p>
+          <p class="mi-bot-onboarding__privacy"><%= t(".external_chat_onboarding.privacy_note") %></p>
+        </div>
+      </div>
+    </section>
+  <% end %>
+
+  <%# ---------- Footer sign-off ---------- %>
+  <div class="mi-bot-signoff">
+    <div class="mi-bot-wrap mi-bot-signoff__inner">
+      <span class="mi-bot-signoff__brand">
+        <span class="mi-bot-signoff__mark"><img src="/mi/heart-mark.png" alt="" aria-hidden="true"></span>
+        <%= t(".signoff.line") %>
+      </span>
+      <% if Decidim::Bih.campaign_hashtag.present? %>
+        <span class="mi-bot-signoff__hash"><%= Decidim::Bih.campaign_hashtag %></span>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,95 @@
+<% add_decidim_page_title(t(".title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :postal_queue %>
+
+<div class="card">
+
+  <div class="item_show__header">
+    <h1 class="item_show__header-title">
+      <%= t(".title") %>
+    </h1>
+  </div>
+
+  <%# NOTE: This list is read-only. No tokens are minted here — the raw token
+      is only available in the POST /postages response (printable letter).
+      Re-viewing this page does NOT invalidate any previously-printed token. %>
+  <div class="card-section">
+    <div class="callout warning" id="postal-verification-privacy-note">
+      <strong><%= t(".mi_privacy_title") %></strong>
+      <p style="margin-bottom:0;"><%= t(".mi_privacy_body") %></p>
+    </div>
+  </div>
+  <div class="table-stacked">
+    <table class="table-list">
+      <thead>
+        <tr>
+          <th><%= t(".username") %></th>
+          <th><%= t(".address") %></th>
+          <th><%= t(".verification_code") %></th>
+          <th><%= t(".letter_sent_at") %></th>
+          <th><%= t("decidim.admin.actions.actions") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @pending_authorizations.each do |authorization| %>
+          <tr>
+            <td data-label="<%= t(".username") %>">
+              <%= authorization.user.name %>
+            </td>
+            <td data-label="<%= t(".address") %>">
+              <%# address is filtered from request logs via filter_parameters (:address partial match) %>
+              <%= authorization.verification_address %>
+            </td>
+            <td data-label="<%= t(".verification_code") %>">
+              <%= authorization.verification_code %>
+            </td>
+            <td data-label="<%= t(".letter_sent_at") %>">
+              <%= authorization.letter_sent_at %>
+            </td>
+            <td class="table-list__actions" data-label="<%= t("decidim.admin.actions.actions") %>">
+              <button type="button" data-controller="dropdown" data-target="actions-authorization-<%= authorization.id %>" aria-label="<%= t("decidim.admin.actions.actions_label", resource: authorization.user.name) %>">
+                <%= icon "more-fill", class: "text-secondary" %>
+              </button>
+
+              <div class="inline-block relative">
+                <ul id="actions-authorization-<%= authorization.id %>" class="dropdown dropdown__action" aria-hidden="true">
+                  <li class="dropdown__item">
+                    <%# Both of these PRINT: the POST mints the token and renders the
+                        printable letter (code + confirm URL + login QR). The label has
+                        to say so — operators read "Mark as sent" as bookkeeping and
+                        never find the letter. Re-sending deliberately mints a NEW
+                        token, which kills the code on a letter already in the post,
+                        so that one asks first. %>
+                    <% if authorization.letter_sent? %>
+                      <%= link_to pending_authorization_resend_postage_path(authorization.id),
+                                  method: :post,
+                                  class: "dropdown__button",
+                                  data: { confirm: t(".resend_confirm") } do %>
+                        <%= icon "printer-line" %>
+                        <%= t(".resend_regenerate") %>
+                      <% end %>
+                    <% else %>
+                      <%= link_to pending_authorization_postage_path(authorization.id), method: :post, class: "dropdown__button" do %>
+                        <%= icon "printer-line" %>
+                        <%= t(".mark_as_sent") %>
+                      <% end %>
+                    <% end %>
+                  </li>
+                  <li class="dropdown__item">
+                    <%= link_to pending_authorization_cancel_postage_path(authorization.id),
+                                method: :delete,
+                                class: "dropdown__button",
+                                data: { confirm: t(".cancel_confirm") } do %>
+                      <%= icon "close-circle-line" %>
+                      <%= t(".cancel_request") %>
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

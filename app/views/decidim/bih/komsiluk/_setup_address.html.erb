@@ -1,0 +1,22 @@
+<div id="bih-address-suggest" class="mi-account-panel mi-komsiluk-setup-address">
+  <label for="bih-address-input"><%= t("decidim.bih.komsiluk.edit.method_address") %></label>
+  <div class="mi-filter-panel__search">
+    <input id="bih-address-input" type="text" placeholder="<%= t("decidim.bih.komsiluk.edit.address_placeholder") %>" autocomplete="street-address">
+    <button id="bih-address-search" type="button" class="mi-btn mi-btn--ghost mi-btn--sm"><%= t("decidim.bih.komsiluk.edit.address_search") %></button>
+  </div>
+  <%= render "decidim/bih/komsiluk/address_candidates" %>
+  <p class="help-text"><%= t("decidim.bih.komsiluk.edit.address_not_stored") %></p>
+  <div id="bih-address-result" class="mi-notice" style="display:none;">
+    <p><%= t("decidim.bih.komsiluk.edit.address_suggested") %>: <strong id="bih-suggested-name"></strong></p>
+    <%= form_tag(komsiluk_path, method: :patch, id: "bih-address-confirm-form") do %>
+      <input type="hidden" id="bih-address-komsiluk-id" name="komsiluk_id" value="">
+      <input type="hidden" id="bih-address-lat" name="lat" value="">
+      <input type="hidden" id="bih-address-lon" name="lon" value="">
+      <input type="hidden" name="source" value="address">
+      <button type="submit" class="mi-btn mi-btn--primary mi-btn--sm"><%= t("decidim.bih.komsiluk.edit.address_confirm") %></button>
+    <% end %>
+  </div>
+  <p id="bih-address-no-match" style="display:none;"><%= t("decidim.bih.komsiluk.edit.address_no_match") %></p>
+  <p id="bih-address-unavailable" style="display:none;" role="alert"><%= t("decidim.bih.komsiluk.edit.address_unavailable") %> <a href="#bih-komsiluk-select"><%= t("decidim.bih.komsiluk.edit.manual_fallback") %></a></p>
+  <p id="bih-address-searching" style="display:none;"><%= t("decidim.bih.komsiluk.edit.address_searching") %></p>
+</div>

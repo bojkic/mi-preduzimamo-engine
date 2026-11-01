@@ -1,0 +1,46 @@
+---
+sr:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            pending_registrations: Registracije u toku
+            report_photo_drafts: Privremene fotografije prijava
+            report_evidence_shares: Privatni dokazi prijava i dijeljene veze
+bs:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            pending_registrations: Registracije u toku
+            report_photo_drafts: Privremene fotografije prijava
+            report_evidence_shares: Privatni dokazi prijava i dijeljene poveznice
+hr:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            pending_registrations: Registracije u tijeku
+            report_photo_drafts: Privremene fotografije prijava
+            report_evidence_shares: Privatni dokazi prijava i dijeljene poveznice
+en:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            pending_registrations: Pending registrations
+            report_photo_drafts: Temporary report photo drafts
+            report_evidence_shares: Private report evidence and shared links
+sr-Cyrl:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            pending_registrations: Регистрације у току
+            report_photo_drafts: Привремене фотографије пријава
+            report_evidence_shares: Приватни докази пријава и дијељене везе

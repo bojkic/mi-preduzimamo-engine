@@ -1,0 +1,137 @@
+<%#
+  Admin editor for the Goodwill earning schedule, daily caps and season start.
+  Each field shows the CURRENT effective value as a placeholder; leaving it blank
+  CLEARS the override and restores the default — this is the fallback discipline
+  that keeps an empty store byte-identical to the pre-table behavior.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.goodwill_settings.edit.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :goodwill_settings %>
+
+<%= form_tag goodwill_settings_path, method: :patch, class: "form form-defaults" do %>
+  <div class="card" id="goodwill-settings-header">
+    <div class="item_show__header">
+      <h1 class="item_show__header-title"><%= t("decidim.bih.admin.goodwill_settings.edit.title") %></h1>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.goodwill_settings.edit.intro") %></p>
+      <p><em><%= t("decidim.bih.admin.goodwill_settings.edit.blank_hint") %></em></p>
+      <div class="callout warning" id="goodwill-settings-impact">
+        <strong><%= t("decidim.bih.admin.goodwill_settings.edit.impact_title") %></strong>
+        <p style="margin-bottom:0;"><%= t("decidim.bih.admin.goodwill_settings.edit.impact_body") %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="goodwill-settings-schedule">
+    <div class="card-divider">
+      <h2 class="card-title"><%= t("decidim.bih.admin.goodwill_settings.edit.schedule_title") %></h2>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.goodwill_settings.edit.schedule_intro") %></p>
+      <div class="row">
+        <% @schedule_actions.each do |action| %>
+          <div class="columns medium-4" style="margin-bottom:1rem;">
+            <div class="mi-admin-setting">
+              <label>
+              <%= t("decidim.bih.admin.goodwill_settings.actions.#{action}", default: action.to_s.humanize) %>
+              <input type="number" min="0" max="100000"
+                     name="schedule[<%= action %>]"
+                     value="<%= @schedule_overrides[action.to_s] %>"
+                     placeholder="<%= @schedule_defaults[action] %>">
+              </label>
+              <small class="mi-admin-setting__values">
+                <%= t("decidim.bih.admin.settings_values.default", value: @schedule_defaults[action]) %> ·
+                <%= t("decidim.bih.admin.settings_values.override", value: @schedule_overrides[action.to_s].presence || t("decidim.bih.admin.settings_values.none")) %> ·
+                <%= t("decidim.bih.admin.settings_values.effective", value: @rules.points_for(action)) %>
+              </small>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="goodwill-settings-caps">
+    <div class="card-divider">
+      <h2 class="card-title"><%= t("decidim.bih.admin.goodwill_settings.edit.caps_title") %></h2>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.goodwill_settings.edit.caps_intro") %></p>
+      <div class="row">
+        <% @cap_actions.each do |action| %>
+          <div class="columns medium-4" style="margin-bottom:1rem;">
+            <div class="mi-admin-setting">
+              <label>
+              <%= t("decidim.bih.admin.goodwill_settings.actions.#{action}", default: action.to_s.humanize) %>
+              <input type="number" min="0"
+                     name="caps[<%= action %>]"
+                     value="<%= @cap_overrides[action.to_s] %>"
+                     placeholder="<%= @cap_defaults[action] %>">
+              </label>
+              <small class="mi-admin-setting__values">
+                <%= t("decidim.bih.admin.settings_values.default", value: @cap_defaults[action]) %> ·
+                <%= t("decidim.bih.admin.settings_values.override", value: @cap_overrides[action.to_s].presence || t("decidim.bih.admin.settings_values.none")) %> ·
+                <%= t("decidim.bih.admin.settings_values.effective", value: @rules.cap_for(action)) %>
+              </small>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="goodwill-settings-monthly-caps">
+    <div class="card-divider"><h2 class="card-title"><%= t("decidim.bih.admin.goodwill_settings.edit.monthly_caps_title") %></h2></div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.goodwill_settings.edit.monthly_caps_intro") %></p>
+      <% @monthly_cap_actions.each do |action| %>
+        <label>
+          <%= t("decidim.bih.admin.goodwill_settings.actions.#{action}", default: action.to_s.humanize) %>
+          <input type="number" min="0" max="10000" name="monthly_caps[<%= action %>]"
+                 value="<%= @monthly_cap_overrides[action.to_s] %>" placeholder="<%= @monthly_cap_defaults[action] %>">
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card" id="goodwill-settings-season">
+    <div class="card-divider">
+      <h2 class="card-title"><%= t("decidim.bih.admin.goodwill_settings.edit.season_title") %></h2>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.goodwill_settings.edit.season_intro") %></p>
+      <div class="row">
+        <div class="columns medium-6">
+          <label>
+            <%= t("decidim.bih.admin.goodwill_settings.edit.season_started_at") %>
+            <input type="date" name="settings[season_started_at]"
+                   value="<%= @season_override.presence %>"
+                   placeholder="<%= @season_started_at&.to_date&.iso8601 %>">
+          </label>
+          <small><%= t("decidim.bih.admin.goodwill_settings.edit.season_hint") %></small>
+          <small class="mi-admin-setting__values">
+            <%= t("decidim.bih.admin.settings_values.default", value: @season_default&.to_date&.iso8601 || t("decidim.bih.admin.settings_values.none")) %> ·
+            <%= t("decidim.bih.admin.settings_values.override", value: @season_override.presence || t("decidim.bih.admin.settings_values.none")) %> ·
+            <%= t("decidim.bih.admin.settings_values.effective", value: @season_started_at&.to_date&.iso8601 || t("decidim.bih.admin.settings_values.none")) %>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-section">
+      <label>
+        <%= t("decidim.bih.admin.goodwill_settings.edit.approval_rationale") %>
+        <input type="text"
+               name="approval_rationale"
+               value="<%= params[:approval_rationale].to_s %>"
+               required
+               placeholder="<%= t("decidim.bih.admin.goodwill_settings.edit.approval_rationale_placeholder") %>">
+      </label>
+      <small><%= t("decidim.bih.admin.goodwill_settings.edit.approval_rationale_hint") %></small>
+      <%= submit_tag t("decidim.bih.admin.goodwill_settings.edit.submit"), class: "button button__secondary" %>
+    </div>
+  </div>
+<% end %>

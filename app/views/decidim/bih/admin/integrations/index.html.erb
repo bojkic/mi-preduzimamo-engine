@@ -1,0 +1,237 @@
+<%#
+  Round 25 (W4.5) + live-state upgrade — integrations health page. One status
+  row per external integration showing BOTH the static config-presence check
+  (configured yes/no + the ENV var names still missing) AND the live state read
+  from the durable Decidim::Bih::IntegrationHealth subscriber ("last OK 4m ago"
+  vs "last call failed (401)"). Secrets are NEVER rendered.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.integrations.title")) %>
+<%
+  city_data_statuses = Array(@city_data_statuses)
+  city_data_previews = Array(@city_data_previews)
+  statuses = Array(@statuses)
+%>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :integrations %>
+
+<div class="card" id="admin-integrations-header">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.integrations.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.integrations.intro") %></p>
+    <div class="callout secondary" id="admin-integrations-runbook">
+      <strong><%= t("decidim.bih.admin.integrations.runbook_title") %></strong>
+      <p style="margin-bottom:0;"><%= t("decidim.bih.admin.integrations.runbook_body") %></p>
+      <details>
+        <summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary>
+        <code>script/mi_ops_health_smoke</code>
+      </details>
+    </div>
+  </div>
+</div>
+
+<% if city_data_statuses.any? %>
+  <div class="card" id="admin-city-data-freshness">
+    <div class="item_show__header">
+      <h2 class="item_show__header-title"><%= t("decidim.bih.admin.integrations.city_data_title", default: "City data freshness") %></h2>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.integrations.city_data_intro", default: "Read-only source freshness for city data used by the bot and public pages.") %></p>
+    </div>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.integrations.city_data_col_source", default: "Source") %></th>
+            <th><%= t("decidim.bih.admin.integrations.city_data_col_last_updated", default: "Last updated") %></th>
+            <th><%= t("decidim.bih.admin.integrations.city_data_col_status", default: "Status") %></th>
+            <th><%= t("decidim.bih.admin.integrations.city_data_col_detail", default: "Detail") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% city_data_statuses.each do |row| %>
+            <tr data-city-data-status="<%= row[:status] %>">
+              <td><strong><%= row[:label] %></strong></td>
+              <td><%= row[:last_updated_on].presence || t("decidim.bih.admin.integrations.city_data_missing", default: "unknown") %></td>
+              <td>
+                <% case row[:status] %>
+                <% when "ok" %>
+                  <span class="mi-admin-status mi-admin-status--ok"><%= t("decidim.bih.admin.integrations.city_data_status_ok", default: "OK") %></span>
+                <% when "fail" %>
+                  <span class="mi-admin-status mi-admin-status--danger"><%= t("decidim.bih.admin.integrations.city_data_status_fail", default: "Failing") %></span>
+                <% else %>
+                  <span class="mi-admin-status mi-admin-status--attention"><%= t("decidim.bih.admin.integrations.city_data_status_warn", default: "Needs review") %></span>
+                <% end %>
+              </td>
+              <td>
+                <details>
+                  <summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary>
+                  <p>
+                    <strong><%= t("decidim.bih.admin.integrations.city_data_col_detail", default: "Detail") %>:</strong>
+                    <%= row[:detail].presence || "—" %>
+                  </p>
+                  <p>
+                    <strong><%= t("decidim.bih.admin.integrations.city_data_col_refresh", default: "Osvježavanje") %>:</strong>
+                    <% if row[:refresh_command].present? %>
+                      <code><%= row[:refresh_command] %></code>
+                    <% else %>
+                      —
+                    <% end %>
+                  </p>
+                </details>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
+
+<% if city_data_previews.any? %>
+  <div class="card" id="admin-city-data-preview">
+    <div class="item_show__header">
+      <h2 class="item_show__header-title"><%= t("decidim.bih.admin.integrations.city_data_preview_title", default: "City data preview") %></h2>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.integrations.city_data_preview_intro", default: "Admin-only preview of city-service datasets that citizens access through the platform assistant.") %></p>
+    </div>
+
+    <% city_data_previews.each do |preview| %>
+      <div class="card-section" data-city-data-preview="<%= preview[:key] %>">
+        <h3><%= preview[:label] %></h3>
+        <% if preview[:metadata].present? %>
+          <details>
+            <summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary>
+            <p><code><%= preview[:metadata] %></code></p>
+          </details>
+        <% end %>
+        <% if preview[:source_url].present? %>
+          <p>
+            <%= t("decidim.bih.admin.integrations.city_data_source", default: "Source") %>:
+            <a href="<%= preview[:source_url] %>" rel="noopener noreferrer"><%= preview[:source_url] %></a>
+          </p>
+        <% end %>
+
+        <%= form_with url: request.path, method: :get, local: true, class: "form form-defaults" do |form| %>
+          <div class="field">
+            <%= form.label preview[:query_param], t("decidim.bih.admin.integrations.city_data_preview_filter", default: "Filter") %>
+            <%= form.text_field preview[:query_param],
+                                value: preview[:query],
+                                placeholder: preview[:placeholder],
+                                autocomplete: "off" %>
+          </div>
+          <%= form.submit t("decidim.bih.admin.integrations.city_data_preview_submit", default: "Preview"), class: "button button__sm button__secondary" %>
+        <% end %>
+
+        <div class="table-stacked">
+          <table class="table-list">
+            <thead>
+              <tr>
+                <th><%= t("decidim.bih.admin.integrations.city_data_preview_col_item", default: "Item") %></th>
+                <th><%= t("decidim.bih.admin.integrations.city_data_preview_col_value", default: "Value") %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if preview[:rows].any? %>
+                <% preview[:rows].each do |row| %>
+                  <tr>
+                    <td><%= row[:label] %></td>
+                    <td><%= row[:value] %></td>
+                  </tr>
+                <% end %>
+              <% else %>
+                <tr>
+                  <td colspan="2"><%= t("decidim.bih.admin.integrations.city_data_preview_empty", default: "No preview rows available.") %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @gemini_misrouted %>
+  <div class="callout alert" id="admin-integrations-gemini-misrouted">
+    <strong><%= t("decidim.bih.admin.integrations.gemini_misrouted", default: "Gemini has an API key set but is still pointed at the AI Studio host, which is blocked for this project and silently returns 401. Set GEMINI_BASE_URL to the Vertex host (https://aiplatform.googleapis.com).") %></strong>
+  </div>
+<% end %>
+
+<div class="card" id="admin-integrations-list">
+  <div class="table-stacked">
+    <table class="table-list">
+      <thead>
+        <tr>
+          <th><%= t("decidim.bih.admin.integrations.col_integration") %></th>
+          <th><%= t("decidim.bih.admin.integrations.col_status") %></th>
+          <th><%= t("decidim.bih.admin.integrations.col_health", default: "Live state") %></th>
+          <th><%= t("decidim.bih.admin.integrations.col_detail") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% statuses.each do |status| %>
+          <%
+            health = status[:health] || { status: :unknown }
+            missing_env = Array(status[:missing_env])
+          %>
+          <tr>
+            <td><strong><%= t("decidim.bih.admin.integrations.providers.#{status[:key]}") %></strong></td>
+            <td>
+              <% if status[:configured] %>
+                <span class="mi-admin-status mi-admin-status--ok"><%= t("decidim.bih.admin.integrations.configured") %></span>
+              <% else %>
+                <span class="mi-admin-status mi-admin-status--danger"><%= t("decidim.bih.admin.integrations.not_configured") %></span>
+              <% end %>
+            </td>
+            <td data-health="<%= health[:status] %>">
+              <% case health[:status] %>
+              <% when :ok %>
+                <span class="mi-admin-status mi-admin-status--ok">
+                  <%= t("decidim.bih.admin.integrations.health.ok", default: "OK") %>
+                </span>
+                <% if health[:last_success_at] %>
+                  <small><%= t("decidim.bih.admin.integrations.health.last_ok", when: time_ago_in_words(health[:last_success_at]), default: "last OK %{when} ago") %></small>
+                <% end %>
+              <% when :failing %>
+                <span class="mi-admin-status mi-admin-status--danger">
+                  <%= t("decidim.bih.admin.integrations.health.failing", default: "Failing") %>
+                </span>
+                <% if health[:last_error_at] %>
+                  <small><%= t("decidim.bih.admin.integrations.health.last_error", when: time_ago_in_words(health[:last_error_at]), default: "last failure %{when} ago") %></small>
+                <% end %>
+              <% when :stale %>
+                <span class="mi-admin-status mi-admin-status--warning">
+                  <%= t("decidim.bih.admin.integrations.health.stale", default: "Stale") %>
+                </span>
+                <% if health[:observed_at] %>
+                  <small><%= t("decidim.bih.admin.integrations.health.last_observation", when: time_ago_in_words(health[:observed_at]), default: "last observation %{when} ago") %></small>
+                <% end %>
+              <% else %>
+                <span class="mi-admin-status mi-admin-status--neutral">
+                  <%= t("decidim.bih.admin.integrations.health.unknown", default: "No recent calls") %>
+                </span>
+              <% end %>
+            </td>
+            <td>
+              <details>
+                <summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary>
+                <% if missing_env.any? %>
+                  <%= t("decidim.bih.admin.integrations.missing_env") %>
+                  <code><%= missing_env.join(", ") %></code>
+                <% else %>
+                  <%= t("decidim.bih.admin.integrations.no_missing_env") %>
+                <% end %>
+                <% if health[:last_error_code].present? %>
+                  <p><code><%= health[:last_error_code] %></code></p>
+                <% end %>
+              </details>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

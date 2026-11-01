@@ -1,0 +1,91 @@
+<% add_decidim_page_title(t(".title")) %>
+
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: t(".intro"),
+               action_label: (@can_submit_project ? t(".submit_project") : nil),
+               action_path: (@can_submit_project ? new_community_project_path : nil),
+               action_class: "mi-btn mi-btn--primary" %>
+
+    <section class="mi-account-panel mi-account-panel--wide" aria-labelledby="community-projects-title">
+      <div class="mi-account-panel__head">
+        <h2 id="community-projects-title"><%= t(".approved_projects") %></h2>
+      </div>
+
+      <% if @project_rows.empty? %>
+        <div class="mi-empty-state">
+          <img src="/mi/heart-mark.png" alt="" aria-hidden="true">
+          <h3 class="heading4"><%= t(".empty") %></h3>
+        </div>
+      <% else %>
+        <div class="mi-card-grid">
+          <% @project_rows.each do |row| %>
+            <% project = row.fetch(:project) %>
+            <% submission = row[:submission] %>
+            <% raised = row[:raised] %>
+            <% totals_available = row.fetch(:totals_available) %>
+            <% goal = project.budget_amount.to_d %>
+            <% progress = totals_available && goal.positive? ? [(raised / goal * 100).round, 100].min : 0 %>
+            <article class="mi-surface-card mi-project-card">
+              <div>
+                <p class="mi-eyebrow"><%= submission&.partner_profile&.display_name || t(".approved_by_lfbn") %></p>
+                <h3><%= translated_attribute(project.title) %></h3>
+                <p><%= truncate(strip_tags(translated_attribute(project.description)), length: 180) %></p>
+                <p class="mi-report-card__meta">
+                  <span><%= t(".fundraising_goal", amount: number_with_delimiter(goal.to_i, delimiter: "."), currency: @currency_label) %></span>
+                  <% if totals_available %>
+                    <span><%= t(".raised", amount: number_with_delimiter(raised.to_i, delimiter: "."), currency: @currency_label) %></span>
+                  <% end %>
+                </p>
+                <% if totals_available %>
+                  <progress value="<%= progress %>" max="100" aria-label="<%= t(".progress", percent: progress) %>"><%= progress %>%</progress>
+                <% end %>
+              </div>
+              <div class="mi-action-row">
+                <%= link_to t(".view_project"), community_project_details_path(project, submission), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                <% donate_url = row[:donate_url] %>
+                <% if donate_url.present? %>
+                  <%= link_to t(".donate"), donate_url, class: "mi-btn mi-btn--ghost mi-btn--sm",
+                              target: "_blank", rel: "noopener noreferrer" %>
+                <% end %>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <% if current_organization_user_signed_in? %>
+      <section id="moji-projekti" class="mi-account-panel mi-account-panel--wide" aria-labelledby="my-community-projects-title">
+        <div class="mi-account-panel__head">
+          <h2 id="my-community-projects-title"><%= t(".my_submissions") %></h2>
+        </div>
+        <% if @my_project_submissions.any? %>
+          <ul class="mi-data-list">
+            <% @my_project_submissions.each do |submission| %>
+              <li class="mi-account-activity__summary">
+                <span>
+                  <strong><%= submission.title %></strong>
+                  <small><%= submission.partner_profile.display_name %></small>
+                  <% if submission.rejection_reason.present? %>
+                    <span><%= t(".review_reason", reason: submission.rejection_reason) %></span>
+                  <% end %>
+                </span>
+                <span class="mi-status-pill"><%= t(".review_status.#{submission.review_status}") %></span>
+                <% if submission.changes_requested? %>
+                  <%= link_to t(".edit_submission"), edit_community_project_submission_path(submission),
+                              class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="mi-report-card__meta"><%= t(".no_submissions") %></p>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+</main>

@@ -1,0 +1,13 @@
+<h1><%= t("decidim.bih.report_mailbox.title") %></h1>
+<p><%= link_to t("decidim.bih.report_mailbox.senders"), report_service_senders_path %></p>
+<%= form_with url: history_import_report_inbound_emails_path, method: :post, multipart: true, builder: ActionView::Helpers::FormBuilder, class: "form form-defaults" do |form| %>
+  <%= form.label :history_file, t("decidim.bih.report_mailbox.history_file") %>
+  <%= form.file_field :history_file, accept: ".eml,message/rfc822", required: true %>
+  <%= form.submit t("decidim.bih.report_mailbox.import_history"), class: "button button__sm button__secondary" %>
+<% end %>
+<p><%= t("decidim.bih.report_mailbox.history_import_hint") %></p>
+<div class="table-stacked"><table class="table-list"><thead><tr><% %w(sender subject received references reason).each do |key| %><th><%= t("decidim.bih.report_mailbox.#{key}") %></th><% end %></tr></thead><tbody>
+<% @emails.each do |email| %><tr>
+<td><%= email.from_domain %></td><td><%= link_to email.subject.presence || t("decidim.bih.report_mailbox.no_subject"), report_inbound_email_path(email) %></td>
+<td><%= l(email.internal_date, format: :short) %></td><td><%= Decidim::Bih::ReportMailbox::Reference.scan(email.subject).join(", ") %></td><td><%= email.review_reason %></td>
+</tr><% end %></tbody></table></div>

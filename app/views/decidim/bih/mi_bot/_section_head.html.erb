@@ -1,0 +1,8 @@
+<%# Section heading block: eyebrow kicker + display title + optional intro. %>
+<div class="mi-bot-section-head<%= " mi-bot-section-head--light" if light %>">
+  <p class="mi-bot-eyebrow"><%= kicker %></p>
+  <h2 class="mi-bot-display mi-bot-section-head__title"><%= title %></h2>
+  <% if desc.present? %>
+    <p class="mi-bot-section-head__desc"><%= desc %></p>
+  <% end %>
+</div>

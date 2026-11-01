@@ -1,0 +1,25 @@
+<%#
+  Whether the citizen's CURRENT address is proven. Phone-first sign-up sets
+  confirmed_at without an e-mail round trip, so this is the only honest answer
+  to "can I get a password-reset link?" — see Decidim::Bih::EmailConfirmation.
+%>
+<% if @user.email.present? %>
+<% confirmed = Decidim::Bih::EmailConfirmation.confirmed?(@user) %>
+
+<section id="potvrda-emaila" class="mi-account-panel mi-account-email-confirmation" aria-labelledby="mi-account-email-confirmation-title">
+  <div class="mi-account-panel__head">
+    <div>
+      <p class="mi-eyebrow"><%= t(".eyebrow") %></p>
+      <h2 id="mi-account-email-confirmation-title" class="heading4"><%= t(".title") %></h2>
+    </div>
+  </div>
+
+  <% if confirmed %>
+    <p class="mi-account-email-confirmation__status"><%= t(".confirmed") %></p>
+  <% else %>
+    <p class="mi-account-email-confirmation__status"><%= t(".unconfirmed") %></p>
+    <%= button_to t(".cta"), request_email_confirmation_path, method: :post, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+  <% end %>
+</section>
+
+<% end %>

@@ -1,0 +1,36 @@
+<% t_scope = "decidim.bih.communication_settings" %>
+<% add_decidim_page_title(t("#{t_scope}.title")) %>
+<div class="mi-account-page mi-communication-settings">
+  <h1 class="heading2"><%= t("#{t_scope}.title") %></h1>
+  <p><%= t("#{t_scope}.topic_intro") %></p>
+  <p><%= link_to t("#{t_scope}.back"), account_overview_path %></p>
+
+  <%= form_with url: account_notification_settings_path, method: :patch, local: true,
+                html: { "data-communication-form" => "true" } do %>
+    <fieldset class="mi-account-panel" data-setting-section="topics">
+      <legend class="heading4"><%= t("#{t_scope}.topic_title") %></legend>
+      <% @settings.topics.each do |topic| %>
+        <% checked = @form.value_submitted?(topic) ? @form.public_send(topic) : @settings.enabled?(topic) %>
+        <div class="mi-setting-row" data-setting-row="<%= topic %>">
+          <input type="hidden" name="communication_settings[rendered_rows][]" value="<%= topic %>">
+          <input type="hidden" name="communication_settings[<%= topic %>]" value="0">
+          <label class="mi-setting-row__label" for="communication_settings_<%= topic %>">
+            <input type="checkbox" id="communication_settings_<%= topic %>"
+                   name="communication_settings[<%= topic %>]" value="1"
+                   aria-describedby="topic-help-<%= topic %>" <%= "checked" if checked %>>
+            <span><%= t("#{t_scope}.topics.#{topic}") %></span>
+          </label>
+          <p id="topic-help-<%= topic %>" class="help-text"><%= t("#{t_scope}.topic_help.#{topic}") %></p>
+        </div>
+      <% end %>
+      <button type="submit" class="mi-btn mi-btn--primary" data-communication-save><%= t("#{t_scope}.save") %></button>
+    </fieldset>
+  <% end %>
+
+  <section class="mi-account-panel" data-setting-section="inapp">
+    <h2 class="heading4"><%= t("#{t_scope}.sections.inapp") %></h2>
+    <p><%= t("#{t_scope}.platform_always_available") %></p>
+  </section>
+  <%= render "decidim/bih/account_notification_settings/push", settings: @settings, t_scope: t_scope %>
+  <%= render "decidim/bih/account_notification_settings/contact", settings: @settings, t_scope: t_scope %>
+</div>

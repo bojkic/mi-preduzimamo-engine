@@ -1,0 +1,11 @@
+/.bundle/
+/vendor/bundle/
+/pkg/
+/tmp/
+/log/
+/spec/dummy/
+Gemfile.lock
+*.gem
+.env
+.env.*
+.DS_Store

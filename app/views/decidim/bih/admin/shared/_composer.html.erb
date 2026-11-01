@@ -1,0 +1,154 @@
+<%#
+  The ONE shared composer. Every operator surface that can send renders this,
+  so an operator reads the same five things in the same order everywhere:
+
+    1. audience   — aggregate counts and the reason histogram
+    2. content    — one rendered variant per channel, from the REGISTRY
+    3. readiness  — what is blocking the send right now
+    4. cost       — a bounded estimate that names its own basis
+    5. confirm    — the digest/token and the reviewed checkbox
+
+  Readiness comes before the confirm section deliberately: an operator reads
+  top to bottom and must meet the blockers before the button.
+
+  ⚠️ Everything here is a PREVIEW. `Messaging::DispatchGuard` runs again at
+  dispatch; this render never replaces that check.
+
+  Privacy: counts, reason codes and fixed descriptors only. `recipient_label`
+  is rendered only when the caller has already established that this operator
+  holds the case-read permission for this case.
+
+  Locals:
+    content_plan:    Messaging::ComposerPlan.for(...)          (required; it
+                     carries the registry key, so no caller passes one twice)
+    estimate:        Messaging::AudienceEstimate result, or nil
+    guard:           Messaging::DispatchGuard::Result, or nil
+    recipient_label: String, or nil
+    governance_path: String, or nil
+    confirm:         Hash { fields:, checkbox_name:, checked: }, or nil
+%>
+<%
+  estimate ||= nil
+  # An estimate that refused to count is NOT an estimate of zero.
+  estimate = nil if estimate.is_a?(Hash) && estimate[:counted] == false
+  guard ||= nil
+  recipient_label = defined?(recipient_label) ? recipient_label : nil
+  governance_path = defined?(governance_path) ? governance_path : nil
+  confirm = defined?(confirm) ? confirm : nil
+%>
+<div class="card" data-composer="<%= content_plan[:message_class] %>" id="mi-composer">
+  <div class="card-section">
+    <h2><%= t("decidim.bih.admin.composer.title") %></h2>
+
+    <%# 1. audience %>
+    <section data-composer-audience="<%= estimate ? "ready" : "unavailable" %>">
+      <h3><%= t("decidim.bih.admin.composer.audience.title") %></h3>
+      <% if estimate %>
+        <dl>
+          <dt><%= t("decidim.bih.admin.composer.audience.eligible") %></dt>
+          <dd data-composer-count="eligible"><%= estimate[:eligible] %></dd>
+          <dt><%= t("decidim.bih.admin.composer.audience.suppressed") %></dt>
+          <dd data-composer-count="suppressed"><%= estimate[:suppressed] %></dd>
+          <dt><%= t("decidim.bih.admin.composer.audience.undeliverable") %></dt>
+          <dd data-composer-count="undeliverable"><%= estimate[:undeliverable] %></dd>
+        </dl>
+        <% if estimate[:by_reason].present? %>
+          <ul data-composer-reasons>
+            <% estimate[:by_reason].each do |reason, count| %>
+              <li data-composer-reason="<%= reason %>">
+                <%= t("decidim.bih.admin.composer.reasons.#{reason}", default: reason.to_s.tr("_", " ")) %>:
+                <%= count %>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      <% else %>
+        <%# "Zero" and "we could not count" are different answers and are never
+            collapsed: a confident 0 would read as "nobody is affected". %>
+        <p data-composer-count="degraded"><%= t("decidim.bih.admin.composer.audience.unavailable") %></p>
+      <% end %>
+      <% if recipient_label.present? %>
+        <p data-composer-recipient><%= recipient_label %></p>
+      <% end %>
+    </section>
+
+    <%# 2. content %>
+    <section data-composer-content>
+      <h3><%= t("decidim.bih.admin.composer.content.title") %></h3>
+      <% content_plan[:variants].each do |row| %>
+        <% if row[:supported] %>
+          <div data-composer-variant="<%= row[:channel] %>">
+            <strong><%= t("decidim.bih.admin.composer.channels.#{row[:channel]}", default: row[:channel].to_s) %></strong>
+            <small data-composer-variant-name="<%= row[:variant] %>">
+              <%= t("decidim.bih.admin.composer.content.variant", variant: row[:variant]) %>
+            </small>
+            <% if row[:content].present? %>
+              <pre data-composer-variant-content><%= row[:content] %></pre>
+            <% else %>
+              <p><%= t("decidim.bih.admin.composer.content.not_previewable") %></p>
+            <% end %>
+          </div>
+        <% else %>
+          <p data-composer-unsupported="<%= row[:channel] %>">
+            <%= t("decidim.bih.admin.composer.content.unsupported", channel: row[:channel]) %>
+          </p>
+        <% end %>
+      <% end %>
+    </section>
+
+    <%# 3. readiness %>
+    <section data-composer-readiness="<%= guard.nil? ? "unknown" : (guard.allowed? ? "ready" : "blocked") %>">
+      <h3><%= t("decidim.bih.admin.composer.readiness.title") %></h3>
+      <% if guard.nil? %>
+        <p><%= t("decidim.bih.admin.composer.readiness.unknown") %></p>
+      <% elsif guard.allowed? %>
+        <p><%= t("decidim.bih.admin.composer.readiness.ready") %></p>
+      <% else %>
+        <ul>
+          <% guard.blockers.each do |blocker| %>
+            <li data-readiness-blocked="<%= blocker %>">
+              <%= t("decidim.bih.admin.composer.blockers.#{blocker}") %>
+            </li>
+          <% end %>
+        </ul>
+        <% if governance_path.present? && guard.blockers.include?(:governance_missing) %>
+          <p><%= link_to t("decidim.bih.admin.composer.readiness.open_governance"), governance_path %></p>
+        <% end %>
+      <% end %>
+    </section>
+
+    <%# 4. cost %>
+    <section data-composer-cost="<%= estimate ? estimate.dig(:cost, :segments) : "unavailable" %>">
+      <h3><%= t("decidim.bih.admin.composer.cost.title") %></h3>
+      <% if estimate.nil? %>
+        <p><%= t("decidim.bih.admin.composer.cost.unavailable") %></p>
+      <% elsif estimate.dig(:cost, :degraded) %>
+        <%# No unit price is on record, so no amount is shown. An invented
+            number is worse than none: the operator would believe it. %>
+        <p><%= t("decidim.bih.admin.composer.cost.segments_only", count: estimate.dig(:cost, :segments)) %></p>
+      <% else %>
+        <p><%= t("decidim.bih.admin.composer.cost.segments_and_amount",
+                 count: estimate.dig(:cost, :segments),
+                 amount: estimate.dig(:cost, :amount),
+                 currency: estimate.dig(:cost, :currency)) %></p>
+      <% end %>
+      <p><small data-composer-disclaimer><%= Decidim::Bih::Messaging::AudienceEstimate::DISCLAIMER %></small></p>
+    </section>
+
+    <%# 5. confirm %>
+    <% if confirm.present? %>
+      <section data-composer-confirm>
+        <h3><%= t("decidim.bih.admin.composer.confirm.title") %></h3>
+        <% Array(confirm[:fields]).each do |name, value| %>
+          <%= hidden_field_tag name, value %>
+        <% end %>
+        <% if confirm[:checkbox_name].present? %>
+          <label>
+            <%= check_box_tag confirm[:checkbox_name], "1", confirm[:checked] %>
+            <span><%= t("decidim.bih.admin.composer.confirm.reviewed") %></span>
+          </label>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+</div>

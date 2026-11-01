@@ -1,0 +1,3 @@
+<% if report.category.blank? && report.review_state == "pending" && !Decidim::Bih::ReportWorkQueue.closed?(report) %>
+<p data-category-missing><%= t("decidim.bih.review_workspace.category_missing") %></p>
+<% end %>

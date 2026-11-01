@@ -1,0 +1,62 @@
+<%#
+  Gift wallet points to a local organization. Gifting moves spendable points
+  only — your recognition (contribution score / leaderboard rank) is untouched.
+%>
+<% add_decidim_page_title(t(".title")) %>
+<%
+  viewer =
+    if current_user && current_organization
+      if current_user.respond_to?(:organization) && current_user.organization == current_organization
+        current_user
+      elsif current_user.respond_to?(:decidim_organization_id) && current_user.decidim_organization_id == current_organization.id
+        current_user
+      end
+    end
+%>
+<div class="wrapper">
+  <div class="row column">
+    <div class="card" style="max-width: 40rem; margin: 0 auto; padding: 0; overflow: hidden;">
+      <div style="height: 5px; background: var(--mi-coral-600);"></div>
+      <div style="padding: 1.6rem 1.5rem 2rem;">
+        <div style="text-align: center; margin-bottom: 1.4rem;">
+          <p class="mi-eyebrow"><%= t(".eyebrow") %></p>
+          <h1 class="heading3" style="color: var(--mi-navy-700);"><%= t(".title") %></h1>
+          <p style="color: var(--mi-navy-400);"><%= t(".subtitle") %></p>
+          <p style="margin:0.55rem auto 0; max-width:32rem; color: var(--mi-navy-400); font-size:0.9rem;"><%= t(".policy_note") %></p>
+          <% if @balance %>
+            <p style="margin: 0.85rem 0 0; font-weight: 700; color: var(--mi-navy-700);">
+              <%= t(".your_balance") %>:
+              <span style="color: var(--mi-coral-600);"><%= number_with_delimiter(@balance, delimiter: ".") %></span>
+            </p>
+          <% end %>
+        </div>
+
+        <%= render "decidim/bih/shared/verify_cta" %>
+
+        <% if @organizations.empty? %>
+          <p style="text-align: center; color: var(--mi-navy-400); padding: 1.5rem 0;"><%= t(".empty") %></p>
+        <% else %>
+          <% @organizations.each do |org| %>
+            <div style="display:flex; align-items:center; gap:0.85rem; padding:0.8rem 0.35rem; border-bottom:1px solid var(--mi-line);">
+              <span style="flex:1 1 auto; color: var(--mi-navy-700); font-weight:700;">
+                <%= link_to org.display_name, organization_path(org.slug), style: "color: inherit; text-decoration:underline dotted;" %>
+              </span>
+              <% if viewer %>
+                <%= form_with url: gift_path, method: :post, html: { style: "display:flex; gap:0.4rem; align-items:center; margin:0;" } do %>
+                  <%= hidden_field_tag :request_key, SecureRandom.uuid %>
+                  <%= hidden_field_tag :recipient_id, org.id %>
+                  <input type="number" name="amount" min="1" value="10" style="width: 5rem;">
+                  <%= submit_tag t(".gift"), class: "button button__sm", style: "background: var(--mi-coral-600); border-color: var(--mi-coral-600);" %>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+          <% unless viewer %>
+            <p style="text-align:center; color: var(--mi-navy-400); font-size:0.85rem; margin-top:1rem;"><%= t(".login_to_gift") %></p>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+    <%= render "decidim/bih/shared/goodwill_links", current: :gifts %>
+  </div>
+</div>

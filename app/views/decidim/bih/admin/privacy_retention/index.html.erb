@@ -1,0 +1,169 @@
+<%#
+  Read-only privacy retention status. This page shows aggregate counts and
+  structured wrapper status only. It must not render raw report/contact/log data.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.privacy_retention.index.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :privacy_retention %>
+
+<div class="card" id="admin-privacy-retention-header">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.privacy_retention.index.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.privacy_retention.index.intro", months: @summary[:policy_months]) %></p>
+    <p><em><%= t("decidim.bih.admin.privacy_retention.index.privacy_note") %></em></p>
+    <div class="callout warning" id="admin-privacy-retention-approval">
+      <strong><%= t("decidim.bih.admin.privacy_retention.index.approval_title") %></strong>
+      <ol style="margin-bottom:0;">
+        <li><%= t("decidim.bih.admin.privacy_retention.index.approval_dry_run") %></li>
+        <li><%= t("decidim.bih.admin.privacy_retention.index.approval_review") %></li>
+        <li><%= t("decidim.bih.admin.privacy_retention.index.approval_live") %></li>
+      </ol>
+      <p style="margin-top:0.65rem; margin-bottom:0;">
+        <code>docs/operations/privacy-retention-sweeps.md</code>
+        <code>script/mi_monthly_maintenance_readiness_smoke</code>
+      </p>
+      <% if @retention_approval_current && @retention_counts_match %>
+        <p><strong><%= t("decidim.bih.admin.privacy_retention.index.approval_ready", date: l(@retention_approval.approved_at, format: :short), valid_until: l(@retention_approval.valid_until, format: :short), total: @summary[:total], default: "Važeće odobrenje evidentirano je %{date} za %{total} zapisa i važi do %{valid_until}.") %></strong></p>
+      <% else %>
+        <p><strong><%= t("decidim.bih.admin.privacy_retention.index.approval_blocked", default: "Pokretanje uživo nije odobreno: evidentiraj novu odluku ako odobrenje nedostaje, isteklo je ili se trenutni broj razlikuje od odobrenog pregleda.") %></strong></p>
+      <% end %>
+      <p><%= link_to t("decidim.bih.admin.privacy_retention.index.open_governance", default: "Pregledaj ili evidentiraj odobrenje"), governance_path(anchor: "governance-privacy_retention") %></p>
+      <p><%= t("decidim.bih.admin.privacy_retention.index.execution_handoff", default: "Tehnički izvršilac pokreće odobreni wrapper sa istim datumima, zatim na ovoj stranici provjerava završeni zapis. Ako se broj promijeni, vraća korak vlasniku na novu provjeru.") %></p>
+    </div>
+  </div>
+</div>
+
+<div class="card" id="admin-privacy-retention-history">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.privacy_retention.index.history_title") %></h2>
+  </div>
+  <div class="card-section">
+    <% if @summary[:run_history].blank? %>
+      <p><em><%= t("decidim.bih.admin.privacy_retention.index.history_empty") %></em></p>
+    <% else %>
+      <div class="table-stacked">
+        <table class="table-list">
+          <thead>
+            <tr>
+              <th><%= t("decidim.bih.admin.privacy_retention.columns.status") %></th>
+              <th><%= t("decidim.bih.admin.privacy_retention.columns.started_at") %></th>
+              <th><%= t("decidim.bih.admin.privacy_retention.columns.ended_at") %></th>
+              <th><%= t("decidim.bih.admin.privacy_retention.columns.cutoff") %></th>
+              <th><%= t("decidim.bih.admin.privacy_retention.columns.mode") %></th>
+              <th><%= t("decidim.bih.admin.privacy_retention.columns.total") %></th>
+              <th><%= t("decidim.bih.admin.privacy_retention.columns.counts") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @summary[:run_history].each do |run| %>
+              <tr data-retention-run-status="<%= run[:status] %>">
+                <td><%= t("decidim.bih.admin.privacy_retention.statuses.#{run[:status]}", default: run[:status].to_s) %></td>
+                <td><%= run[:started_at].presence || t("decidim.bih.admin.privacy_retention.missing") %></td>
+                <td><%= run[:ended_at].presence || t("decidim.bih.admin.privacy_retention.missing") %></td>
+                <td><%= run[:cutoff_on].presence || t("decidim.bih.admin.privacy_retention.missing") %></td>
+                <td>
+                  <% mode = run[:apply] == "true" ? "live" : "dry_run" %>
+                  <%= t("decidim.bih.admin.privacy_retention.modes.#{mode}") %>
+                </td>
+                <td><%= run[:total].presence || t("decidim.bih.admin.privacy_retention.missing") %></td>
+                <td>
+                  <% run[:counts].each do |key, count| %>
+                    <span data-retention-history-count="<%= key %>">
+                      <%= t("decidim.bih.admin.privacy_retention.buckets.#{key}") %>: <%= count %>
+                    </span><br>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card" id="admin-privacy-retention-current">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.privacy_retention.index.current_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p>
+      <strong><%= t("decidim.bih.admin.privacy_retention.index.cutoff") %>:</strong>
+      <%= @summary[:cutoff_on] %>
+      &middot;
+      <strong><%= t("decidim.bih.admin.privacy_retention.index.total") %>:</strong>
+      <span data-retention-status="<%= @summary[:status] %>"><%= @summary[:total] %></span>
+    </p>
+
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.privacy_retention.columns.bucket") %></th>
+            <th><%= t("decidim.bih.admin.privacy_retention.columns.cutoff") %></th>
+            <th><%= t("decidim.bih.admin.privacy_retention.columns.eligible") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @summary[:rows].each do |row| %>
+            <tr data-retention-bucket="<%= row[:key] %>">
+              <td><%= t("decidim.bih.admin.privacy_retention.buckets.#{row[:key]}") %></td>
+              <td><%= row[:cutoff_on] %></td>
+              <td><%= row[:count] %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card" id="admin-privacy-retention-last-run">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.privacy_retention.index.last_run_title") %></h2>
+  </div>
+  <div class="card-section">
+    <% last_run = @summary[:last_run] %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <tbody>
+          <tr>
+            <th><%= t("decidim.bih.admin.privacy_retention.columns.status") %></th>
+            <td data-retention-last-run-status="<%= last_run[:status] %>">
+              <%= t("decidim.bih.admin.privacy_retention.statuses.#{last_run[:status]}", default: last_run[:status].to_s) %>
+            </td>
+          </tr>
+          <tr>
+            <th><%= t("decidim.bih.admin.privacy_retention.columns.started_at") %></th>
+            <td><%= last_run[:started_at].presence || t("decidim.bih.admin.privacy_retention.missing") %></td>
+          </tr>
+          <tr>
+            <th><%= t("decidim.bih.admin.privacy_retention.columns.ended_at") %></th>
+            <td><%= last_run[:ended_at].presence || t("decidim.bih.admin.privacy_retention.missing") %></td>
+          </tr>
+          <tr>
+            <th><%= t("decidim.bih.admin.privacy_retention.columns.cutoff") %></th>
+            <td><%= last_run[:cutoff_on].presence || t("decidim.bih.admin.privacy_retention.missing") %></td>
+          </tr>
+          <tr>
+            <th><%= t("decidim.bih.admin.privacy_retention.columns.mode") %></th>
+            <td>
+              <% mode = last_run[:apply] == "true" ? "live" : "dry_run" %>
+              <%= t("decidim.bih.admin.privacy_retention.modes.#{mode}") %>
+            </td>
+          </tr>
+          <tr>
+            <th><%= t("decidim.bih.admin.privacy_retention.columns.total") %></th>
+            <td><%= last_run[:total].presence || t("decidim.bih.admin.privacy_retention.missing") %></td>
+          </tr>
+          <tr>
+            <th><%= t("decidim.bih.admin.privacy_retention.columns.detail") %></th>
+            <td><%= last_run[:detail] %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

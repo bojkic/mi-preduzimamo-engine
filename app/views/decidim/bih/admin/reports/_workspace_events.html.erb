@@ -1,0 +1,43 @@
+<details class="card" id="admin-report-events"><summary><%= t("decidim.bih.admin.reports.show.events_title") %></summary>
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.reports.show.events_title") %></h2>
+  </div>
+  <div class="card-section">
+    <% if @events.any? %>
+      <ol style="margin:0; padding-left:1.25rem;">
+        <% @events.each do |event| %>
+          <li style="margin-bottom:1rem;">
+            <strong><%= t("decidim.bih.admin.reports.events.types.#{event.event_type}", default: event.event_type.humanize) %></strong>
+            <div style="font-size:0.88rem; color:#555;">
+              <%= l(event.occurred_at, format: :short) %>
+              · <%= event.actor_label %>
+              · <%= t("decidim.bih.admin.reports.events.sources.#{event.source}", default: event.source) %>
+              <% if event.actor_role.present? %>
+                · <%= t("decidim.bih.admin.reports.events.actor_roles.#{event.actor_role}", default: event.actor_role) %>
+              <% end %>
+            </div>
+
+            <% metadata = event.metadata.to_h.dup %>
+            <% display_status = metadata.delete("display_status") %>
+            <%# job_id identifies the lease owner for recovery; it means nothing to staff. %>
+            <% metadata.delete("job_id") %>
+            <% display_status ||= "needs_information" if metadata["review_state"] == "needs_information" && !Decidim::Bih::Report::TERMINAL_STATUSES.include?(metadata["status"]) %>
+            <% metadata["status"] = display_status if display_status && metadata.key?("status") %>
+            <% if metadata.any? %>
+              <ul style="margin:0.35rem 0 0; padding-left:1rem;">
+                <% metadata.each do |key, value| %>
+                  <li>
+                    <strong><%= t("decidim.bih.admin.reports.events.metadata.#{key}", default: key.to_s.humanize) %>:</strong>
+                    <%= metadata_value.call(key, value) %>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+          </li>
+        <% end %>
+      </ol>
+    <% else %>
+      <p><%= t("decidim.bih.admin.reports.show.no_events") %></p>
+    <% end %>
+  </div>
+</details>

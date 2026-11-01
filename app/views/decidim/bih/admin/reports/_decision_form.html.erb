@@ -1,0 +1,84 @@
+<% w = "decidim.bih.review_workspace"; c = "decidim.bih.report_case" %>
+<% actions = Decidim::Bih::ReportDecision.allowed_actions(report).without("save_draft").select { |action| bih_allowed?(Decidim::Bih::ReportDecision::PERMISSIONS.fetch(action, :reports_update_status)) && (action == "note" || bih_allowed?(:reports_update_status)) } %>
+<% values = report.attributes.merge(Decidim::Bih::ReportReviewProposal.staff_draft_values(report)); selected = values["draft_action"].presence || (actions.include?("send") ? "send" : "review"); selected = actions.include?(selected) ? selected : actions.first %>
+<section class="card card-section" id="report-case-review">
+<h2><%= t("#{w}.decision") %></h2>
+<%= render "missing_category", report: report %>
+<% if report.review_draft.dig("values", "ai_proposal_id").present? && values["ai_proposal_id"].blank? %><p data-historical-draft><%= t("#{w}.ai.historical_draft") %></p><% end %>
+<% if values["ai_proposal_id"].present? %><p><%= t("#{w}.ai.draft_origin") %></p><% end %>
+<% if report.review_draft.present? %><p class="callout secondary"><%= t("#{w}.draft_saved") %></p><% end %>
+<%= form_tag admin_bih_report_decision_path(reference: report.reference), class: "form form-defaults report-decision-form", id: "report-decision-form" do %>
+<%= hidden_field_tag "decision[ai_proposal_id]", values["ai_proposal_id"] %>
+<%= hidden_field_tag :input_version, Decidim::Bih::ReportReviewVersion.digest(report) %>
+<%= hidden_field_tag :return_to, @queue_context.path %>
+<label for="decision_action"><%= t("#{w}.next_step") %></label>
+<%= select_tag :decision_action, options_for_select(actions.map { |a| [t("#{w}.actions.#{a}"), a] }, selected) %>
+<% unless report.forwarded_at %>
+<fieldset data-actions="send external ask review plan save_draft"><legend><%= t("#{w}.classification") %></legend>
+<label><%= t("#{c}.category") %><%= select_tag "decision[category]", options_for_select(Decidim::Bih::ReportTaxonomy::CATEGORIES.map { |v| [t("decidim.bih.reports.categories.#{v}"), v] }, values["category"]), include_blank: t("#{w}.classification_prompt") %></label>
+<label><%= t("#{c}.severity") %><%= select_tag "decision[severity]", options_for_select(Decidim::Bih::ReportTaxonomy::SEVERITIES.map { |v| [t("decidim.bih.reports.severities.#{v}"), v] }, values["severity"]), include_blank: t("#{w}.classification_prompt") %></label>
+<% recipients = Decidim::Bih::ReportCaseWorkflow.recipients(current_organization) %>
+<% if recipients.one? %><p><%= t("#{c}.recipient") %>: <strong><%= recipients.first %></strong></p><% else %>
+<label><%= t("#{c}.recipient") %><%= select_tag "decision[forwarding_recipient]", options_for_select(recipients, values["forwarding_recipient"]), include_blank: true %></label><% end %>
+<label><%= t("#{c}.forwarding_note") %><%= text_area_tag "decision[forwarding_note]", values["forwarding_note"], rows: 3, maxlength: 3000 %></label>
+<details><summary><%= t("decidim.bih.report_planning.location_title") %></summary>
+<label><%= check_box_tag "decision[edit_location]", "1", values["edit_location"] == "1" %> <%= t("#{w}.change_location") %></label>
+<label><%= t("#{c}.address") %><%= text_field_tag "decision[address]", values["address"], maxlength: 500 %></label>
+<label><%= t("decidim.bih.report_planning.location_kind") %><%= select_tag "decision[location_kind]", options_for_select(%w(description point segment).map { |v| [t("decidim.bih.report_planning.location_kinds.#{v}"), v] }, values["location_kind"]) %></label>
+<label><%= t("decidim.bih.report_planning.map_target") %><%= select_tag :location_map_target, options_for_select([[t("decidim.bih.report_planning.start"), "start"], [t("decidim.bih.report_planning.end"), "end"]]), id: "report-location-target" %></label>
+<button type="button" id="report-location-clear"><%= t("decidim.bih.report_planning.clear_coordinates") %></button>
+<div id="report-case-location-map" style="height:300px" data-center-lat="<%= Decidim::Bih.map_default_center.first %>" data-center-lng="<%= Decidim::Bih.map_default_center.last %>"></div>
+<details><summary><%= t("#{w}.coordinates") %></summary>
+<% %w(latitude longitude location_end_latitude location_end_longitude).each do |field| %><label><%= t("decidim.bih.report_planning.#{field}") %><%= number_field_tag "decision[#{field}]", values[field], step: "any" %></label><% end %>
+</details>
+</details>
+</fieldset>
+<% else %><p><%= t("#{w}.sent_locked_help") %></p><% end %>
+<fieldset data-actions="ask message note service_response supplement followup"><legend><%= t("#{w}.message_text") %></legend>
+<%= text_area_tag "decision[body]", values["body"], rows: 5, maxlength: 3000, aria: { label: t("#{w}.message_text") } %>
+<label data-actions="ask"><%= check_box_tag "decision[no_reply_outcome]", "resolve", values["no_reply_outcome"] == "resolve" %> <%= t("#{w}.no_reply_resolves") %></label>
+<p data-private-note hidden><%= t("#{w}.private_note_help") %></p>
+</fieldset>
+<fieldset data-actions="reject resolve reopen"><legend><%= t("#{w}.reason") %></legend>
+<%= text_area_tag "decision[reason]", values["reason"], rows: 3, maxlength: 1000, aria: { label: t("#{w}.reason") } %>
+<label data-actions="reject"><%= check_box_tag "decision[closure_basis]", "bez_odgovora", values["closure_basis"] == "bez_odgovora" %> <%= t("#{w}.closure_no_reply") %></label>
+</fieldset>
+<fieldset data-actions="resolve"><legend><%= t("#{c}.resolution") %></legend><%= text_area_tag "decision[resolution_evidence]", values["resolution_evidence"], rows: 3, maxlength: 3000, aria: { label: t("#{c}.resolution") } %></fieldset>
+<fieldset data-actions="duplicate"><legend><%= t("#{w}.duplicate_main") %></legend>
+<label><%= t("#{w}.duplicate_search") %><input type="search" id="duplicate-search" maxlength="120"></label>
+<button type="button" id="duplicate-search-button" class="button button__sm button__transparent-secondary"><%= t("#{w}.search_button") %></button>
+<div id="duplicate-candidates" aria-live="polite" data-url="<%= admin_bih_report_duplicate_candidates_path(reference: report.reference) %>" data-error="<%= t("#{w}.candidate_error") %>"></div>
+<label><%= t("#{w}.duplicate_main") %><%= text_field_tag "decision[duplicate_reference]", values["duplicate_reference"], maxlength: 50 %></label>
+</fieldset>
+<fieldset data-actions="external service_response"><legend><%= t("decidim.bih.report_evidence.references") %></legend>
+<%= text_area_tag "decision[external_reference]", values["external_reference"], rows: 2, maxlength: 1000, aria: { label: t("decidim.bih.report_evidence.references") } %>
+<p data-actions="service_response"><%= t("decidim.bih.report_evidence.response_help") %></p></fieldset>
+<fieldset data-actions="plan"><legend><%= t("decidim.bih.report_planning.title") %></legend>
+<label><%= t("decidim.bih.report_planning.collection") %><%= select_tag "decision[report_collection_id]", options_for_select(Decidim::Bih::ReportCollection.where(organization: current_organization, state: %w(collecting ready)).order(:title).map { |r| [r.title, r.id] }, values["report_collection_id"]), include_blank: t("#{w}.new_collection") %></label>
+<div data-new-collection>
+<% %w(title topic summary).each do |field| %><label><%= t("#{w}.collection_#{field}") %><%= text_area_tag "decision[collection_#{field}]", values["collection_#{field}"], rows: field == "summary" ? 3 : 1, maxlength: field == "summary" ? 3000 : 200 %></label><% end %>
+</div>
+<label><%= t("decidim.bih.report_planning.subtype") %><%= text_field_tag "decision[report_subtype]", values["report_subtype"], maxlength: 120 %></label>
+</fieldset>
+<details data-actions="send ask review plan external assign service_response supplement followup save_draft"><summary><%= t("#{w}.assignment_due") %></summary>
+<label><%= t("#{c}.owner") %><%= select_tag "decision[assigned_to_id]", options_for_select(Decidim::Bih::ReportCaseWorkflow.staff(current_organization).map { |u| [u.name, u.id] }, values["assigned_to_id"].presence || current_user.id), include_blank: true %></label>
+<label><%= t("#{w}.next_due") %><%= datetime_local_field_tag "decision[response_due_at]", nil %></label><p><%= t("#{w}.default_due_help") %></p>
+</details>
+<% Decidim::Bih::ReportDecision::NOTIFICATION_ACTIONS.each do |notification_actions, keys| %>
+<div data-actions="<%= notification_actions %>" <%= "hidden" unless notification_actions.split.include?(selected) %>>
+<%= render "decidim/bih/admin/shared/send_consequences", consequences: Decidim::Bih::Messaging::SendConsequences.tolerant_for(keys) %>
+</div>
+<% end %>
+<p data-confirmation><label><%= check_box_tag :confirm_decision, "1" %> <%= t("#{w}.confirm_decision") %></label></p>
+<p><label><%= check_box_tag :after_decision, "next" %> <%= t("#{w}.open_next") %></label></p>
+<div class="report-workspace__actions">
+<%= submit_tag t("#{w}.continue"), class: "button button__sm button__secondary", data: { decision_submit: true, send_label: t("#{w}.preview_send"), save_label: t("#{w}.apply_decision") } %>
+<%= button_tag t("#{w}.actions.save_draft"), name: :intent, value: "draft", formnovalidate: true, class: "button button__sm button__transparent-secondary", data: { draft_button: true } %>
+</div>
+<% end %>
+</section>
+<% unless report.forwarded_at %>
+<link rel="stylesheet" href="/leaflet/leaflet.css">
+<script src="/leaflet/leaflet.js"></script>
+<script defer src="/mi/report-review-location.js?v=1"></script>
+<% end %>

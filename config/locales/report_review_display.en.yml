@@ -1,0 +1,35 @@
+{
+  "en": {
+    "decidim": {
+      "bih": {
+        "reports": {
+          "public_statuses": {
+            "needs_information": "Awaiting additional information",
+            "under_review": "Under review",
+            "reviewed": "Reviewed"
+          },
+          "statuses": {
+            "needs_information": "Awaiting additional information",
+            "under_review": "Under review",
+            "reviewed": "Reviewed"
+          }
+        },
+        "content_blocks": {
+          "mi_hub": {
+            "modules": {
+              "eyebrow": "We give you many ways to take matters into your own hands"
+            }
+          },
+          "mi_hero": {
+            "stats": {
+              "reports_sent": {
+                "one": "report sent to services",
+                "other": "reports sent to services"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

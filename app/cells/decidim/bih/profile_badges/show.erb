@@ -1,0 +1,36 @@
+<section class="mi-public-profile-panel">
+  <div class="mi-public-profile-section-head">
+    <p class="mi-eyebrow"><%= t("decidim.bih.public_profile.tabs.badges") %></p>
+    <h2><%= t("decidim.bih.public_profile.badges.title") %></h2>
+  </div>
+
+  <% if public_profile.badge_items.any? %>
+    <div class="mi-public-profile-badge-grid">
+      <% public_profile.badge_items.each do |badge| %>
+        <% if badge[:url].present? %>
+          <%= link_to badge[:url], class: "mi-public-profile-badge" do %>
+            <span class="mi-public-profile-badge__icon"><%= icon badge[:icon] %></span>
+            <span>
+              <strong><%= badge[:title] %></strong>
+              <small><%= badge[:text] %></small>
+            </span>
+          <% end %>
+        <% else %>
+          <div class="mi-public-profile-badge">
+            <span class="mi-public-profile-badge__icon"><%= icon badge[:icon] %></span>
+            <span>
+              <strong><%= badge[:title] %></strong>
+              <small><%= badge[:text] %></small>
+            </span>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="mi-public-profile-empty">
+      <%= icon "award-line" %>
+      <h2><%= t("decidim.bih.public_profile.badges.empty_title") %></h2>
+      <p><%= t("decidim.bih.public_profile.badges.empty_text") %></p>
+    </div>
+  <% end %>
+</section>

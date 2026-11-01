@@ -1,0 +1,31 @@
+<%= render "style" %>
+<div class="report-collection-view">
+<% c = "decidim.bih.report_planning" %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :reports %>
+<h1><%= @collection.title %></h1><p><%= t("#{c}.states.#{@collection.state}") %></p>
+<p><%= t("#{c}.workflow") %></p><%= link_to t("#{c}.collections"), admin_bih_report_collections_path %>
+<% if @collection.draft? && bih_allowed?(:reports_update_status) %>
+<%= form_tag admin_bih_report_collection_path(@collection), method: :patch, class: "form form-defaults report-collection-form" do %><%= render "form", collection: @collection %><% end %>
+<% else %><p><%= @collection.topic %></p><%= simple_format(@collection.summary) %><% end %>
+<h2><%= t("#{c}.members") %> (<%= @collection.reports.count %>)</h2>
+<p><%= t("#{c}.add_help") %></p>
+<% @collection.reports.order(:reference).each do |report| %><article style="padding:1rem;background:#eef1f3;margin:1rem 0;color:#374151">
+<h3><%= link_to report.reference, admin_bih_report_path(reference: report.reference) %> — <%= report.report_subtype %></h3>
+<p><%= report.address %></p><%= simple_format(report.forwarding_note) %><p><%= Decidim::Bih::ReportStatusPresenter.label(report) %></p>
+</article><% end %>
+<% if @collection.draft? && bih_allowed?(:reports_update_status) %><%= button_to t("#{c}.ready"), admin_bih_report_collection_ready_path(@collection), class: "button button__sm button__secondary" %><% end %>
+<% if %w(ready submitted closed).include?(@collection.state) %>
+<h2><%= t("#{c}.combined_preview") %></h2><pre style="white-space:pre-wrap;overflow-wrap:anywhere"><%= @collection.submission_snapshot %></pre>
+<%= link_to t("#{c}.export"), admin_bih_report_collection_export_path(@collection), class: "button button__sm button__secondary" %>
+<% end %>
+<% if @collection.state == "ready" && bih_allowed?(:reports_retry_forwarding) %>
+<h2><%= t("#{c}.record_submission") %></h2><p><%= t("#{c}.record_help") %></p>
+<%= form_tag admin_bih_report_collection_submission_path(@collection), class: "form form-defaults report-collection-form" do %>
+<label><%= t("#{c}.recipient") %><%= text_field_tag :recipient, nil, required: true, maxlength: 240 %></label>
+<label><%= t("#{c}.receipt") %><%= text_field_tag :external_reference, nil, required: true, maxlength: 240 %></label>
+<label class="report-collection-confirmation"><%= check_box_tag :confirm_submission, "1", false, required: true %> <%= t("#{c}.confirm_submission") %></label>
+<%= submit_tag t("#{c}.record_submission"), class: "button button__sm button__secondary" %>
+<% end %>
+<% elsif @collection.submitted_at %><p><%= @collection.recipient %> · <%= @collection.external_reference %> · <%= l(@collection.submitted_at, format: :short) %></p><% end %>
+
+</div>

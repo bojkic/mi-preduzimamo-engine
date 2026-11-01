@@ -1,0 +1,16 @@
+<% w = "decidim.bih.review_workspace" %>
+<p><%= link_to t("#{w}.back_to_case"), admin_bih_report_path(reference: @report.reference, return_to: params[:return_to]) %></p>
+<div class="card"><div class="card-section">
+<h1><%= t("#{w}.confirm_send") %> — <%= @report.reference %></h1>
+<p><strong><%= t("decidim.bih.report_case.recipient") %>:</strong> <%= @snapshot[:to].join(", ") %></p>
+<h2><%= @snapshot[:subject] %></h2>
+<pre style="white-space:pre-wrap;overflow-wrap:anywhere"><%= @snapshot[:body] %></pre>
+<%= render "decidim/bih/admin/reports/evidence_attachments", attachments: @snapshot.fetch(:attachments, []) %>
+<%= render "decidim/bih/admin/shared/send_consequences", consequences: Decidim::Bih::ReportDecision.notification_consequences(@action) %>
+<%= form_tag admin_bih_report_decision_confirm_path(reference: @report.reference), class: "form form-defaults" do %>
+<%= hidden_field_tag :preview_token, @preview_token %>
+<label><%= check_box_tag :confirm_decision, "1", false, required: true %> <%= t("#{w}.confirm_content") %></label>
+<%= submit_tag t("#{w}.approve_send"), class: "button button__sm button__secondary" %>
+<% end %>
+<%= link_to t("#{w}.back_to_case"), admin_bih_report_path(reference: @report.reference, return_to: params[:return_to]) %>
+</div></div>

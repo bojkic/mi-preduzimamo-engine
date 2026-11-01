@@ -1,0 +1,87 @@
+<%#
+  Admin edit form for a local area's contact fields. The boundary, slug, kind
+  and centroid are NOT editable here — they are rake-imported.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.local_areas.edit.title")) %>
+<%
+  kind_label = case @local_area.kind
+               when "mz"
+                 t("decidim.bih.admin.local_areas.index.filter_mz")
+               when "komsiluk"
+                 t("decidim.bih.admin.local_areas.index.filter_komsiluk")
+               else
+                 @local_area.kind
+               end
+%>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :local_areas %>
+
+<%= form_tag local_area_path(@local_area), method: :patch, class: "form form-defaults" do %>
+  <div class="card" id="local-area-edit-header">
+    <div class="item_show__header">
+      <h1 class="item_show__header-title">
+        <%= t("decidim.bih.admin.local_areas.edit.title") %>: <%= @local_area.translated_name %>
+      </h1>
+    </div>
+    <div class="card-section">
+      <p>
+        <strong><%= t("decidim.bih.admin.local_areas.edit.kind") %>:</strong>
+        <span class="label secondary"><%= kind_label %></span>
+        &middot;
+        <strong><%= t("decidim.bih.admin.local_areas.edit.slug") %>:</strong>
+        <code><%= @local_area.slug %></code>
+      </p>
+      <p><em><%= t("decidim.bih.admin.local_areas.edit.boundary_note") %></em></p>
+      <div class="callout warning" id="local-area-edit-impact">
+        <strong><%= t("decidim.bih.admin.local_areas.edit.impact_title") %></strong>
+        <p style="margin-bottom:0;"><%= t("decidim.bih.admin.local_areas.edit.impact_body") %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-section">
+      <div class="row" style="margin-bottom:1rem;">
+        <div class="columns medium-6">
+          <label>
+            <%= t("decidim.bih.admin.local_areas.form.predsjednik") %>
+            <input type="text" name="local_area[predsjednik]"
+                   value="<%= @local_area.predsjednik %>">
+          </label>
+        </div>
+        <div class="columns medium-6">
+          <label>
+            <%= t("decidim.bih.admin.local_areas.form.telefon") %>
+            <input type="text" name="local_area[telefon]"
+                   value="<%= @local_area.telefon %>">
+          </label>
+        </div>
+      </div>
+      <div class="row" style="margin-bottom:1rem;">
+        <div class="columns medium-12">
+          <label>
+            <%= t("decidim.bih.admin.local_areas.form.napomena") %>
+            <input type="text" name="local_area[napomena]"
+                   value="<%= @local_area.metadata.is_a?(Hash) ? @local_area.metadata["napomena"] : nil %>">
+          </label>
+          <small><%= t("decidim.bih.admin.local_areas.form.napomena_hint") %></small>
+        </div>
+      </div>
+      <div class="row" style="margin-bottom:1rem;">
+        <div class="columns medium-12">
+          <label>
+            <%= t("decidim.bih.admin.local_areas.form.approval_rationale") %>
+            <input type="text" name="approval_rationale"
+                   value="<%= params[:approval_rationale].to_s %>"
+                   placeholder="<%= t("decidim.bih.admin.local_areas.form.approval_rationale_placeholder") %>">
+          </label>
+          <small><%= t("decidim.bih.admin.local_areas.form.approval_rationale_hint") %></small>
+        </div>
+      </div>
+
+      <%= submit_tag t("decidim.bih.admin.local_areas.form.submit"), class: "button button__secondary" %>
+      <%= link_to t("decidim.bih.admin.local_areas.form.cancel"),
+                  local_areas_path(tab: @local_area.kind), class: "button button__transparent-secondary" %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,12 @@
+<% copy = "decidim.bih.komsiluk_review_media" %>
+<% if post.photo.attached? %>
+  <figure><%= image_tag admin_bih_komsiluk_post_photo_path(post), alt: t("#{copy}.photo"), class: "mi-board-admin-photo", loading: "lazy" %></figure>
+<% end %>
+<% if post.activity_details.present? %>
+  <dl class="mi-board-admin-facts">
+    <% if (starts = board_datetime(post.activity_details["starts_at"])) %><dt><%= t("#{copy}.starts") %></dt><dd><%= starts %></dd><% end %>
+    <% if post.activity_details["place_label"].present? %><dt><%= t("#{copy}.place") %></dt><dd><%= post.activity_details["place_label"] %></dd><% end %>
+    <% if (url = Decidim::Bih::KomsilukPost.safe_link(post.activity_details["action_url"])) %><dt><%= t("#{copy}.activity") %></dt><dd><%= link_to t("#{copy}.open_activity"), url, target: "_blank", rel: "noopener noreferrer" %></dd><% end %>
+  </dl>
+<% end %>
+<% if post.help_enabled? %><p><%= t("#{copy}.help", count: post.help_responses.active.count) %></p><% end %>

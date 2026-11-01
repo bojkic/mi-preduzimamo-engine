@@ -1,0 +1,100 @@
+{
+  "hr": {
+    "decidim": {
+      "bih": {
+        "report_planning": {
+          "location_title": "Uredi lokaciju",
+          "location_help": "Sačuvaj precizan opis iz odgovora građanina. Za dionicu ulice navedi početak i kraj; koordinate unesi samo kada su provjerene. Izvorni podatak ostaje sačuvan. Izmjena ne objavljuje tačnu lokaciju.",
+          "address": "Adresa / opis dionice",
+          "location_kind": "Vrsta lokacije",
+          "location_kinds": {
+            "description": "Opis lokacije",
+            "point": "Tačka",
+            "segment": "Dionica ulice"
+          },
+          "latitude": "Geografska širina / početak",
+          "longitude": "Geografska dužina / početak",
+          "location_end_latitude": "Kraj dionice — širina",
+          "location_end_longitude": "Kraj dionice — dužina",
+          "map_target": "Klik na mapi određuje",
+          "start": "Tačku / početak dionice",
+          "end": "Kraj dionice",
+          "clear_coordinates": "Ukloni koordinate",
+          "map_help": "Klikni na mapu ili pomjeri oznaku. Za dionicu označi oba kraja. Ako lokacija nije provjerena na mapi, sačuvaj samo opis bez koordinata.",
+          "save_location": "Sačuvaj lokaciju",
+          "location_reviewed": "Lokaciju uredio/la",
+          "original_location": "Izvorna lokacija",
+          "title": "Plansko / dugoročno",
+          "help": "Poveži prijavu sa zbirnom inicijativom. Pojedinačno slanje gradu je zaustavljeno dok je prijava u zbirnoj inicijativi.",
+          "collections": "Zbirne prijave",
+          "collection": "Zbirna prijava",
+          "subtype": "Podvrsta (npr. signalizacija i smirivanje saobraćaja)",
+          "report_summary": "Pregledani sažetak za grad — bez ličnih podataka",
+          "confirm_review": "Pregledao/la sam prijavu i sažetak; prihvatam je za plansku obradu.",
+          "save_planning": "Sačuvaj kao plansko / dugoročno",
+          "unplan": "Vrati u redovnu obradu",
+          "collection_title": "Naziv zbirne prijave",
+          "topic": "Tema",
+          "owner": "Zadužena osoba",
+          "due": "Rok za pregled zbirne prijave",
+          "summary": "Zajednički zahtjev za grad",
+          "save": "Sačuvaj",
+          "saved": "Sačuvano.",
+          "workflow": "Prikupljanje → pregled zajedničkog zahtjeva → spremno za objedinjeno slanje → evidencija predaje gradu. Priprema i izvoz ne šalju poruke gradu.",
+          "back_reports": "Nazad na prijave",
+          "state": "Faza",
+          "states": {
+            "collecting": "Prikupljanje",
+            "ready": "Spremno za objedinjeno slanje",
+            "submitted": "Predato gradu",
+            "closed": "Završeno"
+          },
+          "new_collection": "Nova zbirna prijava",
+          "members": "Uključene prijave",
+          "add_help": "Prijavu dodaj kroz njen odjeljak Plansko / dugoročno. Svaka zadržava svoj razgovor i ishod.",
+          "ready": "Potvrdi pregled i pripremi zajednički zahtjev",
+          "combined_preview": "Pregled zajedničkog zahtjeva",
+          "export": "Preuzmi zajednički zahtjev (.txt)",
+          "record_submission": "Evidentiraj predaju zbirne prijave",
+          "record_help": "Jedan pregledani zahtjev predaj gradu odabranim kanalom. Tek nakon stvarne predaje upiši primaoca i potvrdu prijema. Ova radnja ne šalje poruku.",
+          "recipient": "Primalac / nadležna služba",
+          "receipt": "Broj protokola ili dokaz predaje",
+          "confirm_submission": "Potvrđujem da je ovaj zajednički zahtjev stvarno predat gradu.",
+          "citizen_help": "Prijava je prihvaćena za plansku obradu i uključena u pripremu zbirnog zahtjeva. Još nije predata gradu. Razgovor ostaje otvoren.",
+          "errors": {
+            "sent_locked": "Predati podaci su zaključani. Izmjene evidentiraj kroz novu dopunu.",
+            "location_invalid": "Unesi opis i ispravne parove koordinata; za dionicu unesi oba kraja ili samo tekstualni opis.",
+            "collection_required": "Izaberi zbirnu prijavu.",
+            "collection_locked": "Prvo vrati prijavu u redovnu obradu kroz odjeljak Plansko / dugoročno.",
+            "confirm_required": "Potvrda pregleda ili predaje je obavezna.",
+            "summary_required": "Unesi pregledani sažetak za grad.",
+            "owner_due_required": "Izaberi ovlaštenu zaduženu osobu i budući rok pregleda.",
+            "not_ready": "Zbirna prijava još nije spremna ili je izmijenjena. Provjeri članove, lokacije i sažetke pa ponovo potvrdi pregled.",
+            "receipt_required": "Unesi primaoca i broj protokola ili dokaz predaje.",
+            "use_planning": "Za ovaj status koristi odjeljak Plansko / dugoročno."
+          },
+          "citizen_notification": "Prijavu smo pregledali i uvrstili u zbirnu prijavu koju ćemo u narednom razdoblju uputiti Gradu zajedno sa sličnim prijavama. Još nije poslana Gradu. Obavijestit ćemo vas kada bude predana i kada dobijemo odgovor."
+        },
+        "reports": {
+          "statuses": {
+            "planirano": "Plansko / dugoročno"
+          },
+          "public_statuses": {
+            "planned": "Plansko / dugoročno"
+          }
+        },
+        "admin": {
+          "reports": {
+            "events": {
+              "types": {
+                "case_location_updated": "Lokacija uređena",
+                "case_planning_updated": "Plansko postupanje ažurirano",
+                "case_collection_submitted": "Predato u zbirnoj prijavi"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

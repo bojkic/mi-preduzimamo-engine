@@ -1,0 +1,27 @@
+      <div class="mi-account-panel mi-account-panel--wide">
+        <details open>
+          <summary class="heading5" style="cursor: pointer;"><%= t("decidim.bih.komsiluk.edit.method_map") %></summary>
+          <p><%= t("decidim.bih.komsiluk.edit.method_map_hint") %></p>
+          <div class="mi-map-frame">
+            <div
+              id="bih-komsiluk-map"
+              class="mi-map-frame__canvas"
+              style="height:400px;"
+              data-areas-url="<%= komsiluk_areas_path(format: :json) %>"
+              data-center-lat="<%= @map_center.first %>"
+              data-center-lng="<%= @map_center.last %>"
+              data-zoom="<%= @map_zoom %>"
+              data-tile-url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              data-tile-attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
+              data-label-confirm="<%= t("decidim.bih.komsiluk.edit.map_confirm") %>"
+              data-label-click-hint="<%= t("decidim.bih.komsiluk.edit.map_click_hint") %>"
+              data-status-id="bih-komsiluk-map-status"
+              data-status-ready="<%= t("decidim.bih.komsiluk.edit.map_ready") %>"
+              data-status-empty="<%= t("decidim.bih.komsiluk.edit.map_empty") %>"
+              data-status-unavailable="<%= t("decidim.bih.komsiluk.edit.map_unavailable") %>"></div>
+            <div id="bih-komsiluk-map-status" class="mi-notice" role="status" aria-live="polite" data-state="loading">
+              <%= t("decidim.bih.komsiluk.edit.map_loading") %>
+            </div>
+          </div>
+        </details>
+      </div>

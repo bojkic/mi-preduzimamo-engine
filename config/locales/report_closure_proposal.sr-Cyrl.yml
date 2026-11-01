@@ -1,0 +1,5 @@
+sr-Cyrl:
+  decidim:
+    bih:
+      report_case:
+        closure_proposed: "Пријава %{reference}: размотрите административно затварање због изостанка допуне; одлуку доноси тим."

@@ -1,0 +1,398 @@
+<%#
+  Public goodwill profile for a verified local organization. Admin controls are
+  grouped by workflow so organization owners can manage points, members,
+  spending requests and notices without the legacy single-card clutter.
+%>
+<% add_decidim_page_title(@profile.display_name) %>
+<%
+  kind_label = t("decidim.bih.partner_profiles.kinds.#{@profile.kind}")
+  profile_intro = @profile.public_description.presence ||
+                  t("decidim.bih.organizations.profiles.#{@profile.slug}", default: nil)
+  members_label = @profile.kind == "business" ? t(".representatives") : t(".members")
+  quick_links = []
+  if @goodwill_enabled
+    quick_links.concat([
+      [t(".admin_menu.points"), "#bodovi-organizacije"],
+      [t(".admin_menu.spending"), "#zahtjevi-potrosnje"]
+    ])
+  end
+  quick_links.concat([
+    [members_label, "#clanovi-organizacije"],
+    [t(".admin_menu.notices"), "#obavjestenja-organizacije"],
+    [t(".admin_menu.volunteer_opportunities"), volunteer_path(tab: "predlozi", anchor: "predlozi")]
+  ])
+%>
+
+<div class="wrapper">
+  <div class="row column">
+    <div class="mi-surface mi-surface--wide mi-organization-profile">
+      <%= render "decidim/bih/shared/surface_header",
+                 eyebrow: t(".eyebrow"),
+                 title: @profile.display_name,
+                 intro: profile_intro.presence || kind_label,
+                 action_label: (@is_admin ? t(".points_volunteer_cta") : nil),
+                 action_path: (@is_admin ? volunteer_path(tab: "predlozi", anchor: "predlozi") : nil),
+                 action_class: "mi-btn mi-btn--primary" %>
+
+      <% if @is_admin %>
+        <nav class="mi-surface-tabs mi-organization-quicknav" aria-label="<%= t(".admin_menu.aria") %>">
+          <% quick_links.each do |label, href| %>
+            <%= link_to label, href, class: "mi-surface-tab" %>
+          <% end %>
+        </nav>
+      <% end %>
+
+      <section id="pregled-organizacije" class="mi-account-panel mi-account-panel--wide mi-organization-section" aria-labelledby="organization-overview-title">
+        <div class="mi-account-panel__head">
+          <div>
+            <p class="mi-eyebrow"><%= t(".title") %></p>
+            <h2 id="organization-overview-title" class="heading4"><%= t(".overview_title") %></h2>
+          </div>
+          <% if @profile.website.present? %>
+            <%= link_to t(".website"), @profile.website, class: "mi-btn mi-btn--ghost mi-btn--sm", target: "_blank", rel: "noopener" %>
+          <% end %>
+        </div>
+
+        <div class="mi-metric-grid">
+          <% if @goodwill_enabled %>
+            <article class="mi-metric-card mi-metric-card--level">
+              <strong><%= number_with_delimiter(@balance, delimiter: ".") %></strong>
+              <span><%= t(".points_balance") %></span>
+            </article>
+          <% end %>
+          <article class="mi-metric-card">
+            <strong><%= kind_label %></strong>
+            <span><%= t(".kind_metric") %></span>
+          </article>
+          <article class="mi-metric-card">
+            <strong><%= number_with_delimiter(@members.size, delimiter: ".") %></strong>
+            <span><%= members_label %></span>
+          </article>
+        </div>
+
+        <% if @goodwill_enabled %>
+          <p class="mi-report-card__meta"><%= t(".policy_note") %></p>
+        <% elsif @profile.kind == "business" %>
+          <p class="mi-report-card__meta"><%= t(".business_goodwill_note") %></p>
+        <% end %>
+      </section>
+
+      <% if @partner_impact.present? %>
+        <section id="uticaj-organizacije" class="mi-account-panel mi-account-panel--wide mi-organization-section" aria-labelledby="organization-impact-title">
+          <div class="mi-account-panel__head">
+            <div>
+              <p class="mi-eyebrow"><%= t(".impact.eyebrow") %></p>
+              <h2 id="organization-impact-title" class="heading4"><%= t(".impact.title") %></h2>
+            </div>
+          </div>
+          <p><%= t(".impact.intro") %></p>
+          <div class="mi-metric-grid">
+            <article class="mi-metric-card">
+              <strong><%= number_with_delimiter(@partner_impact.approved_projects_count, delimiter: ".") %></strong>
+              <span><%= t(".impact.approved_projects") %></span>
+            </article>
+            <article class="mi-metric-card">
+              <strong><%= number_with_delimiter(@partner_impact.confirmed_offers_count, delimiter: ".") %></strong>
+              <span><%= t(".impact.confirmed_offers") %></span>
+            </article>
+            <article class="mi-metric-card">
+              <strong><%= number_with_delimiter(@partner_impact.hosted_volunteer_opportunities_count, delimiter: ".") %></strong>
+              <span><%= t(".impact.hosted_opportunities") %></span>
+            </article>
+            <article class="mi-metric-card">
+              <strong><%= number_with_delimiter(@partner_impact.approved_volunteer_hours, delimiter: ".") %></strong>
+              <span><%= t(".impact.verified_hours") %></span>
+            </article>
+            <article class="mi-metric-card">
+              <strong><%= number_with_delimiter(@partner_impact.distinct_volunteer_participants_count, delimiter: ".") %></strong>
+              <span><%= t(".impact.participants") %></span>
+            </article>
+          </div>
+          <% if @partner_impact.recognition_labels.any? %>
+            <div class="mi-chip-list" aria-label="<%= t(".impact.recognition_aria") %>">
+              <% @partner_impact.recognition_labels.each do |label| %>
+                <span class="mi-chip"><%= t(".impact.recognition_labels.#{label}") %></span>
+              <% end %>
+            </div>
+          <% end %>
+          <p class="mi-report-card__meta"><%= t(".impact.privacy_note") %></p>
+        </section>
+      <% end %>
+
+      <% if @is_admin && @goodwill_enabled %>
+        <section id="bodovi-organizacije" class="mi-account-panel mi-account-panel--wide mi-organization-section" aria-labelledby="organization-points-title">
+          <div class="mi-account-panel__head">
+            <div>
+              <p class="mi-eyebrow"><%= t(".admin_menu.points") %></p>
+              <h2 id="organization-points-title" class="heading4"><%= t(".points_title") %></h2>
+            </div>
+            <div class="mi-action-row">
+              <%= link_to t(".points_cta"), "#clanovi-organizacije", class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+              <%= link_to t(".points_volunteer_cta"), volunteer_path(tab: "predlozi", anchor: "predlozi"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+            </div>
+          </div>
+
+          <p><%= t(".points_body") %></p>
+
+          <div id="dodijeli-zahvalnicu" class="mi-organization-workflow">
+            <h3 class="heading5"><%= t(".thank_you_title") %></h3>
+            <p><%= t(".thank_you_body") %></p>
+            <%= form_with url: regrant_points_path(@profile.slug), method: :post, html: { class: "mi-account-settings-form" } do %>
+                  <%= hidden_field_tag :request_key, SecureRandom.uuid %>
+              <label>
+                <%= t(".thank_you_recipient") %>
+                <input type="text" name="recipient_lookup" required placeholder="<%= t(".thank_you_recipient_placeholder") %>">
+              </label>
+              <div class="mi-account-form-grid">
+                <label>
+                  <%= t(".grant_category") %>
+                  <%= select_tag :grant_category, options_for_select(@thank_you_category_options), required: true %>
+                </label>
+                <label>
+                  <%= t(".grant_amount") %>
+                  <input type="number" name="amount" min="1" value="10" required>
+                </label>
+              </div>
+              <div class="mi-account-settings__actions">
+                <%= submit_tag t(".thank_you_submit"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+              </div>
+            <% end %>
+          </div>
+        </section>
+
+        <section id="zahtjevi-potrosnje" class="mi-account-panel mi-account-panel--wide mi-organization-section" aria-labelledby="organization-spending-title">
+          <div class="mi-account-panel__head">
+            <div>
+              <p class="mi-eyebrow"><%= t(".admin_menu.spending") %></p>
+              <h2 id="organization-spending-title" class="heading4"><%= t(".spending_title") %></h2>
+            </div>
+          </div>
+          <p><%= t(".spending_body") %></p>
+
+          <div class="mi-organization-workflow-grid">
+            <article class="mi-organization-workflow">
+              <h3 class="heading5"><%= t(".inter_org_title") %></h3>
+              <% if @eligible_spending_targets.any? %>
+                <%= form_with url: organization_spending_requests_path(@profile.slug), method: :post, html: { class: "mi-account-settings-form" } do %>
+                  <%= hidden_field_tag :request_type, "inter_org_support" %>
+                  <label>
+                    <%= t(".inter_org_target") %>
+                    <%= select_tag :target_partner_profile_id,
+                                   options_for_select(@eligible_spending_targets.map { |profile| [profile.display_name, profile.id] }),
+                                   required: true %>
+                  </label>
+                  <div class="mi-account-form-grid">
+                    <label>
+                      <%= t(".spending_category") %>
+                      <%= select_tag :category, options_for_select(@inter_org_category_options), required: true %>
+                    </label>
+                    <label>
+                      <%= t(".spending_points") %>
+                      <input type="number" name="points" min="1" value="50" required>
+                    </label>
+                  </div>
+                  <div class="mi-account-settings__actions">
+                    <%= submit_tag t(".spending_submit"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                  </div>
+                <% end %>
+              <% else %>
+                <p class="mi-report-card__meta"><%= t(".inter_org_no_targets") %></p>
+              <% end %>
+            </article>
+
+            <article class="mi-organization-workflow">
+              <h3 class="heading5"><%= t(".reward_sponsorship_title") %></h3>
+              <%= form_with url: organization_spending_requests_path(@profile.slug), method: :post, html: { class: "mi-account-settings-form" } do %>
+                <%= hidden_field_tag :request_type, "reward_sponsorship" %>
+                <label>
+                  <%= t(".reward_title") %>
+                  <input type="text" name="reward_title" required maxlength="<%= Decidim::Bih::Goodwill::OrganizationSpendingRequest::MAX_REWARD_TITLE_LENGTH %>">
+                </label>
+                <label>
+                  <%= t(".reward_description") %>
+                  <textarea name="reward_description" rows="2" maxlength="<%= Decidim::Bih::Goodwill::OrganizationSpendingRequest::MAX_REWARD_DESCRIPTION_LENGTH %>"></textarea>
+                </label>
+                <div class="mi-account-form-grid">
+                  <label>
+                    <%= t(".spending_category") %>
+                    <%= select_tag :category, options_for_select(@reward_sponsorship_category_options), required: true %>
+                  </label>
+                  <label>
+                    <%= t(".spending_points") %>
+                    <input type="number" name="points" min="1" value="100" required>
+                  </label>
+                  <label>
+                    <%= t(".reward_stock") %>
+                    <input type="number" name="reward_stock" min="1" value="1" required>
+                  </label>
+                  <label>
+                    <%= t(".reward_cost") %>
+                    <input type="number" name="reward_cost" min="1" value="10" required>
+                  </label>
+                </div>
+                <div class="mi-account-settings__actions">
+                  <%= submit_tag t(".spending_submit"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                </div>
+              <% end %>
+            </article>
+          </div>
+
+          <% if @spending_requests.any? %>
+            <div class="mi-organization-request-list">
+              <h3 class="heading5"><%= t(".recent_spending_requests") %></h3>
+              <ul class="mi-data-list">
+                <% @spending_requests.each do |request| %>
+                  <li class="mi-organization-list-row">
+                    <span>
+                      <strong><%= t("decidim.bih.organizations.spending_request_types.#{request.request_type}") %> - <%= number_with_delimiter(request.points, delimiter: ".") %></strong>
+                      <small><%= request.category_label %></small>
+                    </span>
+                    <span class="mi-status-pill"><%= t(".spending_status.#{request.status}") %></span>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+        </section>
+      <% end %>
+
+      <section id="clanovi-organizacije" class="mi-account-panel mi-account-panel--wide mi-organization-section" aria-labelledby="organization-members-title">
+        <div class="mi-account-panel__head">
+          <div>
+            <p class="mi-eyebrow"><%= members_label %></p>
+            <h2 id="organization-members-title" class="heading4"><%= members_label %></h2>
+          </div>
+        </div>
+
+        <% if @is_admin %>
+          <div id="dodaj-clana" class="mi-organization-workflow">
+            <h3 class="heading5"><%= @profile.kind == "business" ? t(".add_representative_title") : t(".add_member_title") %></h3>
+            <%= form_with url: organization_memberships_path(@profile.slug), method: :post, html: { class: "mi-account-settings-form" } do %>
+              <label>
+                <%= t(".add_member_lookup") %>
+                <input type="text" name="member_lookup" required placeholder="<%= t(".add_member_lookup_placeholder") %>">
+                <span class="help-text"><%= t(".add_member_help") %></span>
+                <% if @profile.kind == "business" %>
+                  <span class="help-text"><%= t(".business_representatives_note") %></span>
+                <% end %>
+              </label>
+              <div class="mi-account-settings__actions">
+                <%= submit_tag t(".add_member_submit"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @members.empty? %>
+          <div class="mi-empty-state">
+            <h2 class="heading5"><%= @profile.kind == "business" ? t(".no_representatives") : t(".no_members") %></h2>
+          </div>
+        <% else %>
+          <ul class="mi-data-list mi-organization-member-list">
+            <% @memberships.each do |membership| %>
+              <% member = membership.user %>
+              <li class="mi-organization-list-row">
+                <span>
+                  <strong><%= member.name %></strong>
+                  <% if member.nickname.present? %>
+                    <small>@<%= member.nickname %></small>
+                  <% end %>
+                  <small><%= t("decidim.bih.partner_memberships.roles.#{membership.role}") %></small>
+                </span>
+                <% if @is_admin %>
+                  <%= form_with url: organization_membership_path(@profile.slug, membership), method: :patch, html: { class: "mi-organization-inline-form mi-account-settings-form" } do %>
+                    <%= select_tag :role,
+                                   options_for_select(Decidim::Bih::PartnerMembership::ROLES.map { |role| [t("decidim.bih.partner_memberships.roles.#{role}"), role] }, membership.role),
+                                   aria: { label: t(".member_role", name: member.name) } %>
+                    <%= submit_tag t(".member_role_submit"), class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+                  <% end %>
+                <% end %>
+                <% if @is_admin && @goodwill_enabled %>
+                  <%= form_with url: regrant_points_path(@profile.slug), method: :post, html: { class: "mi-organization-inline-form mi-account-settings-form" } do %>
+                  <%= hidden_field_tag :request_key, SecureRandom.uuid %>
+                    <%= hidden_field_tag :member_id, member.id %>
+                    <label>
+                      <span class="show-for-sr"><%= t(".grant_category") %></span>
+                      <%= select_tag :grant_category, options_for_select(@grant_category_options) %>
+                    </label>
+                    <label>
+                      <span class="show-for-sr"><%= t(".grant_amount") %></span>
+                      <input type="number" name="amount" min="1" value="10">
+                    </label>
+                    <%= submit_tag t(".regrant"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                  <% end %>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+          <% unless @is_admin %>
+            <p class="mi-report-card__meta"><%= t(".not_admin") %></p>
+          <% end %>
+        <% end %>
+      </section>
+
+      <section id="obavjestenja-organizacije" class="mi-account-panel mi-account-panel--wide mi-organization-section" aria-labelledby="organization-notices-title">
+        <div class="mi-account-panel__head">
+          <div>
+            <p class="mi-eyebrow"><%= t(".admin_menu.notices") %></p>
+            <h2 id="organization-notices-title" class="heading4"><%= t(".notices") %></h2>
+          </div>
+        </div>
+
+        <% if @notices.any? %>
+          <ul class="mi-data-list mi-organization-notice-list">
+            <% @notices.each do |notice| %>
+              <li class="mi-organization-list-row mi-organization-list-row--stacked">
+                <span>
+                  <strong>
+                    <%= notice.title %>
+                    <% if notice.notice_type == "official" %>
+                      <span class="mi-status-pill"><%= t(".official_notice") %></span>
+                    <% end %>
+                  </strong>
+                  <small><%= l(notice.published_at, format: :short) if notice.published_at %></small>
+                </span>
+                <p><%= notice.body %></p>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="mi-report-card__meta"><%= t(".no_notices") %></p>
+        <% end %>
+
+        <% if @is_admin %>
+          <div id="objavi-obavjestenje" class="mi-organization-workflow">
+            <h3 class="heading5"><%= t(".publish_notice") %></h3>
+            <%= form_with url: organization_notices_path(@profile.slug), method: :post, html: { class: "mi-account-settings-form" } do %>
+              <div class="mi-account-form-grid">
+                <label>
+                  <%= t(".notice_title") %>
+                  <input type="text" name="title" required maxlength="<%= Decidim::Bih::PartnerNotice::TITLE_MAX %>">
+                </label>
+                <label>
+                  <%= t(".notice_expires_on") %>
+                  <input type="date" name="expires_on">
+                </label>
+              </div>
+              <label>
+                <%= t(".notice_body") %>
+                <textarea name="body" rows="3" required maxlength="<%= Decidim::Bih::PartnerNotice::BODY_MAX %>"></textarea>
+              </label>
+              <% if @profile.official_publisher? %>
+                <label class="mi-choice-pill">
+                  <input type="checkbox" name="notice_type" value="official">
+                  <span><%= t(".notice_official") %></span>
+                </label>
+              <% end %>
+              <div class="mi-account-settings__actions">
+                <%= submit_tag t(".notice_submit"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </section>
+    </div>
+
+    <%= render "decidim/bih/shared/goodwill_links", current: nil if @goodwill_enabled %>
+  </div>
+</div>

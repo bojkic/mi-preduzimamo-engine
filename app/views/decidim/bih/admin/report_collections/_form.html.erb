@@ -1,0 +1,7 @@
+<% c = "decidim.bih.report_planning" %>
+<label><%= t("#{c}.collection_title") %><%= text_field_tag "collection[title]", collection.title, required: true, maxlength: 200 %></label>
+<label><%= t("#{c}.topic") %><%= text_field_tag "collection[topic]", collection.topic, required: true, maxlength: 200 %></label>
+<label><%= t("#{c}.owner") %><%= select_tag "collection[assigned_to_id]", options_for_select(Decidim::Bih::ReportCaseWorkflow.staff(current_organization).map { |u| [u.name, u.id] }, collection.assigned_to_id), include_blank: true, required: true %></label>
+<label><%= t("#{c}.due") %><%= datetime_local_field_tag "collection[review_due_at]", collection.review_due_at&.strftime("%Y-%m-%dT%H:%M"), required: true %></label>
+<label><%= t("#{c}.summary") %><%= text_area_tag "collection[summary]", collection.summary, rows: 5, maxlength: 10000 %></label>
+<%= submit_tag t("#{c}.save"), class: "button button__sm button__secondary" %>

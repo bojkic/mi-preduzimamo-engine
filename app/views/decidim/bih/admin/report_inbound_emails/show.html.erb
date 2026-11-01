@@ -1,0 +1,10 @@
+<h1><%= @email.subject %></h1>
+<p><%= @email.from_domain %> · <%= l(@email.internal_date, format: :short) %> · <%= @email.history_only ? t("decidim.bih.report_mailbox.history") : @email.state %></p>
+<pre style="white-space:pre-wrap"><%= @email.body_text %></pre>
+<% @email.attachments.each do |attachment| %><p><%= link_to attachment.filename.to_s, attachment_report_inbound_email_path(@email, attachment_id: attachment.id) %></p><% end %>
+<%= form_with url: link_report_inbound_email_path(@email), method: :post, builder: ActionView::Helpers::FormBuilder, class: "form form-defaults" do |form| %>
+  <%= form.label :references, t("decidim.bih.report_mailbox.references") %><%= form.text_field :references, required: true %>
+  <%= form.submit t("decidim.bih.report_mailbox.link"), class: "button button__sm button__secondary" %>
+<% end %>
+<%= button_to t("decidim.bih.report_mailbox.import_history"), history_report_inbound_email_path(@email), method: :post, class: "button button__sm button__secondary", form_class: "form form-defaults" %>
+<%= button_to t("decidim.bih.report_mailbox.dismiss"), dismiss_report_inbound_email_path(@email), method: :post, class: "button button__sm button__secondary", form_class: "form form-defaults" %>

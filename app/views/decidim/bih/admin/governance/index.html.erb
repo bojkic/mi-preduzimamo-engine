@@ -1,0 +1,196 @@
+<% add_decidim_page_title(t("decidim.bih.admin.governance.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :governance %>
+
+<div class="card" id="admin-governance-readiness">
+  <div class="item_show__header">
+    <div>
+      <h1 class="item_show__header-title"><%= t("decidim.bih.admin.governance.title") %></h1>
+      <p style="margin-bottom: 0;"><%= t("decidim.bih.admin.governance.intro") %></p>
+    </div>
+  </div>
+
+  <div class="card-section">
+    <% unless @governance_storage_available %>
+      <div class="callout alert" data-governance-storage="unavailable">
+        <strong><%= t("decidim.bih.admin.governance.storage_unavailable") %></strong>
+      </div>
+    <% end %>
+
+    <div class="callout warning">
+      <strong><%= t("decidim.bih.admin.governance.owner_decision_title") %></strong>
+      <p style="margin-bottom: 0;"><%= t("decidim.bih.admin.governance.owner_decision_body") %></p>
+    </div>
+    <div class="callout secondary">
+      <strong><%= t("decidim.bih.admin.governance.status_definitions_title", default: "Kako čitati odluke") %></strong>
+      <p><%= t("decidim.bih.admin.governance.status_definitions_body", default: "Odobreno važi samo do prikazanog roka i za zapisani obuhvat. Potrebna dopuna traži novu provjeru dokaza, a blokirano zabranjuje izvršenje. Ovaj zapis potvrđuje odluku; nije dokaz da je tehnički korak izvršen.") %></p>
+      <% unless current_user&.admin? %>
+        <p><em><%= t("decidim.bih.admin.governance.admin_handoff", default: "Možeš pregledati odluke; globalni administrator evidentira novu odluku nakon što vlasnik i tehnički izvršilac potvrde dokaze.") %></em></p>
+      <% end %>
+    </div>
+
+    <div class="mi-governance-grid">
+      <% @governance_rows.each do |row| %>
+        <% latest_approval = row[:latest_approval] %>
+        <% failed = @failed_governance_kind == row[:id] ? @failed_approval : nil %>
+
+        <section class="mi-governance-card" id="governance-<%= row[:id] %>" data-governance-row="<%= row[:id] %>">
+          <div class="mi-governance-card__header">
+            <h2><%= row[:title] %></h2>
+            <strong><%= row[:status] %></strong>
+          </div>
+          <p><%= row[:body] %></p>
+          <dl>
+            <dt><%= t("decidim.bih.admin.governance.evidence_label") %></dt>
+            <dd><%= row[:evidence] %></dd>
+            <dt><%= t("decidim.bih.admin.governance.runbook_label") %></dt>
+            <dd><code><%= row[:runbook] %></code></dd>
+          </dl>
+
+          <div class="mi-governance-latest" data-governance-latest="<%= row[:id] %>">
+            <h3><%= t("decidim.bih.admin.governance.latest_title") %></h3>
+            <% if latest_approval %>
+              <dl>
+                <dt><%= t("decidim.bih.admin.governance.latest_status") %></dt>
+                <dd><%= t("decidim.bih.admin.governance.statuses.#{latest_approval.status}") %></dd>
+                <dt><%= t("decidim.bih.admin.governance.latest_approved_at") %></dt>
+                <dd><%= l(latest_approval.approved_at, format: :short) %></dd>
+                <dt><%= t("decidim.bih.admin.governance.latest_valid_until", default: "Važi do") %></dt>
+                <dd>
+                  <%= l(latest_approval.valid_until, format: :short) %>
+                  — <%= t("decidim.bih.admin.governance.validity.#{latest_approval.stale? ? "stale" : "current"}", default: latest_approval.stale? ? "isteklo" : "važeće") %>
+                </dd>
+                <dt><%= t("decidim.bih.admin.governance.latest_actor") %></dt>
+                <dd><%= latest_approval.user&.name || latest_approval.user&.nickname %></dd>
+                <% if latest_approval.scope_key.present? %>
+                  <dt><%= t("decidim.bih.admin.governance.form.scope_key") %></dt>
+                  <dd><%= latest_approval.scope_key %></dd>
+                <% end %>
+                <% if latest_approval.app_sha.present? || latest_approval.engine_sha.present? %>
+                  <dt><%= t("decidim.bih.admin.governance.latest_shas") %></dt>
+                  <dd>
+                    <% if latest_approval.app_sha.present? %>
+                      <span><%= t("decidim.bih.admin.governance.form.app_sha") %>: <code><%= latest_approval.app_sha %></code></span>
+                    <% end %>
+                    <% if latest_approval.engine_sha.present? %>
+                      <span><%= t("decidim.bih.admin.governance.form.engine_sha") %>: <code><%= latest_approval.engine_sha %></code></span>
+                    <% end %>
+                  </dd>
+                <% end %>
+                <% if latest_approval.governance_kind == "release_restart" %>
+                  <dt><%= t("decidim.bih.admin.governance.form.restart_window") %></dt>
+                  <dd><%= l(latest_approval.restart_window_starts_at, format: :short) %> – <%= l(latest_approval.restart_window_ends_at, format: :short) %></dd>
+                  <dt><%= t("decidim.bih.admin.governance.form.release_controls") %></dt>
+                  <dd>
+                    <% if latest_approval.local_verification? %>
+                      <%= (Decidim::Bih::GovernanceApproval::LOCAL_VERIFICATION_FIELDS + %w(backup_health_status restore_smoke_status migration_state)).map { |attribute| "#{attribute}=#{Array(latest_approval.public_send(attribute)).join(', ')}" }.join(" · ") %>
+                    <% else %>
+                      <%= %i(local_fast_gate_status local_full_gate_status external_ci_status branch_protection_status backup_health_status restore_smoke_status migration_state).map { |attribute| "#{attribute}=#{latest_approval.public_send(attribute)}" }.join(" · ") %>
+                    <% end %>
+                  </dd>
+                <% end %>
+                <dt><%= t("decidim.bih.admin.governance.form.evidence_summary") %></dt>
+                <dd><%= latest_approval.evidence_summary %></dd>
+                <dt><%= t("decidim.bih.admin.governance.form.evidence_digest") %></dt>
+                <dd><code><%= latest_approval.evidence_digest %></code></dd>
+              </dl>
+            <% else %>
+              <p><%= t("decidim.bih.admin.governance.latest_empty") %></p>
+            <% end %>
+          </div>
+
+          <% release_policy_available = row[:id] != "release_restart" || Decidim::Bih::GovernanceApproval.local_verification_policy_available? %>
+          <% unless release_policy_available %>
+            <p><%= t("decidim.bih.admin.governance.form.local_policy_unavailable") %></p>
+          <% end %>
+          <% if current_user&.admin? && @governance_storage_available && release_policy_available %>
+            <% safe_failed_value = lambda { |attribute|
+              next unless failed
+              next if failed.errors.attribute_names.include?(attribute)
+
+              failed.public_send(attribute)
+            } %>
+            <details class="mi-governance-form" <%= "open" if failed %>>
+              <summary><%= t("decidim.bih.admin.governance.form.summary") %></summary>
+              <p><%= t("decidim.bih.admin.governance.form.help") %></p>
+              <% if failed&.errors&.any? %>
+                <div class="callout alert">
+                  <p><%= failed.errors.full_messages.to_sentence %></p>
+                </div>
+              <% end %>
+              <form class="form form-defaults" action="<%= governance_approvals_path(row[:id]) %>" method="post">
+                <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+                <div class="mi-governance-form__grid">
+                  <label for="governance_approval_status_<%= row[:id] %>">
+                    <%= t("decidim.bih.admin.governance.form.status") %>
+                    <%= select_tag "governance_approval[status]",
+                                   options_for_select(Decidim::Bih::GovernanceApproval::STATUSES.map { |status| [t("decidim.bih.admin.governance.statuses.#{status}"), status] }, failed&.status || "approved"),
+                                   id: "governance_approval_status_#{row[:id]}" %>
+                  </label>
+                  <label for="governance_approval_scope_key_<%= row[:id] %>">
+                    <%= t("decidim.bih.admin.governance.form.scope_key") %>
+                    <%= text_field_tag "governance_approval[scope_key]", safe_failed_value.call(:scope_key), id: "governance_approval_scope_key_#{row[:id]}", maxlength: 160 %>
+                  </label>
+                  <label for="governance_approval_app_sha_<%= row[:id] %>">
+                    <%= t("decidim.bih.admin.governance.form.app_sha") %>
+                    <%= text_field_tag "governance_approval[app_sha]", safe_failed_value.call(:app_sha), id: "governance_approval_app_sha_#{row[:id]}", maxlength: 64 %>
+                  </label>
+                  <label for="governance_approval_engine_sha_<%= row[:id] %>">
+                    <%= t("decidim.bih.admin.governance.form.engine_sha") %>
+                    <%= text_field_tag "governance_approval[engine_sha]", safe_failed_value.call(:engine_sha), id: "governance_approval_engine_sha_#{row[:id]}", maxlength: 64 %>
+                  </label>
+                  <% if row[:id] == "release_restart" %>
+                    <label for="governance_approval_restart_window_starts_at_<%= row[:id] %>">
+                      <%= t("decidim.bih.admin.governance.form.restart_window_starts_at") %>
+                      <%= datetime_field_tag "governance_approval[restart_window_starts_at]", safe_failed_value.call(:restart_window_starts_at)&.strftime("%Y-%m-%dT%H:%M"), id: "governance_approval_restart_window_starts_at_#{row[:id]}", required: true %>
+                    </label>
+                    <label for="governance_approval_restart_window_ends_at_<%= row[:id] %>">
+                      <%= t("decidim.bih.admin.governance.form.restart_window_ends_at") %>
+                      <%= datetime_field_tag "governance_approval[restart_window_ends_at]", safe_failed_value.call(:restart_window_ends_at)&.strftime("%Y-%m-%dT%H:%M"), id: "governance_approval_restart_window_ends_at_#{row[:id]}", required: true %>
+                    </label>
+                    <label for="governance_approval_verification_lane_<%= row[:id] %>">
+                      <%= t("decidim.bih.admin.governance.form.verification_lane") %>
+                      <%= select_tag "governance_approval[verification_lane]", options_for_select(%w(docs fast deep), safe_failed_value.call(:verification_lane)), include_blank: true, required: true, id: "governance_approval_verification_lane_#{row[:id]}" %>
+                    </label>
+                    <label for="governance_approval_verification_result_digest_<%= row[:id] %>">
+                      <%= t("decidim.bih.admin.governance.form.verification_result_digest") %>
+                      <%= text_field_tag "governance_approval[verification_result_digest]", safe_failed_value.call(:verification_result_digest), required: true, maxlength: 71, placeholder: "sha256:…", id: "governance_approval_verification_result_digest_#{row[:id]}" %>
+                    </label>
+                    <label for="governance_approval_required_scopes_<%= row[:id] %>">
+                      <%= t("decidim.bih.admin.governance.form.required_scopes") %>
+                      <%= select_tag "governance_approval[required_scopes][]", options_for_select(Decidim::Bih::GovernanceApproval.additional_verification_scopes, safe_failed_value.call(:required_scopes)), multiple: true, id: "governance_approval_required_scopes_#{row[:id]}" %>
+                    </label>
+                    <p><%= t("decidim.bih.admin.governance.form.local_verification_help") %></p>
+                    <% %w(local_gate_status backup_health_status restore_smoke_status).each do |attribute| %>
+                      <label for="governance_approval_<%= attribute %>_<%= row[:id] %>">
+                        <%= t("decidim.bih.admin.governance.form.#{attribute}") %>
+                        <%= select_tag "governance_approval[#{attribute}]", options_for_select(["passed"], safe_failed_value.call(attribute.to_sym)), include_blank: true, required: true, id: "governance_approval_#{attribute}_#{row[:id]}" %>
+                      </label>
+                    <% end %>
+                    <label for="governance_approval_migration_state_<%= row[:id] %>">
+                      <%= t("decidim.bih.admin.governance.form.migration_state") %>
+                      <%= select_tag "governance_approval[migration_state]", options_for_select(Decidim::Bih::GovernanceApproval::MIGRATION_STATES, safe_failed_value.call(:migration_state) || "pending_reviewed"), id: "governance_approval_migration_state_#{row[:id]}" %>
+                    </label>
+                    <label class="mi-governance-form__wide" for="governance_approval_backup_manifest_digest_<%= row[:id] %>">
+                      <%= t("decidim.bih.admin.governance.form.backup_manifest_digest") %>
+                      <%= text_field_tag "governance_approval[backup_manifest_digest]", safe_failed_value.call(:backup_manifest_digest), id: "governance_approval_backup_manifest_digest_#{row[:id]}", maxlength: 71, placeholder: "sha256:…", required: true %>
+                    </label>
+                  <% end %>
+                  <label class="mi-governance-form__wide" for="governance_approval_evidence_summary_<%= row[:id] %>">
+                    <%= t("decidim.bih.admin.governance.form.evidence_summary") %>
+                    <%= text_area_tag "governance_approval[evidence_summary]", safe_failed_value.call(:evidence_summary), id: "governance_approval_evidence_summary_#{row[:id]}", rows: 3, maxlength: 1_000, required: true %>
+                  </label>
+                  <label class="mi-governance-form__wide" for="governance_approval_evidence_digest_<%= row[:id] %>">
+                    <%= t("decidim.bih.admin.governance.form.evidence_digest") %>
+                    <%= text_field_tag "governance_approval[evidence_digest]", safe_failed_value.call(:evidence_digest), id: "governance_approval_evidence_digest_#{row[:id]}", maxlength: 128 %>
+                  </label>
+                </div>
+                <%= submit_tag t("decidim.bih.admin.governance.form.submit"), class: "button button__sm button__secondary" %>
+              </form>
+            </details>
+          <% end %>
+        </section>
+      <% end %>
+    </div>
+  </div>
+</div>

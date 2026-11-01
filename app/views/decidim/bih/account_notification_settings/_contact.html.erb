@@ -1,0 +1,11 @@
+<section class="mi-account-panel" data-setting-section="contact">
+  <h2 class="heading4"><%= t("#{t_scope}.delivery_setup") %></h2>
+  <p><%= t("#{t_scope}.delivery_help") %></p>
+  <% unless settings.verified_phone? %>
+    <p><strong><%= t("#{t_scope}.contact.verified_phone.label") %>:</strong> <%= t("#{t_scope}.contact.verified_phone.missing") %> <%= link_to t("#{t_scope}.back"), account_overview_path %></p>
+  <% end %>
+  <% unless settings.proven_email? %>
+    <p><strong><%= t("#{t_scope}.contact.email_proof.label") %>:</strong> <%= t("#{t_scope}.contact.email_proof.missing") %></p>
+  <% end %>
+  <p><%= link_to t("#{t_scope}.contact.channel_connections.link"), channel_connections_path %></p>
+</section>

@@ -1,0 +1,163 @@
+# Generated from the Serbian Latin source.
+---
+sr-Cyrl:
+  decidim:
+    shared:
+      floating_help:
+        help: Како учествовати
+    searches:
+      filters:
+        jump_to: 'Отвори страницу:'
+    participatory_process_steps:
+      index:
+        process_steps: Фазе избора
+    participatory_processes:
+      participatory_processes:
+        description:
+          area_name: Подручје
+          data: О процесу
+          developer_group: Организатор
+          local_area: Комшилуци
+          meta_scope: Обухват
+          participatory_scope: Шта бирамо
+          participatory_structure: Како одлучујемо
+          target: Ко учествује
+    proposals:
+      application_helper:
+        filter_origin_values:
+          all: Сви приједлози
+          meetings: Са састанака
+          official: Организатор
+          participants: Грађани
+        filter_state_values:
+          all: Сви статуси
+          not_answered: Чека одговор
+        filter_type_values:
+          all: Све врсте
+          amendments: Измјене
+          proposals: Приједлози
+      answers:
+        accepted: Прихваћен
+        evaluating: У разматрању
+        rejected: Одбијен
+        not_answered: Чека одговор
+        withdrawn: Повучен
+      proposals:
+        index:
+          new_proposal: Нови приједлог
+          see_all: Сви приједлози
+          click_here: Погледај све приједлоге
+          grid_mode: Приказ картица
+          list_mode: Приказ листе
+        new:
+          send: Настави на преглед
+          title: Нови приједлог
+        edit_draft:
+          send: Прегледај приједлог
+          title: Уреди нацрт приједлога
+          discard: Одбаци нацрт
+          discard_confirmation: Желиш ли одбацити овај нацрт приједлога?
+        preview:
+          announcement_title: Приједлог још није објављен
+          announcement_body: Сачуван је као нацрт. Кликни „Објави приједлог” да постане
+            видљив другима.
+          modify: Уреди приједлог
+          publish: Објави приједлог
+          title: Прегледај и објави приједлог
+        wizard_steps:
+          title: Кораци за објаву приједлога
+          step_1: Опиши идеју
+          step_2: Прегледај и објави
+          current_step: Тренутни корак
+        wizard_aside:
+          back: Назад
+          back_from_step_1: Назад на приједлоге
+          back_from_step_2: Назад на уређивање
+        filters:
+          activity: Моја активност
+          origin: Ко је предложио
+          my_proposals: Моји приједлози
+          search: Претражи приједлоге
+          voted: Моји гласови
+          type: Врста
+        orders:
+          label: 'Поредај приједлоге:'
+          recent: Најновији
+          most_commented: Највише коментара
+          most_voted: Највише гласова
+          most_followed: Највише пратилаца
+          random: Насумично
+          most_liked: Највише свиђања
+        vote_button:
+          vote: Гласај
+          votes_blocked: Гласање није отворено
+          already_voted: Глас је забиљежен
+          already_voted_hover: Повуци глас
+          maximum_votes_reached: Достигнут је највећи број гласова
+          no_votes_remaining: Нема преосталих гласова
+        voting_rules:
+          title: Правила учешћа
+          vote_limit:
+            description: Можеш гласати за највише %{limit} приједлог(а).
+            votes: 'Преостало гласова: %{number}'
+          success: Твој глас је забиљежен.
+        show:
+          proposal_accepted_reason: 'Приједлог је прихваћен из сљедећих разлога:'
+          proposal_in_evaluation_reason: Организатор разматра овај приједлог.
+          proposal_rejected_reason: 'Приједлог није прихваћен из сљедећих разлога:'
+          answer: Одговор организатора
+          estimated_cost: Процијењени трошак
+          edit_proposal: Уреди
+          withdraw_proposal: Повуци приједлог
+        edit:
+          add_attachments: Додај прилог
+          attachment_legend: Додај документ или слику
+          back: Назад
+          send: Сачувај
+          title: Уреди приједлог
+      publish:
+        success: Приједлог је објављен.
+        error: Приједлог није објављен. Провјери унесене податке и покушај поново.
+    accessibility:
+      skip_button: Прескочи на главни садржај
+      external_link: Спољна повезница
+  layouts:
+    decidim:
+      announcements:
+        view_more: Прочитај више
+        view_less: Прикажи мање
+      data_consent:
+        details:
+          columns:
+            description: Опис
+            name: Назив
+            service: Услуга
+            type: Врста
+            expiration: Трајање
+          types:
+            cookie: Колачић
+            local_storage: Локална меморија
+          items:
+            _session_id:
+              service: Ова платформа
+              description: Одржава пријаву док прелазиш са једне странице на другу.
+            pwaInstallPromptSeen:
+              service: Ова платформа
+              description: Памти да ли је приказана понуда за инсталирање апликације.
+        modal:
+          toggle: 'Промијени избор: %{consent_category}'
+      footer:
+        cc_by_license: Лиценца за садржај
+      language_chooser:
+        choose_language: Изабери језик
+  forms:
+    required: Обавезно поље
+    required_explanation: Обавезна поља означена су звјездицом (*).
+    correct_errors: Провјери означена поља и исправи податке да наставиш.
+  activemodel:
+    attributes:
+      proposal:
+        title: Наслов приједлога
+        body: Опис приједлога
+        address: Локација
+        has_address: Приједлог се односи на одређену локацију

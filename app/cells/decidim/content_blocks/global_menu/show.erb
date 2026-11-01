@@ -1,0 +1,34 @@
+<%#
+  decidim-bih override of Decidim core's `global_menu` content block cell.
+  The id is still computed by `home_menu_section_id` so duplicated homepage
+  content blocks do not produce duplicate DOM ids.
+%>
+
+<section id="<%= home_menu_section_id %>" class="home__menu" aria-label="<%= t("decidim.bih.menu_groups.eyebrow") %>">
+  <div class="home__menu__container">
+    <% menu_icons = {
+         "/biceriseno/vodic" => "question-line",
+         "/biceriseno/prijave/new" => "add-circle-line",
+         "/biceriseno/volontiranje" => "hand-heart-line",
+         "/biceriseno/projekti" => "heart-2-line",
+         "/biceriseno/donacije" => "heart-2-line",
+         "/processes" => "checkbox-multiple-line",
+         "/biceriseno/mi-bot" => "chat-new-line",
+         "/biceriseno/zajednistvo" => "star-line",
+         "/biceriseno/komsiluk" => "home-heart-line",
+         "/biceriseno/komsiluk-board" => "home-heart-line"
+       } %>
+    <% menu_items.each do |item| %>
+      <div class="home__menu-element">
+        <% item_path = menu_item_path(item) %>
+        <% opens_mi_bot = item_path == "/biceriseno/mi-bot" %>
+        <%= link_to item.url,
+                    class: "button button__text home__menu-element--link",
+                    data: (opens_mi_bot ? { mi_bot_open: true } : {}) do %>
+          <%= icon menu_icons.fetch(item_path, "arrow-right-line"), class: "home__menu-icon", role: "img", "aria-hidden": true %>
+          <span><%= item.label %></span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>

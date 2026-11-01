@@ -1,0 +1,16 @@
+---
+sr-Cyrl:
+  decidim:
+    bih:
+      report_obligations:
+        review: Тим прегледа пријаву
+        dispatch_approval: Тим одобрава слање
+        closure_approval: Тим одлучује о затварању
+        info_request: Чекамо Вашу допуну
+        evidence_collection: Чекамо тражени доказ
+        evidence_handoff: Достављамо доказ служби
+        city_response: Чекамо одговор службе
+        city_commitment: Чекамо договорени рад службе
+        mail_review: Тим прегледа преписку
+        dispute_review: Тим прегледа оспоравање
+        delivery_exception: Тим провјерава доставу

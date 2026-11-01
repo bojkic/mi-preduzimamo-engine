@@ -1,0 +1,21 @@
+<% selected = Array(selected_ids).map(&:to_i); prefix = local_assigns.fetch(:name_prefix, "notice"); copy = "decidim.bih.admin.board_notices" %>
+<fieldset class="mi-board-area-picker" data-board-area-picker>
+  <legend><%= local_assigns.fetch(:legend) { t("#{copy}.areas") } %></legend>
+  <p id="<%= prefix %>-area-hint"><%= local_assigns.fetch(:hint) { t("#{copy}.areas_hint") } %></p>
+  <label for="<%= prefix %>-board-area-search"><%= t("#{copy}.area_search") %></label>
+  <input type="search" id="<%= prefix %>-board-area-search" data-area-search autocomplete="off" aria-describedby="<%= prefix %>-area-hint">
+  <p><%= local_assigns.fetch(:selected_label) { t("#{copy}.selected_destinations") } %>: <span data-area-selection-count aria-live="polite"><%= selected.intersection(areas.map(&:id)).size %></span></p>
+  <div class="mi-board-selected-areas" data-area-selected>
+    <% areas.select { |area| selected.include?(area.id) }.each do |area| %><span><%= area.translated_name %> (<%= area.kind == "mz" ? "MZ" : t("#{copy}.board") %>)</span><% end %>
+  </div>
+  <%= hidden_field_tag "#{prefix}[area_ids][]", "" %>
+  <div class="mi-board-area-options">
+    <% areas.each do |area| %>
+      <% label = "#{area.translated_name} (#{area.kind == 'mz' ? 'MZ' : t("#{copy}.board")})" %>
+      <label data-area-option data-area-name="<%= label %>">
+        <%= check_box_tag "#{prefix}[area_ids][]", area.id, selected.include?(area.id), id: "#{prefix}_board_area_#{area.id}" %>
+        <span><%= label %></span>
+      </label>
+    <% end %>
+  </div>
+</fieldset>

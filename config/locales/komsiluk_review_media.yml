@@ -1,0 +1,51 @@
+---
+sr:
+  decidim:
+    bih:
+      komsiluk_review_media:
+        photo: Fotografija uz objavu
+        starts: Početak aktivnosti
+        place: Mjesto aktivnosti
+        activity: Povezana aktivnost
+        open_activity: Otvori aktivnost
+        help: 'Aktivne ponude pomoći: %{count}. Ovo nisu rezervacije niti prijave na aktivnost.'
+bs:
+  decidim:
+    bih:
+      komsiluk_review_media:
+        photo: Fotografija uz objavu
+        starts: Početak aktivnosti
+        place: Mjesto aktivnosti
+        activity: Povezana aktivnost
+        open_activity: Otvori aktivnost
+        help: 'Aktivne ponude pomoći: %{count}. Ovo nisu rezervacije niti prijave na aktivnost.'
+hr:
+  decidim:
+    bih:
+      komsiluk_review_media:
+        photo: Fotografija uz objavu
+        starts: Početak aktivnosti
+        place: Mjesto aktivnosti
+        activity: Povezana aktivnost
+        open_activity: Otvori aktivnost
+        help: 'Aktivne ponude pomoći: %{count}. Ovo nisu rezervacije niti prijave na aktivnost.'
+en:
+  decidim:
+    bih:
+      komsiluk_review_media:
+        photo: Notice photograph
+        starts: Activity start
+        place: Activity location
+        activity: Linked activity
+        open_activity: Open activity
+        help: 'Active offers of help: %{count}. These are not bookings or activity registrations.'
+sr-Cyrl:
+  decidim:
+    bih:
+      komsiluk_review_media:
+        photo: Фотографија уз објаву
+        starts: Почетак активности
+        place: Мјесто активности
+        activity: Повезана активност
+        open_activity: Отвори активност
+        help: 'Активне понуде помоћи: %{count}. Ово нису резервације нити пријаве на активност.'

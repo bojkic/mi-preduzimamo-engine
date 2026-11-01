@@ -1,0 +1,284 @@
+<%#
+  The shared "we sent you a message" page body, rendered by delivery A's phone
+  verification page and by delivery D's registration pending page. The citizen
+  taps the link on the phone; this page never shows the code, but it always
+  offers the field to type one (R-D9) for the phone that never got the link.
+  A 5-second poll of the status endpoint hands a waiting browser forward the
+  moment the phone is proven.
+
+  Two states: while a live verify token still carries the number we can name it
+  (masked) and offer the code field; once it has expired there is no number to
+  name and nothing a typed code could confirm, so the page says so instead of
+  rendering an empty mask.
+
+  Locals — every URL is passed in, because the two pages live at different
+  paths and neither may build the other's:
+    scope             i18n scope for this page's copy (…phone_verification.show)
+    masked_phone      the number as the citizen may see it, never in clear
+    expired           no live verify token left
+    status_url        the status endpoint the poll asks
+    status_method     "get" (A) or "post" (D, which can sign the browser in and
+                      is therefore CSRF-protected — see R-D4)
+    confirm_url       POST target for the typed code and the reverify number
+    resend_url        POST "send again" — always SMS-only (omit to hide)
+    change_url        DELETE "change the number" (rendered only where the
+                      page's own #number_change_allowed? says it may be used —
+                      a page that answers no must own
+                      <scope>.expired_lead_start_over, which is the expired
+                      lead it gets instead of <scope>.expired_lead)
+    check_url         GET this page again
+    hidden_fields     name => value pairs every posted form must carry
+    reverify          re-verify mode: a grant with no saved phone row
+    reverify_store_error / reverify_exhausted   see #enter_reverify_mode!
+%>
+<%
+  reverify = local_assigns.fetch(:reverify, false)
+  reverify_store_error = local_assigns.fetch(:reverify_store_error, false)
+  reverify_exhausted = local_assigns.fetch(:reverify_exhausted, false)
+  hidden_fields = local_assigns.fetch(:hidden_fields, {})
+  status_method = local_assigns.fetch(:status_method, "get").to_s
+  resend_url = local_assigns.fetch(:resend_url, nil)
+%>
+<%# With the attempt counter unreachable the limiter is fail-closed and reads
+    as exhausted. That is our outage, not the citizen's fault, so the reverify
+    page keeps its phone form and says what is wrong instead of leaving them
+    with only "I no longer have that number" — see #enter_reverify_mode!. %>
+<% reverify_lead = reverify_store_error ? t("#{scope}.reverify_unavailable") : t("#{scope}.reverify_lead") %>
+<%# The code entry is always open (R-D9): the citizen who never received the
+    link needs it, and a toggle they have to find first is the step at which
+    they give up. WhatsApp is named only where it can actually deliver a code —
+    the page answers that (PhoneVerificationActions#whatsapp_code_copy?), so
+    this shared body never reaches for the provider config itself. %>
+<% have_code_key = whatsapp_code_copy? ? "have_code_whatsapp" : "have_code" %>
+<%# Same gate, and the same reason spec 5.4.5 gives: do not promise a link the
+    message may not carry. Viber and SMS both carry one; WhatsApp's AUTH
+    template carries the code alone, so where WhatsApp is in the chain the page
+    says "a message" and names the code as the WhatsApp way through. %>
+<% sent_to_key = whatsapp_code_copy? ? "sent_to_whatsapp" : "sent_to" %>
+<% tap_hint_key = whatsapp_code_copy? ? "tap_hint_whatsapp" : "tap_hint" %>
+<%# What an expired page can still offer, and therefore what its lead may say.
+    Once the verify token is dead there is no number to name, nothing to resend
+    to and nothing a typed code could confirm — the only way forward is a new
+    number, and a page that may not take one (delivery D's e-mail variant: the
+    address it was sent to is unproven, so pointing the verification at another
+    phone would hand the account away) must not be told to enter one. That page
+    says start over instead, which is the button it really does have. %>
+<% show_change = number_change_allowed? %>
+<% expired_lead = show_change ? t("#{scope}.expired_lead") : t("#{scope}.expired_lead_start_over") %>
+<%# The reverify page's own status poll reports "expired" too (a grant with no
+    saved phone must never redirect, and "expired" is the only existing
+    non-redirecting state) — carry the reverify copy into the same data
+    attribute the poll's expire() reads, so a poll tick never overwrites it
+    with the generic expired copy. %>
+<section class="mi-phone-verification" data-mi-phone-verification
+         data-mi-reverify="<%= reverify ? "1" : "0" %>"
+         data-status-url="<%= status_url %>"
+         data-status-method="<%= status_method %>"
+         data-expired-text="<%= reverify ? reverify_lead : expired_lead %>">
+  <h1><%= t("#{scope}.title") %></h1>
+  <p class="mi-phone-verification__lead" data-mi-lead>
+    <% if reverify %>
+      <%= reverify_lead %>
+    <% elsif expired %>
+      <%= expired_lead %>
+    <% else %>
+      <%= t("#{scope}.#{sent_to_key}", phone: masked_phone) %>
+    <% end %>
+  </p>
+  <% if reverify %>
+    <%# Reverify takes the phone itself, not a code: the authorization is
+        already granted, and #confirm (reused — no new route) matches the
+        typed number against that existing grant instead of destroying it.
+        Once the AttemptLimiter budget is exhausted, only the secondary
+        change-number escape hatch below remains. %>
+    <% unless reverify_exhausted %>
+      <%= form_with url: confirm_url, method: :post, class: "mi-phone-verification__reverify-form" do %>
+        <% hidden_fields.each do |field_name, field_value| %>
+          <input type="hidden" name="<%= field_name %>" value="<%= field_value %>">
+        <% end %>
+        <label for="mi-reverify-phone"><%= t("#{scope}.reverify_phone_label") %></label>
+        <input id="mi-reverify-phone" type="tel" name="phone" inputmode="tel" autocomplete="tel" required>
+        <button type="submit" class="button button__sm button__secondary">
+          <%= t("#{scope}.reverify_submit") %>
+        </button>
+      <% end %>
+    <% end %>
+  <% else %>
+    <% unless expired %>
+      <p><%= t("#{scope}.#{tap_hint_key}") %></p>
+      <p class="mi-phone-verification__desktop" data-mi-desktop-hint hidden>
+        <%= t("#{scope}.desktop_hint") %>
+      </p>
+    <% end %>
+  <% end %>
+
+  <% unless reverify || expired %>
+    <%# data-mi-hidden-code is a historical name: this block used to be the
+        collapsed "I have a code" toggle. It is open by default now (R-D9);
+        the attribute kept its name because the poll script above and the page
+        tests both reach for it. %>
+    <details class="mi-phone-verification__hidden-code" data-mi-hidden-code open>
+      <summary><%= t("#{scope}.#{have_code_key}") %></summary>
+      <%# Plain markup on purpose: Decidim's form builder is model-bound and
+          raises on a bare url-only form. There is no form object here — one
+          field posted straight to #confirm. %>
+      <%= form_with url: confirm_url, method: :post do %>
+        <% hidden_fields.each do |field_name, field_value| %>
+          <input type="hidden" name="<%= field_name %>" value="<%= field_value %>">
+        <% end %>
+        <label for="mi-verification-code"><%= t("#{scope}.code_label") %></label>
+        <input id="mi-verification-code" type="text" name="verification_code"
+               inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+               autocomplete="one-time-code" required>
+        <button type="submit" class="button button__sm button__secondary">
+          <%= t("#{scope}.code_submit") %>
+        </button>
+      <% end %>
+    </details>
+  <% end %>
+
+  <%# Resend is offered whenever a number is on record — the newest verify
+      token keeps it even after expiry — so the citizen who comes back from a
+      reminder e-mail days later can ask for a fresh link (the page passes
+      resend_url only when PhoneVerificationActions#phone_on_record has one).
+      Reverify is excluded structurally: there is nothing to resend against an
+      already-granted row — see PhoneVerificationActions#resend.
+
+      Where the page says the number may NOT be changed (delivery D's e-mail
+      variant: the address it was sent to is unproven, so pointing the
+      verification at another phone would hand the account away), that button
+      is not rendered at all — it could only ever produce a refusal. On expiry
+      that page offers resend and start over, and its lead
+      (<scope>.expired_lead_start_over, chosen above) says exactly that. %>
+  <div class="mi-phone-verification__actions">
+    <% if !reverify && resend_url.present? %>
+      <span class="mi-phone-verification__resend" data-mi-resend>
+        <%= button_to t("#{scope}.resend"), resend_url, method: :post, class: "button button__sm button__secondary" %>
+      </span>
+    <% end %>
+    <% if show_change %>
+      <%= button_to(
+            reverify ? t("#{scope}.reverify_change") : t("#{scope}.change_number"),
+            change_url,
+            method: :delete,
+            class: "button button__sm #{(!reverify && expired) ? "button__secondary" : "button__text"}",
+            data: { "mi-change" => "" }
+          ) %>
+    <% end %>
+    <%= link_to t("#{scope}.check"), check_url, class: "button button__sm button__text" %>
+  </div>
+
+
+</section>
+
+<script>
+  (function () {
+    var root = document.querySelector("[data-mi-phone-verification]");
+    if (!root) return;
+    var hint = root.querySelector("[data-mi-desktop-hint]");
+    if (hint && !/Mobi|Android/i.test(navigator.userAgent)) hint.hidden = false;
+
+    var url = root.getAttribute("data-status-url");
+    // A page whose status endpoint can sign this browser in must not offer
+    // that as a GET, so the method is per-page and a non-GET poll carries the
+    // CSRF token Rails will demand.
+    var method = (root.getAttribute("data-status-method") || "GET").toUpperCase();
+    // Twelve polls a minute against a per-session budget of thirty: enough
+    // headroom for the same citizen to have the page open twice, or for a
+    // reload to overlap the previous tab, without either being throttled.
+    var BASE_INTERVAL_MS = 5000;
+    var MAX_INTERVAL_MS = 60000;
+    var interval = BASE_INTERVAL_MS;
+    var timer = null;
+    var done = false;
+
+    function requestOptions() {
+      var headers = { "Accept": "application/json" };
+      if (method !== "GET") {
+        var meta = document.querySelector("meta[name=csrf-token]");
+        if (meta) headers["X-CSRF-Token"] = meta.getAttribute("content");
+      }
+      return { method: method, credentials: "same-origin", headers: headers };
+    }
+
+    // setTimeout, not setInterval: an interval cannot slow down, and the
+    // back-off below is the whole point.
+    function stop() { if (timer) { clearTimeout(timer); timer = null; } }
+
+    function finish() { done = true; stop(); }
+
+    // A 429 says this session is asking faster than it is allowed to —
+    // maybe because of another tab. Doubling up to a minute stops the poll
+    // from spending its whole budget on rejections, and it keeps waiting:
+    // the citizen may still be about to tap the link.
+    function backOff() { interval = Math.min(interval * 2, MAX_INTERVAL_MS); }
+
+    // Server-rendered expired state, reached without a reload.
+    function expire() {
+      finish();
+      var lead = root.querySelector("[data-mi-lead]");
+      var text = root.getAttribute("data-expired-text");
+      if (lead && text) lead.textContent = text;
+      var code = root.querySelector("[data-mi-hidden-code]");
+      if (code) code.hidden = true;
+      // No live link left to resend against, on either variant.
+      var resend = root.querySelector("[data-mi-resend]");
+      if (resend) resend.hidden = true;
+      // A page whose way forward is start over ([data-mi-start-over]) has no
+      // change-number button to promote, and data-expired-text above already
+      // names start over. Keying on THAT rather than on the change button's
+      // absence is what keeps this tick and the server-rendered expired page
+      // saying the same thing.
+      var startOver = document.querySelector("[data-mi-start-over]");
+      // Reverify already styles change-number as its secondary action (the
+      // phone-input form is the primary one); the poll's own "expired" tick
+      // (reverify always reports it — see PhoneVerificationActions#status)
+      // must not re-promote it to look primary.
+      var change = root.querySelector("[data-mi-change]");
+      if (change && !startOver && root.getAttribute("data-mi-reverify") !== "1") change.className = "button button__sm button__secondary";
+    }
+
+    function poll() {
+      fetch(url, requestOptions())
+        .then(function (r) {
+          if (r.status === 401 || r.status === 403) { finish(); return null; }
+          if (r.status === 429) { backOff(); return null; }
+          // A 5xx is the server having a bad minute, not the end of the wait:
+          // the citizen may still be about to tap the link, so keep asking and
+          // keep the numbers already on screen.
+          if (!r.ok) return null;
+          // fetch follows the sign-in redirect for us, so a 200 that is not
+          // JSON means the session is gone and there is nothing left to poll.
+          var type = r.headers.get("content-type") || "";
+          if (type.indexOf("json") === -1) { finish(); return null; }
+          // An answer we could read means we are back inside the budget.
+          interval = BASE_INTERVAL_MS;
+          return r.json();
+        })
+        .then(function (data) {
+          if (data) {
+            if (data.state === "verified" && data.next) { finish(); window.location.assign(data.next); }
+            else if (data.state === "expired") { expire(); }
+          }
+          start();
+        })
+        // Re-armed in both branches rather than in a .finally, which some
+        // browsers that have fetch still do not have.
+        .catch(function () { start(); });
+    }
+
+    function tick() { timer = null; poll(); }
+
+    // The visibility check belongs here, not only in the visibilitychange
+    // handler: a fetch that resolves after the tab was hidden re-arms the
+    // chain through this same function, and a backgrounded tab that keeps
+    // polling is exactly what the handler is trying to stop.
+    function start() { if (!done && !timer && !document.hidden) timer = setTimeout(tick, interval); }
+
+    // A backgrounded tab does not need to ask every five seconds.
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) { stop(); } else { start(); }
+    });
+    if (!document.hidden) start();
+  })();
+</script>

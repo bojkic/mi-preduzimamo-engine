@@ -1,0 +1,24 @@
+en:
+  decidim:
+    bih:
+      broadcast_channels:
+        unavailable: "A selected channel is unavailable. Review the preview."
+        eligible: "Eligible channel deliveries"
+        skipped: "%{count} accounts have no eligible external channel."
+        hint: "Only citizens who explicitly chose community news on that channel can receive it. WhatsApp uses the approved news template; Messenger and Instagram require a recent conversation. Counts may change before delivery."
+sr:
+  decidim:
+    bih:
+      broadcast_channels:
+        unavailable: "Odabrani kanal nije dostupan. Pregledajte najavu slanja."
+        eligible: "Moguće isporuke po kanalu"
+        skipped: "%{count} naloga nema dostupan odabrani kanal."
+        hint: "Poruku mogu dobiti samo građani koji su izričito odabrali novosti zajednice na tom kanalu. WhatsApp koristi odobren obrazac za novosti; Messenger i Instagram zahtijevaju nedavni razgovor. Brojevi se mogu promijeniti prije slanja."
+sr-Cyrl:
+  decidim:
+    bih:
+      broadcast_channels:
+        unavailable: "Одабрани канал није доступан. Прегледајте најаву слања."
+        eligible: "Могуће испоруке по каналу"
+        skipped: "%{count} налога нема доступан одабрани канал."
+        hint: "Поруку могу добити само грађани који су изричито одабрали новости заједнице на том каналу. WhatsApp користи одобрен образац за новости; Messenger и Instagram захтијевају недавни разговор. Бројеви се могу промијенити прије слања."

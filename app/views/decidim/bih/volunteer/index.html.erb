@@ -1,0 +1,833 @@
+<%#
+  Public volunteering surface. The page uses server-rendered tabs, matching the
+  Zajedništvo hub pattern, so each workflow is linkable without loading every
+  large form onto the default opportunity list.
+%>
+<% add_decidim_page_title(t(".title")) %>
+<%
+  viewer =
+    if current_user && current_organization
+      if current_user.respond_to?(:organization) && current_user.organization == current_organization
+        current_user
+      elsif current_user.respond_to?(:decidim_organization_id) && current_user.decidim_organization_id == current_organization.id
+        current_user
+      end
+    end
+
+  active_tab = @tab.presence || "prilike"
+  tabs = [
+    { key: "prilike", label: t(".tabs.prilike") },
+    { key: "dostupnost", label: t(".tabs.dostupnost") },
+    { key: "predlozi", label: t(".tabs.predlozi") },
+    { key: "moje", label: t(".tabs.moje") }
+  ]
+%>
+
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: t(".subtitle"),
+               action_label: (viewer ? t(".opportunity_proposal.title") : t("decidim.devise.sessions.new.sign_in", default: "Prijava")),
+               action_path: (viewer ? volunteer_path(tab: "predlozi", anchor: "predlozi") : volunteer_path(tab: "predlozi", sign_in: "1")),
+               action_class: "mi-btn mi-btn--ghost" %>
+
+    <%= render "decidim/bih/shared/verify_cta" %>
+
+    <nav class="mi-surface-tabs mi-volunteer-tabs" aria-label="<%= t(".tabs.aria") %>">
+      <% tabs.each do |tab| %>
+        <%
+          is_active = active_tab == tab[:key]
+          href = volunteer_path(tab: tab[:key], anchor: tab[:key])
+        %>
+        <%= link_to tab[:label], href,
+                    "aria-current": (is_active ? "page" : nil),
+                    class: ["mi-surface-tab", ("is-active" if is_active)].compact.join(" ") %>
+      <% end %>
+    </nav>
+
+    <% if active_tab == "prilike" %>
+      <section id="prilike" class="mi-account-panel mi-account-panel--wide mi-volunteer-section">
+        <div class="mi-account-panel__head">
+          <h2><%= t(".opportunities") %></h2>
+        </div>
+        <div class="mi-notice" aria-labelledby="volunteer-lifecycle-title" style="margin-bottom: 1rem;">
+          <h3 id="volunteer-lifecycle-title" class="heading5"><%= t(".lifecycle.title") %></h3>
+          <ol style="margin-bottom: 0;">
+            <% lifecycle_steps = Decidim::Bih.volunteer_application_review_required ?
+               %i[signup application_review place_review attendance hours review points] :
+               %i[signup place attendance hours review points] %>
+            <% lifecycle_steps.each do |step| %>
+              <li><%= t(".lifecycle.#{step}") %></li>
+            <% end %>
+          </ol>
+        </div>
+
+        <% if @opportunities.empty? %>
+          <section class="mi-empty-state">
+            <img src="/mi/heart-mark.png" alt="" aria-hidden="true">
+            <h3 class="heading4"><%= t(".no_opportunities") %></h3>
+          </section>
+        <% else %>
+          <div class="mi-report-grid mi-volunteer-opportunities">
+            <% @opportunities.each do |opportunity| %>
+              <%
+                going = @signup_counts.fetch(opportunity.id, 0)
+                waitlisted = @waitlist_counts.fetch(opportunity.id, 0)
+                signup = @my_signups[opportunity.id]
+                opportunity_full = opportunity.capacity.present? && going >= opportunity.capacity
+                signup_closed = !opportunity.signup_open?
+                can_log_hours = signup&.going? && signup.review_approved?
+                match_score = @opportunity_match_scores.fetch(opportunity, 0)
+              %>
+
+              <article id="volunteer-opportunity-<%= opportunity.id %>" class="mi-surface-card mi-surface-card--strip mi-volunteer-card">
+                <span class="mi-card-strip" style="background: var(--mi-park-600, #7a9a3f);"></span>
+                <div class="mi-surface-card__body">
+                  <h3 class="heading5"><%= opportunity.title %></h3>
+
+                  <p class="mi-action-row mi-volunteer-card__badges">
+                    <% if opportunity.category.present? %>
+                      <span class="mi-status-pill"><%= opportunity.category_label %></span>
+                    <% end %>
+                    <span class="mi-status-pill"><%= opportunity.opportunity_kind_label %></span>
+                    <% if match_score.positive? %>
+                      <span class="mi-status-pill mi-status-pill--done"><%= t(".recommended") %></span>
+                    <% end %>
+                    <% if opportunity.org_bonus_enabled? %>
+                      <span class="mi-status-pill mi-status-pill--done">
+                        <%= t(".org_bonus_badge", points: opportunity.org_bonus_points_per_hour) %>
+                      </span>
+                    <% end %>
+                    <% if signup_closed %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".signup_closed") %></span>
+                    <% end %>
+                    <% if signup&.awaiting_review? %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".application_pending") %></span>
+                    <% elsif signup&.review_status == "rejected" %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".application_rejected") %></span>
+                    <% elsif signup&.review_status == "closed" %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".application_closed") %></span>
+                    <% elsif signup&.cancelled? && signup.decision_reason == "waitlist_expired" %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".waitlist_expired") %></span>
+                    <% elsif signup&.going? %>
+                      <span class="mi-status-pill mi-status-pill--done"><%= t(".going", default: "Prijavljen/a") %></span>
+                    <% elsif signup&.waitlisted? %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".waitlisted") %></span>
+                    <% elsif opportunity_full %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".full", default: "Popunjeno") %></span>
+                    <% end %>
+                  </p>
+
+                  <% if signup && %w(rejected closed).include?(signup.review_status) && signup.decision_reason.present? %>
+                    <% reason = signup.review_status == "closed" ?
+                                 t(".application_closure_reasons.#{signup.decision_reason}", default: signup.decision_reason) :
+                                 signup.decision_reason %>
+                    <p class="mi-report-card__meta"><%= t(".application_reason", reason:) %></p>
+                  <% end %>
+
+                  <% if opportunity.schedule_label.present? || opportunity.location_label.present? || opportunity.capacity.present? || waitlisted.positive? || going.positive? %>
+                    <p class="mi-report-card__meta mi-volunteer-card__meta">
+                      <% if opportunity.schedule_label.present? %>
+                        <span><%= opportunity.schedule_label %></span>
+                      <% end %>
+                      <% if opportunity.location_label.present? %>
+                        <span><%= opportunity.location_label %></span>
+                      <% end %>
+                      <% if opportunity.capacity.present? %>
+                        <span><%= going %>/<%= opportunity.capacity %> <%= t(".spots") %></span>
+                        <% if waitlisted.positive? %>
+                          <span><%= t(".waitlist_count", count: waitlisted) %></span>
+                        <% end %>
+                      <% elsif going.positive? %>
+                        <span><%= t(".going_count", count: going) %></span>
+                      <% end %>
+                      <% if opportunity.signup_deadline_label.present? %>
+                        <span><%= t(".signup_deadline", deadline: opportunity.signup_deadline_label) %></span>
+                      <% end %>
+                    </p>
+                  <% end %>
+
+                  <% if opportunity.series? || opportunity.partner_profile.present? || opportunity.partner_name.present? || opportunity.partner_confirmed? %>
+                    <p class="mi-report-card__meta mi-volunteer-card__meta">
+                      <% if opportunity.series? %>
+                        <span><%= t(".series_position", position: opportunity.series_position, total: opportunity.series_total) %></span>
+                      <% end %>
+                      <% if opportunity.partner_profile.present? %>
+                        <span><%= link_to opportunity.partner_profile.display_name, organization_path(opportunity.partner_profile.slug) %></span>
+                      <% end %>
+                      <% if opportunity.partner_name.present? %>
+                        <span><%= t(".partner_name", name: opportunity.partner_name) %></span>
+                      <% end %>
+                      <% if opportunity.partner_confirmed? %>
+                        <span><%= t(".partner_confirmed") %></span>
+                      <% end %>
+                    </p>
+                  <% end %>
+
+                  <% if opportunity.budget_project.present? %>
+                    <p class="mi-report-card__meta mi-volunteer-card__meta">
+                      <span>
+                        <%= link_to t(".linked_project", title: translated_attribute(opportunity.budget_project.title)),
+                                    community_project_path(opportunity.budget_project.id) %>
+                      </span>
+                    </p>
+                  <% end %>
+
+                  <% if opportunity.org_bonus_enabled? %>
+                    <p class="mi-report-card__meta mi-volunteer-card__meta">
+                      <span>
+                        <%= t(".org_bonus_detail", points: opportunity.org_bonus_points_per_hour) %>
+                        <span><%= t(".org_bonus_allocation") %></span>
+                        <% if opportunity.org_bonus_recognition_label.present? %>
+                          - <%= opportunity.org_bonus_recognition_label %>
+                        <% end %>
+                      </span>
+                      <% if opportunity.org_bonus_max_participants.present? %>
+                        <span><%= t(".org_bonus_challenge", count: opportunity.org_bonus_max_participants) %></span>
+                      <% end %>
+                      <% if opportunity.org_bonus_remaining_points.present? %>
+                        <span><%= t(".org_bonus_remaining", points: opportunity.org_bonus_remaining_points) %></span>
+                      <% end %>
+                    </p>
+                  <% end %>
+
+                  <% if opportunity.skill_labels.any? || opportunity.capability_labels.any? || opportunity.description.present? || opportunity.requirements.present? %>
+                    <details class="mi-volunteer-details">
+                      <summary><%= t(".details") %></summary>
+                      <% if opportunity.skill_labels.any? || opportunity.capability_labels.any? %>
+                        <p class="mi-report-card__meta">
+                          <% opportunity.skill_labels.each do |label| %>
+                            <span><%= label %></span>
+                          <% end %>
+                          <% opportunity.capability_labels.each do |label| %>
+                            <span><%= label %></span>
+                          <% end %>
+                        </p>
+                      <% end %>
+                      <% if opportunity.description.present? %>
+                        <p class="mi-report-card__meta"><%= opportunity.description %></p>
+                      <% end %>
+                      <% if opportunity.requirements.present? %>
+                        <p class="mi-report-card__meta"><%= opportunity.requirements %></p>
+                      <% end %>
+                    </details>
+                  <% end %>
+
+                  <% if viewer %>
+                    <div class="mi-action-row mi-volunteer-card__actions">
+                      <% if signup&.active_rsvp? %>
+                        <%= button_to t(".cancel_signup"), cancel_volunteer_signup_path(opportunity), method: :delete, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+                      <% elsif signup_closed %>
+                        <span class="mi-report-card__meta"><%= t(".signup_deadline_closed_help") %></span>
+                      <% elsif opportunity.rolling_programme? && opportunity.starts_at <= Time.current &&
+                               opportunity.ends_at > Time.current %>
+                        <%= form_with url: volunteer_signup_path(opportunity), method: :post,
+                                      html: { class: "mi-action-row" } do %>
+                          <label><%= t(".first_session_at") %>
+                            <input type="datetime-local" name="first_session_at" required>
+                          </label>
+                          <%= submit_tag t(Decidim::Bih.volunteer_application_review_required ? ".apply" : ".signup"),
+                                         class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                        <% end %>
+                      <% elsif opportunity_full && !Decidim::Bih.volunteer_application_review_required %>
+                        <%= button_to t(".join_waitlist"), volunteer_signup_path(opportunity), method: :post, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                      <% else %>
+                        <%= button_to t(Decidim::Bih.volunteer_application_review_required ? ".apply" : ".signup"),
+                                      volunteer_signup_path(opportunity), method: :post, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                      <% end %>
+                    </div>
+
+                    <% if can_log_hours %>
+                      <%= render "decidim/bih/volunteer/work_claim_form", opportunity: opportunity %>
+                    <% else %>
+                      <p class="mi-report-card__meta"><%= t(".signup_to_log") %></p>
+                    <% end %>
+                  <% else %>
+                    <p class="mi-report-card__meta"><%= t(".login_to_signup") %></p>
+                  <% end %>
+                </div>
+              </article>
+            <% end %>
+          </div>
+        <% end %>
+
+      </section>
+
+      <%= render "decidim/bih/volunteer/contribution_needs",
+                 needs: @contribution_needs,
+                 viewer: viewer,
+                 title: t(".contributions.needs_title") %>
+    <% end %>
+
+    <% if active_tab == "dostupnost" %>
+      <% if viewer %>
+        <%
+          availability_area_scope = @availability&.area_scope.presence || "city"
+          selected_area_id = @availability&.local_area_id
+          selected_days = Array(@availability&.day_keys).presence || @taxonomy.default_keys(:weekdays)
+          selected_months = Array(@availability&.month_keys).presence || @taxonomy.default_keys(:months)
+          selected_time_slots = Array(@availability&.time_slot_keys).presence || @taxonomy.default_keys(:time_slots)
+          selected_interests = if @availability&.new_record? && params[:interest_keys].blank?
+                                 @taxonomy.default_keys(:interests)
+                               else
+                                 Array(@availability&.interest_keys)
+                               end
+          selected_skills = if @availability&.new_record? && params[:skill_keys].blank?
+                              @taxonomy.default_keys(:skills)
+                            else
+                              Array(@availability&.skill_keys)
+                            end
+          selected_capabilities = if @availability&.new_record? && params[:capability_keys].blank?
+                                    @taxonomy.default_keys(:capabilities)
+                                  else
+                                    Array(@availability&.capability_keys)
+                                  end
+        %>
+        <section id="dostupnost" class="mi-account-panel mi-volunteer-form">
+          <div class="mi-account-panel__head">
+            <h2><%= t(".availability.title") %></h2>
+          </div>
+          <p class="mi-volunteer-form__intro"><%= t(".availability.intro") %></p>
+          <%= form_with url: volunteer_availability_path, method: :post, html: { class: "mi-account-settings-form" } do %>
+            <div class="mi-account-form-grid mi-volunteer-form__grid">
+              <label><%= t(".availability.area_scope_label") %>
+                <%= select_tag :area_scope,
+                               options_for_select(@taxonomy.option_pairs(:area_scopes), availability_area_scope) %>
+              </label>
+              <label><%= t(".availability.mz_label") %>
+                <%= select_tag :mz_local_area_id,
+                               options_for_select([[t(".availability.select_mz"), ""]] + @mz_options, availability_area_scope == "mz" ? selected_area_id : nil) %>
+              </label>
+              <label><%= t(".availability.komsiluk_label") %>
+                <%= select_tag :komsiluk_local_area_id,
+                               options_for_select([[t(".availability.select_komsiluk"), ""]] + @komsiluk_options, availability_area_scope == "komsiluk" ? selected_area_id : nil) %>
+              </label>
+            </div>
+
+            <div class="mi-volunteer-form__schedule">
+              <fieldset class="mi-volunteer-form__group">
+                <legend><%= t(".availability.days_label") %></legend>
+                <%= hidden_field_tag "day_keys[]", "" %>
+                <div class="mi-choice-grid mi-choice-grid--days">
+                  <% @weekday_options.each do |label, key| %>
+                    <label class="mi-choice-pill">
+                      <input type="checkbox" name="day_keys[]" value="<%= key %>" <%= "checked" if selected_days.include?(key) %>>
+                      <span><%= label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </fieldset>
+
+              <fieldset class="mi-volunteer-form__group">
+                <legend><%= t(".availability.months_label") %></legend>
+                <%= hidden_field_tag "month_keys[]", "" %>
+                <div class="mi-choice-grid mi-choice-grid--months">
+                  <% @month_options.each do |label, key| %>
+                    <label class="mi-choice-pill">
+                      <input type="checkbox" name="month_keys[]" value="<%= key %>" <%= "checked" if selected_months.include?(key) %>>
+                      <span><%= label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </fieldset>
+
+              <fieldset class="mi-volunteer-form__group">
+                <legend><%= t(".availability.time_slots_label") %></legend>
+                <%= hidden_field_tag "time_slot_keys[]", "" %>
+                <div class="mi-choice-grid mi-choice-grid--time">
+                  <% @time_slot_options.each do |label, key| %>
+                    <label class="mi-choice-pill">
+                      <input type="checkbox" name="time_slot_keys[]" value="<%= key %>" <%= "checked" if selected_time_slots.include?(key) %>>
+                      <span><%= label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="mi-volunteer-form__split">
+              <fieldset class="mi-volunteer-form__group">
+                <legend><%= t(".availability.interests_label") %></legend>
+                <%= hidden_field_tag "interest_keys[]", "" %>
+                <div class="mi-choice-grid">
+                  <% @interest_options.each do |label, key| %>
+                    <label class="mi-choice-pill">
+                      <input type="checkbox" name="interest_keys[]" value="<%= key %>" <%= "checked" if selected_interests.include?(key) %>>
+                      <span><%= label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </fieldset>
+
+              <fieldset class="mi-volunteer-form__group">
+                <legend><%= t(".availability.skills_label") %></legend>
+                <%= hidden_field_tag "skill_keys[]", "" %>
+                <div class="mi-choice-grid">
+                  <% @skill_options.each do |label, key| %>
+                    <label class="mi-choice-pill">
+                      <input type="checkbox" name="skill_keys[]" value="<%= key %>" <%= "checked" if selected_skills.include?(key) %>>
+                      <span><%= label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </fieldset>
+
+              <fieldset class="mi-volunteer-form__group">
+                <legend><%= t(".availability.capabilities_label") %></legend>
+                <%= hidden_field_tag "capability_keys[]", "" %>
+                <div class="mi-choice-grid mi-choice-grid--compact">
+                  <% @capability_options.each do |label, key| %>
+                    <label class="mi-choice-pill">
+                      <input type="checkbox" name="capability_keys[]" value="<%= key %>" <%= "checked" if selected_capabilities.include?(key) %>>
+                      <span><%= label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="mi-account-form-grid mi-volunteer-form__grid">
+              <label><%= t(".availability.note_label") %>
+                <textarea name="availability" rows="2"><%= @availability&.availability %></textarea>
+              </label>
+              <label><%= t(".availability.other_interests_label") %>
+                <textarea name="interests" rows="2"><%= @availability&.interests %></textarea>
+              </label>
+            </div>
+            <div class="mi-volunteer-form__actions">
+              <%= submit_tag @availability&.persisted? ? t(".availability.update") : t(".availability.submit"),
+                             class: "mi-btn mi-btn--primary mi-btn--sm" %>
+            </div>
+          <% end %>
+        </section>
+      <% else %>
+        <section id="dostupnost" class="mi-account-panel">
+          <p class="mi-notice"><%= t(".availability.login") %></p>
+          <%= link_to t("decidim.devise.sessions.new.sign_in", default: "Prijava"), volunteer_path(tab: "dostupnost", sign_in: "1"), class: "mi-btn mi-btn--primary" %>
+        </section>
+      <% end %>
+    <% end %>
+
+    <% if active_tab == "predlozi" %>
+      <% if viewer %>
+        <%
+          submitted = @submitted_opportunity
+          submitted_days = Array(submitted&.day_keys).presence || @taxonomy.default_keys(:weekdays)
+          submitted_months = Array(submitted&.month_keys).presence || @taxonomy.default_keys(:months)
+          submitted_time_slots = Array(submitted&.time_slot_keys).presence || @taxonomy.default_keys(:time_slots)
+          submitted_skills = submitted ? Array(submitted&.skill_keys) : @taxonomy.default_keys(:skills)
+          submitted_capabilities = submitted ? Array(submitted&.capability_keys) : @taxonomy.default_keys(:capabilities)
+          submitted_has_komsiluk = params[:opportunity_komsiluk_local_area_id].present? ||
+                                   params[:komsiluk_id].present? ||
+                                   submitted&.komsiluk_id.present?
+          submitted_area_scope = params[:opportunity_area_scope].presence
+          submitted_area_scope ||= "mz" if params[:opportunity_mz_local_area_id].present?
+          submitted_area_scope ||= "komsiluk" if submitted_has_komsiluk
+          submitted_area_scope ||= "city"
+          submitted_mz_id = params[:opportunity_mz_local_area_id].presence
+          submitted_komsiluk_id = params[:opportunity_komsiluk_local_area_id].presence || params[:komsiluk_id].presence || submitted&.komsiluk_id
+          submitted_partner_profile_id = params[:partner_profile_id].presence || submitted&.partner_profile_id
+          submitted_kind = params[:opportunity_kind].presence || submitted&.opportunity_kind || "volunteer"
+          submitted_bonus_recognition = params[:org_bonus_recognition].presence || submitted&.org_bonus_recognition
+          sarajevo_time = lambda do |value|
+            value&.in_time_zone(Decidim::Bih::VolunteerOpportunity::SIGNUP_TIME_ZONE)&.strftime("%Y-%m-%dT%H:%M")
+          end
+          submitted_starts_at = params[:starts_at].presence || sarajevo_time.call(submitted&.starts_at)
+          submitted_ends_at = params[:ends_at].presence || sarajevo_time.call(submitted&.ends_at)
+          submitted_signup_deadline_at = params[:signup_deadline_at].presence || sarajevo_time.call(submitted&.signup_deadline_at)
+          submitted_recurrence_count = params[:recurrence_count].presence || submitted&.series_total || 1
+        %>
+        <section id="predlozi" class="mi-account-panel mi-volunteer-form">
+          <div class="mi-account-panel__head">
+            <h2><%= t(".opportunity_proposal.title") %></h2>
+          </div>
+          <% if @partner_profile_options.any? %>
+            <p class="mi-volunteer-form__intro"><%= t(".opportunity_proposal.intro") %></p>
+            <%= form_with url: preview_volunteer_opportunity_path, method: :post, html: { class: "mi-account-settings-form" } do %>
+              <div class="mi-account-form-grid mi-volunteer-form__grid">
+                <label><%= t(".opportunity_proposal.title_label") %>
+                  <input type="text" name="title" required value="<%= submitted&.title %>">
+                </label>
+                <label><%= t(".opportunity_proposal.category_label") %>
+                  <%= select_tag :category,
+                                 options_for_select([[t(".opportunity_proposal.select_category"), ""]] + @category_options, submitted&.category),
+                                 required: true %>
+                </label>
+                <label><%= t(".opportunity_proposal.opportunity_kind_label") %>
+                  <%= select_tag :opportunity_kind,
+                                 options_for_select(@opportunity_kind_options, submitted_kind),
+                                 required: true %>
+                </label>
+                <label><%= t(".opportunity_proposal.area_scope_label") %>
+                  <%= select_tag :opportunity_area_scope,
+                                 options_for_select(@taxonomy.option_pairs(:area_scopes), submitted_area_scope) %>
+                </label>
+                <label><%= t(".opportunity_proposal.mz_label") %>
+                  <%= select_tag :opportunity_mz_local_area_id,
+                                 options_for_select([[t(".opportunity_proposal.select_mz"), ""]] + @mz_options, submitted_mz_id) %>
+                </label>
+                <label><%= t(".opportunity_proposal.komsiluk_label") %>
+                  <%= select_tag :opportunity_komsiluk_local_area_id,
+                                 options_for_select([[t(".opportunity_proposal.select_komsiluk"), ""]] + @komsiluk_options, submitted_komsiluk_id) %>
+                </label>
+                <label><%= t(".opportunity_proposal.meeting_point_label") %>
+                  <input type="text" name="meeting_point" maxlength="500" value="<%= submitted&.meeting_point %>">
+                </label>
+                <label><%= t(".opportunity_proposal.partner_profile_label") %>
+                  <%= select_tag :partner_profile_id,
+                                 options_for_select([[t(".opportunity_proposal.select_partner_profile"), ""]] + @partner_profile_options, submitted_partner_profile_id),
+                                 required: true %>
+                </label>
+                <label><%= t(".opportunity_proposal.project_label") %>
+                  <%= select_tag :budget_project_id,
+                                 options_for_select(
+                                   [[t(".opportunity_proposal.no_project"), ""]] + @approved_project_options,
+                                   params[:budget_project_id].presence || submitted&.budget_project_id
+                                 ) %>
+                </label>
+                <label><%= t(".opportunity_proposal.capacity_label") %>
+                  <input type="number" name="capacity" min="1" value="<%= submitted&.capacity %>">
+                </label>
+                <label><%= t(".opportunity_proposal.starts_at_label") %>
+                  <input type="datetime-local" name="starts_at" value="<%= submitted_starts_at %>">
+                </label>
+                <label><%= t(".opportunity_proposal.ends_at_label") %>
+                  <input type="datetime-local" name="ends_at" value="<%= submitted_ends_at %>">
+                </label>
+                <label><%= t(".opportunity_proposal.signup_deadline_at_label") %>
+                  <input type="datetime-local" name="signup_deadline_at" value="<%= submitted_signup_deadline_at %>">
+                </label>
+                <label><%= t(".opportunity_proposal.recurrence_count_label") %>
+                  <input type="number" name="recurrence_count" min="1" max="<%= Decidim::Bih::VolunteerController::MAX_RECURRING_SHIFTS %>" value="<%= submitted_recurrence_count %>">
+                </label>
+              </div>
+              <p class="help-text"><%= t(".opportunity_proposal.schedule_timezone_hint") %></p>
+              <p class="help-text"><%= t(".opportunity_proposal.recurrence_hint") %></p>
+
+              <fieldset class="mi-volunteer-form__group">
+                <legend><%= t(".opportunity_proposal.org_bonus_title") %></legend>
+                <p class="mi-report-card__meta"><%= t(".opportunity_proposal.org_bonus_help") %></p>
+                <p class="mi-report-card__meta"><%= t(".org_bonus_allocation") %></p>
+                <div class="mi-account-form-grid mi-volunteer-form__grid">
+                  <label><%= t(".opportunity_proposal.org_bonus_points_per_hour") %>
+                    <input type="number" name="org_bonus_points_per_hour" min="0" value="<%= submitted&.org_bonus_points_per_hour || 0 %>">
+                  </label>
+                  <label><%= t(".opportunity_proposal.org_bonus_budget_cap") %>
+                    <input type="number" name="org_bonus_budget_cap" min="1" value="<%= submitted&.org_bonus_budget_cap %>">
+                  </label>
+                  <label><%= t(".opportunity_proposal.org_bonus_max_participants") %>
+                    <input type="number" name="org_bonus_max_participants" min="1" value="<%= submitted&.org_bonus_max_participants %>">
+                  </label>
+                  <label><%= t(".opportunity_proposal.org_bonus_recognition") %>
+                    <%= select_tag :org_bonus_recognition,
+                                   options_for_select([[t(".opportunity_proposal.org_bonus_recognition_blank"), ""]] + @org_bonus_recognition_options, submitted_bonus_recognition) %>
+                  </label>
+                </div>
+              </fieldset>
+
+              <div class="mi-volunteer-form__schedule">
+                <fieldset class="mi-volunteer-form__group">
+                  <legend><%= t(".opportunity_proposal.days_label") %></legend>
+                  <%= hidden_field_tag "opportunity_day_keys[]", "" %>
+                  <div class="mi-choice-grid mi-choice-grid--days">
+                    <% @weekday_options.each do |label, key| %>
+                      <label class="mi-choice-pill">
+                        <input type="checkbox" name="opportunity_day_keys[]" value="<%= key %>" <%= "checked" if submitted_days.include?(key) %>>
+                        <span><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </fieldset>
+
+                <fieldset class="mi-volunteer-form__group">
+                  <legend><%= t(".opportunity_proposal.months_label") %></legend>
+                  <%= hidden_field_tag "opportunity_month_keys[]", "" %>
+                  <div class="mi-choice-grid mi-choice-grid--months">
+                    <% @month_options.each do |label, key| %>
+                      <label class="mi-choice-pill">
+                        <input type="checkbox" name="opportunity_month_keys[]" value="<%= key %>" <%= "checked" if submitted_months.include?(key) %>>
+                        <span><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </fieldset>
+
+                <fieldset class="mi-volunteer-form__group">
+                  <legend><%= t(".opportunity_proposal.time_slots_label") %></legend>
+                  <%= hidden_field_tag "opportunity_time_slot_keys[]", "" %>
+                  <div class="mi-choice-grid mi-choice-grid--time">
+                    <% @time_slot_options.each do |label, key| %>
+                      <label class="mi-choice-pill">
+                        <input type="checkbox" name="opportunity_time_slot_keys[]" value="<%= key %>" <%= "checked" if submitted_time_slots.include?(key) %>>
+                        <span><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </fieldset>
+              </div>
+
+              <div class="mi-volunteer-form__split">
+                <fieldset class="mi-volunteer-form__group">
+                  <legend><%= t(".opportunity_proposal.skill_keys_label") %></legend>
+                  <%= hidden_field_tag "opportunity_skill_keys[]", "" %>
+                  <div class="mi-choice-grid">
+                    <% @skill_options.each do |label, key| %>
+                      <label class="mi-choice-pill">
+                        <input type="checkbox" name="opportunity_skill_keys[]" value="<%= key %>" <%= "checked" if submitted_skills.include?(key) %>>
+                        <span><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </fieldset>
+                <fieldset class="mi-volunteer-form__group">
+                  <legend><%= t(".opportunity_proposal.capability_keys_label") %></legend>
+                  <%= hidden_field_tag "opportunity_capability_keys[]", "" %>
+                  <div class="mi-choice-grid mi-choice-grid--compact">
+                    <% @capability_options.each do |label, key| %>
+                      <label class="mi-choice-pill">
+                        <input type="checkbox" name="opportunity_capability_keys[]" value="<%= key %>" <%= "checked" if submitted_capabilities.include?(key) %>>
+                        <span><%= label %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </fieldset>
+              </div>
+
+              <div class="mi-account-form-grid mi-volunteer-form__grid">
+                <label><%= t(".opportunity_proposal.description_label") %>
+                  <textarea name="description" rows="2"><%= submitted&.description %></textarea>
+                </label>
+                <label><%= t(".opportunity_proposal.requirements_label") %>
+                  <textarea name="requirements" rows="2"><%= submitted&.requirements %></textarea>
+                </label>
+              </div>
+              <div class="mi-volunteer-form__actions">
+                <%= submit_tag t(".opportunity_proposal.preview_schedule"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+              </div>
+            <% end %>
+
+
+            <%= render "decidim/bih/volunteer/contribution_need_form" %>
+          <% else %>
+            <p class="mi-notice"><%= t(".opportunity_proposal.organization_required") %></p>
+            <div class="mi-action-row">
+              <%= link_to t(".opportunity_proposal.register_organization"), new_organization_profile_path, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+              <%= link_to t(".opportunity_proposal.my_organizations"), organizations_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+            </div>
+          <% end %>
+        </section>
+      <% else %>
+        <section id="predlozi" class="mi-account-panel">
+          <p class="mi-notice"><%= t(".opportunity_proposal.login") %></p>
+          <%= link_to t("decidim.devise.sessions.new.sign_in", default: "Prijava"), volunteer_path(tab: "predlozi", sign_in: "1"), class: "mi-btn mi-btn--primary" %>
+        </section>
+      <% end %>
+    <% end %>
+
+    <% if active_tab == "moje" %>
+      <% if viewer %>
+        <section id="moje" class="mi-account-panel mi-volunteer-dashboard">
+          <div class="mi-account-panel__head">
+            <h2><%= t(".tabs.moje") %></h2>
+          </div>
+          <div class="mi-metric-grid">
+            <article class="mi-metric-card">
+              <strong><%= @my_signups.size %></strong>
+              <span><%= t(".signup", default: "Prijave") %></span>
+            </article>
+            <article class="mi-metric-card">
+              <strong><%= @my_logs.count %></strong>
+              <span><%= t(".my_hours") %></span>
+            </article>
+            <article class="mi-metric-card">
+              <strong><%= @my_opportunities.count %></strong>
+              <span><%= t(".my_opportunities") %></span>
+            </article>
+            <article class="mi-metric-card">
+              <strong><%= @my_contribution_offers.count %></strong>
+              <span><%= t(".contributions.my_offers") %></span>
+            </article>
+          </div>
+        </section>
+
+        <section id="moje-ponude" class="mi-account-panel mi-volunteer-section">
+          <h2><%= t(".contributions.my_offers") %></h2>
+          <% if @my_contribution_offers.any? %>
+            <ul class="mi-data-list">
+              <% @my_contribution_offers.each do |offer| %>
+                <li class="mi-account-activity__summary mi-volunteer-list-row">
+                  <span>
+                    <strong><%= offer.contribution_need.title %></strong>
+                    <small><%= t(".contributions.quantity", quantity: offer.quantity, unit: offer.contribution_need.unit) %></small>
+                  </span>
+                  <span class="mi-status-pill"><%= t(".contributions.offer_status.#{offer.status}") %></span>
+                  <% if offer.status == "accepted" %>
+                    <%= button_to t(".contributions.mark_delivered"), deliver_contribution_offer_path(offer),
+                                  method: :post, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                  <% end %>
+                  <% if %w(offered accepted).include?(offer.status) %>
+                    <%= button_to t(".contributions.withdraw"), withdraw_contribution_offer_path(offer),
+                                  method: :post, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="mi-report-card__meta"><%= t(".contributions.no_offers") %></p>
+          <% end %>
+        </section>
+
+        <% if @managed_contribution_needs.any? %>
+          <section id="moje-potrebe" class="mi-account-panel mi-volunteer-section">
+            <h2><%= t(".contributions.managed_needs") %></h2>
+            <% @managed_contribution_needs.each do |need| %>
+              <article class="mi-surface-card" id="managed-contribution-need-<%= need.id %>">
+                <h3 class="heading5"><%= need.title %></h3>
+                <p class="mi-report-card__meta">
+                  <span class="mi-status-pill"><%= t(".contributions.need_status.#{need.review_status}") %></span>
+                  <span class="mi-status-pill"><%= t(".contributions.fulfillment_status.#{need.fulfillment_status}") %></span>
+                  <% if need.rejection_reason.present? %>
+                    <span><%= t(".rejection_reason", reason: need.rejection_reason) %></span>
+                  <% end %>
+                </p>
+                <% if need.approved? && need.open? %>
+                  <div class="mi-action-row">
+                    <%= button_to t(".contributions.cancel_need"), cancel_contribution_need_path(need),
+                                  method: :post, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+                  </div>
+                <% end %>
+                <% need.offers.each do |offer| %>
+                  <div class="mi-action-row">
+                    <span>
+                      <strong><%= offer.partner_profile&.display_name || offer.contributor&.name || t(".contributions.former_contributor") %></strong>
+                      — <%= t(".contributions.quantity", quantity: offer.quantity, unit: need.unit) %>
+                      (<%= t(".contributions.offer_status.#{offer.status}") %>)
+                    </span>
+                    <% if offer.status == "offered" %>
+                      <%= button_to t(".contributions.accept"), accept_contribution_offer_path(offer),
+                                    method: :post, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                    <% end %>
+                    <% if %w(offered accepted).include?(offer.status) %>
+                      <%= button_to t(".contributions.decline"), reject_contribution_offer_path(offer),
+                                    method: :post, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+                    <% end %>
+                    <% if offer.status == "delivered" %>
+                      <%= button_to t(".contributions.confirm"), confirm_contribution_offer_path(offer),
+                                    method: :post, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </article>
+            <% end %>
+          </section>
+        <% end %>
+
+        <section id="moje-prilike" class="mi-account-panel mi-volunteer-section">
+          <h2><%= t(".my_opportunities") %></h2>
+          <% if @my_opportunities.any? %>
+            <ul class="mi-data-list">
+              <% @my_opportunities.each do |opportunity| %>
+                <li class="mi-account-activity__summary mi-volunteer-list-row">
+                  <span>
+                    <strong><%= opportunity.title %></strong>
+                    <% if opportunity.rejected? && opportunity.rejection_reason.present? %>
+                      <span><%= t(".rejection_reason", reason: opportunity.rejection_reason) %></span>
+                    <% end %>
+                    <% if opportunity.review_status == "needs_revision" %>
+                      <% if opportunity.rejection_reason.present? %>
+                        <span><%= t(".rejection_reason", reason: opportunity.rejection_reason) %></span>
+                      <% end %>
+                      <%= link_to t(".correct_and_resubmit"), edit_volunteer_opportunity_revision_path(opportunity),
+                                  class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+                    <% end %>
+                  </span>
+                  <span class="mi-status-pill"><%= t(".review_status.#{opportunity.review_status}") %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="mi-report-card__meta"><%= t(".no_my_opportunities") %></p>
+          <% end %>
+        </section>
+
+        <% if @my_closed_opportunity_signups.any? %>
+          <section id="moje-ranije-prilike" class="mi-account-panel mi-volunteer-section">
+            <h2><%= t(".past_participation") %></h2>
+            <ul class="mi-data-list">
+              <% @my_closed_opportunity_signups.each do |past_signup| %>
+                <% past_opportunity = past_signup.opportunity %>
+                <% next unless past_opportunity %>
+                <li class="mi-account-activity__summary mi-volunteer-list-row">
+                  <span>
+                    <strong><%= past_opportunity.title %></strong>
+                    <small><%= past_opportunity.schedule_label %></small>
+                    <% if past_signup.awaiting_review? %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".application_pending") %></span>
+                    <% elsif past_signup.review_status == "rejected" %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".application_rejected") %></span>
+                    <% elsif past_signup.review_status == "closed" %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".application_closed") %></span>
+                    <% elsif past_signup.cancelled? && past_signup.decision_reason == "waitlist_expired" %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".waitlist_expired") %></span>
+                    <% elsif past_signup.going? %>
+                      <span class="mi-status-pill mi-status-pill--done"><%= t(".going") %></span>
+                    <% elsif past_signup.waitlisted? %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t(".waitlisted") %></span>
+                    <% elsif past_signup.cancelled? %>
+                      <span class="mi-status-pill mi-status-pill--pending"><%= t("decidim.bih.volunteer.flash.signup_cancelled") %></span>
+                    <% end %>
+                    <% if %w(rejected closed).include?(past_signup.review_status) && past_signup.decision_reason.present? %>
+                      <% reason = past_signup.review_status == "closed" ?
+                                   t(".application_closure_reasons.#{past_signup.decision_reason}", default: past_signup.decision_reason) :
+                                   past_signup.decision_reason %>
+                      <small><%= t(".application_reason", reason:) %></small>
+                    <% end %>
+                  </span>
+                  <% if past_signup.review_approved? &&
+                        (past_signup.going? ||
+                          (past_signup.cancelled? && past_signup.participation_ended_at &&
+                           Decidim::Bih::VolunteerAttendance.confirmed.exists?(signup: past_signup))) %>
+                    <%= render "decidim/bih/volunteer/work_claim_form", opportunity: past_opportunity %>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </section>
+        <% end %>
+
+        <section id="moji-sati" class="mi-account-panel mi-volunteer-section">
+          <h2><%= t(".my_hours") %></h2>
+          <% if @my_logs.any? %>
+            <ul class="mi-data-list">
+              <% @my_logs.each do |log| %>
+                <li class="mi-account-activity__summary mi-volunteer-list-row">
+                  <span>
+                    <strong><%= log.opportunity.title %> - <%= t(".hours_count", count: log.hours) %></strong>
+                    <% if log.work_date %>
+                      <small><%= l(log.work_date, format: :long) %></small>
+                    <% end %>
+                    <% if log.rejected? && log.rejection_reason.present? %>
+                      <span><%= t(".rejection_reason", reason: log.rejection_reason) %></span>
+                    <% end %>
+                  </span>
+                  <span class="mi-status-pill"><%= t(".status.#{log.status}") %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="mi-report-card__meta"><%= t(".no_my_hours") %></p>
+          <% end %>
+        </section>
+      <% else %>
+        <section id="moje" class="mi-account-panel">
+          <p class="mi-notice"><%= t(".login_to_log") %></p>
+          <%= link_to t("decidim.devise.sessions.new.sign_in", default: "Prijava"), volunteer_path(tab: "moje", sign_in: "1"), class: "mi-btn mi-btn--primary" %>
+        </section>
+      <% end %>
+    <% end %>
+
+    <%= render "decidim/bih/shared/goodwill_links", current: :volunteer %>
+  </div>
+</main>

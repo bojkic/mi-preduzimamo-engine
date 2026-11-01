@@ -1,0 +1,62 @@
+<section class="mi-account-panel mi-account-panel--wide mi-volunteer-section" aria-labelledby="contribution-needs-title">
+  <div class="mi-account-panel__head">
+    <h2 id="contribution-needs-title"><%= title %></h2>
+  </div>
+
+  <% if needs.empty? %>
+    <p class="mi-report-card__meta"><%= t("decidim.bih.volunteer.index.contributions.no_needs") %></p>
+  <% else %>
+    <div class="mi-report-grid">
+      <% needs.each do |need| %>
+        <% my_offer = defined?(@my_contribution_offers_by_need_id) ? @my_contribution_offers_by_need_id[need.id] : nil %>
+        <article id="contribution-need-<%= need.id %>" class="mi-surface-card mi-surface-card--strip">
+          <span class="mi-card-strip" style="background:var(--mi-river-600, #236b78);"></span>
+          <div class="mi-surface-card__body">
+            <p class="mi-action-row">
+              <span class="mi-status-pill"><%= t("decidim.bih.volunteer.index.contributions.need_types.#{need.need_type}") %></span>
+              <span class="mi-status-pill"><%= need.partner_profile.display_name %></span>
+            </p>
+            <h3 class="heading5"><%= need.title %></h3>
+            <p><%= need.description %></p>
+            <p class="mi-report-card__meta">
+              <span><%= t("decidim.bih.volunteer.index.contributions.quantity", quantity: need.quantity, unit: need.unit) %></span>
+              <% if need.needed_by %>
+                <span><%= t("decidim.bih.volunteer.index.contributions.needed_by", date: l(need.needed_by)) %></span>
+              <% end %>
+              <% if need.location.present? %><span><%= need.location %></span><% end %>
+            </p>
+            <% if need.project.present? %>
+              <p class="mi-report-card__meta">
+                <%= link_to t("decidim.bih.volunteer.index.linked_project", title: translated_attribute(need.project.title)),
+                            community_project_path(need.project.id) %>
+              </p>
+            <% end %>
+            <% if viewer %>
+              <% if my_offer %>
+                <p class="mi-status-pill"><%= t("decidim.bih.volunteer.index.contributions.offer_status.#{my_offer.status}") %></p>
+              <% else %>
+                <%= form_with url: contribution_need_offers_path(need), method: :post,
+                              html: { class: "mi-action-row mi-account-settings-form" } do %>
+                  <label>
+                    <%= t("decidim.bih.volunteer.index.contributions.offer_quantity") %>
+                    <input type="number" name="offer_quantity" min="0.01" step="0.01" max="<%= need.quantity %>" required>
+                  </label>
+                  <% if defined?(@offering_partner_profile_options) && @offering_partner_profile_options.any? %>
+                    <label>
+                      <%= t("decidim.bih.volunteer.index.contributions.offer_as") %>
+                      <%= select_tag :offering_partner_profile_id,
+                                     options_for_select([[t("decidim.bih.volunteer.index.contributions.offer_personally"), ""]] + @offering_partner_profile_options) %>
+                    </label>
+                  <% end %>
+                  <%= submit_tag t("decidim.bih.volunteer.index.contributions.offer_submit"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+                <% end %>
+              <% end %>
+            <% else %>
+              <p class="mi-report-card__meta"><%= t("decidim.bih.volunteer.index.contributions.login_to_offer") %></p>
+            <% end %>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  <% end %>
+</section>

@@ -1,0 +1,22 @@
+<%#
+  "Link je poslan" — the waiting room of phone-first verification for a citizen
+  who is already signed in. The body itself is shared with delivery D's
+  registration pending page; all this page owns is its own paths, its own copy
+  scope, and Decidim's +redirect_url+ (carried through every one of them so a
+  mid-journey verification returns where it was demanded).
+%>
+<% add_decidim_page_title(t("decidim.bih.phone_verification.show.title")) %>
+<%= render "decidim/bih/phone_verification/message_sent",
+           scope: "decidim.bih.phone_verification.show",
+           masked_phone: masked_phone,
+           expired: !live_phone?,
+           reverify: @reverify,
+           reverify_store_error: @reverify_store_error,
+           reverify_exhausted: @reverify_exhausted,
+           status_url: decidim_bih.phone_verification_status_path(format: :json, redirect_url: continue_url),
+           status_method: "get",
+           confirm_url: decidim_bih.confirm_phone_verification_path,
+           resend_url: decidim_bih.resend_phone_verification_path(redirect_url: continue_url),
+           change_url: decidim_bih.change_phone_verification_path(redirect_url: continue_url),
+           check_url: decidim_bih.phone_verification_path(redirect_url: continue_url),
+           hidden_fields: continue_url.present? ? { redirect_url: continue_url } : {} %>

@@ -1,0 +1,46 @@
+<%# Browser permission is a per-device act. Nothing on the server can grant it,
+    so this section has no form field and is deliberately outside the save.
+    data-mobile-static keeps it out from under #sticky-header-container, which
+    is fixed/top:0/z-40 below 768px. %>
+<section class="mi-account-panel" data-setting-section="device" data-push-section data-mobile-static="true"
+         aria-labelledby="mi-push-title">
+  <h2 id="mi-push-title" class="heading4"><%= t("#{t_scope}.push.title") %></h2>
+  <p class="help-text"><%= t("#{t_scope}.push.help") %></p>
+  <div data-setting-row="push_this_device">
+    <% if settings.push_available? %>
+      <div data-push-notifications-container
+           data-test-url="<%= web_push_test_path %>"
+           data-unsubscribe-url="<%= web_push_subscription_path %>"
+           <% %w(install unsupported blocked enabled disabled ready failed test_queued).each do |key| %>
+             data-<%= key %>="<%= t("decidim.bih.web_push.#{key}") %>"
+           <% end %>>
+        <p data-push-status role="status" aria-live="polite"></p>
+        <input type="checkbox" hidden data-push-notifications-toggle id="push_this_device_toggle">
+        <button type="button" class="mi-btn mi-btn--ghost mi-btn--sm" data-push-enable disabled>
+          <%= t("#{t_scope}.push.enable") %>
+        </button>
+        <button type="button" class="mi-btn mi-btn--ghost mi-btn--sm" data-push-test disabled>
+          <%= t("decidim.bih.web_push.test_button") %>
+        </button>
+        <input type="hidden" data-push-vapid-public-key
+               value="<%= Base64.urlsafe_decode64(Decidim.vapid_public_key.to_s).bytes.to_json %>">
+        <%# Fingerprints, never the subscription auth secrets and never the
+            endpoint URL: this page must be safe to read over a shoulder. %>
+        <input type="hidden" data-push-sub-fingerprints value="<%= settings.push_devices.to_json %>">
+      </div>
+    <% else %>
+      <p data-push-unavailable><%= t("#{t_scope}.push.unavailable") %></p>
+    <% end %>
+  </div>
+  <% if settings.push_devices.any? %>
+    <ul class="mi-push-devices">
+      <% settings.push_devices.each do |fingerprint| %>
+        <li data-push-device data-push-fingerprint="<%= fingerprint %>">
+          <%= t("#{t_scope}.push.other_device_label") %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p><%= t("#{t_scope}.push.none") %></p>
+  <% end %>
+</section>

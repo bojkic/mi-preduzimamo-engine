@@ -1,0 +1,66 @@
+<%#
+  Citizen search — find any registered citizen in this organization by name,
+  nickname, or email, then navigate to their account summary.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.citizens.index.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :citizens %>
+
+<div class="card" id="citizen-search">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.citizens.index.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.citizens.index.intro") %></p>
+    <%= form_tag admin_bih_citizens_path, method: :get,
+                 class: "form form-defaults mi-admin-filter" do %>
+      <label>
+        <%= t("decidim.bih.admin.citizens.index.search_label") %><br>
+        <%= text_field_tag :q, @query, placeholder: t("decidim.bih.admin.citizens.index.search_placeholder"), style: "min-width:18rem;" %>
+      </label>
+      <%= submit_tag t("decidim.bih.admin.citizens.index.search_submit"), class: "button button__sm button__secondary" %>
+    <% end %>
+  </div>
+
+  <% if @query.blank? %>
+    <div class="card-section">
+      <div style="text-align:center; padding:1.5rem 1rem; color:#6c757d;">
+        <p style="font-weight:600; margin-bottom:0.25rem;"><%= t("decidim.bih.admin.citizens.index.prompt_title") %></p>
+        <p style="margin:0;"><%= t("decidim.bih.admin.citizens.index.prompt_body") %></p>
+      </div>
+    </div>
+  <% else %>
+    <% if @results.any? %>
+      <div class="table-stacked">
+        <table class="table-list">
+          <thead>
+            <tr>
+              <th><%= t("decidim.bih.admin.citizens.index.name") %></th>
+              <th><%= t("decidim.bih.admin.citizens.index.nickname") %></th>
+              <th><%= t("decidim.bih.admin.citizens.index.email") %></th>
+              <th><%= t("decidim.bih.admin.citizens.index.actions") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @results.each do |citizen| %>
+              <tr>
+                <td><%= citizen.name.presence || "—" %></td>
+                <td><%= citizen.nickname.presence || "—" %></td>
+                <td><%= citizen.email %></td>
+                <td>
+                  <%= link_to t("decidim.bih.admin.citizens.index.view"),
+                              admin_bih_citizen_path(citizen),
+                              class: "button button__sm button__transparent-secondary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="card-section">
+        <p><%= t("decidim.bih.admin.citizens.index.no_results") %></p>
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,134 @@
+<% account_t = "decidim.bih.account.show" %>
+
+<section id="osnovni-podaci" class="mi-account-panel mi-account-settings mi-account-settings--featured" aria-labelledby="mi-account-settings-title">
+  <div class="mi-account-panel__head">
+    <div>
+      <p class="mi-eyebrow"><%= t("#{account_t}.settings.eyebrow") %></p>
+      <h2 id="mi-account-settings-title" class="heading4"><%= t("#{account_t}.settings.title") %></h2>
+    </div>
+    <%= link_to t("#{account_t}.settings.delete_account"), decidim.delete_account_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+  </div>
+
+  <% if @user.unconfirmed_email.present? %>
+    <div id="email-change-pending" class="mi-account-notice">
+      <strong><%= t("decidim.account.email_change.title") %></strong>
+      <p><%= t("decidim.account.email_change.body1", unconfirmed_email: @user.unconfirmed_email) %></p>
+      <p>
+        <%== t(
+          "decidim.account.email_change.body2",
+          resend_link: link_to(t("decidim.account.email_change.send_again"), decidim.resend_confirmation_instructions_account_path, role: :button, method: :post, remote: true),
+          cancel_link: link_to(t("decidim.account.email_change.cancel"), decidim.cancel_email_change_account_path, role: :button, method: :post, remote: true)
+        ) %>
+      </p>
+    </div>
+  <% end %>
+
+  <%= decidim_form_for(@account, url: account_overview_path, method: :put, data: { controller: "account-form" }, html: { autocomplete: "on", class: "mi-account-settings-form form-defaults edit_user" }) do |f| %>
+    <div class="mi-account-settings__grid">
+      <div class="mi-account-settings__avatar">
+        <%= f.upload :avatar, button_class: "button button__lg button__transparent-secondary w-full" %>
+      </div>
+      <div class="mi-account-settings__fields">
+        <div class="mi-account-settings__required">
+          <%= form_required_explanation %>
+        </div>
+        <div class="mi-account-form-grid">
+          <%= f.text_field :name, autocomplete: "name" %>
+          <%= f.text_field :nickname, autocomplete: "nickname", data: { controller: "character-counter" } %>
+          <%= f.email_field :email, disabled: @user.unconfirmed_email.present?, autocomplete: "email", data: { original: @user.email } %>
+          <%= f.url_field :personal_url, autocomplete: "url" %>
+          <%= f.collection_select(
+                :locale,
+                @account.organization.available_locales,
+                :to_s,
+                ->(locale) { locale_name(locale) },
+                help_text: t("available_locales_helper", scope: "decidim.account.show")
+              ) %>
+        </div>
+        <%= f.text_area :about, rows: 5 %>
+
+        <% if @account.password.present? %>
+          <%= render partial: "decidim/account/password_fields", locals: { form: f, user: @user } %>
+          <%= render partial: "decidim/account/old_password_field", locals: { form: f, show_help_text: true } %>
+        <% elsif current_organization.sign_in_enabled? %>
+          <div data-controller="accordion" id="accordion-password" class="mi-account-password">
+            <%= button_tag(
+              class: "mi-inline-link",
+              id: "accordion-trigger-panel-password",
+              type: "button",
+              data: { controls: "panel-password" }
+            ) do %>
+              <%= t("#{account_t}.settings.change_password") %>
+            <% end %>
+            <div id="panel-password" class="mt-6">
+              <%= render partial: "decidim/account/password_fields", locals: { form: f, user: @user } %>
+            </div>
+          </div>
+
+          <%= content_tag :div, id: "panel-old-password", class: @account.errors[:old_password].any? ? nil : "hidden" do %>
+            <%= render partial: "decidim/account/old_password_field", locals: { form: f, show_help_text: true } %>
+          <% end %>
+        <% end %>
+
+        <div class="mi-account-settings__actions">
+          <%= f.submit t("#{account_t}.settings.save"), class: "mi-btn mi-btn--primary" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="mi-account-profile-privacy">
+    <div>
+      <strong><%= t("#{account_t}.profile_visibility.title") %></strong>
+      <span><%= t("#{account_t}.profile_visibility.body") %></span>
+      <em><%= t("#{account_t}.profile_visibility.privacy") %></em>
+    </div>
+    <div class="mi-account-profile-privacy__actions">
+      <span class="mi-status-pill mi-status-pill--<%= @summary.public_recognition_enabled? ? "done" : "optional" %>">
+        <%= t("#{account_t}.profile_visibility.status.#{@summary.public_recognition_enabled? ? "visible" : "hidden"}") %>
+      </span>
+      <%= form_with url: account_public_recognition_path, method: :patch, local: true do %>
+        <%= hidden_field_tag :enabled, @summary.public_recognition_enabled? ? "0" : "1" %>
+        <%= button_tag t("#{account_t}.profile_visibility.actions.#{@summary.public_recognition_enabled? ? "hide" : "show"}"),
+                       type: "submit",
+                       class: "mi-btn #{@summary.public_recognition_enabled? ? "mi-btn--ghost" : "mi-btn--primary"} mi-btn--sm" %>
+      <% end %>
+      <% if profile_path %>
+        <%= link_to t("#{account_t}.profile_visibility.actions.preview"), profile_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<section id="privatnost-poruka" class="mi-account-panel">
+  <h2 class="heading4"><%= t("decidim.bih.communication_settings.privacy.title") %></h2>
+  <%= form_with url: account_message_privacy_path, method: :patch, local: true do %>
+    <input type="hidden" name="message_privacy[allow_public_contact]" value="0">
+    <label for="mi-allow-public-contact">
+      <input type="checkbox" id="mi-allow-public-contact" name="message_privacy[allow_public_contact]" value="1" <%= "checked" if @user.direct_message_types == "all" %>>
+      <%= t("decidim.bih.communication_settings.labels.direct_messages") %>
+    </label>
+    <p class="help-text"><%= t("decidim.bih.communication_settings.help.direct_messages") %></p>
+    <% if staff_notification_settings? %>
+      <fieldset data-staff-notification-settings>
+        <legend><%= t("decidim.bih.communication_settings.privacy.staff") %></legend>
+        <% [:email_on_assigned_proposals, *(@user.moderator? ? [:email_on_moderations] : [])].each do |attribute| %>
+          <input type="hidden" name="message_privacy[<%= attribute %>]" value="0">
+          <label for="mi-staff-<%= attribute %>">
+            <input type="checkbox" id="mi-staff-<%= attribute %>" name="message_privacy[<%= attribute %>]" value="1" <%= "checked" if @user.public_send(attribute) != false %>>
+            <%= t("decidim.bih.communication_settings.labels.#{attribute}") %>
+          </label>
+        <% end %>
+        <% Decidim::Bih::Messaging::SettingsCatalogue.registry_rows(@user).each do |row| %>
+          <% manifest = row[:registry_manifest] %>
+          <input type="hidden" name="staff_registry[<%= row[:id] %>]" value="0">
+          <label for="mi-staff-<%= row[:id] %>">
+            <input type="checkbox" id="mi-staff-<%= row[:id] %>" name="staff_registry[<%= row[:id] %>]" value="1" <%= "checked" if [true, "1"].include?(@user.notification_settings.fetch(row[:id].to_s, manifest.default_value)) %>>
+            <%= t("notification_settings.#{row[:id]}", scope: "decidim.notifications_settings.show", default: row[:id].to_s) %>
+          </label>
+        <% end %>
+      </fieldset>
+    <% end %>
+    <button class="mi-btn mi-btn--primary" type="submit"><%= t("decidim.bih.communication_settings.save") %></button>
+  <% end %>
+</section>

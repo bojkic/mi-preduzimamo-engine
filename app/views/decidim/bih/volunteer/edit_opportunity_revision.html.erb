@@ -1,0 +1,45 @@
+<% add_decidim_page_title(t("decidim.bih.volunteer.revision.title")) %>
+<main class="row column mi-volunteer-revision">
+  <h1><%= t("decidim.bih.volunteer.revision.title") %></h1>
+  <p><%= t("decidim.bih.volunteer.revision.intro") %></p>
+  <% if @revision_result&.errors.present? %>
+    <div class="callout alert" role="alert">
+      <ul><% @revision_result.errors.each do |error| %><li><%= error %></li><% end %></ul>
+    </div>
+  <% end %>
+  <% if @revision_opportunity.rejection_reason.present? %>
+    <p class="callout warning"><%= t("decidim.bih.volunteer.revision.feedback", reason: @revision_opportunity.rejection_reason) %></p>
+  <% end %>
+  <%= form_with url: preview_volunteer_opportunity_revision_path(@revision_opportunity), method: :post do %>
+    <% first = @revision_terms.first %>
+    <% { "title" => :text_field, "description" => :text_area, "location" => :text_field,
+         "meeting_point" => :text_field, "requirements" => :text_area, "category" => :text_field }.each do |field, input| %>
+      <label><%= t("decidim.bih.volunteer.revision.#{field}") %>
+        <% value = @revision_shared&.fetch(field, nil) || first.public_send(field) %>
+        <% if input == :text_area %>
+          <%= text_area_tag "shared[#{field}]", value, rows: 3 %>
+        <% else %>
+          <%= text_field_tag "shared[#{field}]", value %>
+        <% end %>
+      </label>
+    <% end %>
+    <h2><%= t("decidim.bih.volunteer.revision.terms") %></h2>
+    <% @revision_terms.each do |term| %>
+      <fieldset class="mi-volunteer-form__group">
+        <legend><%= t("decidim.bih.volunteer.revision.term", number: term.series_position || term.id) %></legend>
+        <% %w(starts_at ends_at signup_deadline_at).each do |field| %>
+          <% submitted = @revision_term_params&.dig(term.id.to_s, field) %>
+          <% value = submitted || (term.public_send(field)&.in_time_zone("Europe/Sarajevo")&.strftime("%Y-%m-%dT%H:%M")) %>
+          <label><%= t("decidim.bih.volunteer.revision.#{field}") %>
+            <input type="datetime-local" name="terms[<%= term.id %>][<%= field %>]" value="<%= value %>">
+          </label>
+        <% end %>
+        <label><%= t("decidim.bih.volunteer.revision.capacity") %>
+          <input type="number" min="1" name="terms[<%= term.id %>][capacity]" value="<%= @revision_term_params&.dig(term.id.to_s, "capacity") || term.capacity %>">
+        </label>
+      </fieldset>
+    <% end %>
+    <%= submit_tag t("decidim.bih.volunteer.revision.preview"), class: "button" %>
+  <% end %>
+  <p><%= link_to t("decidim.bih.volunteer.revision.back"), volunteer_path(tab: "moje", anchor: "moje-prilike") %></p>
+</main>

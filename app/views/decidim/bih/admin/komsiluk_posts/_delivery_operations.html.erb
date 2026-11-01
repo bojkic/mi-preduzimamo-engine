@@ -1,0 +1,47 @@
+<% copy = "decidim.bih.admin.board_delivery_operations" %>
+<section id="komsiluk-delivery-operations" aria-labelledby="board-delivery-title">
+  <h2 id="board-delivery-title"><%= t("#{copy}.title") %></h2>
+  <p class="mi-board-admin-result-count"><%= t("decidim.bih.admin.board_review.showing", shown: @delivery_operations.entries.size, total: @delivery_operations.total) %></p>
+  <% if @delivery_operations.entries.empty? %>
+    <p><%= t("#{copy}.empty") %></p>
+  <% else %>
+    <ol class="mi-board-admin-list">
+      <% @delivery_operations.entries.each do |entry| %>
+        <li class="mi-board-admin-row" data-board-delivery-post-id="<%= entry.post.id %>">
+          <div class="mi-board-admin-content">
+            <h3><%= link_to entry.post.title, admin_bih_komsiluk_post_path(entry.post, @queue.query_params.merge(page: @delivery_operations.page)) %></h3>
+            <p><%= entry.post.komsiluk&.translated_name %></p>
+          </div>
+          <%= link_to t("#{copy}.review"), admin_bih_komsiluk_post_path(entry.post, @queue.query_params.merge(page: @delivery_operations.page, anchor: "notice-delivery")), class: "button button__sm button__secondary" %>
+          <ul class="mi-board-delivery-issues"><% entry.issues.each do |kind, count| %><li><%= t("#{copy}.issues.#{kind}") %>: <strong><%= count %></strong></li><% end %></ul>
+        </li>
+      <% end %>
+    </ol>
+  <% end %>
+  <% if @delivery_operations.pages > 1 %>
+    <nav class="mi-board-admin-pagination" aria-label="<%= t("decidim.bih.admin.board_review.pagination") %>">
+      <% if @delivery_operations.page > 1 %><%= link_to t("decidim.bih.admin.board_review.previous"), admin_bih_komsiluk_posts_path(@queue.query_params.merge(page: @delivery_operations.page - 1)), class: "button button__sm button__secondary" %><% end %>
+      <span><%= @delivery_operations.page %> / <%= @delivery_operations.pages %></span>
+      <% if @delivery_operations.page < @delivery_operations.pages %><%= link_to t("decidim.bih.admin.board_review.next"), admin_bih_komsiluk_posts_path(@queue.query_params.merge(page: @delivery_operations.page + 1)), class: "button button__sm button__secondary" %><% end %>
+    </nav>
+  <% end %>
+  <details class="mi-board-admin-secondary" id="board-delivery-counts">
+    <summary><%= t("#{copy}.counts_detail") %></summary>
+    <p><%= t("#{copy}.intro") %></p>
+    <p><%= t("#{copy}.hint") %></p>
+    <dl class="mi-board-admin-active-filters">
+      <% @delivery_operations.counts.each do |kind, count| %>
+        <div><dt><%= t("#{copy}.issues.#{kind}") %></dt><dd><strong><%= count %></strong></dd></div>
+      <% end %>
+    </dl>
+    <p><%= t("#{copy}.thresholds") %></p>
+  </details>
+  <% @delivery_operations.source_groups.each do |group| %>
+    <section class="mi-board-admin-secondary" data-board-source-issue="<%= group.fetch(:kind) %>">
+      <h3><%= t("#{copy}.issues.#{group.fetch(:kind)}") %>: <%= group.fetch(:count) %></h3>
+      <p><%= t("#{copy}.source_hint") %></p>
+      <ul><% group.fetch(:links).each do |link| %><li><%= link_to t("#{copy}.source_reference", id: link.fetch(:id)), link.fetch(:path) %></li><% end %></ul>
+      <%= link_to t("#{copy}.source_review"), group.fetch(:path), class: "button button__sm button__secondary" %>
+    </section>
+  <% end %>
+</section>

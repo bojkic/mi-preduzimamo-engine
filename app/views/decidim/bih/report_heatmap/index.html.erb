@@ -1,0 +1,130 @@
+<%#
+  Public per-Mjesna zajednica (MZ) problem heatmap.
+
+  Aggregate-only and PII-free: counts by MZ, category, severity and time
+  window. No descriptions, contacts, coordinates, photos or references render.
+%>
+<% add_decidim_page_title(t(".title", default: "Mapa problema po mjesnim zajednicama")) %>
+<%
+  categories = @heatmap.categories
+  category_label = ->(category) { t("decidim.bih.reports.categories.#{category}", default: category) }
+  severities = Decidim::Bih::ReportTaxonomy::SEVERITIES.map(&:to_s)
+  severity_label = ->(severity) { t("decidim.bih.reports.severities.#{severity}", default: severity) }
+%>
+
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow", default: "Prijave problema"),
+               title: t(".title", default: "Mapa problema po mjesnim zajednicama"),
+               intro: t(".intro", default: "Koliko su problema građani prijavili, po mjesnoj zajednici (MZ) i kategoriji. Samo broj prijava — bez ličnih podataka."),
+               action_label: t(".report_link", default: "Prijavi problem"),
+               action_path: new_report_path %>
+
+    <%= render "decidim/bih/shared/report_module_tabs", active: :heatmap %>
+    <%= render "decidim/bih/shared/report_summary_cards", summary: @report_summary %>
+
+    <nav class="mi-filter-panel" aria-label="<%= t(".window.aria", default: "Vremenski period") %>">
+      <div class="mi-filter-group">
+        <strong><%= t(".window.label", default: "Vremenski period") %></strong>
+        <div class="mi-filter-pills">
+          <% Decidim::Bih::ReportHeatmapController::ALLOWED_WINDOWS.each do |days| %>
+            <% active = (@window_days == days) %>
+            <%= link_to t(".window.last_days", count: days, default: "Posljednjih %{count} dana"),
+                        report_heatmap_path(days: days),
+                        class: ["mi-filter-pill", ("is-active" if active)].compact.join(" "),
+                        "aria-current": (active ? "true" : nil) %>
+          <% end %>
+        </div>
+      </div>
+    </nav>
+
+    <% if @heatmap.total.zero? %>
+      <section class="mi-empty-state">
+        <img src="/mi/heart-mark.png" alt="" aria-hidden="true">
+        <h2 class="heading4"><%= t(".empty", default: "Još nema prijava sa poznatom mjesnom zajednicom u ovom periodu.") %></h2>
+      </section>
+    <% else %>
+      <section class="mi-metric-grid" aria-label="<%= t(".summary", count: @heatmap.total, default: "%{count} prijava sa poznatom mjesnom zajednicom u ovom periodu.") %>">
+        <article class="mi-metric-card">
+          <strong><%= number_with_delimiter(@heatmap.total, delimiter: ".") %></strong>
+          <span><%= t(".summary", count: @heatmap.total, default: "%{count} prijava sa poznatom mjesnom zajednicom u ovom periodu.") %></span>
+        </article>
+        <article class="mi-metric-card">
+          <strong><%= categories.size %></strong>
+          <span><%= t(".top_category", default: "Najčešće") %></span>
+        </article>
+      </section>
+
+      <div class="mi-table-frame">
+        <table class="table-list" style="width: 100%; border-collapse: collapse;" aria-describedby="mi-heatmap-caption">
+          <caption id="mi-heatmap-caption" class="show-for-sr"><%= t(".table_caption", default: "Broj prijavljenih problema po mjesnoj zajednici i kategoriji") %></caption>
+          <thead>
+            <tr>
+              <th scope="col"><%= t(".mz", default: "Mjesna zajednica (MZ)") %></th>
+              <th scope="col"><%= t(".total", default: "Ukupno") %></th>
+              <th scope="col"><%= t(".top_category", default: "Najčešće") %></th>
+              <% categories.each do |category| %>
+                <th scope="col"><%= category_label.call(category) %></th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% @heatmap.areas.each do |area| %>
+              <tr>
+                <th scope="row" style="text-align: left; font-family: var(--mi-font-display);">
+                  <%= area.mz_name %>
+                </th>
+                <td><strong><%= area.total %></strong></td>
+                <td>
+                  <% if area.top_category.present? %>
+                    <span style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                      <span style="font-weight: 600;"><%= category_label.call(area.top_category) %></span>
+                      <% if area.top_category_share %>
+                        <span aria-hidden="true" class="mi-progress-line">
+                          <span style="width: <%= (area.top_category_share * 100).round %>%;"></span>
+                        </span>
+                        <span style="color: var(--mi-navy-600); font-size: 0.85rem;">
+                          <%= number_to_percentage(area.top_category_share * 100, precision: 0) %>
+                        </span>
+                      <% end %>
+                    </span>
+                  <% else %>
+                    <span aria-hidden="true">—</span>
+                  <% end %>
+                </td>
+                <% categories.each do |category| %>
+                  <td><%= area.category_counts[category].to_i %></td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="heading3" style="margin: 1.5rem 0 0.75rem;"><%= t(".severity_heading", default: "Po hitnosti") %></h2>
+      <div class="mi-table-frame">
+        <table class="table-list" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th scope="col"><%= t(".mz", default: "Mjesna zajednica (MZ)") %></th>
+              <% severities.each do |severity| %>
+                <th scope="col"><%= severity_label.call(severity) %></th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% @heatmap.areas.each do |area| %>
+              <tr>
+                <th scope="row" style="text-align: left; font-family: var(--mi-font-display);"><%= area.mz_name %></th>
+                <% severities.each do |severity| %>
+                  <td><%= area.severity_counts[severity].to_i %></td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</main>

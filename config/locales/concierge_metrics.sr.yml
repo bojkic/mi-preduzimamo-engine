@@ -1,0 +1,45 @@
+sr:
+  decidim:
+    bih:
+      admin:
+        concierge_metrics:
+          title: Milicina mjerila odgovora
+          intro: Broj zabilježenih odgovora za završene dane. Tabela i CSV koriste
+            iste filtere i isti osnov za zbir.
+          limits: Novi i raniji skup mjerenja se preklapaju i ne smiju se sabirati.
+            Neklasifikovan saobraćaj može obuhvatati testiranje. Ishodi ne mjere korisnost,
+            tačnost, jedinstvene građane ili sesije. Ranija revizija označava kod
+            pri zbirnom upisu; nova označava kod pri pokretanju procesa. Nedostajući
+            zapisi ne dokazuju odsustvo pitanja. Raniji brojači bili su za cijelu
+            platformu i pripisani organizaciji pri zbirnom upisu; novi brojači su
+            razdvojeni po organizaciji.
+          period: Završeni dani
+          cohort: Skup mjerenja
+          traffic: Porijeklo saobraćaja
+          apply: Primijeni
+          sample: Zabilježeni odgovori u uzorku
+          unknown: Nepoznato / skriveno
+          suppression: Grupe sa manje od %{minimum} odgovora i tačan ukupan zbir su
+            skriveni. Oznake skrivenih grupa se ne izvoze.
+          cohorts:
+            captured: Nova mjerenja teme i vrste pitanja
+            legacy: Ranija mjerenja (dimenzije nepoznate)
+          traffic_kinds:
+            all: Sav zabilježeni saobraćaj
+            unclassified: Neklasifikovano (mogući testovi)
+            synthetic: Izričito označeni testovi
+          statuses:
+            recorded_buckets_only: Samo zabilježene grupe; potpunost nije utvrđena.
+            not_recorded: Nema zbirnih zapisa za ovaj period; broj pitanja nije poznat.
+            unsupported_legacy_filter: Porijeklo ranijih testova nije zabilježeno;
+              ovaj filter nije dostupan.
+          fields:
+            topic: Tema
+            facet: Vrsta pitanja
+            typed_outcome: Tipizovan ishod
+            traffic_kind: Porijeklo saobraćaja
+            release_sha: Revizija procesa / zbirnog upisa
+            count: Zabilježeni odgovori
+        analytics:
+          datasets:
+            mi_bot_metrics: Milicina mjerila odgovora

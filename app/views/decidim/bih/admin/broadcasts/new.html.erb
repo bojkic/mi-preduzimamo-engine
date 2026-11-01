@@ -1,0 +1,201 @@
+<%#
+  Operator-initiated Komšiluk broadcast form (Wave B2).
+  Privacy: no recipient list is shown — only the aggregate count after send.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.broadcasts.new.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :broadcasts %>
+
+<div class="card" id="broadcast-form">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.broadcasts.new.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.broadcasts.new.intro") %></p>
+
+    <% if @broadcast_preview.present? %>
+      <%
+        preview_channels = Array(@broadcast_preview[:channels])
+        can_send_preview = bih_allowed?(:broadcast_send_bell) &&
+                           (preview_channels == ["bell"] || bih_allowed?(:broadcast_send_viber)) &&
+                           (!preview_channels.include?("viber") || @viber_send_ready) &&
+                           preview_channels.all? { |channel| %w(bell viber).include?(channel) || @external_channel_readiness[channel] }
+      %>
+      <div class="callout" id="broadcast-preview">
+        <h2><%= t("decidim.bih.admin.broadcasts.new.preview_title") %></h2>
+        <p><%= t("decidim.bih.admin.broadcasts.new.preview_intro") %></p>
+        <dl>
+          <dt><%= t("decidim.bih.admin.broadcasts.new.preview_area") %></dt>
+          <dd><%= @broadcast_preview[:area].translated_name %></dd>
+          <dt><%= t("decidim.bih.admin.broadcasts.new.preview_channels") %></dt>
+          <dd><%= @broadcast_preview[:channels].join(", ") %></dd>
+          <dt><%= t("decidim.bih.admin.broadcasts.new.preview_recipients") %></dt>
+          <dd>
+            <strong>
+              <%= t("decidim.bih.admin.broadcasts.new.preview_recipients_count",
+                    count: @broadcast_preview[:recipients_count]) %>
+            </strong>
+          </dd>
+          <% if @broadcast_preview[:delivery_counts] %>
+            <dt><%= t("decidim.bih.broadcast_channels.eligible") %></dt>
+            <dd><%= @broadcast_preview[:delivery_counts].map { |channel, count| "#{channel}: #{count}" }.join(", ") %></dd>
+            <dd><%= t("decidim.bih.broadcast_channels.skipped", count: @broadcast_preview[:skipped_count]) %></dd>
+          <% end %>
+          <dt><%= t("decidim.bih.admin.broadcasts.new.preview_message") %></dt>
+          <dd style="max-width:60ch; word-break:break-word;"><%= @broadcast_preview[:message] %></dd>
+          <% if preview_channels.include?("whatsapp") && @broadcast_preview[:whatsapp_text].present? %>
+            <dt>WhatsApp</dt>
+            <dd><%= @broadcast_preview[:whatsapp_text] %></dd>
+          <% end %>
+        </dl>
+        <% if @broadcast_preview[:recipients_count].zero? %>
+          <p><%= t("decidim.bih.admin.broadcasts.new.preview_empty") %></p>
+        <% end %>
+        <p class="text-small"><%= t("decidim.bih.admin.broadcasts.new.preview_privacy") %></p>
+
+        <%# The shared composer. It ADDS audience, per-channel content, readiness
+            and cost to the counts above; it replaces none of the checks, and
+            Messaging::DispatchGuard runs again inside #send_broadcast. %>
+        <% if @composer %>
+          <%= render "decidim/bih/admin/shared/composer",
+                     content_plan: @composer[:content_plan],
+                     estimate: @composer[:estimate],
+                     guard: @dispatch_guard || @composer[:guard],
+                     governance_path: @composer[:governance_path] %>
+        <% end %>
+
+        <% if can_send_preview %>
+          <%= form_tag admin_bih_broadcasts_path, method: :post, class: "form form-defaults" do %>
+            <%= hidden_field_tag :local_area_id, @broadcast_preview[:area].id %>
+            <%= hidden_field_tag :message, @broadcast_preview[:message] %>
+            <% (preview_channels - ["bell"]).each do |channel| %>
+              <%= hidden_field_tag "channels[#{channel}]", "1" %>
+            <% end %>
+            <%= hidden_field_tag :confirm_preview, "1" %>
+            <%= submit_tag t("decidim.bih.admin.broadcasts.new.send_submit"),
+                           class: "button button__transparent-secondary mi-admin-action--danger",
+                           data: { confirm: t("decidim.bih.admin.broadcasts.new.send_confirm") } %>
+          <% end %>
+        <% else %>
+          <p><em><%= t("decidim.bih.admin.broadcasts.new.send_permission_required", default: "This preview is read-only for your role. Ask an operator with broadcast send permission to send it.") %></em></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= form_tag admin_bih_broadcasts_path, method: :post, class: "form form-defaults" do %>
+      <div class="row" style="margin-bottom:1rem;">
+        <div class="columns medium-6">
+          <label>
+            <%= t("decidim.bih.admin.broadcasts.new.area_label") %>
+            <select name="local_area_id" class="select2" required>
+              <option value=""><%= t("decidim.bih.admin.broadcasts.new.area_placeholder") %></option>
+
+              <% if @mz_areas.any? %>
+                <optgroup label="<%= t("decidim.bih.admin.broadcasts.new.mz_group") %>">
+                  <% @mz_areas.each do |mz| %>
+                    <option value="<%= mz.id %>" <%= "selected" if @form_area_id.to_i == mz.id %>><%= mz.translated_name %></option>
+                  <% end %>
+                </optgroup>
+              <% end %>
+
+              <% if @komsiluk_areas.any? %>
+                <optgroup label="<%= t("decidim.bih.admin.broadcasts.new.komsiluci_group") %>">
+                  <% @komsiluk_areas.each do |k| %>
+                    <option value="<%= k.id %>" <%= "selected" if @form_area_id.to_i == k.id %>><%= k.translated_name %></option>
+                  <% end %>
+                </optgroup>
+              <% end %>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="row" style="margin-bottom:1rem;">
+        <div class="columns medium-8">
+          <label>
+            <%= t("decidim.bih.admin.broadcasts.new.message_label") %>
+            <textarea name="message" rows="4" maxlength="500"
+                      placeholder="<%= t("decidim.bih.admin.broadcasts.new.message_placeholder") %>"
+                      required style="width:100%;"><%= @form_message %></textarea>
+          </label>
+          <small><%= t("decidim.bih.admin.broadcasts.new.message_hint") %></small>
+        </div>
+      </div>
+
+      <div class="row" style="margin-bottom:1.5rem;">
+        <div class="columns">
+          <fieldset>
+            <legend><%= t("decidim.bih.admin.broadcasts.new.channels_label") %></legend>
+            <label>
+              <input type="checkbox" value="1" disabled checked>
+              <%= t("decidim.bih.admin.broadcasts.new.channel_bell") %>
+              <small>(<%= t("decidim.bih.admin.broadcasts.new.channel_bell_hint") %>)</small>
+            </label>
+            <br>
+            <label>
+              <input type="checkbox" name="channels[automatic]" value="1"
+                     <%= "checked" if (@form_channels - ["bell"]).any? %>>
+              <%= t("decidim.bih.admin.broadcasts.new.channel_viber") %>
+            </label>
+            <p><%= t("decidim.bih.broadcast_channels.hint") %></p>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="columns">
+          <%= submit_tag t("decidim.bih.admin.broadcasts.new.submit"),
+                         class: "button button__secondary" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# ── Recent broadcasts (audit list, bounded N-of-M) ──────────────────────── %>
+<div class="card" id="broadcast-audit-list">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.broadcasts.new.recent_title") %></h2>
+  </div>
+  <% if @recent_broadcasts.any? %>
+    <div class="card-section">
+      <% if @recent_broadcasts_total > @recent_broadcasts.size %>
+        <p class="text-small">
+          <%= t("decidim.bih.admin.broadcasts.new.showing_n_of_m",
+                shown: @recent_broadcasts.size,
+                total: @recent_broadcasts_total) %>
+        </p>
+      <% end %>
+    </div>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.broadcasts.new.col_area") %></th>
+            <th><%= t("decidim.bih.admin.broadcasts.new.col_message") %></th>
+            <th><%= t("decidim.bih.admin.broadcasts.new.col_channels") %></th>
+            <th><%= t("decidim.bih.admin.broadcasts.new.col_recipients") %></th>
+            <th><%= t("decidim.bih.admin.broadcasts.new.col_sent_by") %></th>
+            <th><%= t("decidim.bih.admin.broadcasts.new.col_sent_at") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_broadcasts.each do |bc| %>
+            <tr>
+              <td><%= bc.area&.translated_name %></td>
+              <td style="max-width:30ch; word-break:break-word;"><%= bc.message %></td>
+              <td><%= bc.channels_list.join(", ") %></td>
+              <td><strong><%= bc.recipients_count %></strong></td>
+              <td><%= bc.sent_by&.name || "—" %></td>
+              <td><%= l(bc.created_at, format: :short) rescue bc.created_at.strftime("%d.%m.%Y %H:%M") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.broadcasts.new.no_recent") %></p>
+    </div>
+  <% end %>
+</div>

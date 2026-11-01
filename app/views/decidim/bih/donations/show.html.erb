@@ -1,0 +1,142 @@
+<%#
+  Public donation surface backed by the host-wired cached Odoo mirror
+  (Decidim::Bih.donations_provider). The read never blocks on Odoo and keeps
+  donor identity private. Project action and checkout discovery live on the
+  single /projekti surface.
+%>
+<% add_decidim_page_title(t(".title")) %>
+<%
+  display_now = Time.current
+  totals_available = ->(totals) { totals.respond_to?(:as_of) && totals.as_of.is_a?(Time) && totals.as_of <= display_now }
+  known_total = totals_available.call(@totals)
+  amount = ActiveSupport::NumberHelper.number_to_delimited(@totals.total.to_i, delimiter: ".") if known_total
+  project_value = lambda do |project, key|
+    if project.respond_to?(key)
+      project.public_send(key)
+    elsif project.respond_to?(:[])
+      project[key] || project[key.to_s]
+    end
+  end
+  known_unallocated = known_total && @project_mappings.all? do |project|
+    totals_available.call(project_value.call(project, :totals))
+  end
+  show_projects = @project_mappings.any? || (known_unallocated && @unallocated_amount.to_d.positive?)
+%>
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: t(".intro") %>
+
+    <section class="mi-surface-card mi-donation-hero" aria-labelledby="mi-donation-total-title" data-donation-state="<%= known_total ? "available" : "unavailable" %>">
+      <span class="mi-donation-hero__mark" aria-hidden="true">
+        <img src="/mi/heart-mark.png" alt="">
+      </span>
+
+      <div class="mi-donation-hero__main">
+        <p class="mi-eyebrow"><%= t(".raised_label") %></p>
+        <h2 id="mi-donation-total-title"><%= t(".total_title") %></h2>
+        <% if known_total %>
+          <p class="mi-donation-total">
+            <strong><%= amount %></strong>
+            <span><%= @currency_label %></span>
+          </p>
+          <p class="mi-donation-count"><%= t(".count", count: @totals.count) %></p>
+        <% else %>
+          <div class="mi-donation-unavailable" role="status">
+            <p><strong><%= t(".total_unavailable") %></strong></p>
+            <p><%= t(".total_unavailable_detail") %></p>
+          </div>
+        <% end %>
+
+        <div class="mi-action-row">
+          <%= link_to community_projects_path, class: "mi-btn mi-btn--primary" do %>
+            <%= icon "heart-2-line", role: "img", "aria-hidden": true %>
+            <span><%= t(".browse_projects") %></span>
+          <% end %>
+          <%= link_to impact_path, class: "mi-btn mi-btn--ghost" do %>
+            <%= icon "bar-chart-box-line", role: "img", "aria-hidden": true %>
+            <span><%= t(".impact_link") %></span>
+          <% end %>
+        </div>
+      </div>
+
+      <aside class="mi-donation-notes" aria-label="<%= t(".notes_aria") %>">
+        <div>
+          <h3><%= t(".trust_title") %></h3>
+          <p><%= t(".accountability_note") %></p>
+          <p><%= t(".donor_privacy_note") %></p>
+        </div>
+      </aside>
+    </section>
+
+    <% if show_projects %>
+      <section class="mi-section-stack" aria-labelledby="mi-donation-projects-title">
+        <div class="mi-section-heading">
+          <p class="mi-eyebrow"><%= t(".projects_eyebrow") %></p>
+          <h2 id="mi-donation-projects-title"><%= t(".project_links_title") %></h2>
+          <p><%= t(".project_links_intro") %></p>
+        </div>
+
+        <% [
+             ["community", @community_project_mappings, t(".community_projects_title"), t(".community_projects_intro")],
+             ["participatory-budget", @participatory_budget_mappings, t(".participatory_budget_projects_title"), t(".participatory_budget_projects_intro")]
+           ].each do |kind, mappings, group_title, group_intro| %>
+          <% next if mappings.empty? %>
+
+          <div class="mi-section-heading mi-donation-project-group-heading">
+            <h3><%= group_title %></h3>
+            <p><%= group_intro %></p>
+          </div>
+          <div class="mi-card-grid mi-donation-project-group" data-project-kind="<%= kind %>">
+            <% mappings.each do |project| %>
+              <% project_totals = project_value.call(project, :totals) %>
+              <% project_known = totals_available.call(project_totals) %>
+              <% project_amount = project_totals.total.to_i if project_known %>
+              <% project_id = project_value.call(project, :decidim_project_id) %>
+              <article class="mi-surface-card mi-project-card">
+                <div>
+                  <h3>
+                    <% if project_id.present? %>
+                      <%= link_to project_value.call(project, :title), donation_project_path(project) %>
+                    <% else %>
+                      <%= project_value.call(project, :title) %>
+                    <% end %>
+                  </h3>
+                  <% if project_known && project_amount.positive? %>
+                    <p>
+                      <%= t(".project_raised",
+                            amount: number_with_delimiter(project_amount, delimiter: "."),
+                            currency: @currency_label) %>
+                    </p>
+                  <% end %>
+                </div>
+                <% if project_id.present? %>
+                  <%= link_to t(".project_view"), donation_project_path(project),
+                              class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+                <% end %>
+              </article>
+            <% end %>
+          </div>
+        <% end %>
+
+        <div class="mi-card-grid">
+          <% if known_unallocated && @unallocated_amount.to_d.positive? %>
+            <article class="mi-surface-card mi-project-card mi-project-card--muted">
+              <div>
+                <h3><%= t(".unallocated_title") %></h3>
+                <p>
+                  <%= t(".project_raised",
+                        amount: number_with_delimiter(@unallocated_amount.to_i, delimiter: "."),
+                        currency: @currency_label) %>
+                </p>
+              </div>
+              <p><%= t(".unallocated_intro") %></p>
+            </article>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  </div>
+</main>

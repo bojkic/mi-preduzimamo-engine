@@ -1,0 +1,192 @@
+<% add_decidim_page_title(t("decidim.bih.admin.operator_roles.index.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :operator_roles %>
+
+<div class="card">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.operator_roles.index.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.operator_roles.index.intro") %></p>
+
+    <%= form_tag(operator_roles_path, method: :get, class: "form form-defaults mi-admin-filter") do %>
+      <label>
+        <%= t("decidim.bih.admin.operator_roles.index.search_label") %><br>
+        <%= text_field_tag :q, @query, placeholder: t("decidim.bih.admin.operator_roles.index.search_placeholder") %>
+      </label>
+      <%= submit_tag t("decidim.bih.admin.operator_roles.index.search_submit"), class: "button button__sm button__secondary" %>
+    <% end %>
+
+    <%= form_tag(operator_roles_path, method: :post, style: "display:grid; gap:0.8rem;", class: "form form-defaults") do %>
+      <label>
+        <%= t("decidim.bih.admin.operator_roles.index.user_label") %><br>
+        <%= select_tag :decidim_user_id,
+                       options_for_select(@users.map { |user| ["#{user.name.presence || user.nickname} (@#{user.nickname})", user.id] }),
+                       required: true,
+                       style: "min-width:18rem;" %>
+      </label>
+      <fieldset>
+        <legend><%= t("decidim.bih.admin.operator_roles.index.roles_label") %></legend>
+        <p><em><%= t("decidim.bih.admin.operator_roles.index.role_help") %></em></p>
+        <div id="operator-role-options" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(16rem, 1fr)); gap:0.75rem;">
+          <% Decidim::Bih::OperatorRole::GRANTABLE_ROLES.each do |role| %>
+            <section style="border:1px solid #d8dee4; border-radius:6px; padding:0.75rem;" data-operator-role-option="<%= role %>">
+              <label style="font-weight:700;">
+                <%= check_box_tag "roles[]", role, false, id: "operator_role_#{role}" %>
+                <%= t("decidim.bih.admin.operator_roles.roles.#{role}") %>
+              </label>
+              <p style="margin:0.35rem 0;"><%= t("decidim.bih.admin.operator_roles.descriptions.#{role}") %></p>
+              <% if role == "support_agent" %>
+                <p style="margin:0.35rem 0;" data-operator-role-prerequisite="support_agent">
+                  <em><%= t("decidim.bih.admin.operator_roles.index.support_agent_prerequisite",
+                            default: "Requires at least one companion role: report triage, volunteer review, or rewards operations.") %></em>
+                </p>
+              <% end %>
+              <details>
+                <summary><%= t("decidim.bih.admin.operator_roles.index.permissions_title") %></summary>
+                <ul style="margin-bottom:0;">
+                  <% Decidim::Bih::OperatorRole::ROLE_PERMISSIONS.fetch(role).each do |permission| %>
+                    <li data-operator-permission-label="<%= permission %>">
+                      <%= t("decidim.bih.admin.operator_roles.permissions.#{permission}",
+                            default: permission.to_s.tr("_", " ").humanize) %>
+                      <small><code><%= permission %></code></small>
+                    </li>
+                  <% end %>
+                </ul>
+              </details>
+            </section>
+          <% end %>
+        </div>
+      </fieldset>
+      <%= render "board_scope" %>
+      <label>
+        <%= t("decidim.bih.admin.operator_roles.index.expires_on") %><br>
+        <%= date_field_tag :expires_on, @default_expires_on, required: true %>
+      </label>
+      <label>
+        <%= t("decidim.bih.admin.operator_roles.index.approval_rationale") %><br>
+        <%= text_area_tag :approval_rationale, nil,
+                          required: true,
+                          maxlength: 160,
+                          rows: 2,
+                          placeholder: t("decidim.bih.admin.operator_roles.index.approval_rationale_placeholder") %>
+      </label>
+      <div>
+        <%= submit_tag t("decidim.bih.admin.operator_roles.index.grant"), class: "button button__secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.operator_roles.index.active_title") %></h2>
+  </div>
+  <% if @active_roles.any? %>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.operator_roles.index.renewal_policy", default: "Upozorenja se šalju u aplikaciji i e-mailom 30 i 7 dana prije isteka. Uloge se nikada ne obnavljaju automatski: administrator mora potvrditi novu potrebu, rok i obrazloženje.") %></p>
+    </div>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.operator_roles.index.user") %></th>
+            <th><%= t("decidim.bih.admin.operator_roles.index.role") %></th>
+            <th><%= t("decidim.bih.admin.operator_roles.index.expires_at") %></th>
+            <th><%= t("decidim.bih.admin.operator_roles.index.granted_by") %></th>
+            <th><%= t("decidim.bih.admin.operator_roles.index.actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @active_roles.each do |operator_role| %>
+            <tr>
+              <td><%= operator_role.user.name.presence || operator_role.user.nickname %></td>
+              <td>
+                <%= t("decidim.bih.admin.operator_roles.roles.#{operator_role.role}") %>
+                <% if operator_role.role == "komsiluk_moderator" %>
+                  <p class="text-small"><%= operator_role.area_scope == "all" ? t("decidim.bih.admin.board_review.scope_all") : operator_role.komsiluk_ids.filter_map { |id| @komsiluk_names[id]&.translated_name }.join(", ") %></p>
+                <% end %>
+              </td>
+              <td>
+                <%= l(operator_role.expires_at, format: :short) %>
+                <% days_left = ((operator_role.expires_at.to_date - Date.current).to_i) %>
+                <% if days_left <= 30 %>
+                  <br><strong><%= t("decidim.bih.admin.operator_roles.index.expires_in_days", days: days_left, default: "Ističe za %{days} dana") %></strong>
+                <% end %>
+              </td>
+              <td><%= operator_role.created_by&.name || operator_role.created_by&.nickname || "-" %></td>
+              <td>
+                <details>
+                  <summary><%= t("decidim.bih.admin.operator_roles.index.renew", default: "Obnovi uz novu odluku") %></summary>
+                  <%= form_tag operator_roles_path, method: :post, class: "form form-defaults", style: "display:grid; gap:0.35rem; min-width:17rem;" do %>
+                    <%= hidden_field_tag :decidim_user_id, operator_role.user.id %>
+                    <%= hidden_field_tag "roles[]", operator_role.role %>
+                    <%= hidden_field_tag :area_scope, operator_role.area_scope %>
+                    <% operator_role.komsiluk_ids.each do |area_id| %><%= hidden_field_tag "komsiluk_ids[]", area_id %><% end %>
+                    <label>
+                      <%= t("decidim.bih.admin.operator_roles.index.expires_on") %>
+                      <%= date_field_tag :expires_on, @default_expires_on, required: true %>
+                    </label>
+                    <label>
+                      <%= t("decidim.bih.admin.operator_roles.index.approval_rationale") %>
+                      <%= text_field_tag :approval_rationale, nil, required: true, maxlength: 160 %>
+                    </label>
+                    <%= submit_tag t("decidim.bih.admin.operator_roles.index.renew_submit", default: "Potvrdi obnovu"), class: "button button__sm button__secondary" %>
+                  <% end %>
+                </details>
+                <%= button_to t("decidim.bih.admin.operator_roles.index.revoke"),
+                              revoke_operator_role_path(operator_role),
+                              method: :post,
+                              class: "button button__sm button__transparent-secondary mi-admin-action--danger",
+                              data: { confirm: t("decidim.bih.admin.operator_roles.index.revoke_confirm") } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.operator_roles.index.no_active") %></p></div>
+  <% end %>
+</div>
+
+<div class="card">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.operator_roles.index.recent_title") %></h2>
+  </div>
+  <% if @recent_roles.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.operator_roles.index.user") %></th>
+            <th><%= t("decidim.bih.admin.operator_roles.index.role") %></th>
+            <th><%= t("decidim.bih.admin.operator_roles.index.status") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_roles.each do |operator_role| %>
+            <tr>
+              <td><%= operator_role.user.name.presence || operator_role.user.nickname %></td>
+              <td>
+                <%= t("decidim.bih.admin.operator_roles.roles.#{operator_role.role}") %>
+                <% if operator_role.role == "komsiluk_moderator" %>
+                  <p class="text-small"><%= operator_role.area_scope == "all" ? t("decidim.bih.admin.board_review.scope_all") : operator_role.komsiluk_ids.filter_map { |id| @komsiluk_names[id]&.translated_name }.join(", ") %></p>
+                <% end %>
+              </td>
+              <td>
+                <% if operator_role.revoked_at %>
+                  <%= t("decidim.bih.admin.operator_roles.index.revoked_at", date: l(operator_role.revoked_at, format: :short)) %>
+                <% else %>
+                  <%= t("decidim.bih.admin.operator_roles.index.expired_at", date: l(operator_role.expires_at, format: :short)) %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.operator_roles.index.no_recent") %></p></div>
+  <% end %>
+</div>

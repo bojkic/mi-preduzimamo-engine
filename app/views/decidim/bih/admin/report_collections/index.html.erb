@@ -1,0 +1,15 @@
+<%= render "style" %>
+<div class="report-collection-view">
+<% c = "decidim.bih.report_planning" %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :reports %>
+<h1><%= t("#{c}.collections") %></h1><p><%= t("#{c}.workflow") %></p>
+<p><%= link_to t("#{c}.back_reports"), admin_bih_reports_path %></p>
+<div class="report-collection-table table-stacked"><table><thead><tr><th><%= t("#{c}.collection_title") %></th><th><%= t("#{c}.state") %></th><th><%= t("#{c}.owner") %></th><th><%= t("#{c}.due") %></th></tr></thead><tbody>
+<% @collections.each do |collection| %><tr><td><%= link_to collection.title, admin_bih_report_collection_path(collection) %></td><td><%= t("#{c}.states.#{collection.state}") %></td><td><%= collection.assigned_to&.name %></td><td><%= l(collection.review_due_at, format: :short) if collection.review_due_at %></td></tr><% end %>
+</tbody></table></div>
+<% if bih_allowed?(:reports_update_status) %>
+<h2><%= t("#{c}.new_collection") %></h2>
+<%= form_tag admin_bih_report_collections_path, class: "form form-defaults report-collection-form" do %><%= render "form", collection: Decidim::Bih::ReportCollection.new(review_due_at: Decidim::Bih::ReportPlanning.default_review_due_at) %><% end %>
+<% end %>
+
+</div>

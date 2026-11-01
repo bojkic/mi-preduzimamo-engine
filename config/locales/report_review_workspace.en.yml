@@ -1,0 +1,328 @@
+{
+  "en": {
+    "decidim": {
+      "bih": {
+        "review_workspace": {
+          "report": "Report",
+          "location": "Location",
+          "next_step": "Next step",
+          "due": "Priority and due date",
+          "owner": "Assigned to",
+          "open": "Open",
+          "location_on_case": "See case location",
+          "new_reply": "New reply",
+          "overdue": "Overdue",
+          "unassigned": "Unassigned",
+          "pagination": "Report pages",
+          "previous": "Previous",
+          "next": "Next",
+          "page": "Page %{page} of %{total}",
+          "queue": "Report work queue",
+          "search": "Search reference or location",
+          "search_button": "Search",
+          "advanced_filters": "More filters",
+          "views": {
+            "review": "For review",
+            "citizen": "Waiting for citizen",
+            "city": "Waiting for service",
+            "planning": "Planned / collections",
+            "finished": "Finished",
+            "all": "All",
+            "sending": "Sending in progress"
+          },
+          "errors": {
+            "stale": "The report changed. Review the latest information before confirming.",
+            "not_ready": "The report is not ready for this action.",
+            "in_flight": "A delivery is in progress or its outcome needs verification.",
+            "recipient": "Choose a recipient from the verified directory.",
+            "text_required": "Enter a message of up to 3000 characters.",
+            "already_attempted": "This content has already been approved for delivery. Check the delivery record.",
+            "evidence_required": "Enter evidence of the outcome check, up to 1000 characters.",
+            "not_unknown": "This delivery does not need manual reconciliation.",
+            "invalid_action": "This action is unavailable.",
+            "too_large": "The input is too long. Shorten it before continuing.",
+            "confirmation": "Confirm the decision after reviewing it.",
+            "invalid_owner": "Choose an active operator in this organization.",
+            "invalid_due": "Choose a future due date.",
+            "sent_locked": "Submitted content is locked. Prepare a supplement for the service.",
+            "category_required": "Choose a report category.",
+            "location_required": "An address, street section or map point is required.",
+            "duplicate_invalid": "Choose a main report for the same problem that is not itself a duplicate.",
+            "preview_required": "Review the exact content and recipient first."
+          },
+          "dispatch_subjects": {
+            "supplement": "Report supplement [%{reference}]",
+            "followup": "Report follow-up [%{reference}]"
+          },
+          "duplicate_reason": "Linked to main report %{reference}.",
+          "saved": "Decision saved.",
+          "send_queued": "Approved for sending. The outcome will appear in the delivery record.",
+          "confirm_send": "Review before sending",
+          "confirm_content": "I checked the recipient and exact message content.",
+          "approve_send": "Approve and send",
+          "back_to_case": "Back to report",
+          "evidence": "Problem and evidence",
+          "decision": "Decision and next action",
+          "draft_saved": "Draft saved — no decision has been approved.",
+          "classification": "Category and content for the service",
+          "change_location": "Correct the location",
+          "coordinates": "Advanced: coordinates",
+          "sent_locked_help": "The original sent content is preserved. Use a supplement for new information.",
+          "message_text": "Message text",
+          "private_note_help": "This note is internal and is not sent to the citizen or service.",
+          "reason": "Citizen explanation for rejection; internal reason for resolution or reopening",
+          "closure_no_reply": "Closing because the citizen did not answer or cannot be reached (race points are kept)",
+          "no_reply_resolves": "Confirmation question: if the citizen does not answer by the deadline, close the report as resolved",
+          "duplicate_main": "Main report reference",
+          "new_collection": "Create a collection here",
+          "collection_title": "Collection title",
+          "collection_topic": "Shared topic",
+          "collection_summary": "Combined request",
+          "assignment_due": "Assignment and due date — change if needed",
+          "next_due": "Next step due",
+          "default_due_help": "Defaults: review 2 days, citizen reply 7 days, planning review at year end, city follow-up 21 days. These are internal deadlines.",
+          "confirm_decision": "I reviewed the information and confirm this action.",
+          "continue": "Continue",
+          "preview_send": "Preview message before sending",
+          "apply_decision": "Confirm action",
+          "delivery": "Delivery record",
+          "approved_by": "Approved by",
+          "unknown_help": "Do not resend until you check whether the previous email was accepted. Record the evidence.",
+          "checked_outcome": "Verified outcome",
+          "verification_evidence": "Verification evidence",
+          "actions": {
+            "save_draft": "Save draft",
+            "claim": "Take ownership",
+            "assign": "Change assignment",
+            "note": "Add internal note",
+            "message": "Send citizen an update",
+            "ask": "Request information",
+            "send": "Send to service",
+            "supplement": "Send service a supplement",
+            "followup": "Ask service for an update",
+            "plan": "Add to planned work",
+            "unplan": "Return to normal review",
+            "reject": "Reject report",
+            "duplicate": "Link as duplicate",
+            "resolve": "Record resolution",
+            "reopen": "Reopen report",
+            "external": "Record external submission",
+            "review": "Confirm review without sending"
+          },
+          "dispatch_states": {
+            "queued": "Queued for sending",
+            "sending": "Sending",
+            "accepted": "Email accepted for delivery",
+            "unknown": "Outcome needs verification",
+            "cancelled": "Sending stopped — review again",
+            "not_sent": "Verified not sent"
+          },
+          "open_next": "After this decision, open the next report in this queue",
+          "duplicate_search": "Search reference or location",
+          "duplicate_help": "Proximity or a shared street does not prove duplication. Compare the problem, date and replies before choosing the main report.",
+          "no_candidates": "No candidates match. Try another reference or location.",
+          "candidate_basis": {
+            "nearby": "Nearby points (within 150 m)",
+            "address": "Shared words in the location",
+            "search": "Reference or location search result"
+          },
+          "latest_candidate_reply": "Latest reply on this candidate",
+          "select_candidate": "Choose %{reference} as the main report",
+          "open_comparison": "Open the full case in a new tab",
+          "candidate_error": "Search is unavailable. You can enter the reference of a verified main report.",
+          "ai": {
+            "title": "AI review proposal",
+            "help": "AI prepares a draft. Check its sources and content; adopting a draft sends nothing and does not approve a decision. Photos have not been analyzed.",
+            "disabled": "AI assistance is not enabled. Manual review is available.",
+            "queued": "AI drafting was requested. Refresh later; you can continue reviewing manually.",
+            "confirm_replace": "I confirm replacing the existing draft with this AI proposal.",
+            "stale": "This proposal uses older data. Review is required; it cannot be adopted.",
+            "evidence": "Facts and cited sources",
+            "uncertainties": "Uncertainties and conflicting evidence",
+            "generated": "Prepared by AI",
+            "adopt": "Accept suggestion",
+            "adopt_help": "Accepting fills in the decision below. Then review and confirm it; nothing is sent before you confirm.",
+            "adopted": "The suggestion is now in the form below. Review and confirm the decision.",
+            "shadow_agreement": "Shadow AI (comparison only): matched the team decision %{agreed} of %{compared} times (%{percent}%).",
+            "refresh": "Prepare or retry AI proposal",
+            "draft_origin": "This draft came from an AI proposal. Edit as needed and approve the next action separately.",
+            "states": {
+              "missing": "An AI draft is not ready. Manual review is available.",
+              "generating": "AI is preparing a proposal. Manual review is available; refresh later.",
+              "unavailable": "AI proposal unavailable. Continue manually or request another attempt.",
+              "stale": "Data changed during preparation. A new proposal is needed."
+            },
+            "sources": {
+              "original": "Original description",
+              "location": "Reported location",
+              "forwarding_note": "Reviewed note for the service",
+              "internal_note": "Internal note",
+              "candidate": "Candidate %{reference}",
+              "archived": "Earlier case source"
+            },
+            "context_too_large": "This case exceeds the AI review limit. No partial case was sent to AI. Review it manually; all report actions remain available.",
+            "waiting_for_delivery": "AI review waits for the current sending outcome. Pending new information will be reconsidered once that outcome is known.",
+            "historical": "Historical proposal from the retired assistant. It cannot be adopted.",
+            "historical_draft": "Your saved edits are preserved. Continue as a staff draft; the retired AI proposal is no longer linked."
+          },
+          "legacy_form": "This form has changed. The old action was not performed. Review the current case and approve it in this workspace.",
+          "batch": {
+            "title": "Review multiple reports",
+            "help": "Review each report’s evidence and draft. Select items for final review; leave others skipped. To edit, open the case, save a draft and return here.",
+            "report": "Report and evidence",
+            "decision": "Proposed decision",
+            "choose": "Selection",
+            "edit": "Edit or review case",
+            "include": "Include %{reference} in final review",
+            "preview": "Review selected decisions",
+            "none": "There are no current drafts for batch confirmation on this page.",
+            "needs_draft": "A current draft or a fresh review is required. Open the case to prepare a decision.",
+            "select_one": "Select at least one report to review.",
+            "confirm_title": "Confirm each decision",
+            "confirm_help": "Check each decision and select only those you approve. Unchecked items will not execute. Confirmation expires after ten minutes; a new reply requires a fresh review.",
+            "approve": "I approve this decision for %{reference}",
+            "apply": "Apply checked decisions",
+            "back": "Back to batch review",
+            "results": "Processing results",
+            "results_help": "Each item was processed separately. Queued delivery is not confirmation of receipt by the city.",
+            "unknown": "Invalid item",
+            "location_change": "The location will change",
+            "roles": {
+              "citizen": "Citizen",
+              "staff": "Operator",
+              "system": "System"
+            },
+            "origins": {
+              "human": "Saved operator draft",
+              "ai": "AI proposal — requires your review"
+            },
+            "states": {
+              "applied": "Decision recorded",
+              "queued": "Delivery queued",
+              "skipped": "Skipped",
+              "failed": "Not applied"
+            },
+            "fields": {
+              "category": "Category",
+              "severity": "Priority",
+              "forwarding_note": "Additional request text",
+              "forwarding_recipient": "Recipient",
+              "department": "Department",
+              "assigned_to_id": "Assigned to",
+              "response_due_at": "Next step due",
+              "body": "Message text",
+              "reason": "Decision explanation",
+              "resolution_evidence": "Resolution evidence",
+              "duplicate_reference": "Main report",
+              "report_collection_id": "Report collection",
+              "report_subtype": "Problem type",
+              "collection_title": "New collection title",
+              "collection_topic": "Collection topic",
+              "collection_summary": "Collection description",
+              "external_reference": "External submission evidence",
+              "address": "Address",
+              "location_kind": "Location type",
+              "latitude": "Start latitude",
+              "longitude": "Start longitude",
+              "location_end_latitude": "End latitude",
+              "location_end_longitude": "End longitude",
+              "edit_location": "Location correction"
+            }
+          },
+          "metrics": {
+            "title": "Report operations",
+            "scope": "All recorded reports and text replies up to today, scoped to this organization.",
+            "measure": "Measure",
+            "value": "Value",
+            "coverage": "Evidence coverage",
+            "first_review": "Time to first review (median)",
+            "reply_review": "Reply to review (median)",
+            "hours": "%{value} hours",
+            "measured": "%{measured} of %{total}",
+            "submitted": "Reports with recorded submission to city services",
+            "duplicates": "Reports linked as duplicates",
+            "planned": "Reports in planned handling",
+            "overdue": "Tasks past their internal deadline",
+            "unknown_delivery": "Reports with unknown delivery outcome",
+            "timing_help": "Elapsed time includes waiting between receipt and decision, not just active operator work. Opening a page, adding an internal note or generating an AI draft does not complete review. Missing historical evidence is not measured; still-unreviewed items are excluded from the median. Citizen resolution confirmations are not text replies. Counts can overlap.",
+            "ai_title": "AI proposal corrections",
+            "ai_counts": "Recorded approved proposals: %{reviewed}; operators changed the proposal in %{changed} cases.",
+            "ai_help": "Changes grouped by the adopted action help monitor the assistant. They do not measure AI accuracy: an unchanged proposal is not proof of correctness.",
+            "all_collections": "All report collections",
+            "task_details": "Task details",
+            "task_details_help": "These groups use the same internal deadlines as the queue. Explicitly set deadlines take precedence. These are not statutory city response deadlines."
+          },
+          "queue_intro": "Review new reports, replies and due tasks. Open a case or batch review to confirm the next action.",
+          "retention_removed": "Content was removed after the retention period. Decision and sending records remain.",
+          "deleted_actor": "Deleted account",
+          "classification_prompt": "— choose —",
+          "category_missing": "Category not selected"
+        },
+        "admin": {
+          "reports": {
+            "index": {
+              "sla": {
+                "buckets": {
+                  "pending_review": "Awaiting staff review"
+                },
+                "hints": {
+                  "pending_review": "A new report or citizen reply needs a decision."
+                },
+                "review_actions": {
+                  "review_citizen_reply": "Review report and replies"
+                }
+              },
+              "attention_filters": {
+                "pending_review": "Awaiting staff review"
+              }
+            },
+            "events": {
+              "types": {
+                "case_decision_applied": "Operator action recorded",
+                "review_proposal_prepared": "AI draft prepared",
+                "review_proposal_requested": "AI draft requested",
+                "case_dispatch_queued": "Approved send queued",
+                "case_dispatch_cancelled": "Send stopped",
+                "case_dispatch_unknown": "Delivery outcome needs checking",
+                "case_dispatch_accepted": "Email accepted for delivery",
+                "case_dispatch_reconciled": "Delivery outcome reconciled",
+                "case_deadline_changed": "Next-step deadline changed"
+              }
+            }
+          },
+          "privacy_retention": {
+            "buckets": {
+              "report_dispatch_contents": "Report dispatch content",
+              "report_review_proposals": "AI report review proposals",
+              "report_review_drafts": "Report decision drafts"
+            }
+          }
+        },
+        "report_case": {
+          "delivery": {
+            "status_notice": "Notice is part of the status update."
+          }
+        },
+        "photo_draft": {
+          "saved": "Your photo is saved with this form for two hours. You do not need to upload it again.",
+          "unavailable": "The photo is unavailable or the temporary form has expired. Upload your photo again, then submit the report.",
+          "remove": "Remove the saved photo"
+        },
+        "reports": {
+          "current_action": {
+            "title": "What happens next",
+            "review": "Your report is waiting for our team to review it.",
+            "review_forwarded": "The report has already been sent to the service. It awaits our team’s review before the next step.",
+            "reviewed": "Review is complete. The next step is being prepared.",
+            "sending": "Sending to the service is approved and awaits confirmation of sending.",
+            "sending_update": "The report has already been sent to the service. A new message to the service awaits confirmation of sending.",
+            "checking_delivery": "We are checking the sending outcome before the next step.",
+            "citizen": "We are waiting for additional information from the reporter.",
+            "planning": "The report is in planning. Review and preparation of a collective request follow.",
+            "city": "We are waiting for an update from the responsible service."
+          }
+        }
+      }
+    }
+  }
+}

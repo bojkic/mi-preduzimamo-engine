@@ -1,0 +1,25 @@
+sr:
+  decidim:
+    bih:
+      dialogue:
+        location_forgotten: "Zaboravila sam dijeljenu lokaciju za ovaj razgovor."
+"sr-Cyrl":
+  decidim:
+    bih:
+      dialogue:
+        location_forgotten: "Заборавила сам дијељену локацију за овај разговор."
+bs:
+  decidim:
+    bih:
+      dialogue:
+        location_forgotten: "Zaboravila sam dijeljenu lokaciju za ovaj razgovor."
+hr:
+  decidim:
+    bih:
+      dialogue:
+        location_forgotten: "Zaboravila sam podijeljenu lokaciju za ovaj razgovor."
+en:
+  decidim:
+    bih:
+      dialogue:
+        location_forgotten: "I forgot the shared location for this conversation."

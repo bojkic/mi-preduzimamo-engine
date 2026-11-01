@@ -1,0 +1,85 @@
+<% add_decidim_page_title(t("decidim.bih.admin.partner_profiles.index.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :partner_profiles %>
+
+<header class="mi-admin-page-header" id="admin-partner-profiles-header">
+  <div>
+    <h1 class="mi-admin-page-header__title"><%= t("decidim.bih.admin.partner_profiles.index.title") %></h1>
+    <p class="mi-admin-page-header__intro"><%= t("decidim.bih.admin.partner_profiles.index.intro") %></p>
+  </div>
+  <div class="mi-admin-page-header__actions">
+    <%= link_to t("decidim.bih.admin.partner_profiles.index.new"),
+                new_partner_profile_path,
+                class: "button button__sm button__secondary" %>
+  </div>
+</header>
+
+<%= form_tag partner_profiles_path, method: :get, class: "form form-defaults mi-admin-filter" do %>
+  <label>
+    <%= t("decidim.bih.admin.partner_profiles.index.search") %>
+    <%= search_field_tag :q, @query, placeholder: t("decidim.bih.admin.partner_profiles.index.search_placeholder") %>
+  </label>
+  <label>
+    <%= t("decidim.bih.admin.partner_profiles.index.status") %>
+    <%= select_tag :status,
+                   options_for_select([[t("decidim.bih.admin.partner_profiles.index.all_statuses"), ""]] + Decidim::Bih::PartnerProfile::VERIFICATION_STATUSES.map { |status| [t("decidim.bih.partner_profiles.statuses.#{status}"), status] }, @status) %>
+  </label>
+  <label>
+    <%= t("decidim.bih.admin.partner_profiles.index.kind") %>
+    <%= select_tag :kind,
+                   options_for_select([[t("decidim.bih.admin.partner_profiles.index.all_kinds"), ""]] + Decidim::Bih::PartnerProfile::KINDS.map { |kind| [t("decidim.bih.partner_profiles.kinds.#{kind}"), kind] }, @kind) %>
+  </label>
+  <%= submit_tag t("decidim.bih.admin.partner_profiles.index.filter"), class: "button button__sm button__secondary" %>
+  <%= link_to t("decidim.bih.admin.partner_profiles.index.clear"), partner_profiles_path, class: "button button__sm button__transparent-secondary" %>
+<% end %>
+
+<% if @profiles.any? %>
+  <div class="table-stacked">
+    <table class="table-list" id="admin-partner-profiles-list">
+      <thead>
+        <tr>
+          <th><%= t("decidim.bih.admin.partner_profiles.index.name") %></th>
+          <th><%= t("decidim.bih.admin.partner_profiles.index.kind") %></th>
+          <th><%= t("decidim.bih.admin.partner_profiles.index.status") %></th>
+          <th><%= t("decidim.bih.admin.partner_profiles.index.members") %></th>
+          <th><%= t("decidim.bih.admin.partner_profiles.index.actions") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @profiles.each do |profile| %>
+          <% status_tone = profile.verified? ? "ok" : (profile.verification_status == "submitted" ? "attention" : "neutral") %>
+          <% content_review_issues = profile.verification_content_issues %>
+          <tr id="partner-profile-<%= profile.id %>">
+            <td data-label="<%= t("decidim.bih.admin.partner_profiles.index.name") %>">
+              <%= link_to profile.display_name, partner_profile_path(profile), class: "font-semibold" %><br>
+              <small class="mi-admin-technical"><%= profile.slug %></small>
+              <% if content_review_issues.any? %>
+                <div class="mi-admin-callout mi-admin-callout--warning mt-2" data-profile-content-review>
+                  <strong><%= t("decidim.bih.admin.partner_profiles.index.content_review") %></strong>
+                  <ul>
+                    <% content_review_issues.each do |issue| %>
+                      <li><%= t("decidim.bih.admin.partner_profiles.content_review.#{issue}") %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              <% end %>
+            </td>
+            <td data-label="<%= t("decidim.bih.admin.partner_profiles.index.kind") %>"><%= t("decidim.bih.partner_profiles.kinds.#{profile.kind}") %></td>
+            <td data-label="<%= t("decidim.bih.admin.partner_profiles.index.status") %>">
+              <span class="mi-admin-status mi-admin-status--<%= status_tone %>"><%= t("decidim.bih.partner_profiles.statuses.#{profile.verification_status}") %></span>
+            </td>
+            <td data-label="<%= t("decidim.bih.admin.partner_profiles.index.members") %>"><%= profile.memberships.count(&:accepted?) %></td>
+            <td data-label="<%= t("decidim.bih.admin.partner_profiles.index.actions") %>">
+              <div class="mi-admin-action-group">
+                <%= link_to t("decidim.bih.admin.partner_profiles.index.review"), partner_profile_path(profile), class: "button button__sm button__secondary" %>
+                <%= link_to t("decidim.bih.admin.partner_profiles.index.edit"), edit_partner_profile_path(profile), class: "button button__sm button__transparent-secondary" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="mi-admin-empty-state" id="admin-partner-profiles-empty"><%= t("decidim.bih.admin.partner_profiles.index.empty") %></div>
+<% end %>

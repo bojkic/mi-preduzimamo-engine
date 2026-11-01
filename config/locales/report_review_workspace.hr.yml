@@ -1,0 +1,328 @@
+{
+  "hr": {
+    "decidim": {
+      "bih": {
+        "review_workspace": {
+          "report": "Prijava",
+          "location": "Lokacija",
+          "next_step": "Sljedeći korak",
+          "due": "Prioritet i rok",
+          "owner": "Zaduženje",
+          "open": "Otvori",
+          "location_on_case": "Lokacija u prijavi",
+          "new_reply": "Nova dopuna",
+          "overdue": "Rok je prošao",
+          "unassigned": "Nije dodijeljeno",
+          "pagination": "Stranice prijava",
+          "previous": "Prethodna",
+          "next": "Sljedeća",
+          "page": "Stranica %{page} od %{total}",
+          "queue": "Radni red prijava",
+          "search": "Pretraži broj prijave ili lokaciju",
+          "search_button": "Pretraži",
+          "advanced_filters": "Dodatni filteri",
+          "views": {
+            "review": "Za pregled",
+            "citizen": "Čekamo građanina",
+            "city": "Čekamo službu",
+            "planning": "Planske / zbirne",
+            "finished": "Završene",
+            "all": "Sve",
+            "sending": "Slanje u tijeku"
+          },
+          "errors": {
+            "stale": "Prijava je promijenjena. Pregledaj nove podatke prije potvrde.",
+            "not_ready": "Prijava još nije spremna za ovu radnju.",
+            "in_flight": "Slanje je već u toku ili njegov ishod treba provjeriti.",
+            "recipient": "Izaberi primaoca iz provjerenog imenika.",
+            "text_required": "Unesi tekst poruke, najviše 3000 znakova.",
+            "already_attempted": "Ovaj sadržaj je već odobren za slanje. Provjeri evidenciju slanja.",
+            "evidence_required": "Unesi dokaz provjere ishoda, najviše 1000 znakova.",
+            "not_unknown": "Ishod ovog slanja ne zahtijeva ručno usklađivanje.",
+            "invalid_action": "Ova radnja nije dostupna.",
+            "too_large": "Unos je predugačak. Skrati tekst prije nastavka.",
+            "confirmation": "Potvrdi odluku nakon pregleda.",
+            "invalid_owner": "Izaberi aktivnog operatora iz ove organizacije.",
+            "invalid_due": "Izaberi rok u budućnosti.",
+            "sent_locked": "Poslati sadržaj je zaključan. Pripremi dopunu službi.",
+            "category_required": "Izaberi kategoriju prijave.",
+            "location_required": "Potrebna je adresa, opis dijela ulice ili tačka na mapi.",
+            "duplicate_invalid": "Izaberi glavnu prijavu istog problema koja nije duplikat.",
+            "preview_required": "Prvo pregledaj tačan sadržaj i primaoca poruke."
+          },
+          "dispatch_subjects": {
+            "supplement": "Dopuna prijave [%{reference}]",
+            "followup": "Upit o prijavi [%{reference}]"
+          },
+          "duplicate_reason": "Povezano sa glavnom prijavom %{reference}.",
+          "saved": "Odluka je sačuvana.",
+          "send_queued": "Odobreno za slanje. Ishod će biti prikazan u evidenciji slanja.",
+          "confirm_send": "Pregled prije slanja",
+          "confirm_content": "Provjerio/la sam primaoca i tačan sadržaj poruke.",
+          "approve_send": "Odobri i pošalji",
+          "back_to_case": "Nazad na prijavu",
+          "evidence": "Problem i dokazi",
+          "decision": "Odluka i naredna radnja",
+          "draft_saved": "Sačuvan nacrt — odluka još nije potvrđena.",
+          "classification": "Kategorija i sadržaj za službu",
+          "change_location": "Želim ispraviti lokaciju",
+          "coordinates": "Napredno: koordinate",
+          "sent_locked_help": "Originalno poslati sadržaj je sačuvan. Za nove informacije koristi dopunu službi.",
+          "message_text": "Tekst poruke",
+          "private_note_help": "Ova bilješka ostaje interna i ne šalje se građaninu ili službi.",
+          "reason": "Objašnjenje građaninu kod odbijanja; interni razlog kod rješenja ili ponovnog otvaranja",
+          "closure_no_reply": "Zatvaram jer građanin nije odgovorio ili nije dostupan (bodovi iz utrke ostaju)",
+          "no_reply_resolves": "Pitanje za potvrdu: ako građanin ne odgovori do roka, prijava se zatvara kao riješena",
+          "duplicate_main": "Broj glavne prijave",
+          "new_collection": "Kreiraj zbirnu prijavu ovdje",
+          "collection_title": "Naziv zbirne prijave",
+          "collection_topic": "Zajednička tema",
+          "collection_summary": "Zajednički zahtjev",
+          "assignment_due": "Zaduženje i rok — po potrebi izmijeni",
+          "next_due": "Sljedeći korak do",
+          "default_due_help": "Ako ne uneseš rok: pregled 2 dana, dopuna 7 dana, planski pregled do kraja godine, praćenje službe 21 dan. Ovo su interni rokovi.",
+          "confirm_decision": "Pregledao/la sam podatke i potvrđujem ovu radnju.",
+          "continue": "Nastavi",
+          "preview_send": "Pregledaj poruku prije slanja",
+          "apply_decision": "Potvrdi radnju",
+          "delivery": "Evidencija slanja",
+          "approved_by": "Odobrio/la",
+          "unknown_help": "Nemoj ponavljati slanje dok ne provjeriš da li je prethodni mejl prihvaćen. Evidentiraj dokaz provjere.",
+          "checked_outcome": "Provjereni ishod",
+          "verification_evidence": "Dokaz provjere",
+          "actions": {
+            "save_draft": "Sačuvaj nacrt",
+            "claim": "Preuzmi prijavu",
+            "assign": "Promijeni zaduženje",
+            "note": "Dodaj internu bilješku",
+            "message": "Pošalji obavještenje građaninu",
+            "ask": "Traži dopunu",
+            "send": "Pošalji službi",
+            "supplement": "Pošalji dopunu službi",
+            "followup": "Pošalji upit službi",
+            "plan": "Uključi u plansku obradu",
+            "unplan": "Vrati u redovnu obradu",
+            "reject": "Odbij prijavu",
+            "duplicate": "Poveži kao duplikat",
+            "resolve": "Evidentiraj rješenje",
+            "reopen": "Ponovo otvori",
+            "external": "Evidentiraj slanje drugim putem",
+            "review": "Potvrdi pregled bez slanja"
+          },
+          "dispatch_states": {
+            "queued": "Slanje je zakazano",
+            "sending": "Slanje u toku",
+            "accepted": "Mejl prihvaćen za dostavu",
+            "unknown": "Ishod treba provjeriti",
+            "cancelled": "Slanje zaustavljeno — potreban novi pregled",
+            "not_sent": "Potvrđeno da nije poslato"
+          },
+          "open_next": "Nakon odluke otvori sljedeću prijavu iz ovog reda",
+          "duplicate_search": "Pretraži broj ili lokaciju",
+          "duplicate_help": "Blizina ili ista ulica nisu dokaz duplikata. Uporedi problem, datum i dopune prije izbora glavne prijave.",
+          "no_candidates": "Nema kandidata po ovom kriterijumu. Možeš pretražiti drugi broj ili lokaciju.",
+          "candidate_basis": {
+            "nearby": "Tačke su blizu (do 150 m)",
+            "address": "Zajedničke riječi u lokaciji",
+            "search": "Rezultat pretrage broja ili lokacije"
+          },
+          "latest_candidate_reply": "Posljednja dopuna ovog kandidata",
+          "select_candidate": "Izaberi %{reference} kao glavnu",
+          "open_comparison": "Otvori cijeli predmet u novoj kartici",
+          "candidate_error": "Pretraga trenutno nije dostupna. Možeš unijeti broj provjerene glavne prijave.",
+          "ai": {
+            "title": "AI prijedlog za pregled",
+            "help": "AI priprema nacrt. Provjeri izvore i sadržaj; preuzimanje nacrta ništa ne šalje i ne mijenja odluku. Fotografija nije analizirana.",
+            "disabled": "AI pomoć nije aktivirana. Ručni pregled je dostupan.",
+            "queued": "Priprema AI nacrta je zatražena. Osvježi stranicu kasnije; možeš nastaviti ručni pregled.",
+            "confirm_replace": "Potvrđujem zamjenu postojećeg nacrta AI prijedlogom.",
+            "stale": "Prijedlog se zasniva na starijim podacima. Potreban je novi pregled; ovaj prijedlog se ne može preuzeti.",
+            "evidence": "Činjenice i navedeni izvori",
+            "uncertainties": "Nejasnoće i sukobi u podacima",
+            "generated": "Pripremio AI",
+            "adopt": "Prihvati prijedlog",
+            "adopt_help": "Prihvaćanje popunjava odluku ispod. Zatim je pregledaj i potvrdi; ništa se ne šalje prije tvoje potvrde.",
+            "adopted": "Prijedlog je prihvaćen u obrazac ispod. Pregledaj i potvrdi odluku.",
+            "shadow_agreement": "Shadow AI (samo za usporedbu): slaganje s odlukama tima %{agreed} od %{compared} (%{percent} %).",
+            "refresh": "Pripremi ili ponovi AI prijedlog",
+            "draft_origin": "Nacrt je preuzet iz AI prijedloga. Izmijeni ga po potrebi i odobri narednu radnju odvojeno.",
+            "states": {
+              "missing": "AI nacrt još nije pripremljen. Ručni pregled je dostupan.",
+              "generating": "AI priprema prijedlog. Ručni pregled je dostupan; osvježi stranicu kasnije.",
+              "unavailable": "AI prijedlog nije dostupan. Nastavi ručno ili zatraži ponovni pokušaj.",
+              "stale": "Podaci su se promijenili tokom pripreme. Potreban je novi prijedlog."
+            },
+            "sources": {
+              "original": "Originalni opis",
+              "location": "Lokacija u prijavi",
+              "forwarding_note": "Pregledani dodatak službi",
+              "internal_note": "Interna bilješka",
+              "candidate": "Kandidat %{reference}",
+              "archived": "Raniji izvor iz predmeta"
+            },
+            "context_too_large": "Ovaj predmet prelazi ograničenje za AI pregled. Djelimičan predmet nije poslat AI-ju. Pregledaj ga ručno; sve radnje nad prijavom ostaju dostupne.",
+            "waiting_for_delivery": "AI pregled čeka ishod tekućeg slanja. Nepregledane dopune biće ponovo razmotrene kada ishod bude poznat.",
+            "historical": "Istorijski prijedlog ugašenog asistenta. Ne može se prihvatiti.",
+            "historical_draft": "Sačuvane izmjene su zadržane. Nastavite kao službeni nacrt bez veze sa prijedlogom ugašenog asistenta."
+          },
+          "legacy_form": "Obrazac je promijenjen. Stara radnja nije izvršena. Pregledaj aktuelne podatke i odobri radnju u ovom ekranu.",
+          "batch": {
+            "title": "Pregled više prijava",
+            "help": "Pregledaj dokaze i nacrt svake prijave. Označi stavke za završni pregled; ostale preskoči. Za izmjenu otvori prijavu, sačuvaj nacrt i vrati se ovdje.",
+            "report": "Prijava i dokazi",
+            "decision": "Predložena odluka",
+            "choose": "Izbor",
+            "edit": "Izmijeni ili pregledaj prijavu",
+            "include": "Uključi %{reference} u završni pregled",
+            "preview": "Pregledaj izabrane odluke",
+            "none": "Na ovoj stranici nema važećih nacrta za grupnu potvrdu.",
+            "needs_draft": "Potreban je važeći nacrt ili ponovni pregled. Otvori prijavu da pripremiš odluku.",
+            "select_one": "Izaberi najmanje jednu prijavu za pregled.",
+            "confirm_title": "Potvrdi odluke pojedinačno",
+            "confirm_help": "Provjeri svaku odluku i označi samo one koje odobravaš. Neoznačene stavke neće se izvršiti. Potvrda važi deset minuta; nova dopuna zahtijeva novi pregled.",
+            "approve": "Odobravam ovu odluku za %{reference}",
+            "apply": "Izvrši označene odluke",
+            "back": "Nazad na grupni pregled",
+            "results": "Rezultati obrade",
+            "results_help": "Svaka stavka je obrađena zasebno. Slanje u redu još nije potvrda prijema službe.",
+            "unknown": "Nevažeća stavka",
+            "location_change": "Lokacija će biti izmijenjena",
+            "roles": {
+              "citizen": "Građanin",
+              "staff": "Operator",
+              "system": "Sistem"
+            },
+            "origins": {
+              "human": "Sačuvani nacrt operatora",
+              "ai": "AI prijedlog — zahtijeva tvoju provjeru"
+            },
+            "states": {
+              "applied": "Odluka evidentirana",
+              "queued": "Slanje u redu",
+              "skipped": "Preskočeno",
+              "failed": "Nije izvršeno"
+            },
+            "fields": {
+              "category": "Kategorija",
+              "severity": "Prioritet",
+              "forwarding_note": "Dopuna zahtjeva službi",
+              "forwarding_recipient": "Primalac",
+              "department": "Nadležnost",
+              "assigned_to_id": "Zaduženje",
+              "response_due_at": "Sljedeći korak do",
+              "body": "Tekst poruke",
+              "reason": "Objašnjenje odluke",
+              "resolution_evidence": "Dokaz rješenja",
+              "duplicate_reference": "Glavna prijava",
+              "report_collection_id": "Zbirna prijava",
+              "report_subtype": "Vrsta problema",
+              "collection_title": "Naziv nove zbirne prijave",
+              "collection_topic": "Tema zbirne prijave",
+              "collection_summary": "Opis zbirne prijave",
+              "external_reference": "Dokaz vanjskog podnošenja",
+              "address": "Adresa",
+              "location_kind": "Vrsta lokacije",
+              "latitude": "Početna širina",
+              "longitude": "Početna dužina",
+              "location_end_latitude": "Krajnja širina",
+              "location_end_longitude": "Krajnja dužina",
+              "edit_location": "Ispravka lokacije"
+            }
+          },
+          "metrics": {
+            "title": "Rad na prijavama",
+            "scope": "Pregled svih evidentiranih prijava i tekstualnih dopuna do danas. Podaci se odnose na ovu organizaciju.",
+            "measure": "Pokazatelj",
+            "value": "Vrijednost",
+            "coverage": "Pokrivenost evidencijom",
+            "first_review": "Do prvog pregleda (medijan)",
+            "reply_review": "Od dopune do pregleda (medijan)",
+            "hours": "%{value} sati",
+            "measured": "%{measured} od %{total}",
+            "submitted": "Prijave sa evidentiranim podnošenjem službi",
+            "duplicates": "Prijave povezane kao duplikati",
+            "planned": "Prijave u planskoj obradi",
+            "overdue": "Obaveze sa isteklim internim rokom",
+            "unknown_delivery": "Prijave sa nepoznatim ishodom slanja",
+            "timing_help": "Vrijeme obuhvata čekanje između prijema i odluke, a ne samo aktivni rad operatora. Otvaranje stranice, interna bilješka i AI nacrt nisu završen pregled. Bez odgovarajuće istorije nema mjerenja; još nepregledane stavke ne ulaze u medijanu. Potvrde rješenja građana nisu tekstualne dopune. Brojači se mogu preklapati.",
+            "ai_title": "Izmjene AI prijedloga",
+            "ai_counts": "Evidentirano odobrenih prijedloga: %{reviewed}; operator je izmijenio prijedlog u %{changed} slučajeva.",
+            "ai_help": "Broj izmjena po usvojenoj radnji pomaže da pratimo rad asistenta. To nije mjera tačnosti AI odluka: neizmijenjen prijedlog nije sam po sebi dokaz ispravnosti.",
+            "all_collections": "Sve zbirne prijave",
+            "task_details": "Detalji obveza",
+            "task_details_help": "Ove grupe koriste iste interne rokove kao radni red. Ručno zadati rok ima prednost. Ovo nisu zakonski rokovi odgovora grada."
+          },
+          "queue_intro": "Pregledaj nove prijave, dopune i dospjele obveze. Otvori prijavu ili grupni pregled da potvrdiš sljedeću radnju.",
+          "retention_removed": "Sadržaj je uklonjen nakon isteka roka čuvanja. Evidencija odluke i slanja je sačuvana.",
+          "deleted_actor": "Obrisan nalog",
+          "classification_prompt": "— odaberi —",
+          "category_missing": "Kategorija nije odabrana"
+        },
+        "admin": {
+          "reports": {
+            "index": {
+              "sla": {
+                "buckets": {
+                  "pending_review": "Čeka pregled operatora"
+                },
+                "hints": {
+                  "pending_review": "Nova prijava ili dopuna građanina čeka odluku."
+                },
+                "review_actions": {
+                  "review_citizen_reply": "Pregledaj prijavu i dopune"
+                }
+              },
+              "attention_filters": {
+                "pending_review": "Čeka pregled operatora"
+              }
+            },
+            "events": {
+              "types": {
+                "case_decision_applied": "Radnja operatora evidentirana",
+                "review_proposal_prepared": "AI nacrt pripremljen",
+                "review_proposal_requested": "Zatražen AI nacrt",
+                "case_dispatch_queued": "Odobreno slanje stavljeno u red",
+                "case_dispatch_cancelled": "Slanje zaustavljeno",
+                "case_dispatch_unknown": "Ishod slanja treba provjeriti",
+                "case_dispatch_accepted": "Mejl prihvaćen za dostavu",
+                "case_dispatch_reconciled": "Evidentirana provjera ishoda slanja",
+                "case_deadline_changed": "Promijenjen rok sljedećeg koraka"
+              }
+            }
+          },
+          "privacy_retention": {
+            "buckets": {
+              "report_dispatch_contents": "Sadržaj slanja prijava",
+              "report_review_proposals": "AI prijedlozi pregleda",
+              "report_review_drafts": "Nacrti odluka o prijavama"
+            }
+          }
+        },
+        "report_case": {
+          "delivery": {
+            "status_notice": "Obavještenje prati promjenu statusa."
+          }
+        },
+        "photo_draft": {
+          "saved": "Fotografija je sačuvana uz ovaj obrazac dva sata. Ne morate je ponovo dodavati.",
+          "unavailable": "Fotografija nije dostupna ili je privremeni obrazac istekao. Dodajte fotografiju ponovo pa pošaljite prijavu.",
+          "remove": "Ukloni sačuvanu fotografiju"
+        },
+        "reports": {
+          "current_action": {
+            "title": "Šta se sada dešava",
+            "review": "Prijava čeka pregled našeg tima.",
+            "review_forwarded": "Prijava je već poslata službi. Čeka pregled našeg tima prije narednog koraka.",
+            "reviewed": "Pregled je završen. Slijedi priprema narednog koraka.",
+            "sending": "Slanje službi je odobreno i čeka potvrdu slanja.",
+            "sending_update": "Prijava je već poslata službi. Nova poruka službi čeka potvrdu slanja.",
+            "checking_delivery": "Provjeravamo ishod slanja prije narednog koraka.",
+            "citizen": "Čekamo dodatne informacije od prijavioca.",
+            "planning": "Prijava je u planskoj obradi. Slijedi pregled i priprema zajedničkog zahtjeva.",
+            "city": "Čekamo novu informaciju nadležne službe."
+          }
+        }
+      }
+    }
+  }
+}

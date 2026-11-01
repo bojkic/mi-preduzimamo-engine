@@ -1,0 +1,6 @@
+<% add_decidim_page_title(t("decidim.bih.admin.navigation.title", default: "MI operations")) %>
+
+<%= render "decidim/bih/admin/shared/navigation",
+           mode: :dashboard,
+           metrics_by_item: @admin_dashboard_metrics,
+           handoffs: @admin_workflow_handoffs %>

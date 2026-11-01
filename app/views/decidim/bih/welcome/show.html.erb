@@ -1,0 +1,79 @@
+<%#
+  "Dobro došao/la" — shown once, right after the phone number is verified and
+  the komšiluk is picked.
+
+  Everything here is a link EXCEPT "Moj nalog": the page is reached by a GET
+  redirect from Onboarding::NextStep, so the only writer of mi_welcomed_at is
+  the POST this form makes. A citizen who leaves through one of the three
+  action links is greeted again next time, which is the intended trade — better
+  a second hello than a welcome silently consumed by a prefetch.
+
+  The points card shows what registration earned even when the ledger job that
+  posts it has not run yet (WelcomeController#load_points) — the number a
+  citizen sees here must never be 0.
+%>
+<% add_decidim_page_title(t(".title")) %>
+<%
+  actions = [
+    { key: "report", href: new_report_path, icon: "map-pin-line" },
+    { key: "propose", href: "/processes", icon: "lightbulb-line" },
+    { key: "invite", href: community_hub_path(tab: "pozovi"), icon: "group-line" }
+  ]
+%>
+
+<main class="wrapper">
+  <div class="mi-surface mi-welcome">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: t(".intro") %>
+
+    <section class="mi-surface-card mi-surface-card--strip acc-coral mi-welcome__points" aria-labelledby="mi-welcome-points">
+      <div class="mi-card-strip"></div>
+      <div class="mi-surface-card__body">
+        <p class="mi-eyebrow"><%= t(".points_title") %></p>
+        <h2 id="mi-welcome-points" class="mi-welcome__points-total"><%= t(".points", count: @points) %></h2>
+        <% if @registration_points.any? %>
+          <ul class="mi-welcome__breakdown" aria-label="<%= t(".breakdown_label") %>">
+            <% @registration_points.each do |action, amount| %>
+              <li><span><%= t(".breakdown.#{action}") %></span><strong>+<%= amount %></strong></li>
+            <% end %>
+          </ul>
+        <% end %>
+        <% if @invitation_available %>
+        <p class="mi-welcome__invitation" data-state="<%= @missing.positive? ? "missing" : "ready" %>">
+          <% if @missing.positive? %>
+            <%= t(".missing", count: @missing) %>
+          <% else %>
+            <%= t(".ready") %>
+          <% end %>
+        </p>
+        <% else %>
+          <p class="mi-welcome__next"><%= t(".community_next") %></p>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="mi-welcome__actions" aria-labelledby="mi-welcome-actions">
+      <h2 id="mi-welcome-actions" class="mi-welcome__heading"><%= t(".actions_title") %></h2>
+      <div class="mi-card-grid">
+        <% actions.each do |action| %>
+          <%= link_to action[:href], class: "mi-surface-card mi-welcome__action" do %>
+            <span class="mi-welcome__action-icon" aria-hidden="true"><%= icon action[:icon] %></span>
+            <strong><%= t(".actions.#{action[:key]}.title") %></strong>
+            <span><%= t(".actions.#{action[:key]}.text") %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+
+    <%= button_to t(".start"), start_welcome_path, class: "mi-btn mi-btn--primary mi-btn--lg mi-welcome__start", form: { class: "mi-welcome__start-form" } %>
+
+    <%# A <div>, not a <p>: a <form> inside <p> closes the paragraph, and the
+        sign-out link would drop onto its own line. %>
+    <div class="mi-welcome__logout">
+      <span><%= t(".logout_hint") %></span>
+      <%= button_to t(".logout"), decidim.destroy_user_session_path, method: :delete, class: "mi-welcome__logout-link", form: { class: "mi-welcome__logout-form" } %>
+    </div>
+  </div>
+</main>

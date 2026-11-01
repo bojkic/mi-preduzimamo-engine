@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title><%= t("decidim.bih.screen.title") %></title>
+    <link rel="stylesheet" href="/mi/mi-theme.css">
+  </head>
+  <body class="mi-screen"
+        data-screen-refresh-ms="<%= Decidim::Bih::ScreenController::REFRESH_MS %>"
+        data-screen-registered="<%= @figures[:registered] %>"
+        data-screen-reports="<%= @figures[:reports] %>"
+        data-screen-komsiluci="<%= @figures[:komsiluci_with_reports] %>">
+    <%# Host hook, the twin of the funders one in the footer: a host whose
+        grant wants a funder's mark leading every page provides
+        app/views/decidim/bih/screen/_header.html.erb. Nothing renders when
+        the partial is absent. %>
+    <%= render partial: "decidim/bih/screen/header" if lookup_context.exists?("header", ["decidim/bih/screen"], true) %>
+    <p data-screen-hidden <%= "hidden" if @figures[:scores_visible] %>><%= t("decidim.bih.community_hub.race.hidden") %></p>
+    <main class="mi-screen__main" <%= "hidden" unless @figures[:scores_visible] %>>
+      <section class="mi-screen__figures">
+        <article><strong data-screen-field="registered"><%= @figures[:registered] %></strong>
+          <span><%= t("decidim.bih.screen.registered") %></span></article>
+        <article><strong data-screen-field="reports"><%= @figures[:reports] %></strong>
+          <span><%= t("decidim.bih.screen.reports") %></span></article>
+        <article><strong data-screen-field="komsiluci_with_reports"><%= @figures[:komsiluci_with_reports] %></strong>
+          <span><%= t("decidim.bih.screen.komsiluci_with_reports") %></span></article>
+      </section>
+
+      <section class="mi-screen__leaders">
+        <% Decidim::Bih::LocalArea::ZONES.each do |zone| %>
+          <article class="mi-screen__leader" data-screen-leader="<%= zone %>">
+            <span><%= t("decidim.bih.community_hub.race.leader_#{zone}") %></span>
+            <strong data-screen-field="leader_<%= zone %>_name">
+              <%= @figures.dig(:leaders, zone, :name) || "—" %>
+            </strong>
+            <em data-screen-field="leader_<%= zone %>_score">
+              <%= @figures.dig(:leaders, zone, :score) %>
+            </em>
+          </article>
+        <% end %>
+      </section>
+
+      <ol class="mi-screen__top" data-screen-top>
+        <% Array(@figures[:top]).each do |row| %>
+          <li>
+            <span class="mi-screen__rank"><%= row[:rank] %></span>
+            <span class="mi-screen__name"><%= row[:name] %></span>
+            <span class="mi-screen__zone"><%= t("decidim.bih.community_hub.race.zone.#{row[:zona]}", default: row[:zona].to_s) %></span>
+            <span class="mi-screen__score"><%= row[:score] %></span>
+          </li>
+        <% end %>
+      </ol>
+    </main>
+
+    <footer class="mi-screen__footer">
+      <%# Host hook: a host app that must show its funders on the venue screen
+          (a grant's visibility rules, say) provides
+          app/views/decidim/bih/screen/_funders.html.erb. The engine has no
+          funders of its own, so nothing renders when the partial is absent. %>
+      <%= render partial: "decidim/bih/screen/funders" if lookup_context.exists?("funders", ["decidim/bih/screen"], true) %>
+      <span class="mi-screen__host">mi.fondacijabijeljina.com</span>
+      <% if @wifi[:ssid].present? %>
+        <span class="mi-screen__wifi">
+          <%= t("decidim.bih.screen.wifi", ssid: @wifi[:ssid], password: @wifi[:password]) %>
+        </span>
+      <% end %>
+    </footer>
+
+    <script>
+      // Refresh the figures every 30s. On ANY failure we KEEP the numbers that
+      // are already on screen — a hall full of people must never be shown an
+      // error because the venue wifi hiccuped.
+      (function () {
+        var body = document.body;
+        var every = parseInt(body.dataset.screenRefreshMs, 10) || 30000;
+
+        function set(field, value) {
+          if (value === null || value === undefined) return;
+          var el = document.querySelector('[data-screen-field="' + field + '"]');
+          if (el) el.textContent = value;
+        }
+
+        function apply(data) {
+          if (data.scores_visible === false) {
+            document.querySelector(".mi-screen__main").hidden = true;
+            document.querySelector("[data-screen-hidden]").hidden = false;
+            document.querySelectorAll("[data-screen-field]").forEach(function (el) { el.textContent = ""; });
+            document.querySelector("[data-screen-top]").replaceChildren();
+            ["screenRegistered", "screenReports", "screenKomsiluci"].forEach(function (key) { delete body.dataset[key]; });
+            return;
+          }
+          if (data.scores_visible !== true) return;
+          document.querySelector(".mi-screen__main").hidden = false;
+          document.querySelector("[data-screen-hidden]").hidden = true;
+          var top = document.querySelector("[data-screen-top]");
+          top.replaceChildren();
+          (data.top || []).forEach(function (row) {
+            var li = document.createElement("li");
+            [["rank",row.rank],["name",row.name],["zone",row.zona],["score",row.score]].forEach(function (pair) {
+              var span = document.createElement("span"); span.className = "mi-screen__" + pair[0]; span.textContent = pair[1]; li.appendChild(span);
+            });
+            top.appendChild(li);
+          });
+          set("registered", data.registered);
+          set("reports", data.reports);
+          set("komsiluci_with_reports", data.komsiluci_with_reports);
+          ["grad", "selo"].forEach(function (zone) {
+            var leader = data.leaders && data.leaders[zone];
+            if (!leader) { set("leader_" + zone + "_name", "—"); set("leader_" + zone + "_score", ""); return; }
+            set("leader_" + zone + "_name", leader.name);
+            set("leader_" + zone + "_score", leader.score);
+          });
+        }
+
+        function tick() {
+          fetch(window.location.pathname + ".json", { cache: "no-store", headers: { Accept: "application/json" } })
+            .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+            .then(apply)
+            .catch(function () { /* keep the last good figures on screen */ });
+        }
+
+        document.addEventListener("visibilitychange", function () { if (!document.hidden) tick(); });
+        setInterval(tick, every);
+      })();
+    </script>
+  </body>
+</html>

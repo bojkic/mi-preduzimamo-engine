@@ -1,0 +1,70 @@
+<%# MI PRE(D)UZIMAMO! — homepage HUB content block (engine-owned, reusable).
+    Two branded sections: the "MI <verb>" module tiles and the omnichannel
+    chatbot band. Styling lives in the host theme (public/mi/mi-theme.css). %>
+<section id="mi-hub" class="home__section mi-hub">
+  <div class="mi-modules">
+    <div class="mi-modules__head">
+      <p class="mi-eyebrow"><%= t_scope("modules.eyebrow") %></p>
+      <h2 class="mi-modules__title"><%= t_scope("modules.title") %></h2>
+    </div>
+
+    <div class="mi-modules__grid">
+      <% tiles.each do |tile| %>
+        <article class="mi-module-tile acc-<%= tile[:accent] %>">
+          <span class="mi-card-strip"></span>
+          <div class="mi-module-tile__body">
+            <span class="mi-module-tile__icon">
+              <%= icon tile[:icon], role: "img", "aria-hidden": true %>
+            </span>
+            <div class="mi-module-tile__heading">
+              <span class="mi-module-tile__mi"><%= t_scope("tiles.prefix") %></span>
+              <h3 class="mi-module-tile__verb"><%= t_scope("tiles.#{tile[:key]}.verb") %></h3>
+              <p class="mi-module-tile__kicker"><%= t_scope("tiles.#{tile[:key]}.kicker") %></p>
+            </div>
+            <p class="mi-module-tile__blurb"><%= t_scope("tiles.#{tile[:key]}.blurb") %></p>
+            <div class="mi-module-tile__links">
+              <%= link_to tile[:href], class: "mi-pill mi-pill--#{tile[:accent]}" do %>
+                <%= t_scope("tiles.#{tile[:key]}.cta") %>
+                <%= icon "arrow-right-line", role: "img", "aria-hidden": true %>
+              <% end %>
+              <% if tile[:secondary_href] %>
+                <%= link_to t_scope("tiles.#{tile[:key]}.secondary_cta"), tile[:secondary_href], class: "mi-module-tile__secondary" %>
+              <% end %>
+            </div>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="mi-omni-band">
+    <div class="mi-omni-band__text">
+      <p class="mi-eyebrow mi-eyebrow--sun"><%= t_scope("omni.eyebrow") %></p>
+      <h2 class="mi-omni-band__title"><%= t_scope("omni.title") %></h2>
+      <p class="mi-omni-band__lead"><%= t_scope("omni.lead") %></p>
+      <div class="mi-omni-band__channels">
+        <% channels.each do |channel| %>
+          <span class="mi-channel mi-channel--<%= channel %>">
+            <%= icon "chat-3-line", role: "img", "aria-hidden": true %>
+            <%= t_scope("omni.channels.#{channel}") %>
+          </span>
+        <% end %>
+      </div>
+      <p class="mi-omni-band__sms"><%== t_scope("omni.sms_html") %></p>
+      <p class="mi-omni-band__cta">
+        <%= link_to t_scope("omni.ask"), Decidim::Bih.public_path("mi-bot"),
+                    class: "mi-btn mi-btn--primary", data: { mi_bot_open: true } %>
+      </p>
+    </div>
+    <div class="mi-omni-band__emblem">
+      <% if persona_image_path %>
+        <%# Discover the rendered public portrait immediately; chat media remains lazy. %>
+        <img src="<%= persona_static_image_path %>"
+             alt="<%= t("decidim.bih.concierge.media.milica_wave.alt") %>"
+             width="512" height="512" loading="eager" decoding="async">
+      <% else %>
+        <img src="<%= heart_mark_path %>" alt="" aria-hidden="true" width="728" height="745" loading="lazy" decoding="async">
+      <% end %>
+    </div>
+  </div>
+</section>

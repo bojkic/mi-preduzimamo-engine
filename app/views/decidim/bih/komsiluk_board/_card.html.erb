@@ -1,0 +1,50 @@
+<% source_state = board_public_source_state(post); source_updating = source_state[:updating] %>
+<article class="mi-board-card <%= 'mi-board-card--urgent' if !source_updating && post.urgent? && post.current? %>" id="post-<%= post.id %>">
+  <div class="mi-board-card__labels">
+    <span class="mi-status-pill"><%= board_t("origins.#{post.display_origin}") %></span>
+    <% unless source_updating %><span class="mi-status-pill"><%= t("decidim.bih.komsiluk_board.categories.#{post.category}") %></span><% end %>
+    <% unless post.current? %><span class="mi-status-pill"><%= t("decidim.bih.komsiluk_board.statuses.#{post.effective_status}") %></span><% end %>
+    <% if !source_updating && post.details['outcome'].present? %><span class="mi-status-pill"><%= board_t("outcomes.#{post.details['outcome']}") %></span><% end %>
+  </div>
+  <% public_title = source_updating ? board_t("source_update.title") : post.title %>
+  <% if detail %><h1><%= public_title %></h1><% else %><h2><%= link_to public_title, decidim_bih.komsiluk_board_path(post, board_filter_params) %></h2><% end %>
+  <% if (detail || @mine) && post.komsiluk %><p><strong><%= post.komsiluk.translated_name %></strong></p><% end %>
+  <div class="mi-board-card__body"><%= source_updating ? board_t("source_update.body") : (detail ? post.sanitized_body : truncate(post.sanitized_body, length: 280)) %></div>
+  <% if !source_updating && source_state[:url] %><p><%= link_to board_t("source_update.open_source"), source_state[:url] %></p><% end %>
+  <% if !source_updating && post.photo.attached? %><%= image_tag decidim_bih.photo_komsiluk_board_path(post), alt: board_t('photo.alt'), loading: 'lazy', class: 'mi-board-photo' %><% end %>
+  <% if !source_updating && post.display_origin == 'city_service' %>
+    <section class="mi-board-source" aria-label="<%= board_t('source.title') %>">
+      <% if post.source_details['provider'].present? %><p><strong><%= post.source_details['provider'] %></strong></p><% end %>
+      <% if post.source_details['scope_label'].present? %><p><%= post.source_details['scope_label'] %></p><% end %>
+      <% %w(starts_at ends_at).each do |field| %><% if (value = board_datetime(post.source_details[field])) %><p><%= board_t("source.#{field}") %>: <%= value %></p><% end %><% end %>
+      <% post.source_urls.each_with_index do |url, index| %><%= link_to board_t('source.link', number: index + 1), url, rel: 'noopener noreferrer', target: '_blank' %><% end %>
+    </section>
+  <% end %>
+  <% if !source_updating && post.activity_details.present? %>
+    <dl class="mi-board-activity">
+      <% if (starts_at = board_datetime(post.activity_details['starts_at'])) %><dt><%= board_t('activity.starts_at') %></dt><dd><%= starts_at %></dd><% end %>
+      <% if post.activity_details['place_label'].present? %><dt><%= board_t('activity.place_label') %></dt><dd><%= post.activity_details['place_label'] %></dd><% end %>
+    </dl>
+    <% if (action_url = Decidim::Bih::KomsilukPost.safe_link(post.activity_details['action_url'])) %><%= link_to board_t('activity.action'), action_url, rel: 'noopener noreferrer' %><% end %>
+  <% end %>
+  <p class="mi-board-card__meta">
+    <% if post.author && post.display_origin != 'city_service' %>
+      <%= link_to "@#{post.author.nickname}", decidim.profile_path(post.author.nickname) %> ·
+    <% elsif post.display_origin == 'citizen' %>
+      <%= t('decidim.bih.komsiluk_board.index.author_deleted') %> ·
+    <% end %>
+    <time datetime="<%= (post.published_at || post.created_at).iso8601 %>"><%= board_datetime(post.published_at || post.created_at) %></time>
+    <% if post.content_revision > 1 %> · <%= board_t('edited', at: board_datetime(post.updated_at)) %><% end %>
+  </p>
+  <% if !source_updating && post.closed_at %><p class="mi-board-card__meta"><%= board_t("outcomes.closed") %> · <time datetime="<%= post.closed_at.iso8601 %>"><%= board_datetime(post.closed_at) %></time></p><% end %>
+  <% if !source_updating && post.expires_at %><p class="mi-board-card__meta"><%= board_t('valid_until', at: board_datetime(post.expires_at)) %></p><% end %>
+  <div class="mi-board-actions">
+    <% unless detail %><%= link_to board_t('read_notice'), decidim_bih.komsiluk_board_path(post, board_filter_params), class: 'mi-btn mi-btn--ghost mi-btn--sm' %><% end %>
+    <% if !source_updating && post.editable_by?(current_user) %><%= link_to board_t('edit'), decidim_bih.edit_komsiluk_board_path(post, board_filter_params), class: 'mi-btn mi-btn--ghost mi-btn--sm' %><% end %>
+    <% if !source_updating && post.decidim_user_id == current_user.id && post.open? %>
+      <%= button_to t('decidim.bih.komsiluk_board.index.close'), decidim_bih.zatvori_komsiluk_board_path(post, board_filter_params), method: :patch, class: 'mi-btn mi-btn--ghost mi-btn--sm' %>
+    <% elsif !source_updating && post.current? && @can_write %>
+      <%= button_to board_t('flag'), decidim_bih.prijavi_komsiluk_board_path(post, board_filter_params), method: :post, class: 'mi-btn mi-btn--ghost mi-btn--sm', data: { confirm: t('decidim.bih.komsiluk_board.index.flag_confirm') } %>
+    <% end %>
+  </div>
+</article>

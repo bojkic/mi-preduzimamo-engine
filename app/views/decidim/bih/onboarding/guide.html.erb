@@ -1,0 +1,125 @@
+<%#
+  "Sta mogu ovdje?" - concise capability index grouped by citizen intent.
+  Keep this page practical: each item links to one real next action.
+%>
+<% add_decidim_page_title(t("decidim.bih.onboarding.guide.title")) %>
+<%
+  account_key = current_user ? "signed_in" : "signed_out"
+  account_href = current_user ? account_overview_path : Decidim::Bih.registration_path
+
+  groups = [
+    {
+      key: "report",
+      icon: "map-pin-line",
+      href: new_report_path,
+      actions: [
+        { key: "new_report", href: new_report_path, icon: "add-circle-line" },
+        { key: "bot", href: mi_bot_path, icon: "chat-3-line" },
+        { key: "verification", href: verification_explainer_path, icon: "shield-check-line" }
+      ]
+    },
+    {
+      key: "track",
+      icon: "route-line",
+      href: reports_path,
+      actions: [
+        { key: "tracker", href: reports_path, icon: "search-line" },
+        { key: "map", href: reports_map_path, icon: "map-2-line" },
+        { key: "heatmap", href: report_heatmap_path, icon: "pie-chart-2-line" },
+        { key: "impact", href: impact_path, icon: "bar-chart-box-line" }
+      ]
+    },
+    {
+      key: "decide",
+      icon: "checkbox-multiple-line",
+      href: "/processes",
+      actions: [
+        { key: "processes", href: "/processes", icon: "git-branch-line" },
+        { key: "proposals", href: "/processes", icon: "lightbulb-line" },
+        { key: "budgets", href: "/processes", icon: "wallet-3-line" }
+      ]
+    },
+    {
+      key: "volunteer",
+      icon: "hand-heart-line",
+      href: volunteer_path,
+      actions: [
+        { key: "opportunities", href: volunteer_path, icon: "calendar-check-line" },
+        { key: "wallet", href: wallet_path, icon: "medal-line" },
+        { key: "impact", href: impact_path, icon: "line-chart-line" }
+      ]
+    },
+    {
+      key: "community",
+      icon: "group-line",
+      href: community_hub_path,
+      actions: [
+        { key: "goodwill", href: community_hub_path, icon: "star-line" },
+        { key: "rewards", href: community_hub_path(tab: "nagrade"), icon: "gift-line" },
+        { key: "komsiluk", href: komsiluk_board_index_path, icon: "home-heart-line" },
+        { key: "donations", href: community_projects_path, icon: "heart-2-line" },
+        { key: "mjesne_zajednice", href: mz_directory_path, icon: "community-line" }
+      ]
+    }
+  ]
+%>
+
+<div class="wrapper">
+  <div class="row column">
+    <section class="mi-guide" aria-labelledby="mi-guide-title">
+      <header class="mi-guide-hero">
+        <p class="mi-eyebrow"><%= t("decidim.bih.onboarding.guide.eyebrow") %></p>
+        <h1 id="mi-guide-title" class="heading2"><%= t("decidim.bih.onboarding.guide.title") %></h1>
+        <p><%= t("decidim.bih.onboarding.guide.subtitle") %></p>
+        <% if (public_access = t("decidim.bih.onboarding.guide.public_access", default: "")).present? %>
+          <p><%= public_access %></p>
+        <% end %>
+      </header>
+
+      <section class="mi-guide-account" aria-labelledby="mi-guide-account-title">
+        <div>
+          <p class="mi-eyebrow"><%= t("decidim.bih.onboarding.guide.account.#{account_key}.eyebrow") %></p>
+          <h2 id="mi-guide-account-title" class="heading4">
+            <%= t("decidim.bih.onboarding.guide.account.#{account_key}.title") %>
+          </h2>
+          <p><%= t("decidim.bih.onboarding.guide.account.#{account_key}.body") %></p>
+        </div>
+        <%= link_to t("decidim.bih.onboarding.guide.account.#{account_key}.cta"),
+                    account_href,
+                    class: "mi-btn mi-btn--primary" %>
+      </section>
+
+      <div class="mi-guide-groups">
+        <% groups.each do |group| %>
+          <section class="mi-guide-group" aria-labelledby="mi-guide-group-<%= group[:key] %>">
+            <div class="mi-guide-group__head">
+              <span class="mi-guide-group__icon"><%= icon group[:icon], role: "img", "aria-hidden": true %></span>
+              <div>
+                <h2 id="mi-guide-group-<%= group[:key] %>" class="heading4">
+                  <%= t("decidim.bih.onboarding.guide.groups.#{group[:key]}.title") %>
+                </h2>
+                <p><%= t("decidim.bih.onboarding.guide.groups.#{group[:key]}.text") %></p>
+              </div>
+            </div>
+
+            <div class="mi-guide-actions">
+              <% group[:actions].each do |action| %>
+                <%= link_to action[:href], class: "mi-guide-action" do %>
+                  <span class="mi-guide-action__icon"><%= icon action[:icon], role: "img", "aria-hidden": true %></span>
+                  <span>
+                    <strong><%= t("decidim.bih.onboarding.guide.actions.#{action[:key]}.title") %></strong>
+                    <em><%= t("decidim.bih.onboarding.guide.actions.#{action[:key]}.text") %></em>
+                  </span>
+                <% end %>
+              <% end %>
+            </div>
+
+            <%= link_to t("decidim.bih.onboarding.guide.groups.#{group[:key]}.cta"),
+                        group[:href],
+                        class: "mi-guide-group__cta" %>
+          </section>
+        <% end %>
+      </div>
+    </section>
+  </div>
+</div>

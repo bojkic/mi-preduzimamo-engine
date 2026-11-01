@@ -1,0 +1,93 @@
+<% copy = "decidim.bih.admin.board_review" %>
+<% add_decidim_page_title(t("#{copy}.review")) %>
+<div class="mi-board-admin">
+  <%= render "navigation" %>
+  <p><%= link_to t("#{copy}.back"), (@delivery_only ? new_admin_bih_board_notice_path : admin_bih_komsiluk_posts_path(moderation_filter_params.merge(anchor: "komsiluk-posts-list"))) %></p>
+  <article class="card mi-board-admin-detail" data-board-post-id="<%= @post.id %>">
+    <div class="card-section">
+      <p class="mi-board-admin-meta">
+        <strong><%= t("#{copy}.origins.#{@post.origin}") %></strong>
+        <span><%= @post.komsiluk&.translated_name %></span>
+        <% if board_mz_names(@post.komsiluk).any? %><span><%= board_mz_names(@post.komsiluk).join(" / ") %></span><% end %>
+      </p>
+      <h1><%= @post.title %></h1>
+      <dl class="mi-board-admin-facts">
+        <dt><%= t("#{copy}.category") %></dt><dd><%= t("decidim.bih.komsiluk_board.categories.#{@post.category}") %></dd>
+        <dt><%= t("#{copy}.status") %></dt><dd><%= t("decidim.bih.komsiluk_board.statuses.#{board_effective_status(@post)}") %></dd>
+        <dt><%= t("#{copy}.author") %></dt>
+        <dd>
+          <% if @post.origin == "city_service" %><%= @post.details.dig("source", "provider").presence || t("#{copy}.origins.city_service") %>
+          <% elsif @post.author %>@<%= @post.author.nickname %>
+          <% elsif @post.origin == "staff" %><%= t("#{copy}.origins.staff") %>
+          <% else %><%= t("#{copy}.unknown_author") %><% end %>
+        </dd>
+        <dt><%= t("#{copy}.created") %></dt><dd><time datetime="<%= @post.created_at.iso8601 %>"><%= l(@post.created_at, format: :short) %></time></dd>
+        <dt><%= t("#{copy}.valid_until") %></dt><dd><%= @post.expires_at ? l(@post.expires_at, format: :short) : t("#{copy}.no_expiry") %></dd>
+        <% unless @delivery_only %>
+        <dt><%= t("#{copy}.review_state") %></dt><dd><%= t("#{copy}.review_states.#{@post.review_state}") %></dd>
+        <dt><%= t("#{copy}.flag_count") %></dt><dd><%= @post.flagged_count %></dd>
+        <% end %>
+      </dl>
+      <% if @post.body.present? %><div class="mi-board-admin-body"><%= simple_format(@post.sanitized_body) %></div><% else %><p><%= t("#{copy}.scrubbed") %></p><% end %>
+      <%= render "media", post: @post if bih_allowed?(:komsiluk_posts_read, resource: @post) %>
+      <% if @post.details.dig("source", "scope_label").present? %><p><strong><%= @post.details.dig("source", "scope_label") %></strong></p><% end %>
+      <% source_urls = Array(@post.details.dig("source", "urls")).select { |url| url.is_a?(String) && url.match?(%r{\Ahttps?://}i) } %>
+      <% if source_urls.any? %><ul><% source_urls.each do |url| %><li><%= link_to t("#{copy}.source_link"), url, target: "_blank", rel: "noopener noreferrer" %></li><% end %></ul><% end %>
+      <%= render "staff_source" %>
+      <% if @review_links.any? %>
+        <div class="mi-board-admin-source-actions">
+          <p><%= t("#{copy}.source_authority") %></p>
+          <% @review_links.each do |item| %><%= link_to item.fetch(:label), item.fetch(:url), class: "button button__sm button__transparent-secondary" %><% end %>
+        </div>
+      <% end %>
+    </div>
+  </article>
+
+  <% if bih_allowed?(:komsiluk_posts_moderate, resource: @post) %>
+    <section class="card" id="board-review-decision">
+      <div class="card-section">
+        <h2><%= t("#{copy}.decision") %></h2>
+        <% if @post.origin == "city_service" %><p><%= t("#{copy}.local_hide_scope") %></p><% end %>
+        <%= form_tag admin_bih_komsiluk_post_decision_path(@post), method: :post, class: "form form-defaults mi-board-admin-decision" do %>
+          <% moderation_filter_params.each do |key, value| %><%= hidden_field_tag key, value %><% end %>
+          <%= hidden_field_tag :lock_version, @post.lock_version %>
+          <label for="board-review-action"><%= t("#{copy}.action") %></label>
+          <%= select_tag :decision, options_for_select((@post.hidden? ? %w(restore hide) : %w(keep hide)).map { |value| [t("#{copy}.actions.#{value}"), value] }), id: "board-review-action", required: true %>
+          <label for="board-review-reason"><%= t("#{copy}.reason") %></label>
+          <%= select_tag :reason, options_for_select([[t("#{copy}.choose_reason"), ""]] + Decidim::Bih::KomsilukPostReview::REASONS.map { |value| [t("#{copy}.reasons.#{value}"), value] }, params[:reason]), id: "board-review-reason", required: true %>
+          <%= submit_tag t("#{copy}.save_decision"), class: "button button__sm button__secondary" %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <% if lookup_context.exists?("decidim/bih/admin/board_notices/delivery", [], true) %>
+    <%= render "decidim/bih/admin/board_notices/delivery", post: @post %>
+  <% end %>
+
+  <% unless @delivery_only %>
+  <section class="card" id="board-review-history">
+    <div class="card-section">
+      <h2><%= t("#{copy}.history") %></h2>
+      <% if @reviews.empty? %><p><%= t("#{copy}.no_history") %></p><% else %>
+        <ol class="mi-board-admin-history">
+          <% @reviews.each do |review| %>
+            <li>
+              <strong><%= t("#{copy}.actions.#{review.action}") %></strong> — <%= t("#{copy}.reasons.#{review.reason}") %>
+              <p><%= t("#{copy}.transition", before: t("decidim.bih.komsiluk_board.statuses.#{review.previous_status}"), after: t("decidim.bih.komsiluk_board.statuses.#{review.resulting_status}"), revision: review.content_revision) %></p>
+              <small><%= l(review.created_at, format: :short) %> · <%= review.reviewer ? "@#{review.reviewer.nickname}" : t("#{copy}.unknown_author") %></small>
+            </li>
+          <% end %>
+        </ol>
+        <% if @review_pages > 1 %>
+          <nav class="mi-board-admin-pagination" aria-label="<%= t("#{copy}.history") %>">
+            <% if @review_page > 1 %><%= link_to t("#{copy}.previous"), admin_bih_komsiluk_post_path(@post, moderation_filter_params.merge(history_page: @review_page - 1, anchor: "board-review-history")) %><% end %>
+            <span><%= t("#{copy}.page", page: @review_page, pages: @review_pages) %></span>
+            <% if @review_page < @review_pages %><%= link_to t("#{copy}.next"), admin_bih_komsiluk_post_path(@post, moderation_filter_params.merge(history_page: @review_page + 1, anchor: "board-review-history")) %><% end %>
+          </nav>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+  <% end %>
+</div>

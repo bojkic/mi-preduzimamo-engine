@@ -1,0 +1,19 @@
+<%
+  active = local_assigns.fetch(:active)
+  tabs = [
+    [:new, t("decidim.bih.reports.new.title"), new_report_path],
+    [:index, t("decidim.bih.reports.index.title"), reports_path],
+    [:map, t("decidim.bih.reports_map.show.title"), reports_map_path],
+    [:heatmap, t("decidim.bih.report_heatmap.index.title"), report_heatmap_path]
+  ]
+%>
+
+<nav class="mi-surface-tabs" aria-label="<%= t("decidim.bih.menu.report_module", default: "Prijave") %>">
+  <% tabs.each do |key, label, path| %>
+    <% current = active.to_sym == key %>
+    <%= link_to label,
+                path,
+                class: ["mi-surface-tab", ("is-active" if current)].compact.join(" "),
+                "aria-current": (current ? "page" : nil) %>
+  <% end %>
+</nav>

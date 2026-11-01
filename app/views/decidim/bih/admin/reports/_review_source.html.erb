@@ -1,0 +1,13 @@
+<% w = "decidim.bih.review_workspace.ai.sources" %>
+<% source = source_id.to_s %>
+<% if %w(original location forwarding_note internal_note).include?(source) %>
+<%= link_to t("#{w}.#{source}"), source == "internal_note" ? "#report-case-conversation" : "#report-private-evidence" %>
+<% elsif (match = /\Amessage:(\d+)\z/.match(source)) && (message = report.case_messages.find_by(id: match[1])) %>
+<%= link_to "#{t('decidim.bih.report_case.roles.' + message.actor_role)} · #{l(message.created_at, format: :short)}", "#report-message-#{message.id}" %>
+<% elsif (match = /\Adispatch:(\d+)\z/.match(source)) && (dispatch = report.dispatches.find_by(id: match[1], state: "accepted")) %>
+<%= link_to "#{t('decidim.bih.review_workspace.dispatch_states.accepted')} · #{l(dispatch.created_at, format: :short)}", "#report-dispatch-#{dispatch.id}" %>
+<% elsif (match = /\Acandidate:(BR-\d{4}-\d+):/.match(source)) %>
+<%= link_to t("#{w}.candidate", reference: match[1]), admin_bih_report_path(reference: match[1]), target: "_blank", rel: "noopener noreferrer" %>
+<% elsif (match = /\Acollection:(\d+):/.match(source)) && (collection = Decidim::Bih::ReportCollection.find_by(organization: current_organization, id: match[1])) %>
+<%= link_to collection.title, admin_bih_report_collection_path(id: collection.id), target: "_blank", rel: "noopener noreferrer" %>
+<% else %><%= t("#{w}.archived") %><% end %>

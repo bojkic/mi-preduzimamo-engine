@@ -1,0 +1,21 @@
+# Preserve the existing menu block label after the upstream block removal.
+sr:
+  decidim:
+    content_blocks:
+      global_menu:
+        name: Meni zajednice
+sr-Cyrl:
+  decidim:
+    content_blocks:
+      global_menu:
+        name: Мени заједнице
+bs:
+  decidim:
+    content_blocks:
+      global_menu:
+        name: Meni zajednice
+hr:
+  decidim:
+    content_blocks:
+      global_menu:
+        name: Izbornik zajednice

@@ -1,0 +1,11 @@
+<%#
+  Branded sticker stamp. Reuses the real PNG stickers already published at
+  /mi/stickers/<id>.png (prijavljeno, podrzano, glas, hvala, preuzimamo,
+  rijeseno, stize, volim, bravo) — we do not redraw them. The PNG carries the
+  artwork + caption; the toned frame (badge or circle, per `shape`/`tone`) is the
+  design-kit chrome around it. `size` is the square edge in px.
+%>
+<div class="mi-bot-sticker mi-bot-sticker--<%= sticker[:shape] %> mi-sticker-tone-<%= sticker[:tone] %>"
+     style="--st-size: <%= size %>px;">
+  <img src="/mi/stickers/<%= sticker[:id] %>.png" alt="<%= sticker[:text] %>" class="mi-bot-sticker__img">
+</div>

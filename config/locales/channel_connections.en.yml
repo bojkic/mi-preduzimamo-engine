@@ -1,0 +1,28 @@
+{
+  "en": {
+    "decidim": {
+      "bih": {
+        "channel_connections": {
+          "title": "Messaging connections",
+          "explanation": "Connect a chat to your account. This does not enable notifications or sign-in. Choose notification permissions separately. Automated Messenger and Instagram messages require a recent message from you.",
+          "connected": "Connected to this account.",
+          "disconnected": "Connection removed.",
+          "disconnect": "Disconnect",
+          "connect": "Connect",
+          "unavailable": "This channel is not available yet.",
+          "finish": "Finish connecting",
+          "send_command": "Send this exact command to our existing %{channel} chat within 10 minutes. Do not share it.",
+          "confirm_help": "Enter the separate confirmation code returned in your chat. Only confirm a code you received in your own chat. If the command is no longer visible, start again.",
+          "code": "Confirmation code from your chat",
+          "confirm": "Confirm connection",
+          "back": "Back to my account",
+          "invalid": "The connection code is invalid or expired. Start again from your account.",
+          "chat_confirmation": "To connect your own account, enter %{code} on the account page where you started. Do not share this code. If you did not start connecting, ignore this message.",
+          "opted_out": "Notifications on this messaging channel are turned off. You can change this in your account settings.",
+          "command_label": "Connection command — press and hold to copy",
+          "opt_out_unmatched": "We could not connect this chat to an account, so no notification settings were changed. Sign in to turn off message notifications: %{url}"
+        }
+      }
+    }
+  }
+}

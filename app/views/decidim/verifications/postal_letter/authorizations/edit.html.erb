@@ -1,0 +1,63 @@
+<% add_decidim_page_title(t("decidim.bih.postal.public.edit.title")) %>
+
+<div class="wrapper">
+  <div class="row column">
+    <section class="mi-postal-page" aria-labelledby="mi-postal-confirm-title">
+      <div class="mi-postal-page__intro">
+        <p class="mi-eyebrow"><%= t("decidim.bih.postal.public.eyebrow") %></p>
+        <h1 id="mi-postal-confirm-title" class="heading2"><%= t("decidim.bih.postal.public.edit.title") %></h1>
+        <p><%= t("decidim.bih.postal.public.edit.body") %></p>
+      </div>
+
+      <div class="mi-postal-page__grid">
+        <% if authorization.letter_sent? %>
+          <%= decidim_form_for(@form, url: authorization_path, method: :put, html: { class: "mi-postal-form" }) do |form| %>
+            <%= form_required_explanation %>
+
+            <div class="form__wrapper">
+              <%= form.text_field :verification_code,
+                                  placeholder: "XXXXXX",
+                                  label: t("decidim.bih.postal.public.edit.code_label"),
+                                  help_text: t("decidim.bih.postal.public.edit.code_help") %>
+            </div>
+
+            <div class="form__wrapper-block flex-col-reverse md:flex-row justify-between">
+              <%= link_to authorizations_back_path(current_user, redirect_url:), class: "button button__sm md:button__lg button__text-secondary" do %>
+                <%= icon "arrow-left-line", class: "fill-current" %>
+                <span><%= t("decidim.wizard_step_form.wizard_aside.back") %></span>
+              <% end %>
+              <button type="submit" class="button button__sm md:button__lg button__secondary">
+                <span><%= t("decidim.bih.postal.public.edit.send") %></span>
+                <%= icon "arrow-right-line", class: "fill-current" %>
+              </button>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="mi-postal-form mi-postal-form--waiting">
+            <h2 class="heading5"><%= t("decidim.bih.postal.public.edit.waiting_title") %></h2>
+            <p><%= t("decidim.bih.postal.public.edit.waiting_body") %></p>
+            <%= link_to authorizations_back_path(current_user, redirect_url:), class: "button button__sm md:button__lg button__text-secondary" do %>
+              <%= icon "arrow-left-line", class: "fill-current" %>
+              <%= t("decidim.wizard_step_form.wizard_aside.back") %>
+            <% end %>
+          </div>
+        <% end %>
+
+        <aside class="mi-postal-note" aria-label="<%= t("decidim.bih.postal.public.status_title") %>">
+          <h2 class="heading5"><%= t("decidim.bih.postal.public.status_title") %></h2>
+          <% if authorization.letter_sent? %>
+            <p><%= t("decidim.bih.postal.public.edit.sent_status", date: authorization.letter_sent_at) %></p>
+            <p><%= t("decidim.bih.postal.public.edit.qr_note") %></p>
+          <% else %>
+            <p><%= t("decidim.bih.postal.public.edit.queued_status") %></p>
+          <% end %>
+          <h3 class="heading6"><%= t("decidim.bih.postal.public.privacy_title") %></h3>
+          <ul>
+            <li><%= t("decidim.bih.postal.public.privacy.address") %></li>
+            <li><%= t("decidim.bih.postal.public.privacy.profile") %></li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,209 @@
+<%
+  groups = Array(Decidim::Bih::Admin::Navigation.groups(view_context: self)).filter_map do |group|
+    group = group.respond_to?(:to_h) ? group.to_h.symbolize_keys : {}
+    items = Array(group[:items]).filter_map do |item|
+      item = item.respond_to?(:to_h) ? item.to_h.symbolize_keys : {}
+      next if item[:id].blank? || item[:label].blank? || item[:url].blank?
+
+      item
+    end
+    next if group[:id].blank? || group[:label].blank? || items.empty?
+
+    group.merge(items:)
+  end
+  mode = local_assigns.fetch(:mode, :compact).to_sym
+  current_item = local_assigns[:current_item].to_s
+  current_step_label = local_assigns[:current_step_label]
+  metrics_by_item = local_assigns.fetch(:metrics_by_item, {})
+  handoffs = local_assigns.fetch(:handoffs, [])
+  primary_ids = %w(reports city_alerts komsiluk_posts volunteering goodwill integrations)
+  primary_items = groups.flat_map { |group| group[:items] }.select { |item| primary_ids.include?(item[:id].to_s) }
+  active_item = groups.flat_map { |group| group[:items] }.find { |item| item[:id].to_s == current_item }
+  active_group = groups.find { |group| group[:items].any? { |item| item[:id].to_s == current_item } }
+  active_area_items = active_group ? active_group[:items] : []
+  breadcrumbs = Decidim::Bih::Admin::Navigation.breadcrumbs(
+    view_context: self,
+    current_item:,
+    current_step_label:
+  )
+
+  access_label_for = lambda do |permission|
+    next nil if permission.blank?
+
+    roles = Decidim::Bih::OperatorRole.roles_for_permission(permission)
+    role_labels = roles.map { |role| t("decidim.bih.admin.operator_roles.roles.#{role}") }
+    label = if role_labels.any?
+              role_labels.to_sentence
+            else
+              t("decidim.bih.admin.navigation.access_admin_only", default: "Admin only")
+            end
+
+    t("decidim.bih.admin.navigation.access_label", roles: label, default: "Access: %{roles}")
+  end
+%>
+
+<% if mode == :dashboard %>
+  <div class="card mi-admin-nav mi-admin-nav--dashboard" id="admin-bih-navigation">
+    <div class="item_show__header mi-admin-nav__header">
+      <div>
+        <div class="mi-admin-nav__eyebrow"><%= t("decidim.bih.admin.navigation.eyebrow", default: "Admin workspace") %></div>
+        <h1 class="item_show__header-title mi-admin-nav__title"><%= t("decidim.bih.admin.navigation.title", default: "MI operations") %></h1>
+        <p class="mi-admin-nav__intro"><%= t("decidim.bih.admin.navigation.intro", default: "Start daily review queues, community-value work, data checks, and settings from one place.") %></p>
+      </div>
+    </div>
+    <div class="card-section">
+      <div class="mi-admin-nav__grid mi-admin-nav__grid--primary" data-admin-primary-workflows>
+        <% primary_items.each do |item| %>
+          <% metric = metrics_by_item[item[:id].to_s] || {} %>
+          <%= link_to item[:url], class: "mi-admin-nav__link", data: { admin_primary_item: item[:id] } do %>
+            <span class="mi-admin-nav__link-title"><strong><%= item[:label] %></strong>
+              <% if metric[:label].present? %><span class="mi-admin-nav__metric mi-admin-nav__metric--<%= metric[:tone].presence || "neutral" %>"><%= metric[:value] %> <%= metric[:label] %></span><% end %>
+            </span>
+            <% if item[:description].present? %><span class="mi-admin-nav__link-description"><%= item[:description] %></span><% end %>
+          <% end %>
+        <% end %>
+      </div>
+      <details class="mi-admin-nav__all-tools" id="admin-all-tools" <%= "open" if params[:open_tools] == "1" %>>
+        <summary><%= t("decidim.bih.admin.navigation.all_tools", default: "All tools and settings") %></summary>
+        <div class="mi-admin-nav__grid">
+        <% groups.each do |group| %>
+          <section class="mi-admin-nav__group" id="admin-navigation-group-<%= group[:id] %>" data-admin-navigation-group="<%= group[:id] %>">
+            <h2 class="mi-admin-nav__group-title"><%= group[:label] %></h2>
+            <div class="mi-admin-nav__links">
+              <% group[:items].each do |item| %>
+                <% metric = metrics_by_item[item[:id].to_s] || {} %>
+                <% access_label = access_label_for.call(item[:permission]) %>
+                <%= link_to item[:url], class: "mi-admin-nav__link", data: { admin_navigation_item: item[:id] } do %>
+                  <span class="mi-admin-nav__link-title">
+                    <strong><%= item[:label] %></strong>
+                    <% if metric[:label].present? %>
+                      <span class="mi-admin-nav__metric mi-admin-nav__metric--<%= metric[:tone].presence || "neutral" %>">
+                        <% if metric[:value].present? %><%= metric[:value] %><% end %>
+                        <span class="mi-admin-nav__metric-label"><%= metric[:label] %></span>
+                      </span>
+                    <% end %>
+                  </span>
+                  <% if item[:description].present? %>
+                    <span class="mi-admin-nav__link-description"><%= item[:description] %></span>
+                  <% end %>
+                  <% if access_label.present? %>
+                    <span class="mi-admin-nav__access" data-admin-navigation-access="<%= item[:id] %>"><%= access_label %></span>
+                  <% end %>
+                  <% if metric[:note].present? %>
+                    <span class="mi-admin-nav__note" data-admin-navigation-note="<%= item[:id] %>"><%= metric[:note] %></span>
+                  <% end %>
+                  <% if metric[:updated_at].present? %>
+                    <span class="mi-admin-nav__updated">
+                      <%= t("decidim.bih.admin.operations_summary.metrics.updated_at", at: l(metric[:updated_at], format: :short)) %>
+                    </span>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </div>
+          </section>
+        <% end %>
+        </div>
+      </details>
+    </div>
+
+    <% if handoffs.any? %>
+      <div class="card-section">
+        <details class="mi-admin-nav__all-tools" id="admin-operator-handoffs">
+        <summary><%= t("decidim.bih.admin.navigation.handoffs_title", default: "Manual approvals and runbooks") %></summary>
+      <div class="mi-admin-nav__handoffs">
+          <% handoffs.each do |handoff| %>
+            <section class="mi-admin-nav__handoff" data-admin-handoff="<%= handoff[:id] %>">
+              <h3 class="mi-admin-nav__handoff-title"><%= handoff[:title] %></h3>
+              <div class="mi-admin-nav__handoff-body"><%= handoff[:body] %></div>
+              <strong class="mi-admin-nav__handoff-status"><%= handoff[:status] %></strong>
+              <% if handoff[:url].present? %>
+                <%= link_to t("decidim.bih.admin.operations_summary.handoffs.open_workflow"),
+                            handoff[:url],
+                            class: "button button__sm button__transparent-secondary" %>
+              <% end %>
+              <% if handoff[:command].present? %>
+                <details class="mi-admin-nav__diagnostics">
+                  <summary><%= t("decidim.bih.admin.operations_summary.handoffs.diagnostics") %></summary>
+                  <code class="mi-admin-nav__command"><%= handoff[:command] %></code>
+                </details>
+              <% end %>
+            </section>
+          <% end %>
+        </div>
+        </details>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <nav class="card mi-admin-nav mi-admin-nav--compact" id="admin-bih-navigation" aria-label="<%= t("decidim.bih.admin.navigation.title", default: "MI operations") %>">
+    <div class="card-section">
+      <ol class="breadcrumbs mi-admin-nav__breadcrumbs" data-admin-breadcrumbs>
+        <% breadcrumbs.each_with_index do |crumb, index| %>
+          <% current_crumb = index == breadcrumbs.length - 1 %>
+          <li data-admin-breadcrumb="<%= crumb[:id] %>" <%= "aria-current=\"page\"".html_safe if current_crumb %>>
+            <% if crumb[:url].present? && !current_crumb %>
+              <%= link_to crumb[:label], crumb[:url] %>
+            <% else %>
+              <span><%= crumb[:label] %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ol>
+
+      <div class="mi-admin-nav__header">
+        <div>
+          <div class="mi-admin-nav__eyebrow"><%= t("decidim.bih.admin.navigation.eyebrow", default: "Admin workspace") %></div>
+          <h2 class="mi-admin-nav__title">
+            <% if active_item %>
+              <%= active_item[:label] %>
+            <% else %>
+              <%= t("decidim.bih.admin.navigation.title", default: "MI operations") %>
+            <% end %>
+          </h2>
+          <% if active_item&.dig(:description).present? %>
+            <p class="mi-admin-nav__intro"><%= active_item[:description] %></p>
+          <% end %>
+        </div>
+        <%= link_to t("decidim.bih.admin.navigation.dashboard", default: "MI dashboard"),
+                    decidim_admin_bih.operations_path,
+                    class: "button button__sm button__transparent-secondary" %>
+      </div>
+
+      <details class="mi-admin-nav__related-tools" id="admin-related-tools">
+        <summary><%= t("decidim.bih.admin.navigation.related_tools", default: "Related tools") %></summary>
+      <div class="mi-admin-nav__area-tabs" data-admin-navigation-areas>
+        <% groups.each do |group| %>
+          <% area_current = active_group && group[:id].to_s == active_group[:id].to_s %>
+          <%= link_to group[:label],
+                      decidim_admin_bih.operations_path(open_tools: 1, anchor: "admin-navigation-group-#{group[:id]}"),
+                      class: "mi-admin-nav__area-link",
+                      aria: { current: (area_current ? "true" : nil) },
+                      data: { admin_navigation_area: group[:id] } %>
+        <% end %>
+      </div>
+
+      <% if active_group %>
+        <div class="mi-admin-nav__area-panel" data-admin-navigation-current-area="<%= active_group[:id] %>">
+          <strong class="mi-admin-nav__area-title">
+            <%= t("decidim.bih.admin.navigation.current_area", area: active_group[:label], default: "Current area: %{area}") %>
+          </strong>
+          <div class="mi-admin-nav__area-links">
+            <% active_area_items.each do |item| %>
+            <% metric = metrics_by_item[item[:id].to_s] || {} %>
+            <%= link_to item[:url],
+                        class: "mi-admin-nav__compact-link",
+                        aria: { current: (item[:id].to_s == current_item ? "page" : nil) },
+                        data: { admin_navigation_item: item[:id] } do %>
+              <span><%= item[:label] %></span>
+              <% if metric[:value].present? %>
+                <span class="mi-admin-nav__metric mi-admin-nav__metric--<%= metric[:tone].presence || "neutral" %>"><%= metric[:value] %></span>
+              <% end %>
+            <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      </details>
+    </div>
+  </nav>
+<% end %>

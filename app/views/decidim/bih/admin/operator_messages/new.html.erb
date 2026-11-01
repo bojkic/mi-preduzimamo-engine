@@ -1,0 +1,103 @@
+<% add_decidim_page_title(t("decidim.bih.admin.operator_messages.new.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :operator_messages %>
+
+<div class="card">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.operator_messages.new.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.operator_messages.new.intro") %></p>
+    <% if @form_errors.present? %>
+      <div class="callout alert" role="alert">
+        <ul><% @form_errors.each do |error| %><li><%= error %></li><% end %></ul>
+      </div>
+    <% end %>
+    <% unless @recipient %>
+      <%= form_tag(new_operator_message_path, method: :get, class: "form form-defaults mi-admin-filter") do %>
+        <label>
+          <%= t("decidim.bih.admin.operator_messages.new.search_label") %><br>
+          <%= text_field_tag :q, @query, placeholder: t("decidim.bih.admin.operator_messages.new.search_placeholder") %>
+        </label>
+        <%= submit_tag t("decidim.bih.admin.operator_messages.new.search_submit"), class: "button button__sm button__secondary" %>
+      <% end %>
+      <% if @results.any? %>
+        <ul>
+          <% @results.each do |user| %>
+            <li>
+              <%= link_to "#{user.name.presence || user.nickname} (@#{user.nickname})",
+                          new_operator_message_path(recipient_id: user.id) %>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    <% end %>
+
+    <% if @recipient %>
+      <% if @message_context %>
+        <p>
+          <strong><%= t("decidim.bih.admin.operator_messages.new.context") %>:</strong>
+          <%= @message_context_label %>
+        </p>
+      <% end %>
+      <p>
+        <strong><%= t("decidim.bih.admin.operator_messages.new.recipient") %>:</strong>
+        <%= @recipient.name.presence || @recipient.nickname %> (@<%= @recipient.nickname %>)
+      </p>
+      <%= form_tag(operator_messages_path, method: :post, style: "display:grid; gap:0.75rem; max-width:42rem;", class: "form form-defaults") do %>
+        <%= hidden_field_tag :recipient_id, @recipient.id %>
+        <% if @message_context %>
+          <%= hidden_field_tag :context_type, @message_context_type %>
+          <%= hidden_field_tag :context_id, @message_context.id %>
+        <% end %>
+        <label>
+          <%= t("decidim.bih.admin.operator_messages.new.subject") %><br>
+          <%= text_field_tag :subject, @subject, required: true, maxlength: Decidim::Bih::OperatorMessage::SUBJECT_MAX, style: "width:100%;" %>
+        </label>
+        <label>
+          <%= t("decidim.bih.admin.operator_messages.new.body") %><br>
+          <%= text_area_tag :body, @body, required: true, maxlength: Decidim::Bih::OperatorMessage::BODY_MAX, rows: 6, style: "width:100%;" %>
+        </label>
+        <% delivery_t = "decidim.bih.account_channels" %>
+        <fieldset class="callout">
+          <legend><%= t("#{delivery_t}.operator.title") %></legend>
+          <p><%= t("#{delivery_t}.operator.help") %></p>
+          <p><strong><%= t("#{delivery_t}.operator.topic") %>:</strong> <%= t("#{delivery_t}.topics.#{@message_context.is_a?(Decidim::Bih::Report) ? 'report_updates' : 'community_news'}") %></p>
+          <label><%= check_box_tag :external_copy, "1", params[:external_copy] == "1" %> <%= t("#{delivery_t}.operator.external") %></label>
+          <%= button_tag t("#{delivery_t}.operator.preview"), name: :delivery_preview, value: "1", type: :submit, formnovalidate: true, class: "button button__sm button__secondary" %>
+          <% if @delivery_preview %>
+            <%= hidden_field_tag :delivery_token, @delivery_token %>
+            <p role="status"><%= @delivery_preview[:eligible] ? t("#{delivery_t}.operator.eligible", channels: @delivery_preview[:channels].map { |channel| t("#{delivery_t}.channels.#{channel}") }.join(", ")) : t("#{delivery_t}.operator.none") %></p>
+            <ul>
+              <% @delivery_preview.fetch(:reasons, {}).reject { |_channel, reason| reason.nil? }.each do |channel, reason| %>
+                <li><%= t("#{delivery_t}.operator.reason", channel: t("#{delivery_t}.channels.#{channel}"), reason: t("#{delivery_t}.reasons.#{reason}", default: t("#{delivery_t}.reasons.unavailable"))) %></li>
+              <% end %>
+            </ul>
+            <% if @delivery_template && @delivery_preview[:channels].include?("whatsapp") %>
+              <p><strong>WhatsApp:</strong> <%= @delivery_template[:display_text] || @delivery_template["display_text"] || @delivery_template.fetch(:body, @delivery_template["body"] || {}).values.join(" — ") %></p>
+            <% end %>
+          <% end %>
+        </fieldset>
+        <%# The same composer the broadcast surface renders. It adds audience,
+            per-channel content, readiness and cost; the review checkbox below
+            and the signed delivery token above are untouched, and
+            Messaging::DispatchGuard runs again inside #create. %>
+        <% if @composer %>
+          <%= render "decidim/bih/admin/shared/composer",
+                     content_plan: @composer[:content_plan],
+                     estimate: @composer[:estimate],
+                     guard: @dispatch_guard || @composer[:guard],
+                     recipient_label: @composer[:recipient_label] %>
+        <% end %>
+        <fieldset class="callout warning">
+          <legend><%= t("decidim.bih.admin.operator_messages.new.review_title") %></legend>
+          <p><%= t("decidim.bih.admin.operator_messages.new.review_help") %></p>
+          <p><strong><%= t("decidim.bih.admin.operator_messages.new.recipient") %>:</strong> <%= @recipient.name.presence || @recipient.nickname %> (@<%= @recipient.nickname %>)</p>
+          <% if @message_context_label %><p><strong><%= t("decidim.bih.admin.operator_messages.new.context") %>:</strong> <%= @message_context_label %></p><% end %>
+          <label><%= check_box_tag :message_reviewed, "1", false, required: true %> <%= t("decidim.bih.admin.operator_messages.new.review_confirmation") %></label>
+        </fieldset>
+        <div><%= submit_tag t("decidim.bih.admin.operator_messages.new.send"), class: "button button__secondary" %></div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

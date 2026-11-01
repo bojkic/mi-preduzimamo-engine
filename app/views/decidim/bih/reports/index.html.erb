@@ -1,0 +1,143 @@
+<% add_decidim_page_title(t(".title")) %>
+<%#
+  Public issue-tracker index of citizen reports ("Bice riseno!").
+
+  Reviewed public projection: cards expose only reference, category,
+  severity/status, the exact public address, city status, and dates.
+  Reporter contact, raw descriptions, and status tokens never render here.
+%>
+<%
+  status_label = ->(status) { Decidim::Bih::ReportStatusPresenter.label(status) }
+  category_label = ->(category) { t("decidim.bih.reports.categories.#{category}", default: category) }
+%>
+
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: t(".intro") %>
+
+    <%= render "decidim/bih/shared/report_module_tabs", active: :index %>
+    <%= render "decidim/bih/shared/report_summary_cards", summary: @report_summary %>
+
+    <nav class="mi-filter-pills" aria-label="<%= t(".view_label") %>" style="margin-bottom: 1rem;">
+      <%= link_to t(".all_reports"), reports_path,
+                  class: ["mi-filter-pill", ("is-active" unless @mine)].compact.join(" "),
+                  "aria-current": (@mine ? nil : "true") %>
+      <%= link_to t(".my_reports"), reports_path(view: "mine"),
+                  class: ["mi-filter-pill", ("is-active" if @mine)].compact.join(" "),
+                  "aria-current": (@mine ? "true" : nil) %>
+    </nav>
+
+    <%= form_with url: reports_path, method: :get, html: { role: "search", class: "mi-filter-panel" } do %>
+      <%= hidden_field_tag :view, "mine" if @mine %>
+      <div class="mi-field">
+        <label for="bih-reports-q"><%= t(".filters.search_label") %></label>
+        <div class="mi-filter-panel__search">
+          <input type="search" id="bih-reports-q" name="q" value="<%= @query %>" placeholder="<%= t(".filters.search_placeholder") %>">
+          <button type="submit" class="mi-btn mi-btn--primary mi-btn--sm"><%= t(".filters.apply") %></button>
+        </div>
+      </div>
+
+      <div class="mi-filter-group">
+        <strong><%= t(".filters.status") %></strong>
+        <div class="mi-filter-pills">
+          <%= link_to t(".filters.all"),
+                      reports_path(q: @query.presence, category: @category, view: ("mine" if @mine)),
+                      class: ["mi-filter-pill", ("is-active" unless @status)].compact.join(" "),
+                      "aria-current": (@status ? nil : "true") %>
+          <% @statuses.each do |status| %>
+            <% active = (@status == status) %>
+            <%= link_to reports_path(status: status, q: @query.presence, category: @category, view: ("mine" if @mine)),
+                        class: ["mi-filter-pill", ("is-active" if active)].compact.join(" "),
+                        "aria-current": (active ? "true" : nil) do %>
+              <span aria-hidden="true" class="mi-dot" style="background: <%= Decidim::Bih::ReportStatusPresenter.color(status) %>;"></span>
+              <span><%= status_label.call(status) %></span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mi-filter-group">
+        <strong><%= t(".filters.category") %></strong>
+        <div class="mi-filter-pills">
+          <%= link_to t(".filters.all"),
+                      reports_path(q: @query.presence, status: @status, view: ("mine" if @mine)),
+                      class: ["mi-filter-pill mi-filter-pill--coral", ("is-active" unless @category)].compact.join(" "),
+                      "aria-current": (@category ? nil : "true") %>
+          <% @categories.each do |category| %>
+            <% active = (@category == category) %>
+            <%= link_to category_label.call(category),
+                        reports_path(category: category, q: @query.presence, status: @status, view: ("mine" if @mine)),
+                        class: ["mi-filter-pill mi-filter-pill--coral", ("is-active" if active)].compact.join(" "),
+                        "aria-current": (active ? "true" : nil) %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @reports.any? %>
+      <div class="mi-report-grid">
+        <% @reports.each do |report| %>
+          <% status = Decidim::Bih::ReportStatusPresenter.status_key(report) %>
+          <% tone = Decidim::Bih::ReportStatusPresenter.tone(status) %>
+          <% report_link_path = if @mine
+                                  report_status_path(reference: report.reference, status_token: report.status_token)
+                                else
+                                  report_path(reference: report.reference)
+                                end %>
+          <%= link_to report_link_path,
+                      class: "mi-surface-card mi-surface-card--strip mi-report-card",
+                      "aria-label": t(".card.aria", reference: report.reference) do %>
+            <span class="mi-card-strip" style="background: var(--mi-coral-600);"></span>
+            <article class="mi-report-card__body">
+              <p class="mi-report-card__reference">
+                <span><%= t(".card.reference") %></span>
+                <%= report.reference %>
+              </p>
+
+              <% if report.category.present? %>
+                <p class="mi-report-card__meta"><strong><%= category_label.call(report.category) %></strong></p>
+              <% end %>
+
+              <span class="mi-status-pill mi-status-pill--inline"
+                    style="background: <%= tone[0] %>; color: <%= tone[1] %>;">
+                <span aria-hidden="true" class="mi-dot" style="background: <%= tone[2] %>;"></span>
+                <%= status_label.call(status) %>
+              </span>
+
+              <% if report.public_address.present? %>
+                <p class="mi-report-card__meta"><%= report.public_address %></p>
+              <% end %>
+
+              <% if report.sistem48_status_known? %>
+                <p class="mi-report-card__meta">
+                  <strong><%= t("decidim.bih.reports.sistem48.city_status") %>:</strong>
+                  <%= report.sistem48_status %>
+                </p>
+              <% end %>
+
+              <p class="mi-report-card__date"><%= l(report.created_at.to_date, format: :long) %></p>
+            </article>
+          <% end %>
+        <% end %>
+      </div>
+
+      <% if @reports.respond_to?(:total_pages) && @reports.total_pages > 1 %>
+        <nav class="mi-pagination" aria-label="<%= t(".pagination") %>" style="margin-top: 1.5rem;">
+          <%= paginate @reports, params: { status: @status, category: @category, q: @query.presence, view: ("mine" if @mine) } %>
+        </nav>
+      <% end %>
+    <% else %>
+      <section class="mi-empty-state">
+        <img src="/mi/heart-mark.png" alt="" aria-hidden="true">
+        <h2 class="heading4"><%= t(".empty.#{@mine ? "mine_title" : "title"}") %></h2>
+        <p><%= t(".empty.#{@mine ? "mine_body" : "body"}") %></p>
+        <p class="mi-action-row" style="justify-content: center; margin-top: 1rem;">
+          <%= link_to t(".empty.cta"), new_report_path, class: "mi-btn mi-btn--primary" %>
+        </p>
+      </section>
+    <% end %>
+  </div>
+</main>

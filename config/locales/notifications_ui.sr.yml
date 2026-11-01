@@ -1,0 +1,35 @@
+{
+  "sr": {
+    "layouts": {
+      "decidim": {
+        "notifications_dashboard": {
+          "mark_all_as_read": "Označi sva kao pročitana",
+          "mark_as_read": "Označi kao pročitano"
+        }
+      }
+    },
+    "decidim": {
+      "user_conversations": {
+        "index": {
+          "time_ago": "prije %{time}"
+        }
+      },
+      "events": {
+        "gamification": {
+          "badge_earned": {
+            "notification_title": "Čestitamo! Osvojio/la si značku <a href=\"%{resource_path}\">%{badge_name}</a> (nivo %{current_level}).",
+            "email_intro": "Čestitamo! Osvojio/la si značku <a href=\"%{resource_url}\">%{badge_name}</a> (nivo %{current_level}).",
+            "email_subject": "Osvojio/la si novu značku: %{badge_name}!",
+            "email_outro": "Ovo obavještenje dobijaš zbog svog učešća na platformi."
+          },
+          "level_up": {
+            "notification_title": "Čestitamo! Dostigao/la si nivo %{current_level} za značku <a href=\"%{resource_path}\">%{badge_name}</a>.",
+            "email_intro": "Čestitamo! Dostigao/la si nivo %{current_level} za značku <a href=\"%{resource_url}\">%{badge_name}</a>.",
+            "email_subject": "Dostigao/la si nivo %{current_level} za značku %{badge_name}!",
+            "email_outro": "Ovo obavještenje dobijaš zbog svog učešća na platformi."
+          }
+        }
+      }
+    }
+  }
+}

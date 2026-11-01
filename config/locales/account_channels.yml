@@ -1,0 +1,442 @@
+{
+  "en": {
+    "decidim": {
+      "bih": {
+        "account_channels": {
+          "title": "Messages and connections",
+          "intro": "Choose notification topics. The platform selects a suitable available delivery channel.",
+          "back": "Back to my account",
+          "connections": "Account connections",
+          "connection_help": "A verified phone can address Viber and WhatsApp. It does not confirm that the app is installed or allow notifications. Messenger and Instagram require a separate connection and a recent message from you.",
+          "saved": "Your message preference has been saved.",
+          "allow": "Receive via %{channel}",
+          "save": "Save choice",
+          "connect": "Connect or disconnect chat accounts",
+          "topics": {
+            "report_updates": "Updates about my reports",
+            "community_news": "Community news and messages",
+            "city_service_alerts": "City service alerts"
+          },
+          "topic_help": {
+            "report_updates": "Changes to reports you submitted and related messages.",
+            "community_news": "News, invitations and messages from the foundation and community operators.",
+            "city_service_alerts": "Relevant service interruptions and local alerts, when this service is available."
+          },
+          "channels": {
+            "viber": "Viber",
+            "whatsapp": "WhatsApp",
+            "messenger": "Facebook Messenger",
+            "instagram": "Instagram",
+            "email": "Email"
+          },
+          "states": {
+            "verified_phone": "Phone verified; delivery availability depends on the messaging app.",
+            "phone_missing": "Verify your phone to use this channel.",
+            "connected": "Connected; a recent conversation allows replies.",
+            "session_closed": "Connected; send a new chat message to receive automated replies.",
+            "not_connected": "No active connection.",
+            "unavailable": "Channel setup is not available yet."
+          },
+          "operator": {
+            "title": "Additional notification",
+            "help": "The platform message is always saved. An additional copy uses the selected topic permissions and available channels. WhatsApp may use the approved summary shown in the preview.",
+            "external": "Also send through a suitable available channel",
+            "preview": "Preview delivery",
+            "eligible": "Available channels: %{channels}",
+            "none": "No eligible delivery channel. The platform message can still be sent.",
+            "reason": "%{channel}: %{reason}",
+            "preview_required": "Preview this exact message before requesting an additional notification.",
+            "topic": "Notification topic"
+          },
+          "reasons": {
+            "not_permitted": "The user has turned off notifications for this topic.",
+            "no_verified_phone": "A current verified phone is missing.",
+            "not_configured": "The channel is not available.",
+            "no_connection": "The user has not connected this account.",
+            "session_expired": "A new message from the user is required.",
+            "no_template": "An approved template is not available for this message.",
+            "unavailable": "This channel is not currently eligible.",
+            "account_unavailable": "This channel is not currently eligible.",
+            "permission_required": "The user has turned off notifications for this topic.",
+            "verified_phone_required": "A current verified phone is missing.",
+            "channel_unconfigured": "The channel is not available.",
+            "template_required": "An approved template is not available for this message.",
+            "connection_required": "The user has not connected this account."
+          },
+          "last_delivery": "Latest notification attempt",
+          "no_delivery": "No notification attempts recorded.",
+          "delivery_states": {
+            "pending": "Waiting to send",
+            "sending": "Dispatch started; confirmation pending",
+            "accepted": "Provider accepted; delivery not confirmed",
+            "rejected": "Provider rejected",
+            "unknown": "Outcome unknown; no automatic resend",
+            "skipped": "Skipped because delivery conditions were not met",
+            "delivered": "Provider confirmed delivery",
+            "failed": "Provider confirmed delivery failure"
+          },
+          "test": {
+            "title": "Try one message",
+            "help": "Send one test to your own connected account. This allows this message only and does not subscribe you to notifications. One test every five minutes.",
+            "send": "Send one test via %{channel}",
+            "body": "This is the one test message you requested from your account on the community platform.",
+            "unavailable": "This channel cannot deliver a test right now. Check the connection above.",
+            "queued": "Your test was queued. Provider acceptance and delivery appear separately below."
+          }
+        }
+      }
+    }
+  },
+  "sr": {
+    "decidim": {
+      "bih": {
+        "account_channels": {
+          "title": "Poruke i povezani nalozi",
+          "intro": "Izaberi teme obavještenja. Platforma bira odgovarajući dostupan kanal za dostavu.",
+          "back": "Nazad na moj nalog",
+          "connections": "Povezanost naloga",
+          "connection_help": "Potvrđen telefon može se koristiti za Viber i WhatsApp. To ne potvrđuje da je aplikacija instalirana niti daje saglasnost za obavještenja. Za Messenger i Instagram potrebno je posebno povezivanje i tvoja nedavna poruka.",
+          "saved": "Tvoj izbor za primanje poruka je sačuvan.",
+          "allow": "Primaj putem aplikacije %{channel}",
+          "save": "Sačuvaj izbor",
+          "connect": "Poveži ili odvoji naloge za dopisivanje",
+          "topics": {
+            "report_updates": "Novosti o mojim prijavama",
+            "community_news": "Novosti i poruke zajednice",
+            "city_service_alerts": "Obavještenja gradskih službi"
+          },
+          "topic_help": {
+            "report_updates": "Promjene na prijavama koje si poslao/la i poruke u vezi s njima.",
+            "community_news": "Novosti, pozivnice i poruke fondacije i operatera zajednice.",
+            "city_service_alerts": "Relevantni prekidi usluga i lokalna obavještenja, kada je ova usluga dostupna."
+          },
+          "channels": {
+            "viber": "Viber",
+            "whatsapp": "WhatsApp",
+            "messenger": "Facebook Messenger",
+            "instagram": "Instagram",
+            "email": "E-pošta"
+          },
+          "states": {
+            "verified_phone": "Telefon je potvrđen; isporuka zavisi od dostupnosti aplikacije.",
+            "phone_missing": "Potvrdi telefon da koristiš ovaj kanal.",
+            "connected": "Povezano; nedavni razgovor omogućava odgovore.",
+            "session_closed": "Povezano; pošalji novu poruku u razgovoru da primaš automatske odgovore.",
+            "not_connected": "Nalog nije povezan.",
+            "unavailable": "Ovaj kanal još nije dostupan."
+          },
+          "operator": {
+            "title": "Dodatno obavještenje",
+            "help": "Poruka se uvijek čuva na platformi. Dodatna kopija koristi dozvole za izabranu temu i dostupne kanale. WhatsApp može koristiti odobreni sažetak prikazan u pregledu.",
+            "external": "Pošalji i putem odgovarajućeg dostupnog kanala",
+            "preview": "Pregledaj isporuku",
+            "eligible": "Dostupni kanali: %{channels}",
+            "none": "Nema dostupnog kanala za ovu poruku. Poruku i dalje možeš poslati na platformi.",
+            "reason": "%{channel}: %{reason}",
+            "preview_required": "Pregledaj ovu poruku prije slanja dodatnog obavještenja.",
+            "topic": "Tema obavještenja"
+          },
+          "reasons": {
+            "not_permitted": "Korisnik je isključio obavještenja za ovu temu.",
+            "no_verified_phone": "Nedostaje trenutno potvrđen telefon.",
+            "not_configured": "Kanal nije dostupan.",
+            "no_connection": "Korisnik nije povezao ovaj nalog.",
+            "session_expired": "Potrebna je nova poruka korisnika.",
+            "no_template": "Odobreni obrazac nije dostupan za ovu poruku.",
+            "unavailable": "Ovaj kanal trenutno nije dostupan za slanje.",
+            "account_unavailable": "Ovaj kanal trenutno nije dostupan za slanje.",
+            "permission_required": "Korisnik je isključio obavještenja za ovu temu.",
+            "verified_phone_required": "Nedostaje trenutno potvrđen telefon.",
+            "channel_unconfigured": "Kanal nije dostupan.",
+            "template_required": "Odobreni obrazac nije dostupan za ovu poruku.",
+            "connection_required": "Korisnik nije povezao ovaj nalog."
+          },
+          "last_delivery": "Posljednji pokušaj slanja obavještenja",
+          "no_delivery": "Nema zabilježenih pokušaja slanja.",
+          "delivery_states": {
+            "pending": "Čeka slanje",
+            "sending": "Slanje započeto; čeka se potvrda",
+            "accepted": "Pružalac usluge je prihvatio; isporuka nije potvrđena",
+            "rejected": "Pružalac usluge je odbio",
+            "unknown": "Ishod nije poznat; nema automatskog ponavljanja",
+            "skipped": "Preskočeno jer uslovi za slanje nisu ispunjeni",
+            "delivered": "Pružalac usluge je potvrdio isporuku",
+            "failed": "Pružalac usluge je potvrdio da poruka nije isporučena"
+          },
+          "test": {
+            "title": "Isprobaj jednom porukom",
+            "help": "Pošalji jednu probnu poruku svom povezanom nalogu. Time dozvoljavaš samo ovu poruku i ne prijavljuješ se za buduća obavještenja. Jedna proba svakih pet minuta.",
+            "send": "Pošalji jednu probu putem aplikacije %{channel}",
+            "body": "Ovo je jedna probna poruka koju si zatražio/la sa svog naloga na platformi zajednice.",
+            "unavailable": "Ovim kanalom trenutno nije moguće poslati probu. Provjeri povezanost naloga iznad.",
+            "queued": "Probna poruka je dodata u red za slanje. Prihvatanje i isporuka prikazuju se odvojeno ispod."
+          }
+        }
+      }
+    }
+  },
+  "bs": {
+    "decidim": {
+      "bih": {
+        "account_channels": {
+          "title": "Poruke i povezani nalozi",
+          "intro": "Izaberi teme obavještenja. Platforma bira odgovarajući dostupan kanal za dostavu.",
+          "back": "Nazad na moj nalog",
+          "connections": "Povezanost naloga",
+          "connection_help": "Potvrđen telefon može se koristiti za Viber i WhatsApp. To ne potvrđuje da je aplikacija instalirana niti daje saglasnost za obavještenja. Za Messenger i Instagram potrebno je posebno povezivanje i tvoja nedavna poruka.",
+          "saved": "Tvoj izbor za primanje poruka je sačuvan.",
+          "allow": "Primaj putem aplikacije %{channel}",
+          "save": "Sačuvaj izbor",
+          "connect": "Poveži ili odvoji naloge za dopisivanje",
+          "topics": {
+            "report_updates": "Novosti o mojim prijavama",
+            "community_news": "Novosti i poruke zajednice",
+            "city_service_alerts": "Obavještenja gradskih službi"
+          },
+          "topic_help": {
+            "report_updates": "Promjene na prijavama koje si poslao/la i poruke u vezi s njima.",
+            "community_news": "Novosti, pozivnice i poruke fondacije i operatera zajednice.",
+            "city_service_alerts": "Relevantni prekidi usluga i lokalna obavještenja, kada je ova usluga dostupna."
+          },
+          "channels": {
+            "viber": "Viber",
+            "whatsapp": "WhatsApp",
+            "messenger": "Facebook Messenger",
+            "instagram": "Instagram",
+            "email": "E-pošta"
+          },
+          "states": {
+            "verified_phone": "Telefon je potvrđen; isporuka zavisi od dostupnosti aplikacije.",
+            "phone_missing": "Potvrdi telefon da koristiš ovaj kanal.",
+            "connected": "Povezano; nedavni razgovor omogućava odgovore.",
+            "session_closed": "Povezano; pošalji novu poruku u razgovoru da primaš automatske odgovore.",
+            "not_connected": "Nalog nije povezan.",
+            "unavailable": "Ovaj kanal još nije dostupan."
+          },
+          "operator": {
+            "title": "Dodatno obavještenje",
+            "help": "Poruka se uvijek čuva na platformi. Dodatna kopija koristi dozvole za izabranu temu i dostupne kanale. WhatsApp može koristiti odobreni sažetak prikazan u pregledu.",
+            "external": "Pošalji i putem odgovarajućeg dostupnog kanala",
+            "preview": "Pregledaj isporuku",
+            "eligible": "Dostupni kanali: %{channels}",
+            "none": "Nema dostupnog kanala za ovu poruku. Poruku i dalje možeš poslati na platformi.",
+            "reason": "%{channel}: %{reason}",
+            "preview_required": "Pregledaj ovu poruku prije slanja dodatnog obavještenja.",
+            "topic": "Tema obavještenja"
+          },
+          "reasons": {
+            "not_permitted": "Korisnik je isključio obavještenja za ovu temu.",
+            "no_verified_phone": "Nedostaje trenutno potvrđen telefon.",
+            "not_configured": "Kanal nije dostupan.",
+            "no_connection": "Korisnik nije povezao ovaj nalog.",
+            "session_expired": "Potrebna je nova poruka korisnika.",
+            "no_template": "Odobreni obrazac nije dostupan za ovu poruku.",
+            "unavailable": "Ovaj kanal trenutno nije dostupan za slanje.",
+            "account_unavailable": "Ovaj kanal trenutno nije dostupan za slanje.",
+            "permission_required": "Korisnik je isključio obavještenja za ovu temu.",
+            "verified_phone_required": "Nedostaje trenutno potvrđen telefon.",
+            "channel_unconfigured": "Kanal nije dostupan.",
+            "template_required": "Odobreni obrazac nije dostupan za ovu poruku.",
+            "connection_required": "Korisnik nije povezao ovaj nalog."
+          },
+          "last_delivery": "Posljednji pokušaj slanja obavještenja",
+          "no_delivery": "Nema zabilježenih pokušaja slanja.",
+          "delivery_states": {
+            "pending": "Čeka slanje",
+            "sending": "Slanje započeto; čeka se potvrda",
+            "accepted": "Pružalac usluge je prihvatio; isporuka nije potvrđena",
+            "rejected": "Pružalac usluge je odbio",
+            "unknown": "Ishod nije poznat; nema automatskog ponavljanja",
+            "skipped": "Preskočeno jer uslovi za slanje nisu ispunjeni",
+            "delivered": "Pružalac usluge je potvrdio isporuku",
+            "failed": "Pružalac usluge je potvrdio da poruka nije isporučena"
+          },
+          "test": {
+            "title": "Isprobaj jednom porukom",
+            "help": "Pošalji jednu probnu poruku svom povezanom nalogu. Time dozvoljavaš samo ovu poruku i ne prijavljuješ se za buduća obavještenja. Jedna proba svakih pet minuta.",
+            "send": "Pošalji jednu probu putem aplikacije %{channel}",
+            "body": "Ovo je jedna probna poruka koju si zatražio/la sa svog naloga na platformi zajednice.",
+            "unavailable": "Ovim kanalom trenutno nije moguće poslati probu. Provjeri povezanost naloga iznad.",
+            "queued": "Probna poruka je dodata u red za slanje. Prihvatanje i isporuka prikazuju se odvojeno ispod."
+          }
+        }
+      }
+    }
+  },
+  "hr": {
+    "decidim": {
+      "bih": {
+        "account_channels": {
+          "title": "Poruke i povezani nalozi",
+          "intro": "Izaberi teme obavještenja. Platforma bira odgovarajući dostupan kanal za dostavu.",
+          "back": "Nazad na moj nalog",
+          "connections": "Povezanost naloga",
+          "connection_help": "Potvrđen telefon može se koristiti za Viber i WhatsApp. To ne potvrđuje da je aplikacija instalirana niti daje saglasnost za obavještenja. Za Messenger i Instagram potrebno je posebno povezivanje i tvoja nedavna poruka.",
+          "saved": "Tvoj izbor za primanje poruka je sačuvan.",
+          "allow": "Primaj putem aplikacije %{channel}",
+          "save": "Sačuvaj izbor",
+          "connect": "Poveži ili odvoji naloge za dopisivanje",
+          "topics": {
+            "report_updates": "Novosti o mojim prijavama",
+            "community_news": "Novosti i poruke zajednice",
+            "city_service_alerts": "Obavještenja gradskih službi"
+          },
+          "topic_help": {
+            "report_updates": "Promjene na prijavama koje si poslao/la i poruke u vezi s njima.",
+            "community_news": "Novosti, pozivnice i poruke fondacije i operatera zajednice.",
+            "city_service_alerts": "Relevantni prekidi usluga i lokalna obavještenja, kada je ova usluga dostupna."
+          },
+          "channels": {
+            "viber": "Viber",
+            "whatsapp": "WhatsApp",
+            "messenger": "Facebook Messenger",
+            "instagram": "Instagram",
+            "email": "E-pošta"
+          },
+          "states": {
+            "verified_phone": "Telefon je potvrđen; isporuka zavisi od dostupnosti aplikacije.",
+            "phone_missing": "Potvrdi telefon da koristiš ovaj kanal.",
+            "connected": "Povezano; nedavni razgovor omogućava odgovore.",
+            "session_closed": "Povezano; pošalji novu poruku u razgovoru da primaš automatske odgovore.",
+            "not_connected": "Nalog nije povezan.",
+            "unavailable": "Ovaj kanal još nije dostupan."
+          },
+          "operator": {
+            "title": "Dodatno obavještenje",
+            "help": "Poruka se uvijek čuva na platformi. Dodatna kopija koristi dozvole za izabranu temu i dostupne kanale. WhatsApp može koristiti odobreni sažetak prikazan u pregledu.",
+            "external": "Pošalji i putem odgovarajućeg dostupnog kanala",
+            "preview": "Pregledaj isporuku",
+            "eligible": "Dostupni kanali: %{channels}",
+            "none": "Nema dostupnog kanala za ovu poruku. Poruku i dalje možeš poslati na platformi.",
+            "reason": "%{channel}: %{reason}",
+            "preview_required": "Pregledaj ovu poruku prije slanja dodatnog obavještenja.",
+            "topic": "Tema obavještenja"
+          },
+          "reasons": {
+            "not_permitted": "Korisnik je isključio obavještenja za ovu temu.",
+            "no_verified_phone": "Nedostaje trenutno potvrđen telefon.",
+            "not_configured": "Kanal nije dostupan.",
+            "no_connection": "Korisnik nije povezao ovaj nalog.",
+            "session_expired": "Potrebna je nova poruka korisnika.",
+            "no_template": "Odobreni obrazac nije dostupan za ovu poruku.",
+            "unavailable": "Ovaj kanal trenutno nije dostupan za slanje.",
+            "account_unavailable": "Ovaj kanal trenutno nije dostupan za slanje.",
+            "permission_required": "Korisnik je isključio obavještenja za ovu temu.",
+            "verified_phone_required": "Nedostaje trenutno potvrđen telefon.",
+            "channel_unconfigured": "Kanal nije dostupan.",
+            "template_required": "Odobreni obrazac nije dostupan za ovu poruku.",
+            "connection_required": "Korisnik nije povezao ovaj nalog."
+          },
+          "last_delivery": "Posljednji pokušaj slanja obavještenja",
+          "no_delivery": "Nema zabilježenih pokušaja slanja.",
+          "delivery_states": {
+            "pending": "Čeka slanje",
+            "sending": "Slanje započeto; čeka se potvrda",
+            "accepted": "Pružalac usluge je prihvatio; isporuka nije potvrđena",
+            "rejected": "Pružalac usluge je odbio",
+            "unknown": "Ishod nije poznat; nema automatskog ponavljanja",
+            "skipped": "Preskočeno jer uslovi za slanje nisu ispunjeni",
+            "delivered": "Pružalac usluge je potvrdio isporuku",
+            "failed": "Pružalac usluge je potvrdio da poruka nije isporučena"
+          },
+          "test": {
+            "title": "Isprobaj jednom porukom",
+            "help": "Pošalji jednu probnu poruku svom povezanom nalogu. Time dozvoljavaš samo ovu poruku i ne prijavljuješ se za buduća obavještenja. Jedna proba svakih pet minuta.",
+            "send": "Pošalji jednu probu putem aplikacije %{channel}",
+            "body": "Ovo je jedna probna poruka koju si zatražio/la sa svog naloga na platformi zajednice.",
+            "unavailable": "Ovim kanalom trenutno nije moguće poslati probu. Provjeri povezanost naloga iznad.",
+            "queued": "Probna poruka je dodata u red za slanje. Prihvatanje i isporuka prikazuju se odvojeno ispod."
+          }
+        }
+      }
+    }
+  },
+  "sr-Cyrl": {
+    "decidim": {
+      "bih": {
+        "account_channels": {
+          "title": "Поруке и повезани налози",
+          "intro": "Изабери теме обавјештења. Платформа бира одговарајући доступан канал за доставу.",
+          "back": "Назад на мој налог",
+          "connections": "Повезаност налога",
+          "connection_help": "Потврђен телефон може се користити за Вибер и WhatsApp. То не потврђује да је апликација инсталирана нити даје сагласност за обавјештења. За Messenger и Инстаграм потребно је посебно повезивање и твоја недавна порука.",
+          "saved": "Твој избор за примање порука је сачуван.",
+          "allow": "Примај путем апликације %{channel}",
+          "save": "Сачувај избор",
+          "connect": "Повежи или одвоји налоге за дописивање",
+          "topics": {
+            "report_updates": "Новости о мојим пријавама",
+            "community_news": "Новости и поруке заједнице",
+            "city_service_alerts": "Обавјештења градских служби"
+          },
+          "topic_help": {
+            "report_updates": "Промјене на пријавама које си послао/ла и поруке у вези с њима.",
+            "community_news": "Новости, позивнице и поруке фондације и оператера заједнице.",
+            "city_service_alerts": "Релевантни прекиди услуга и локална обавјештења, када је ова услуга доступна."
+          },
+          "channels": {
+            "viber": "Вибер",
+            "whatsapp": "WhatsApp",
+            "messenger": "Фацебоок Messenger",
+            "instagram": "Инстаграм",
+            "email": "Е-пошта"
+          },
+          "states": {
+            "verified_phone": "Телефон је потврђен; испорука зависи од доступности апликације.",
+            "phone_missing": "Потврди телефон да користиш овај канал.",
+            "connected": "Повезано; недавни разговор омогућава одговоре.",
+            "session_closed": "Повезано; пошаљи нову поруку у разговору да примаш аутоматске одговоре.",
+            "not_connected": "Налог није повезан.",
+            "unavailable": "Овај канал још није доступан."
+          },
+          "operator": {
+            "title": "Додатно обавјештење",
+            "help": "Порука се увијек чува на платформи. Додатна копија користи дозволе за изабрану тему и доступне канале. WhatsApp може користити одобрени сажетак приказан у прегледу.",
+            "external": "Пошаљи и путем одговарајућег доступног канала",
+            "preview": "Прегледај испоруку",
+            "eligible": "Доступни канали: %{channels}",
+            "none": "Нема доступног канала за ову поруку. Поруку и даље можеш послати на платформи.",
+            "reason": "%{channel}: %{reason}",
+            "preview_required": "Прегледај ову поруку прије слања додатног обавјештења.",
+            "topic": "Тема обавјештења"
+          },
+          "reasons": {
+            "not_permitted": "Корисник је искључио обавјештења за ову тему.",
+            "no_verified_phone": "Недостаје тренутно потврђен телефон.",
+            "not_configured": "Канал није доступан.",
+            "no_connection": "Корисник није повезао овај налог.",
+            "session_expired": "Потребна је нова порука корисника.",
+            "no_template": "Одобрени образац није доступан за ову поруку.",
+            "unavailable": "Овај канал тренутно није доступан за слање.",
+            "account_unavailable": "Овај канал тренутно није доступан за слање.",
+            "permission_required": "Корисник је искључио обавјештења за ову тему.",
+            "verified_phone_required": "Недостаје тренутно потврђен телефон.",
+            "channel_unconfigured": "Канал није доступан.",
+            "template_required": "Одобрени образац није доступан за ову поруку.",
+            "connection_required": "Корисник није повезао овај налог."
+          },
+          "last_delivery": "Посљедњи покушај слања обавјештења",
+          "no_delivery": "Нема забиљежених покушаја слања.",
+          "delivery_states": {
+            "pending": "Чека слање",
+            "sending": "Слање започето; чека се потврда",
+            "accepted": "Пружалац услуге је прихватио; испорука није потврђена",
+            "rejected": "Пружалац услуге је одбио",
+            "unknown": "Исход није познат; нема аутоматског понављања",
+            "skipped": "Прескочено јер услови за слање нису испуњени",
+            "delivered": "Пружалац услуге је потврдио испоруку",
+            "failed": "Пружалац услуге је потврдио да порука није испоручена"
+          },
+          "test": {
+            "title": "Испробај једном поруком",
+            "help": "Пошаљи једну пробну поруку свом повезаном налогу. Тиме дозвољаваш само ову поруку и не пријављујеш се за будућа обавјештења. Једна проба сваких пет минута.",
+            "send": "Пошаљи једну пробу путем апликације %{channel}",
+            "body": "Ово је једна пробна порука коју си затражио/ла са свог налога на платформи заједнице.",
+            "unavailable": "Овим каналом тренутно није могуће послати пробу. Провјери повезаност налога изнад.",
+            "queued": "Пробна порука је додата у ред за слање. Прихватање и испорука приказују се одвојено испод."
+          }
+        }
+      }
+    }
+  }
+}

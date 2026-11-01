@@ -1,0 +1,24 @@
+{
+  "sr": {
+    "decidim": {
+      "bih": {
+        "report_evidence": {
+          "photo": "Fotografija (neobavezno)",
+          "photo_help": "JPG, PNG ili WebP, do 5 MB. Fotografija ostaje u privatnom razgovoru; službi je šaljemo nakon pregleda.",
+          "download": "Preuzmi fotografiju",
+          "invalid_photo": "Fotografija nije prihvaćena. Izaberite ispravan JPG, PNG ili WebP do 5 MB i pošaljite ponovo.",
+          "mail_too_large": "Fotografije prelaze ukupno 15 MB. Dopuna nije poslata; obratite se administratoru radi pripreme priloga.",
+          "attachments": "Fotografije u prilogu poruke",
+          "service_response": "Odgovor službe",
+          "references": "Brojevi predmeta navedeni u odgovoru (zajedno ako veza nije potvrđena)",
+          "response_help": "Odgovor se čuva privatno i vraća predmet osoblju na pregled. Građaninu se ništa ne šalje. Ne pripisujte pojedinačne brojeve prijavama bez potvrde."
+        },
+        "review_workspace": {
+          "actions": {
+            "service_response": "Zabilježi odgovor službe"
+          }
+        }
+      }
+    }
+  }
+}

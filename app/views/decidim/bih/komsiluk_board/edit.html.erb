@@ -1,0 +1,7 @@
+<% add_decidim_page_title(board_t('edit')) %>
+<%= render 'assets' %>
+<main class="wrapper"><div class="mi-surface mi-board" data-board-draft-scope="<%= current_organization.id %>:<%= current_user.id %>:<%= @citizen_profile.komsiluk_id %>">
+  <h1><%= board_t('edit') %></h1>
+  <% if @post.hidden? %><p class="mi-notice"><%= board_t('hidden_author') %></p><% end %>
+  <% if @can_write %><%= render 'form', editing: true %><% else %><p><%= board_t('verification.help') %></p><%= link_to board_t('verification.action'), board_verification_path, class: 'mi-btn mi-btn--primary' %><% end %>
+</div></main>

@@ -1,0 +1,151 @@
+---
+sr:
+  decidim:
+    bih:
+      admin:
+        board_correction:
+          title: Ispravi objavu
+          intro: Ispravka se primjenjuje na postojećih %{count} objava iste poruke. Linkovi i odabrane table ostaju isti.
+          notifications: Obavještenja o ispravci
+          minor: Manja ispravka — bez novih obavještenja
+          notify: Važna izmjena — obavijesti sadašnje članove na platformi i putem uključenog push kanala
+          holds: Skrivene i arhivirane objave zadržavaju svoje stanje. Ranije odobrena slanja na telefon se otkazuju; novo slanje na telefon zahtijeva poseban pregled i potvrdu.
+          preview: Pregledaj ispravku
+          confirm: Potvrdi ovu ispravku
+          saved: Ispravka je sačuvana u postojećim objavama.
+          retained_states: Stanje ostaje isto za %{hidden} skrivenih i %{archived} arhiviranih objava.
+          current_source: Sadašnji odobreni javni izvor
+          source_unavailable: Izvor više nije dostupan za objavu. Prvo završite pregled izvora; ova objava se ne može ponovo slati.
+          source_changed: Javni izvor je promijenjen. Pregledajte sadašnje podatke i potvrdite ispravku prije daljeg slanja.
+          linked_source: Povezani javni izvor
+          source_kinds:
+            report: Javna prijava
+            activity: Odobrena aktivnost
+            project: Odobreni projekat
+          open_source: Otvori javni izvor
+          back: Nazad na objavu
+          publications: Objave i slanja
+        board_notices:
+          reasons:
+            correction_unchanged: Nema izmjena za čuvanje.
+            correction_no_visible: Nijedna povezana objava nije sada vidljiva. Ispravku sačuvajte bez novog obavještavanja.
+bs:
+  decidim:
+    bih:
+      admin:
+        board_correction:
+          title: Ispravi objavu
+          intro: Ispravka se primjenjuje na postojećih %{count} objava iste poruke. Linkovi i odabrane table ostaju isti.
+          notifications: Obavještenja o ispravci
+          minor: Manja ispravka — bez novih obavještenja
+          notify: Važna izmjena — obavijesti sadašnje članove na platformi i putem uključenog push kanala
+          holds: Skrivene i arhivirane objave zadržavaju svoje stanje. Ranije odobrena slanja na telefon se otkazuju; novo slanje na telefon zahtijeva poseban pregled i potvrdu.
+          preview: Pregledaj ispravku
+          confirm: Potvrdi ovu ispravku
+          saved: Ispravka je sačuvana u postojećim objavama.
+          retained_states: Stanje ostaje isto za %{hidden} skrivenih i %{archived} arhiviranih objava.
+          current_source: Sadašnji odobreni javni izvor
+          source_unavailable: Izvor više nije dostupan za objavu. Prvo završite pregled izvora; ova objava se ne može ponovo slati.
+          source_changed: Javni izvor je promijenjen. Pregledajte sadašnje podatke i potvrdite ispravku prije daljeg slanja.
+          linked_source: Povezani javni izvor
+          source_kinds:
+            report: Javna prijava
+            activity: Odobrena aktivnost
+            project: Odobreni projekat
+          open_source: Otvori javni izvor
+          back: Nazad na objavu
+          publications: Objave i slanja
+        board_notices:
+          reasons:
+            correction_unchanged: Nema izmjena za čuvanje.
+            correction_no_visible: Nijedna povezana objava nije sada vidljiva. Ispravku sačuvajte bez novog obavještavanja.
+hr:
+  decidim:
+    bih:
+      admin:
+        board_correction:
+          title: Ispravi objavu
+          intro: Ispravak se primjenjuje na postojećih %{count} objava iste poruke. Poveznice i odabrane ploče ostaju iste.
+          notifications: Obavijesti o ispravku
+          minor: Manji ispravak — bez novih obavijesti
+          notify: Važna izmjena — obavijesti sadašnje članove na platformi i putem uključenog push kanala
+          holds: Skrivene i arhivirane objave zadržavaju svoje stanje. Ranije odobrena slanja na telefon se otkazuju; novo slanje na telefon zahtijeva poseban pregled i potvrdu.
+          preview: Pregledaj ispravak
+          confirm: Potvrdi ovaj ispravak
+          saved: Ispravak je spremljen u postojećim objavama.
+          retained_states: Stanje ostaje isto za %{hidden} skrivenih i %{archived} arhiviranih objava.
+          current_source: Sadašnji odobreni javni izvor
+          source_unavailable: Izvor više nije dostupan za objavu. Prvo završite pregled izvora; ova objava se ne može ponovno slati.
+          source_changed: Javni izvor je promijenjen. Pregledajte sadašnje podatke i potvrdite ispravak prije daljnjeg slanja.
+          linked_source: Povezani javni izvor
+          source_kinds:
+            report: Javna prijava
+            activity: Odobrena aktivnost
+            project: Odobreni projekt
+          open_source: Otvori javni izvor
+          back: Natrag na objavu
+          publications: Objave i slanja
+        board_notices:
+          reasons:
+            correction_unchanged: Nema izmjena za spremanje.
+            correction_no_visible: Nijedna povezana objava nije sada vidljiva. Ispravak spremite bez novog obavještavanja.
+en:
+  decidim:
+    bih:
+      admin:
+        board_correction:
+          title: Correct notice
+          intro: This correction updates the existing %{count} placements of this notice. Links and selected boards stay the same.
+          notifications: Correction notifications
+          minor: Minor correction — no new notifications
+          notify: Material change — notify current members in the platform and through enabled push
+          holds: Hidden and archived notices retain their state. Previously approved phone requests are cancelled; a new phone send requires a separate review and confirmation.
+          preview: Review correction
+          confirm: Confirm this correction
+          saved: The correction was saved to the existing notices.
+          retained_states: The state remains unchanged for %{hidden} hidden and %{archived} archived notices.
+          current_source: Current approved public source
+          source_unavailable: This source is no longer available for publication. Review the source first; this notice cannot be sent again.
+          source_changed: The public source changed. Review its current details and confirm a correction before further delivery.
+          linked_source: Linked public source
+          source_kinds:
+            report: Public report
+            activity: Approved activity
+            project: Approved project
+          open_source: Open public source
+          back: Back to notice
+          publications: Publications and delivery
+        board_notices:
+          reasons:
+            correction_unchanged: There are no changes to save.
+            correction_no_visible: None of the linked notices is currently visible. Save the correction without a new notification.
+sr-Cyrl:
+  decidim:
+    bih:
+      admin:
+        board_correction:
+          title: Исправи објаву
+          intro: Исправка се примјењује на постојећих %{count} објава исте поруке. Линкови и одабране табле остају исти.
+          notifications: Обавјештења о исправци
+          minor: Мања исправка — без нових обавјештења
+          notify: Важна измјена — обавијести садашње чланове на платформи и путем укљученог пусх канала
+          holds: Скривене и архивиране објаве задржавају своје стање. Раније одобрена слања на телефон се отказују; ново слање на телефон захтијева посебан преглед и потврду.
+          preview: Прегледај исправку
+          confirm: Потврди ову исправку
+          saved: Исправка је сачувана у постојећим објавама.
+          retained_states: Стање остаје исто за %{hidden} скривених и %{archived} архивираних објава.
+          current_source: Садашњи одобрени јавни извор
+          source_unavailable: Извор више није доступан за објаву. Прво завршите преглед извора; ова објава се не може поново слати.
+          source_changed: Јавни извор је промијењен. Прегледајте садашње податке и потврдите исправку прије даљег слања.
+          linked_source: Повезани јавни извор
+          source_kinds:
+            report: Јавна пријава
+            activity: Одобрена активност
+            project: Одобрени пројекат
+          open_source: Отвори јавни извор
+          back: Назад на објаву
+          publications: Објаве и слања
+        board_notices:
+          reasons:
+            correction_unchanged: Нема измјена за чување.
+            correction_no_visible: Ниједна повезана објава није сада видљива. Исправку сачувајте без новог обавјештавања.

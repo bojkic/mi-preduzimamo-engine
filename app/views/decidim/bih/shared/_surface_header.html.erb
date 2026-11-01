@@ -1,0 +1,26 @@
+<%#
+  Shared MI page header for custom citizen surfaces.
+
+  Locals:
+  - eyebrow:, title:, intro:
+  - action_label: nil, action_path: nil, action_class: "mi-btn mi-btn--primary"
+%>
+<header class="mi-surface-header">
+  <span class="mi-surface-header__mark" aria-hidden="true">
+    <img src="/mi/heart-mark.png" alt="">
+  </span>
+  <div>
+    <% if local_assigns[:eyebrow].present? %>
+      <p class="mi-eyebrow"><%= eyebrow %></p>
+    <% end %>
+    <h1><%= title %></h1>
+    <% if local_assigns[:intro].present? %>
+      <p class="mi-surface-header__intro"><%= intro %></p>
+    <% end %>
+  </div>
+  <% if local_assigns[:action_label].present? && local_assigns[:action_path].present? %>
+    <div class="mi-surface-header__action">
+      <%= link_to action_label, action_path, class: local_assigns.fetch(:action_class, "mi-btn mi-btn--primary") %>
+    </div>
+  <% end %>
+</header>

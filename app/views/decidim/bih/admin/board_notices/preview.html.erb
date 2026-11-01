@@ -1,0 +1,31 @@
+<% payload = @preview.fetch(:payload); summary = @preview.fetch(:summary); intent = @preview.fetch(:intent); publication = intent.kind == "publication"; publication_payload = payload; combined = publication && payload[:phone].present?; phone = !publication || combined; phone_summary = combined ? summary[:phone] : summary; phone_payload = combined ? payload[:phone] : payload %>
+<% add_decidim_page_title(notice_text("preview_title")) %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :staff_publication %>
+<div class="card" id="board-notice-preview"><div class="item_show__header"><h1 class="item_show__header-title"><%= notice_text("preview_title") %></h1></div><div class="card-section">
+  <p><%= notice_text("preview_hint") %></p>
+  <% if summary[:blockers].any? %><div role="alert" class="callout alert"><h2><%= notice_text("blocked") %></h2><ul><% summary[:blockers].each do |reason| %><li><%= notice_text("reasons.#{reason}", default: notice_text("blocked")) %></li><% end %></ul></div><% end %>
+  <dl>
+    <dt><%= notice_text("areas") %></dt><dd><%= Decidim::Bih::LocalArea.where(organization: current_organization, id: summary[:board_ids]).map(&:translated_name).join(", ") %></dd>
+    <dt><%= notice_text("audience") %></dt><dd><%= summary[:total] %></dd>
+    <dt><%= notice_text("expires_at") %></dt><dd><%= l(Time.iso8601(payload[:expires_at]).in_time_zone("Europe/Sarajevo"), format: :long) %></dd>
+    <% if publication %><dt><%= notice_text("title") %></dt><dd><%= publication_payload[:title] %></dd><dt><%= notice_text("body") %></dt><dd style="white-space:pre-wrap;overflow-wrap:anywhere"><%= publication_payload[:body] %></dd><dt><%= notice_text("channels") %></dt><dd><%= notice_text("platform_push") %></dd><% end %>
+    <% if phone; payload = phone_payload; summary = phone_summary %>
+      <dt><%= notice_text("eligible") %></dt><dd><%= summary[:eligible] %></dd>
+      <% summary[:excluded].each do |reason, count| %><dt><%= notice_text("reasons.#{reason}", default: notice_text("blocked")) %></dt><dd><%= count %></dd><% end %>
+      <dt><%= notice_text("channels") %></dt><dd><%= payload[:channels].map { |channel| notice_text("channels_labels.#{channel}") }.join(" → ") %></dd>
+      <% summary[:channel_counts].each do |channel, count| %><dt><%= notice_text("channels_labels.#{channel}") %> — <%= notice_text("eligible") %></dt><dd><%= count %></dd><% end %>
+      <dt><%= notice_text("mode") %></dt><dd><%= notice_text("modes.#{payload[:mode]}") %></dd>
+      <% if summary[:deadline_at] && payload[:mode] != "urgent_sms_now" %><dt><%= notice_text("deadline") %></dt><dd><%= l(Time.iso8601(summary[:deadline_at]).in_time_zone("Europe/Sarajevo"), format: :long) %></dd><% end %>
+      <% if payload[:urgency_reason].present? %><dt><%= notice_text("urgency_reason") %></dt><dd><%= payload[:urgency_reason] %></dd><% end %>
+      <% if payload[:channels].include?("viber") %><dt>Viber</dt><dd style="white-space:pre-wrap;overflow-wrap:anywhere"><%= payload[:text] %></dd><% end %>
+      <% if payload[:channels].include?("whatsapp") %><dt>WhatsApp</dt><dd style="white-space:pre-wrap;overflow-wrap:anywhere"><%= payload.dig(:template, :display_text).presence || notice_text("reasons.whatsapp_template_required") %></dd><% end %>
+      <% if payload[:channels].include?("sms") %><dt>SMS</dt><dd style="white-space:pre-wrap;overflow-wrap:anywhere"><%= payload[:sms_text] %></dd><dt><%= notice_text("sms_estimate") %></dt><dd><%= notice_text("sms_estimate_detail", encoding: payload[:segment_estimate][:encoding], segments: payload[:segment_estimate][:segments], recipients: summary[:sms_count]) %></dd><% end %>
+    <% end %>
+  </dl>
+  <p><%= notice_text("privacy_hint") %></p>
+  <% summary = @preview.fetch(:summary) %>
+  <% if !@confirmation_refused && summary[:blockers].empty? && (!phone || phone_summary[:eligible].positive?) && bih_allowed?(:broadcast_send_bell) && (!phone || bih_allowed?(:broadcast_send_viber)) %>
+    <%= form_tag admin_bih_board_notices_confirm_path, class: "form form-defaults" do %><%= hidden_field_tag :confirmation_token, intent.confirmation_token %><%= submit_tag notice_text(combined ? "confirm_combined" : (phone ? "confirm_phone" : "confirm_publication")), class: "button button__sm button__secondary" %><% end %>
+  <% end %>
+  <%= link_to notice_text("edit_preview"), publication ? new_admin_bih_board_notice_path(draft: intent.id) : admin_bih_board_notice_phone_path(payload[:post_id], draft: intent.id) %>
+</div></div>

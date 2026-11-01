@@ -1,0 +1,9 @@
+<% user_tabs.each do |tab_item| %>
+  <% active_link = profile_tab_active?(tab_item[:path]) %>
+  <li>
+    <%= link_to tab_item[:path], class: "mi-public-profile-tab#{' is-active' if active_link}", aria: { current: active_link ? "page" : nil } do %>
+      <%= icon tab_item[:icon] %>
+      <span><%= tab_item[:text] %></span>
+    <% end %>
+  </li>
+<% end %>

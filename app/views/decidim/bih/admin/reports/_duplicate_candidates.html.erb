@@ -1,0 +1,18 @@
+<% w = "decidim.bih.review_workspace" %>
+<p><%= t("#{w}.duplicate_help") %></p>
+<% if matches.empty? %><p><%= t("#{w}.no_candidates") %></p><% end %>
+<% matches.each do |match| %>
+<% candidate = match.report %>
+<details class="report-workspace__candidate">
+<summary><%= candidate.reference %> · <%= candidate.address.presence || "—" %> · <%= l(candidate.created_at.to_date) %></summary>
+<p><%= t("#{w}.candidate_basis.#{match.basis}") %> · <%= Decidim::Bih::ReportStatusPresenter.label(candidate) %> · <%= candidate.category.present? ? t("decidim.bih.reports.categories.#{candidate.category}", default: "—") : "—" %></p>
+<%= simple_format(candidate.description) %>
+<% if (reply = candidate.case_messages.where(actor_role: "citizen").order(:id).last) %>
+<p><strong><%= t("#{w}.latest_candidate_reply") %> · <%= l(reply.created_at, format: :short) %></strong></p><%= simple_format(reply.body) %>
+<% end %>
+<div class="report-workspace__actions">
+<button type="button" data-select-duplicate="<%= candidate.reference %>" class="button button__sm button__transparent-secondary"><%= t("#{w}.select_candidate", reference: candidate.reference) %></button>
+<%= link_to t("#{w}.open_comparison"), admin_bih_report_path(reference: candidate.reference), target: "_blank", rel: "noopener noreferrer" %>
+</div>
+</details>
+<% end %>

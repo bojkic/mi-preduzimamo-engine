@@ -1,0 +1,30 @@
+sr:
+  decidim:
+    bih:
+      report_case:
+        answer_question: "Na koje pitanje odgovarate?"
+        answer_question_unspecified: "Opšta dopuna"
+sr-Cyrl:
+  decidim:
+    bih:
+      report_case:
+        answer_question: "На које питање одговарате?"
+        answer_question_unspecified: "Општа допуна"
+bs:
+  decidim:
+    bih:
+      report_case:
+        answer_question: "Na koje pitanje odgovarate?"
+        answer_question_unspecified: "Opća dopuna"
+hr:
+  decidim:
+    bih:
+      report_case:
+        answer_question: "Na koje pitanje odgovarate?"
+        answer_question_unspecified: "Opća dopuna"
+en:
+  decidim:
+    bih:
+      report_case:
+        answer_question: "Which question are you answering?"
+        answer_question_unspecified: "General update"

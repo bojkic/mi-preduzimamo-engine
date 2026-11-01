@@ -1,0 +1,35 @@
+{
+  "sr-Cyrl": {
+    "layouts": {
+      "decidim": {
+        "notifications_dashboard": {
+          "mark_all_as_read": "Означи сва као прочитана",
+          "mark_as_read": "Означи као прочитано"
+        }
+      }
+    },
+    "decidim": {
+      "user_conversations": {
+        "index": {
+          "time_ago": "прије %{time}"
+        }
+      },
+      "events": {
+        "gamification": {
+          "badge_earned": {
+            "notification_title": "Честитамо! Освојио/ла си значку <a href=\"%{resource_path}\">%{badge_name}</a> (ниво %{current_level}).",
+            "email_intro": "Честитамо! Освојио/ла си значку <a href=\"%{resource_url}\">%{badge_name}</a> (ниво %{current_level}).",
+            "email_subject": "Освојио/ла си нову значку: %{badge_name}!",
+            "email_outro": "Ово обавјештење добијаш због свог учешћа на платформи."
+          },
+          "level_up": {
+            "notification_title": "Честитамо! Достигао/ла си ниво %{current_level} за значку <a href=\"%{resource_path}\">%{badge_name}</a>.",
+            "email_intro": "Честитамо! Достигао/ла си ниво %{current_level} за значку <a href=\"%{resource_url}\">%{badge_name}</a>.",
+            "email_subject": "Достигао/ла си ниво %{current_level} за значку %{badge_name}!",
+            "email_outro": "Ово обавјештење добијаш због свог учешћа на платформи."
+          }
+        }
+      }
+    }
+  }
+}

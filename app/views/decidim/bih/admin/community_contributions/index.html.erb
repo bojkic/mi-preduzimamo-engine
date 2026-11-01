@@ -1,0 +1,141 @@
+<% add_decidim_page_title(t("decidim.bih.admin.community_contributions.index.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :community_contributions %>
+
+<header class="mi-admin-page-header" id="admin-community-contributions-header">
+  <div>
+    <h1 class="mi-admin-page-header__title"><%= t("decidim.bih.admin.community_contributions.index.title") %></h1>
+    <p class="mi-admin-page-header__intro"><%= t("decidim.bih.admin.community_contributions.index.intro") %></p>
+  </div>
+</header>
+
+<section id="community-project-submissions" class="card">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.community_contributions.index.projects") %> (<%= queue_total(@project_submissions) %>)</h2>
+  </div>
+  <div class="card-section">
+    <% if @project_submissions.empty? %>
+      <p><%= t("decidim.bih.admin.community_contributions.index.no_projects") %></p>
+    <% else %>
+      <% @project_submissions.each do |submission| %>
+        <article class="callout" id="community-project-submission-<%= submission.id %>">
+          <h3><%= submission.title %></h3>
+          <p><strong><% if bih_allowed?(:partner_profiles_manage) %><%= link_to submission.partner_profile.display_name, partner_profile_path(submission.partner_profile) %><% else %><%= submission.partner_profile.display_name %><% end %></strong></p>
+          <p><%= submission.description %></p>
+          <p>
+            <%= t("decidim.bih.admin.community_contributions.index.goal", amount: number_with_delimiter(submission.budget_amount, delimiter: ".")) %>
+            <% if submission.address.present? %> · <%= submission.address %><% end %>
+          </p>
+          <% if bih_allowed?(:community_project_review) %>
+            <div class="mi-admin-action-group">
+              <%= form_with url: approve_community_project_path(submission, @queue_page_params), method: :post,
+                            class: "form form-defaults" do %>
+                <label>
+                  <%= t("decidim.bih.admin.community_contributions.index.campaign_key") %>
+                  <input type="text" name="campaign_key"
+                         value="<%= @campaign_key_input if @failed_project_submission_id == submission.id %>"
+                         required maxlength="<%= Decidim::Bih::ProjectDonationLink::MAX_CAMPAIGN_KEY_LENGTH %>"
+                         pattern="[a-z0-9][a-z0-9_-]*">
+                  <small><%= t("decidim.bih.admin.community_contributions.index.existing_campaign_help") %></small>
+                </label>
+                <%= submit_tag t("decidim.bih.admin.community_contributions.index.approve"),
+                               class: "button button__sm button__secondary" %>
+              <% end %>
+              <%= form_with url: reject_community_project_path(submission, @queue_page_params), method: :post,
+                            class: "form form-defaults" do %>
+                <label>
+                  <%= t("decidim.bih.admin.community_contributions.index.rejection_reason") %>
+                  <input type="text" name="rejection_reason" required maxlength="1000">
+                </label>
+                <%= submit_tag t("decidim.bih.admin.community_contributions.index.reject"),
+                               class: "button button__sm button__transparent-secondary" %>
+              <% end %>
+              <%= form_with url: request_changes_community_project_path(submission, @queue_page_params), method: :post,
+                            class: "form form-defaults" do %>
+                <label>
+                  <%= t("decidim.bih.admin.community_contributions.index.changes_reason") %>
+                  <input type="text" name="rejection_reason" required maxlength="1000">
+                </label>
+                <%= submit_tag t("decidim.bih.admin.community_contributions.index.request_changes"),
+                               class: "button button__sm button__transparent-secondary" %>
+              <% end %>
+            </div>
+          <% end %>
+        </article>
+      <% end %>
+      <%= paginate @project_submissions, param_name: :projects_page if @project_submissions.total_pages > 1 %>
+    <% end %>
+  </div>
+</section>
+
+<section id="community-contribution-needs" class="card">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.community_contributions.index.needs") %> (<%= queue_total(@contribution_needs) %>)</h2>
+  </div>
+  <div class="card-section">
+    <% if @contribution_needs.empty? %>
+      <p><%= t("decidim.bih.admin.community_contributions.index.no_needs") %></p>
+    <% else %>
+      <% @contribution_needs.each do |need| %>
+        <article class="callout" id="admin-contribution-need-<%= need.id %>">
+          <h3><%= need.title %></h3>
+          <p>
+            <strong><% if bih_allowed?(:partner_profiles_manage) %><%= link_to need.partner_profile.display_name, partner_profile_path(need.partner_profile) %><% else %><%= need.partner_profile.display_name %><% end %></strong> ·
+            <%= t("decidim.bih.volunteer.index.contributions.need_types.#{need.need_type}") %> ·
+            <%= t("decidim.bih.volunteer.index.contributions.quantity", quantity: need.quantity, unit: need.unit) %>
+          </p>
+          <p><%= need.description %></p>
+          <% if bih_allowed?(:contribution_need_review) %>
+            <div class="mi-admin-action-group">
+              <%= button_to t("decidim.bih.admin.community_contributions.index.approve"),
+                            approve_contribution_need_path(need, @queue_page_params), method: :post,
+                            class: "button button__sm button__secondary" %>
+              <%= form_with url: reject_contribution_need_path(need, @queue_page_params), method: :post,
+                            class: "form form-defaults" do %>
+                <label>
+                  <%= t("decidim.bih.admin.community_contributions.index.rejection_reason") %>
+                  <input type="text" name="rejection_reason" required maxlength="1000">
+                </label>
+                <%= submit_tag t("decidim.bih.admin.community_contributions.index.reject"),
+                               class: "button button__sm button__transparent-secondary" %>
+              <% end %>
+            </div>
+          <% end %>
+        </article>
+      <% end %>
+      <%= paginate @contribution_needs, param_name: :needs_page if @contribution_needs.total_pages > 1 %>
+    <% end %>
+  </div>
+</section>
+
+<section id="community-contribution-offers" class="card">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.community_contributions.index.offers") %> (<%= queue_total(@contribution_offers) %>)</h2>
+  </div>
+  <div class="card-section">
+    <% if @contribution_offers.empty? %>
+      <p><%= t("decidim.bih.admin.community_contributions.index.no_offers") %></p>
+    <% else %>
+      <% @contribution_offers.each do |offer| %>
+        <article class="callout" id="admin-contribution-offer-<%= offer.id %>">
+          <h3><%= offer.contribution_need.title %></h3>
+          <p>
+            <strong><% if offer.partner_profile && bih_allowed?(:partner_profiles_manage) %><%= link_to offer.partner_profile.display_name, partner_profile_path(offer.partner_profile) %><% else %><%= offer.partner_profile&.display_name || offer.contributor&.name || t("decidim.bih.admin.community_contributions.index.anonymized_contributor") %><% end %></strong> ·
+            <%= t("decidim.bih.volunteer.index.contributions.quantity", quantity: offer.quantity, unit: offer.contribution_need.unit) %> ·
+            <%= t("decidim.bih.volunteer.index.contributions.offer_status.#{offer.status}") %>
+          </p>
+          <% if bih_allowed?(:contribution_offer_manage) %>
+            <div class="mi-admin-action-group">
+              <% if offer.status == "confirmed" && offer.recognized_at.blank? %>
+                <%= button_to t("decidim.bih.admin.community_contributions.index.recognize"),
+                              manage_contribution_offer_path(offer, @queue_page_params.merge(decision: "recognize")), method: :post,
+                              class: "button button__sm button__secondary" %>
+              <% end %>
+            </div>
+          <% end %>
+        </article>
+      <% end %>
+      <%= paginate @contribution_offers, param_name: :offers_page if @contribution_offers.total_pages > 1 %>
+    <% end %>
+  </div>
+</section>

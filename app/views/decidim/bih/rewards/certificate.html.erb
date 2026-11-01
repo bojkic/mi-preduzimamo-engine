@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= t(".title") %></title>
+<style>
+body{font-family:system-ui,sans-serif;color:#193c51;background:#faf8f3;margin:2rem;line-height:1.6}
+main{max-width:48rem;margin:3rem auto;padding:3rem;border:3px solid #193c51;text-align:center;background:white}
+h1{font-size:2.5rem}h2{font-size:2rem}.actions{max-width:48rem;margin:auto}button,a{font:inherit}
+@media print{body{background:white;margin:0}.actions{display:none}main{margin:1rem auto}}
+</style></head><body>
+<main>
+<p><%= translated_attribute(current_organization.name) %></p>
+<h1><%= t(".title") %></h1>
+<h2><%= @fulfillment.user.name %></h2>
+<p><%= t(".intro") %></p>
+<p><%= t(".issued") %>: <%= l(@fulfillment.created_at.to_date, format: :default) %></p>
+<p><%= t(".reference") %>: <%= @fulfillment.organization.id %>-<%= @fulfillment.id %></p>
+</main>
+<% unless local_assigns[:downloaded] %>
+<section class="actions">
+<p><%= t(".private_note") %></p><p><%= t(".handoff_note") %></p>
+<%= button_to t(".download"), download_reward_certificate_path(@fulfillment), method: :post %>
+<p><%= link_to t(".back"), account_overview_path %></p>
+</section>
+<% end %>
+</body></html>

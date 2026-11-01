@@ -1,0 +1,107 @@
+---
+sr:
+  decidim:
+    bih:
+      web_push:
+        title: Novo obavještenje
+        body: Imate novo obavještenje. Otvorite platformu da ga pročitate.
+        install: Na iPhone-u ili iPad-u prvo dodajte platformu na početni ekran preko
+          menija Dijeli, otvorite je preko ikone, pa ovdje uključite obavještenja.
+        unsupported: Ovaj preglednik ne podržava push obavještenja. Otvorite platformu
+          u podržanom pregledniku.
+        blocked: Obavještenja su blokirana. Dozvolite ih u postavkama preglednika
+          i uređaja, pa ponovo otvorite ovu stranicu.
+        enabled: Obavještenja su uključena na ovom uređaju. Privatni sadržaj se prikazuje
+          tek kada otvorite platformu.
+        disabled: Obavještenja su isključena na ovom uređaju.
+        ready: Uključite obavještenja za ovaj uređaj. Preglednik će zatražiti dozvolu.
+          Instalacija aplikacije sama ne uključuje obavještenja.
+        failed: Promjena nije potvrđena. Provjerite vezu i ponovo otvorite ovu stranicu.
+        test_button: Pošalji probno obavještenje
+        test_queued: Probno obavještenje je u redu za slanje. Provjerite obavještenja
+          na ovom uređaju. Sačekajte minut prije ponovnog pokušaja.
+bs:
+  decidim:
+    bih:
+      web_push:
+        title: Novo obavještenje
+        body: Imate novo obavještenje. Otvorite platformu da ga pročitate.
+        install: Na iPhone-u ili iPad-u prvo dodajte platformu na početni ekran preko
+          menija Dijeli, otvorite je preko ikone, pa ovdje uključite obavještenja.
+        unsupported: Ovaj preglednik ne podržava push obavještenja. Otvorite platformu
+          u podržanom pregledniku.
+        blocked: Obavještenja su blokirana. Dozvolite ih u postavkama preglednika
+          i uređaja, pa ponovo otvorite ovu stranicu.
+        enabled: Obavještenja su uključena na ovom uređaju. Privatni sadržaj se prikazuje
+          tek kada otvorite platformu.
+        disabled: Obavještenja su isključena na ovom uređaju.
+        ready: Uključite obavještenja za ovaj uređaj. Preglednik će zatražiti dozvolu.
+          Instalacija aplikacije sama ne uključuje obavještenja.
+        failed: Promjena nije potvrđena. Provjerite vezu i ponovo otvorite ovu stranicu.
+        test_button: Pošalji probno obavještenje
+        test_queued: Probno obavještenje je u redu za slanje. Provjerite obavještenja
+          na ovom uređaju. Sačekajte minut prije ponovnog pokušaja.
+hr:
+  decidim:
+    bih:
+      web_push:
+        title: Nova obavijest
+        body: Imate novu obavijest. Otvorite platformu da je pročitate.
+        install: Na iPhoneu ili iPadu prvo dodajte platformu na početni zaslon preko
+          izbornika Dijeli, otvorite je preko ikone pa ovdje uključite obavijesti.
+        unsupported: Ovaj preglednik ne podržava push obavijesti. Otvorite platformu
+          u podržanom pregledniku.
+        blocked: Obavijesti su blokirane. Dopustite ih u postavkama preglednika i
+          uređaja pa ponovno otvorite ovu stranicu.
+        enabled: Obavijesti su uključene na ovom uređaju. Privatni sadržaj prikazuje
+          se tek kada otvorite platformu.
+        disabled: Obavijesti su isključene na ovom uređaju.
+        ready: Uključite obavijesti za ovaj uređaj. Preglednik će zatražiti dopuštenje.
+          Instalacija aplikacije sama ne uključuje obavijesti.
+        failed: Promjena nije potvrđena. Provjerite vezu i ponovo otvorite ovu stranicu.
+        test_button: Pošalji probnu obavijest
+        test_queued: Probna obavijest je u redu za slanje. Provjerite obavijesti na
+          ovom uređaju. Pričekajte minutu prije ponovnog pokušaja.
+en:
+  decidim:
+    bih:
+      web_push:
+        title: New notification
+        body: You have a new notification. Open the platform to read it.
+        install: On iPhone or iPad, first add the platform to your Home Screen from
+          the Share menu, open its icon, then enable notifications here.
+        unsupported: This browser does not support push notifications. Open the platform
+          in a supported browser.
+        blocked: Notifications are blocked. Allow them in your browser and device
+          settings, then reopen this page.
+        enabled: Notifications are enabled on this device. Private content appears
+          only when you open the platform.
+        disabled: Notifications are disabled on this device.
+        ready: Enable notifications for this device. Your browser will ask for permission.
+          Installing the app alone does not enable notifications.
+        failed: The change could not be confirmed. Check your connection and reopen
+          this page.
+        test_button: Send test notification
+        test_queued: Test queued. Check this device’s notifications. Wait one minute
+          before retrying.
+sr-Cyrl:
+  decidim:
+    bih:
+      web_push:
+        title: Ново обавјештење
+        body: Имате ново обавјештење. Отворите платформу да га прочитате.
+        install: На иПхоне-у или иПад-у прво додајте платформу на почетни екран преко
+          менија Дијели, отворите је преко иконе, па овдје укључите обавјештења.
+        unsupported: Овај прегледник не подржава пусх обавјештења. Отворите платформу
+          у подржаном прегледнику.
+        blocked: Обавјештења су блокирана. Дозволите их у поставкама прегледника и
+          уређаја, па поново отворите ову страницу.
+        enabled: Обавјештења су укључена на овом уређају. Приватни садржај се приказује
+          тек када отворите платформу.
+        disabled: Обавјештења су искључена на овом уређају.
+        ready: Укључите обавјештења за овај уређај. Прегледник ће затражити дозволу.
+          Инсталација апликације сама не укључује обавјештења.
+        failed: Промјена није потврђена. Провјерите везу и поново отворите ову страницу.
+        test_button: Пошаљи пробно обавјештење
+        test_queued: Пробно обавјештење је у реду за слање. Провјерите обавјештења
+          на овом уређају. Сачекајте минут прије поновног покушаја.

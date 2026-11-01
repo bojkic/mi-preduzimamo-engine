@@ -1,0 +1,20 @@
+<%# Slim top-bar nudge for signed-in citizens who have completed neither the
+    phone nor postal verification method. %>
+<%
+  viewer =
+    if user_signed_in? && respond_to?(:current_organization)
+      if current_user.respond_to?(:organization) && current_user.organization == current_organization
+        current_user
+      elsif current_user.respond_to?(:decidim_organization_id) && current_user.decidim_organization_id == current_organization.id
+        current_user
+      end
+    end
+%>
+<% if viewer && !Decidim::Authorization.where(user: viewer, name: %w[sms postal_letter]).where.not(granted_at: nil).exists? %>
+  <div class="verify-nudge" style="background:var(--mi-navy-700); color:#fff; text-align:center; padding:0.45rem 1rem; font-size:0.9rem;">
+    <%= t("decidim.bih.account.verify_nudge.message") %>
+    <%= link_to t("decidim.bih.account.verify_nudge.action"),
+                decidim_bih.account_overview_path,
+                style: "color:#fbe48f; font-weight:700; text-decoration:underline; margin-left:0.4rem;" %>
+  </div>
+<% end %>

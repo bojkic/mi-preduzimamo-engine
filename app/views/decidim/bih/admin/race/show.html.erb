@@ -1,0 +1,70 @@
+<h1><%= t("decidim.bih.race_admin.title", default: "Trka komšiluka — pregled i zaključivanje") %></h1>
+<p><%= t("decidim.bih.race_admin.intro", default: "Pregledajte prijave, rokove i dokaze prije potvrde konačnog rezultata. Brojčani rezultati ostaju vidljivi dok ih ručno ne sakrijete.") %></p>
+<% if @edition %>
+  <p><%= t("decidim.bih.race_admin.capture", default: "Dokazi na kraju trke") %>: <%= @edition.captured_at || "—" %> · <%= @edition.snapshot_digest %></p>
+  <% if @edition.captured_at %><p><%= t("decidim.bih.race_admin.capture_timing", cutoff: @edition.snapshot["cutoff"], delay: @edition.snapshot["delay_seconds"], default: "Rok: %{cutoff}. Dokazi sačuvani %{delay} sekundi nakon roka.") %></p><% end %>
+  <p><%= link_to t("decidim.bih.race_admin.evidence", default: "Preuzmi privatne dokaze"), evidence_race_path %></p>
+<% end %>
+<div class="table-stacked">
+<table class="table-list"><thead><tr><th><%= t("decidim.bih.community_hub.race.columns.komsiluk", default: "Komšiluk") %></th><th><%= t("decidim.bih.community_hub.race.columns.score") %></th></tr></thead><tbody>
+<% @rows.each do |row| %><tr><td><%= row.respond_to?(:display_name) ? row.display_name : row[:slug] %></td><td><%= row.respond_to?(:score) ? row.score : row[:score] %></td></tr><% end %>
+</tbody></table>
+</div>
+<% unless @edition&.baseline_at %>
+<%= form_with url: baseline_race_path, method: :post, class: "form form-defaults" do |f| %>
+  <%= f.label :reason, t("decidim.bih.race_admin.reason", default: "Obrazloženje") %><%= f.text_field :reason, required: true %>
+  <%= f.submit t("decidim.bih.race_admin.baseline", default: "Sačuvaj početno članstvo uz provjeru rezultata"), class: "button button__sm button__secondary" %>
+<% end %>
+<% end %>
+<% if @edition&.baseline_at && !@edition.captured_at %>
+<%= button_to t("decidim.bih.race_admin.capture", default: "Sačuvaj dokaze po isteku roka"), capture_race_path, class: "button button__sm button__secondary" %>
+<% end %>
+<%= form_with url: visibility_race_path, method: :post, class: "form form-defaults" do |f| %>
+  <%= f.hidden_field :visibility, value: @edition&.scores_visible == false ? "show" : "hide" %>
+  <%= f.label :reason, t("decidim.bih.race_admin.reason", default: "Obrazloženje") %><%= f.text_field :reason, required: true %>
+  <%= f.submit t(@edition&.scores_visible == false ? "decidim.bih.race_admin.show_scores" : "decidim.bih.race_admin.hide_scores", default: @edition&.scores_visible == false ? "Prikaži rezultate" : "Sakrij rezultate"), class: "button button__sm button__secondary" %>
+<% end %>
+<% unless @edition&.finalized_at %>
+<h2><%= t("decidim.bih.race_admin.settings", default: "Rokovi i odgovornosti") %></h2>
+<%= form_with url: settings_race_path, method: :post, class: "form form-defaults" do |f| %>
+  <% %w(review_closes_at vote_starts_at vote_ends_at tie_procedure zero_entry_procedure project_owner).each do |key| %>
+    <%= label_tag "settings_#{key}", t("decidim.bih.race_admin.#{key}", default: key.humanize) %>
+    <%= text_field_tag "settings[#{key}]", @edition&.settings&.dig(key), required: !key.start_with?("vote_") %>
+  <% end %>
+  <% %w(grad selo).each do |zone| %>
+    <%= label_tag "settings_winners_#{zone}", t("decidim.bih.race_admin.winner", default: "Odluka kod potpune jednakosti ili bez učesnika") + " (#{zone})" %>
+    <%= text_field_tag "settings[winners][#{zone}]", @edition&.settings&.dig("winners", zone), placeholder: "ID / none" %>
+  <% end %>
+  <%= f.label :reason, t("decidim.bih.race_admin.reason", default: "Obrazloženje") %><%= f.text_field :reason, required: true %>
+  <%= f.submit t("decidim.bih.race_admin.save", default: "Sačuvaj"), class: "button button__sm button__secondary" %>
+<% end %>
+<h2><%= t("decidim.bih.race_admin.membership", default: "Ispravka takmičarskog članstva") %></h2>
+<%= form_with url: membership_race_path, method: :post, class: "form form-defaults" do |f| %>
+  <% %w(user_id expected_area area reason).each do |key| %><%= f.label key, t("decidim.bih.race_admin.#{key}", default: key.humanize) %><%= f.text_field key, required: true, value: params[key] %><% end %>
+  <% if @membership_preview %>
+    <pre><%= JSON.pretty_generate(@membership_preview.slice(:before, :after)) %></pre>
+    <%= f.hidden_field :preview_digest, value: @membership_preview[:digest] %>
+    <%= f.hidden_field :mode, value: "apply" %>
+    <%= f.submit t("decidim.bih.race_admin.apply", default: "Potvrdi prikazanu ispravku"), class: "button button__sm button__secondary" %>
+  <% else %><%= f.submit t("decidim.bih.race_admin.preview", default: "Pregled uticaja"), class: "button button__sm button__secondary" %><% end %>
+<% end %>
+<% if @edition&.captured_at %>
+<h2><%= t("decidim.bih.race_admin.review", default: "Pregled izvora i biračkog spiska") %></h2>
+<%= form_with url: decide_race_path, method: :post, class: "form form-defaults" do |f| %>
+  <%= f.hidden_field :digest, value: @edition.snapshot_digest %>
+  <%= f.select :target, [[t("decidim.bih.race_admin.source", default: "Izvor bodova"), "item"], [t("decidim.bih.race_admin.electorate", default: "Birački spisak"), "electorate"]] %>
+  <%= f.label :evidence, t("decidim.bih.race_admin.elector_evidence", default: "Dokaz potvrđenog članstva na dan roka (za dodavanje birača)") %><%= f.text_field :evidence %>
+  <%= f.label :item_key, t("decidim.bih.race_admin.item_key", default: "Oznaka izvora / ID birača") %><%= f.text_field :item_key, required: true %>
+  <%= f.select :decision, [[t("decidim.bih.race_admin.include", default: "Uključi"), "include"], [t("decidim.bih.race_admin.exclude", default: "Isključi"), "exclude"]] %>
+  <%= f.label :area, t("decidim.bih.race_admin.area", default: "ID komšiluka (prazno: bez promjene; birač: isključi)") %><%= f.text_field :area %>
+  <%= f.label :reason, t("decidim.bih.race_admin.reason", default: "Obrazloženje") %><%= f.text_field :reason, required: true %>
+  <%= f.submit t("decidim.bih.race_admin.save", default: "Sačuvaj"), class: "button button__sm button__secondary" %>
+<% end %>
+<details><summary><%= t("decidim.bih.race_admin.sources", default: "Izvori i birači") %></summary><pre><%= JSON.pretty_generate(items: @items, electorate: @electorate) %></pre></details>
+<%= form_with url: finalize_race_path, method: :post, class: "form form-defaults" do |f| %>
+  <%= f.hidden_field :digest, value: @edition.snapshot_digest %><%= f.hidden_field :revision, value: @revision %>
+  <%= f.label :reason, t("decidim.bih.race_admin.reason", default: "Obrazloženje") %><%= f.text_field :reason, required: true %>
+  <%= f.submit t("decidim.bih.race_admin.finalize", default: "Potvrdi konačni rezultat"), class: "button button__sm button__secondary" %>
+<% end %>
+<% end %>
+<% end %>

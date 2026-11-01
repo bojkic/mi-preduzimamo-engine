@@ -1,0 +1,21 @@
+<%# Shared onward-navigation block for Goodwill surfaces — keeps every page
+    from being a dead end. current: the symbol of the page rendering it. %>
+<% current = local_assigns.fetch(:current, nil) %>
+<%
+  links = {
+    wallet: [t("decidim.bih.menu.wallet"), wallet_path],
+    leaderboard: [t("decidim.bih.menu.leaderboard"), community_hub_path(tab: "tabla")],
+    rewards: [t("decidim.bih.menu.rewards"), community_hub_path(tab: "nagrade")],
+    volunteer: [t("decidim.bih.menu.volunteer"), volunteer_path],
+    invite: [t("decidim.bih.menu.invite"), community_hub_path(tab: "pozovi")],
+    gifts: [t("decidim.bih.wallet.show.support_org"), gifts_path]
+  }.except(current)
+%>
+<div style="margin-top:1.6rem; padding-top:1rem; border-top:1px solid var(--mi-line); text-align:center;">
+  <p class="mi-eyebrow" style="margin-bottom:0.5rem;"><%= t("decidim.bih.shared.see_also") %></p>
+  <div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
+    <% links.each_value do |(label, path)| %>
+      <%= link_to label, path, class: "button button__sm hollow" %>
+    <% end %>
+  </div>
+</div>

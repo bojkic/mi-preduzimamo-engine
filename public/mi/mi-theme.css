@@ -1,0 +1,1733 @@
+/* ============================================================
+   MI PRE(D)UZIMAMO! — Decidim theme layer
+   Host-applied Decidim 0.31 "redesign" theme layer. Brand colours
+   come natively from organization.colors (--primary, etc.); this
+   file adds typography, the paper canvas, rounded/pill shapes, and
+   brand chrome.
+   Loaded site-wide (public) via _head_extra.html.erb.
+   ============================================================ */
+
+:root {
+  /* ---- Brand palette (mirror of the design-system tokens) ---- */
+  --mi-navy-900:#02263a; --mi-navy-800:#033653; --mi-navy-700:#1c3d53;
+  --mi-navy-600:#2f5570; --mi-navy-400:#6f8a9e;
+  --mi-sava-700:#4f93bd; --mi-sava-600:#5b9bc4; --mi-sava-500:#7abdda;
+  --mi-sava-300:#aed6e8; --mi-sava-100:#dcebf6; --mi-sava-50:#eef6fb;
+  --mi-park-600:#9bbb5f; --mi-park-500:#b6cf7d; --mi-park-100:#e6efcf;
+  --mi-sun-600:#f3cf5e;  --mi-sun-500:#fbe48f;  --mi-sun-100:#fdf6d6;
+  --mi-coral-700:#b6502f; --mi-coral-600:#d86b4a; --mi-coral-100:#f7dccf;
+  --mi-cream-100:#faf7ec; --mi-cream-200:#f3eeda;
+  --mi-line:#e4e9ed; --mi-ink-grey:#51606b;
+
+  --mi-font-display:'Jost','Century Gothic','Futura',system-ui,sans-serif;
+  --mi-font-body:'Mulish',system-ui,-apple-system,'Segoe UI',sans-serif;
+
+  --mi-radius-card:18px; --mi-radius-input:12px; --mi-radius-pill:999px;
+  --mi-shadow-sm:0 2px 8px rgba(28,61,83,.08);
+  --mi-shadow-md:0 8px 24px rgba(28,61,83,.10);
+  --mi-ease:cubic-bezier(.22,.61,.36,1);
+}
+
+/* ============================================================
+   1. Typography — Mulish body, Jost display
+   ============================================================ */
+body,
+.wrapper,
+input, select, textarea, button {
+  font-family: var(--mi-font-body);
+}
+body {
+  color: var(--mi-navy-600);
+  background-color: var(--mi-cream-100);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,h2,h3,h4,h5,h6,
+.h1,.h2,.h3,.h4,.h5,.h6,
+.heading1,.heading2,.heading3,.heading4,.heading5,.heading6,
+.title-bar__title,
+.hero__title,
+.card__title, .card__list-title {
+  font-family: var(--mi-font-display);
+  font-weight: 700;
+  letter-spacing: .005em;
+  color: var(--mi-navy-700);
+}
+h1,.h1,.heading1 { letter-spacing: .01em; line-height: 1.04; }
+
+/* Eyebrow helper (small Jost caps, terracotta) reused by brand blocks */
+.mi-eyebrow {
+  font-family: var(--mi-font-display); font-weight: 600;
+  font-size: .78rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--mi-coral-600); margin: 0 0 .5rem;
+}
+
+/* Visible required-field marker (asterisk) for custom MI forms. */
+.mi-required { color: var(--mi-coral-600); font-weight: 700; margin-left: .15rem; }
+
+::selection { background: var(--mi-sun-500); color: var(--mi-navy-800); }
+
+/* ============================================================
+   2. Buttons — friendly pills, terracotta primary
+   ============================================================ */
+.button,
+button.button,
+a.button,
+[type="submit"].button {
+  font-family: var(--mi-font-display);
+  font-weight: 600;
+  border-radius: var(--mi-radius-pill);
+  letter-spacing: .005em;
+  transition: background-color var(--mi-dur,160ms) var(--mi-ease),
+              transform 140ms var(--mi-ease);
+}
+.button:active { transform: scale(.97); }
+/* Decidim primary buttons already use --primary (terracotta). Keep hollow
+   buttons on-brand: navy outline that fills on hover. */
+.button.hollow {
+  border-radius: var(--mi-radius-pill);
+}
+
+/* ============================================================
+   3. Cards & surfaces — rounded, soft cool shadow
+   ============================================================ */
+.card,
+.card__highlight,
+[class*="card--"],
+.card__content,
+.filters,
+.flash {
+  border-radius: var(--mi-radius-card);
+}
+.card,
+.card__highlight {
+  border: 1.5px solid var(--mi-line);
+  box-shadow: var(--mi-shadow-sm);
+}
+
+/* Inputs */
+input[type="text"], input[type="email"], input[type="password"],
+input[type="search"], input[type="tel"], input[type="number"],
+input[type="url"], textarea, select, .input-group-field {
+  border-radius: var(--mi-radius-input);
+  border: 1.5px solid var(--mi-line);
+  font-family: var(--mi-font-body);
+}
+
+/* ============================================================
+   4. Links
+   ============================================================ */
+a { color: var(--mi-sava-700); }
+a:hover { color: var(--mi-coral-600); }
+
+/* ============================================================
+   5. Header / main navigation — clean cream bar, navy ink
+   ============================================================ */
+.main-bar,
+#main-bar,
+.navbar,
+header .main-bar {
+  background: #fff;
+  border-bottom: 1.5px solid var(--mi-line);
+}
+.main-bar a,
+.main-nav__link {
+  font-family: var(--mi-font-display);
+  font-weight: 600;
+}
+
+/* Hide the global meetings shortcut until there are launched meetings. */
+.main-bar__links-desktop__item-wrapper:has(a[href*="/meetings"]) {
+  display: none;
+}
+.main-bar__links-desktop a[href*="/meetings"] { display: none; }
+
+#home__menu.home__menu {
+  display: block;
+  background: var(--mi-coral-600);
+  padding: 0;
+}
+
+.home__menu__container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .35rem .55rem;
+  box-sizing: border-box;
+  max-width: 88rem;
+  margin: 0 auto;
+  padding: .65rem 1rem;
+}
+
+.home__menu-element {
+  min-width: 0;
+}
+
+.home__menu-element--link.button.button__text {
+  min-height: 2.35rem;
+  padding: .42rem .8rem;
+  border-radius: var(--mi-radius-pill);
+  color: #fff;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.home__menu-element--link.button.button__text:hover,
+.home__menu-element--link.button.button__text:focus-visible {
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+  .home__menu__container {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    max-width: 100vw;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .home__menu__container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home__menu-element {
+    flex: 0 0 auto;
+  }
+}
+
+#how_to_participate .home__section-participate-grid__block:first-child {
+  display: none;
+}
+
+.main-footer li:has(> a[href*="/meetings"]),
+.footer li:has(> a[href*="/meetings"]) {
+  display: none;
+}
+
+/* ============================================================
+   6. Footer — deep navy, brand sign-off
+   ============================================================ */
+.main-footer,
+.footer {
+  background: var(--mi-navy-800);
+  color: #fff;
+}
+.main-footer a,
+.footer a { color: #e8f1f6; }
+.main-footer a:hover,
+.footer a:hover { color: var(--mi-sun-500); }
+
+/* ============================================================
+   6.5 Data consent — compact mobile sheet
+   ============================================================ */
+@media (max-width: 640px) {
+  #dc-dialog-wrapper.cookies__container {
+    left: .75rem;
+    right: .75rem;
+    bottom: calc(.75rem + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    max-height: min(18dvh, 9rem);
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 -8px 24px rgba(28, 61, 83, .18);
+  }
+
+  #dc-dialog-wrapper .cookies {
+    width: auto;
+    max-width: none;
+    max-height: inherit;
+    overflow-y: auto;
+    gap: .55rem;
+    padding: .7rem;
+  }
+
+  #dc-dialog-wrapper .cookies__left {
+    gap: .35rem;
+  }
+
+  #dc-dialog-wrapper .cookies .h5 {
+    font-size: .92rem;
+    line-height: 1.2;
+  }
+
+  #dc-dialog-wrapper .cookies__left p {
+    display: -webkit-box;
+    margin-top: .1rem;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    font-size: .78rem;
+    line-height: 1.28;
+  }
+
+  #dc-dialog-wrapper .cookies__right {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: .5rem;
+  }
+
+  #dc-dialog-wrapper .cookies__right .button {
+    min-height: 32px;
+    padding: .38rem .55rem;
+    font-size: .8rem;
+    white-space: normal;
+    line-height: 1.15;
+  }
+
+  #dc-dialog-settings {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 380px) {
+  #dc-dialog-wrapper .cookies__right {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   7. Home hero — deep navy poster block, light type
+   (Only the home .hero gets a forced navy bg; participatory-space
+   headers manage their own cover image, so we don't touch them.)
+   ============================================================ */
+.hero {
+  background-color: var(--mi-navy-800);
+}
+.hero,
+.hero__container,
+.hero .hero__title,
+.hero h1, .hero h2, .hero h3,
+.hero p, .hero li {
+  color: #fff;
+}
+.hero .hero__title { letter-spacing: .02em; }
+.hero a:not(.button) { color: var(--mi-sun-500); }
+.hero a:not(.button):hover { color: #fff; }
+/* The single hero CTA pops in terracotta regardless of Decidim's variant. */
+.hero .button {
+  background: var(--mi-coral-600);
+  border-color: var(--mi-coral-600);
+  color: #fff;
+}
+.hero .button:hover {
+  background: var(--mi-coral-700);
+  border-color: var(--mi-coral-700);
+}
+
+/* Participatory-space (process/assembly) hero — the dark band's title/subtitle
+   must be light. Higher specificity than the global h1 colour, so no !important.
+   Works whether the hero shows the default dark band or a cover image (Decidim
+   scrims cover images, where white text is also correct). */
+.participatory-space__hero,
+.participatory-space__hero-text,
+.participatory-space__hero-text h1,
+.participatory-space__hero-text h2,
+.participatory-space__hero-text h3,
+.participatory-space__hero-text p {
+  color: #fff;
+}
+.participatory-space__hero-text a:not(.button) { color: var(--mi-sun-500); }
+.participatory-space__hero-text a:not(.button):hover { color: #fff; }
+
+/* ============================================================
+   8. Brand utility classes (used by engine custom pages + blocks)
+   ============================================================ */
+.mi-wordmark {
+  font-family: var(--mi-font-display); font-weight: 800;
+  letter-spacing: .005em; line-height: .92;
+  display: inline-flex; align-items: baseline; gap: .12em; white-space: nowrap;
+}
+.mi-wordmark .wm-accent { color: var(--mi-coral-600); }
+.mi-wordmark .wm-paren { opacity: .55; font-weight: 600; }
+
+/* Engine custom forms (Biće riješeno! report intake) wrap each field in
+   .mi-field with an explicit label (Decidim's auto-label suppressed), giving a
+   deterministic label-then-input vertical layout. */
+.mi-field { margin: 0 0 1.1rem; }
+.mi-field > label {
+  display: block;
+  margin: 0 0 .35rem;
+  font-family: var(--mi-font-display);
+  font-weight: 600;
+  color: var(--mi-navy-700);
+}
+.mi-field input:not([type="checkbox"]):not([type="radio"]),
+.mi-field textarea,
+.mi-field select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+.mi-field--check > label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-weight: 600;
+}
+.mi-field--check input { width: auto; flex: none; }
+.mi-field .help-text { display: block; margin: .35rem 0 0; color: var(--mi-navy-400); font-size: .85rem; }
+form fieldset legend { font-family: var(--mi-font-display); font-weight: 700; color: var(--mi-navy-700); margin-bottom: .6rem; }
+
+.mi-card-strip { height: 5px; width: 100%; border-radius: 6px 6px 0 0; }
+.acc-sava{--mi-acc:var(--mi-sava-600);--mi-acc-soft:var(--mi-sava-100);}
+.acc-park{--mi-acc:var(--mi-park-600);--mi-acc-soft:var(--mi-park-100);}
+.acc-sun{--mi-acc:var(--mi-sun-600);--mi-acc-soft:var(--mi-sun-100);}
+.acc-coral{--mi-acc:var(--mi-coral-600);--mi-acc-soft:var(--mi-coral-100);}
+
+/* ============================================================
+   9. Homepage HUB content block (decidim-bih :mi_hub)
+   The "MI <verb>" module tiles + the omnichannel chatbot band.
+   Markup lives in the engine cell; copy in i18n; look lives here.
+   ============================================================ */
+.mi-hub { max-width: none; }
+
+/* ---- Eyebrow variant (sun, used on the navy band) ---- */
+.mi-eyebrow--sun { color: var(--mi-sun-600); }
+
+/* ---- "MI <verb>" module tiles ---- */
+.mi-modules { margin: 0 0 3rem; }
+.mi-modules__head { max-width: 46rem; margin: 0 0 2.25rem; }
+.mi-modules__title {
+  font-family: var(--mi-font-display); font-weight: 700;
+  color: var(--mi-navy-700); line-height: 1.08;
+  font-size: clamp(1.7rem, 4.2vw, 2.9rem); margin: .35rem 0 0;
+}
+.mi-modules__grid {
+  display: grid; gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(228px, 1fr));
+}
+.mi-module-tile {
+  display: flex; flex-direction: column; overflow: hidden;
+  background: #fff; border: 1.5px solid var(--mi-line);
+  border-radius: var(--mi-radius-card); box-shadow: var(--mi-shadow-sm);
+  transition: transform 160ms var(--mi-ease), box-shadow 160ms var(--mi-ease);
+}
+.mi-module-tile:hover { transform: translateY(-4px); box-shadow: var(--mi-shadow-md); }
+.mi-module-tile .mi-card-strip { background: var(--mi-acc); border-radius: 0; flex: none; }
+.mi-module-tile__body {
+  display: flex; flex-direction: column; flex: 1;
+  padding: 1.6rem 1.5rem 1.5rem;
+}
+.mi-module-tile__icon {
+  width: 52px; height: 52px; border-radius: 16px;
+  background: var(--mi-acc-soft); color: var(--mi-acc);
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+}
+.mi-module-tile__icon svg { width: 26px; height: 26px; }
+.mi-module-tile__heading { margin-top: 1.1rem; }
+.mi-module-tile__mi {
+  font-family: var(--mi-font-display); font-weight: 600; font-size: .78rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--mi-navy-400);
+}
+.mi-module-tile__verb {
+  font-family: var(--mi-font-display); font-weight: 700;
+  font-size: 1.65rem; line-height: 1.05; color: var(--mi-navy-700); margin: .1rem 0 0;
+}
+.mi-module-tile__kicker {
+  font-family: var(--mi-font-display); font-weight: 500; font-size: .9rem;
+  color: var(--mi-acc); margin: .25rem 0 0; letter-spacing: .02em;
+}
+.mi-module-tile__blurb {
+  font-size: .92rem; line-height: 1.55; color: var(--mi-ink-grey);
+  margin: .9rem 0 1.2rem; flex: 1;
+}
+.mi-module-tile__links { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem 1rem; }
+.mi-module-tile__secondary {
+  font-family: var(--mi-font-display); font-weight: 600; font-size: .85rem;
+  color: var(--mi-navy-600);
+}
+.mi-module-tile__secondary:hover { color: var(--mi-coral-600); }
+
+/* ---- Pill link (accent-tinted) ---- */
+.mi-pill {
+  display: inline-flex; align-items: center; gap: .45rem;
+  font-family: var(--mi-font-display); font-weight: 700; font-size: .92rem;
+  padding: .55rem 1.15rem; border-radius: var(--mi-radius-pill);
+  background: var(--mi-acc-soft); color: var(--mi-navy-700);
+  transition: background-color 160ms var(--mi-ease), transform 140ms var(--mi-ease);
+}
+.mi-pill:hover { color: var(--mi-navy-800); background: var(--mi-acc); transform: translateY(-1px); }
+.mi-pill svg { width: 18px; height: 18px; }
+
+/* ---- Omnichannel chatbot band (navy) ---- */
+.mi-omni-band {
+  background: var(--mi-navy-800); color: #fff;
+  border-radius: var(--mi-radius-card); overflow: hidden;
+  display: grid; gap: 2rem; align-items: center;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 18rem);
+  padding: clamp(2rem, 4vw, 3.25rem);
+}
+.mi-omni-band__title {
+  font-family: var(--mi-font-display); font-weight: 700; color: #fff;
+  font-size: clamp(1.55rem, 3.8vw, 2.7rem); line-height: 1.1; margin: .6rem 0 0;
+}
+.mi-omni-band__lead {
+  color: #cfe0ea; font-size: 1.02rem; line-height: 1.6;
+  margin: 1rem 0 1.4rem; max-width: 34rem;
+}
+.mi-omni-band__channels { display: flex; flex-wrap: wrap; gap: .65rem; margin-bottom: 1.3rem; }
+.mi-channel {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.18);
+  padding: .55rem 1rem; border-radius: var(--mi-radius-pill);
+  font-family: var(--mi-font-display); font-weight: 600; font-size: .9rem; color: #fff;
+}
+.mi-channel svg { width: 16px; height: 16px; }
+.mi-channel--viber { border-color: rgba(115,96,242,.5); }
+.mi-channel--whatsapp { border-color: rgba(37,211,102,.5); }
+.mi-channel--messenger { border-color: rgba(0,132,255,.5); }
+.mi-omni-band__sms { color: #cfe0ea; font-size: .9rem; line-height: 1.6; margin: 0; }
+.mi-omni-band__sms b { color: #fff; }
+.mi-omni-band__emblem { display: flex; justify-content: center; }
+.mi-omni-band__emblem img { width: clamp(8rem, 14vw, 12rem); height: auto; }
+
+/* ---- Responsive: stack the omnichannel band on mobile ---- */
+@media (max-width: 720px) {
+  .mi-omni-band { grid-template-columns: 1fr; text-align: left; }
+  .mi-omni-band__emblem { justify-content: flex-start; order: -1; }
+  .mi-omni-band__emblem img { width: 5.5rem; }
+}
+
+/* ============================================================
+   10. Lazy MI chat launcher
+   The full chat panel CSS/JS loads only after this lightweight button is used.
+   ============================================================ */
+.mi-chat-loader__bubble {
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 9999;
+  min-width: 58px;
+  min-height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  border: 0;
+  border-radius: 999px;
+  padding: .7rem .95rem .7rem .75rem;
+  background: var(--mi-coral-600);
+  color: #fff;
+  box-shadow: 0 16px 36px rgba(32, 34, 38, .24);
+  cursor: pointer;
+  font-family: var(--mi-font-display);
+  font-weight: 700;
+  line-height: 1;
+  transition: transform 160ms var(--mi-ease), background-color 160ms var(--mi-ease), box-shadow 160ms var(--mi-ease);
+}
+.mi-chat-loader__bubble:hover {
+  background: var(--mi-coral-700);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 44px rgba(32, 34, 38, .28);
+}
+.mi-chat-loader__bubble:focus-visible {
+  outline: 3px solid var(--mi-sun-500);
+  outline-offset: 3px;
+}
+.mi-chat-loader__bubble.is-loading { cursor: progress; opacity: .82; }
+.mi-chat-loader__bubble:disabled { pointer-events: none; }
+.mi-chat-loader__icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.mi-chat-loader__icon svg { width: 30px; height: 30px; }
+.mi-chat-loader__label { white-space: nowrap; font-size: .92rem; }
+
+@media (max-width: 560px) {
+  .mi-chat-loader__bubble {
+    right: max(14px, env(safe-area-inset-right));
+    bottom: max(14px, env(safe-area-inset-bottom));
+    width: 58px;
+    height: 58px;
+    padding: 0;
+  }
+  .mi-chat-loader__label { display: none; }
+}
+
+/* ============================================================
+   11. Homepage poster HERO content block (decidim-bih :mi_hero)
+   The activist poster stack + live ticker card + org stats strip.
+   Markup lives in the engine cell; copy in i18n; look lives here.
+   NEW tokens only — additive :root block, nothing above changes.
+   ============================================================ */
+:root {
+  --mi-hero-ink:#ffffff;
+  --mi-hero-sub:#aac6d6;
+  --mi-hero-divider:rgba(255,255,255,.14);
+  --mi-ticker-bg:rgba(255,255,255,.07);
+  --mi-ticker-border:rgba(255,255,255,.18);
+  --mi-ticker-divider:rgba(255,255,255,.12);
+  --mi-ticker-icon-bg:rgba(255,255,255,.12);
+}
+
+.mi-hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--mi-navy-800);
+  color: var(--mi-hero-ink);
+}
+.mi-hero__watermark {
+  position: absolute;
+  right: clamp(-80px, -4vw, -40px);
+  top: 50%;
+  transform: translateY(-50%);
+  height: min(86%, 560px);
+  width: auto;
+  opacity: .13;
+  pointer-events: none;
+}
+.mi-hero__wrap {
+  position: relative;
+  box-sizing: border-box;
+  max-width: 88rem;
+  margin: 0 auto;
+  padding: clamp(56px, 8vw, 110px) 1rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, .95fr);
+  gap: 40px;
+  align-items: center;
+}
+.mi-hero__side {
+  display: grid;
+  gap: 18px;
+  align-items: start;
+}
+.mi-hero__eyebrow { color: var(--mi-sun-500); }
+
+/* ---- Poster lettering (brand signature) ---- */
+.mi-hero__poster { margin: 18px 0 0; }
+.mi-poster-word {
+  font-family: var(--mi-font-display);
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  line-height: .95;
+  display: block;
+  font-size: clamp(30px, 6.2vw, 70px);
+  color: var(--mi-hero-ink);
+}
+.mi-poster-word--mi {
+  color: var(--mi-coral-600);
+  font-weight: 800;
+  font-size: clamp(40px, 9vw, 104px);
+}
+.mi-poster-word--w3 { color: var(--mi-sava-300); }
+.mi-poster-word--w4 { color: var(--mi-sun-500); }
+
+.mi-hero__sub {
+  font-size: clamp(17px, 2.2vw, 21px);
+  line-height: 1.55;
+  color: var(--mi-hero-sub);
+  max-width: 560px;
+  margin: 26px 0 0;
+}
+.mi-hero__sub b { color: var(--mi-hero-ink); }
+.mi-hero__ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+.mi-hero__trust {
+  margin: 22px 0 0;
+  font-size: 14px;
+  color: var(--mi-hero-sub);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mi-hero__trust svg { width: 17px; height: 17px; flex: none; fill: currentColor; }
+
+.mi-hero-register {
+  box-sizing: border-box;
+  width: min(100%, 610px);
+  margin-top: 0;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 8px;
+  background: rgba(255,255,255,.09);
+  backdrop-filter: blur(3px);
+}
+.mi-hero-register__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+}
+.mi-hero-register__copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.mi-hero-register__copy strong {
+  font-family: var(--mi-font-display);
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--mi-hero-ink);
+}
+.mi-hero-register__copy span {
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--mi-hero-sub);
+}
+.mi-hero-register__benefits {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid rgba(255,255,255,.16);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px 12px;
+}
+.mi-hero-register__benefits li {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: var(--mi-hero-ink);
+}
+.mi-hero-register__benefits svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: currentColor;
+  color: var(--mi-sun-500);
+}
+.mi-hero-register .mi-btn {
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+}
+
+/* ---- Brand pill buttons (design-kit .mi-btn, reused by hero + CTA) ---- */
+.mi-btn {
+  font-family: var(--mi-font-display);
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: var(--mi-radius-pill);
+  border: 1.5px solid transparent;
+  padding: 12px 22px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: background-color 160ms var(--mi-ease), color 160ms var(--mi-ease),
+              border-color 160ms var(--mi-ease), transform 140ms var(--mi-ease);
+}
+.mi-btn:active { transform: scale(.97); }
+.mi-btn svg { width: 19px; height: 19px; flex: none; fill: currentColor; }
+.mi-btn--lg { font-size: 16px; padding: 15px 28px; }
+.mi-btn--primary { background: var(--mi-coral-600); color: #fff; }
+.mi-btn--primary:hover,
+.mi-btn--primary:focus-visible { background: var(--mi-coral-700); color: #fff; }
+.mi-btn--sun { background: var(--mi-sun-500); color: var(--mi-navy-800); border-color: var(--mi-sun-500); }
+.mi-btn--sun:hover,
+.mi-btn--sun:focus-visible { background: #fff; color: var(--mi-navy-800); border-color: #fff; }
+.mi-btn--ghost-light { background: transparent; color: #fff; border-color: rgba(255,255,255,.6); }
+.mi-btn--ghost-light:hover,
+.mi-btn--ghost-light:focus-visible { background: #fff; color: var(--mi-navy-800); }
+.mi-btn--ghost { background: transparent; color: var(--mi-navy-700); border-color: var(--mi-navy-700); }
+.mi-btn--ghost:hover,
+.mi-btn--ghost:focus-visible { background: var(--mi-navy-700); color: #fff; }
+.mi-btn--sm { font-size: 14px; padding: 10px 16px; }
+
+/* ---- Live ticker card (right hero column) ---- */
+.mi-ticker {
+  background: var(--mi-ticker-bg);
+  border: 1.5px solid var(--mi-ticker-border);
+  border-radius: 22px;
+  padding: 22px;
+  backdrop-filter: blur(4px);
+}
+.mi-ticker__head { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; }
+.mi-ticker__dot {
+  width: 9px; height: 9px; border-radius: 50%; flex: none;
+  background: var(--mi-park-500);
+  box-shadow: 0 0 0 4px rgba(182, 207, 125, .25);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mi-ticker__dot { animation: miTickerPulse 2s var(--mi-ease) infinite; }
+  @keyframes miTickerPulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(182, 207, 125, .25); }
+    50% { box-shadow: 0 0 0 7px rgba(182, 207, 125, .12); }
+  }
+}
+.mi-ticker__label {
+  font-family: var(--mi-font-display);
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-size: 12.5px;
+  color: var(--mi-hero-ink);
+}
+.mi-ticker__items { display: flex; flex-direction: column; }
+.mi-ticker__item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 11px 0;
+  border-top: 1px solid var(--mi-ticker-divider);
+}
+.mi-ticker__item:first-child { border-top: none; padding-top: 0; }
+.mi-ticker__icon {
+  width: 34px; height: 34px; border-radius: 10px; flex: none;
+  background: var(--mi-ticker-icon-bg);
+  color: var(--mi-hero-ink);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.mi-ticker__icon svg { width: 17px; height: 17px; fill: currentColor; }
+.mi-ticker__body { font-size: 14.5px; line-height: 1.4; color: var(--mi-hero-ink); }
+.mi-ticker__body b { color: var(--mi-hero-ink); }
+a.mi-ticker__target, .mi-ticker__target { color: var(--mi-sun-500); }
+a.mi-ticker__target:hover { color: #fff; }
+.mi-ticker__when { display: block; font-size: 12.5px; color: var(--mi-hero-sub); margin-top: 2px; }
+
+/* ---- Org stats strip under the hero divider ---- */
+.mi-hero-stats__divider { border-top: 1px solid var(--mi-hero-divider); }
+.mi-hero-stats {
+  box-sizing: border-box;
+  max-width: 88rem;
+  margin: 0 auto;
+  padding: 26px 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 16px;
+}
+.mi-hero-stats__item { text-align: center; }
+.mi-hero-stats__item:first-child { text-align: left; }
+.mi-hero-stats__value {
+  font-family: var(--mi-font-display);
+  font-weight: 800;
+  font-size: clamp(24px, 3.4vw, 40px);
+  line-height: 1;
+  color: var(--mi-hero-ink);
+}
+.mi-hero-stats__item--hi .mi-hero-stats__value { color: var(--mi-sun-500); }
+.mi-hero-stats__label { font-size: 13.5px; color: var(--mi-hero-sub); margin-top: 6px; }
+
+/* ---- Responsive: collapse the split, then the strip; hide ticker ---- */
+@media (max-width: 880px) {
+  .mi-hero__wrap { grid-template-columns: 1fr; gap: 24px; }
+  .mi-hero-stats { grid-template-columns: repeat(2, 1fr); row-gap: 22px; }
+}
+@media (max-width: 860px) {
+  .mi-hide-sm { display: none !important; }
+}
+@media (max-width: 540px) {
+  .mi-hero-stats { grid-template-columns: 1fr; }
+  .mi-hero-stats__item { text-align: left; }
+  .mi-hero-register__header { grid-template-columns: 1fr; }
+  .mi-hero-register__benefits { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   11b. Private citizen account overview
+   ============================================================ */
+.mi-account-overview {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.4rem 0 2.4rem;
+  color: var(--mi-navy-700);
+}
+.mi-account-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 320px);
+  gap: 1.2rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+.mi-account-hero h1 {
+  margin: 0 0 .45rem;
+  color: var(--mi-navy-700);
+}
+.mi-account-hero p {
+  margin: 0;
+  max-width: 42rem;
+  color: var(--mi-navy-500, var(--mi-navy-400));
+}
+.mi-account-progress {
+  border: 1.5px solid var(--mi-line);
+  border-radius: 8px;
+  background: #fff;
+  padding: .85rem;
+  display: grid;
+  gap: .45rem;
+}
+.mi-account-progress span,
+.mi-account-stat span,
+.mi-setup-step__text,
+.mi-account-panel p,
+.mi-account-links span,
+.mi-verification-options span {
+  color: var(--mi-navy-400);
+}
+.mi-account-progress strong {
+  font-family: var(--mi-font-display);
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--mi-coral-600);
+}
+.mi-account-progress__bar {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--mi-cream-100);
+}
+.mi-account-progress__bar span {
+  display: block;
+  height: 100%;
+  background: var(--mi-coral-600);
+}
+.mi-account-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+.mi-account-stat {
+  min-width: 0;
+  border: 1.5px solid var(--mi-line);
+  border-radius: 8px;
+  background: #fff;
+  padding: .85rem;
+}
+.mi-account-stat strong {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--mi-font-display);
+  font-size: 1.45rem;
+  line-height: 1.1;
+  color: var(--mi-navy-700);
+}
+.mi-account-stat span {
+  display: block;
+  margin-top: .25rem;
+  font-size: .86rem;
+}
+.mi-account-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, .9fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.mi-account-panel {
+  border: 1.5px solid var(--mi-line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 1rem;
+}
+.mi-account-panel--wide {
+  min-width: 0;
+}
+.mi-account-panel__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: .85rem;
+}
+.mi-account-panel__head h2,
+.mi-account-panel h2 {
+  margin: 0;
+  color: var(--mi-navy-700);
+}
+.mi-setup-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: .65rem;
+}
+.mi-setup-step {
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--mi-line);
+  border-radius: 8px;
+  background: var(--mi-cream-100);
+  padding: .75rem .8rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: .7rem;
+  align-items: center;
+}
+.mi-setup-step--done {
+  background: #f4f8e7;
+}
+.mi-setup-step--pending {
+  background: #fdf6d6;
+}
+.mi-setup-step__icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: var(--mi-coral-600);
+}
+.mi-setup-step__icon svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+.mi-setup-step__body {
+  min-width: 0;
+}
+.mi-setup-step__title {
+  display: block;
+  font-weight: 800;
+  color: var(--mi-navy-700);
+}
+.mi-setup-step__text {
+  display: block;
+  font-size: .88rem;
+  line-height: 1.35;
+}
+.mi-status-pill {
+  border-radius: 999px;
+  padding: .25rem .55rem;
+  font-size: .76rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  background: #fff;
+  color: var(--mi-navy-600);
+}
+.mi-status-pill--done {
+  background: var(--mi-park-600, #7a9a3f);
+  color: #fff;
+}
+.mi-status-pill--pending {
+  background: var(--mi-sun-500);
+  color: var(--mi-navy-800);
+}
+.mi-status-pill--todo,
+.mi-status-pill--optional {
+  border: 1px solid var(--mi-line);
+}
+.mi-setup-step__link {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  text-indent: -9999px;
+  overflow: hidden;
+}
+.mi-setup-step:focus-within {
+  outline: 2px solid var(--mi-coral-600);
+  outline-offset: 2px;
+}
+.mi-verification-options {
+  display: grid;
+  gap: .65rem;
+}
+.mi-verification-options div {
+  border: 1px solid var(--mi-line);
+  border-radius: 8px;
+  background: var(--mi-cream-100);
+  padding: .7rem .75rem;
+}
+.mi-verification-options strong,
+.mi-verification-options span {
+  display: block;
+}
+.mi-verification-options strong {
+  color: var(--mi-navy-700);
+}
+.mi-verification-options + .mi-btn {
+  margin-top: .9rem;
+}
+.mi-account-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .8rem 1rem;
+}
+.mi-account-form-grid > * {
+  min-width: 0;
+}
+.mi-account-settings-form {
+  display: grid;
+  gap: .75rem;
+}
+.mi-account-settings-form label {
+  display: grid;
+  gap: .38rem;
+  margin: 0;
+  color: var(--mi-navy-700);
+  font-weight: 800;
+  line-height: 1.25;
+}
+.mi-account-settings-form label input,
+.mi-account-settings-form label select,
+.mi-account-settings-form label textarea {
+  width: 100%;
+  max-width: 100%;
+  min-height: 2.8rem;
+  border-radius: 8px;
+  margin: 0;
+}
+.mi-account-settings-form label textarea {
+  min-height: 7.5rem;
+}
+.mi-account-settings-form label .help-text,
+.mi-account-settings-form .help-text {
+  color: var(--mi-navy-400);
+  font-size: .82rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+.mi-account-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+}
+.mi-account-links a {
+  min-width: 0;
+  border: 1px solid var(--mi-line);
+  border-radius: 8px;
+  background: var(--mi-cream-100);
+  padding: .85rem;
+  color: var(--mi-navy-700);
+  text-decoration: none;
+}
+.mi-account-links a:hover,
+.mi-account-links a:focus-visible {
+  border-color: var(--mi-coral-600);
+}
+.mi-account-links strong,
+.mi-account-links span {
+  display: block;
+}
+.mi-account-links strong {
+  margin-bottom: .22rem;
+  font-family: var(--mi-font-display);
+  font-size: 1rem;
+}
+.mi-account-links span {
+  font-size: .88rem;
+  line-height: 1.35;
+}
+@media (max-width: 880px) {
+  .mi-account-hero,
+  .mi-account-grid {
+    grid-template-columns: 1fr;
+  }
+  .mi-account-stats,
+  .mi-account-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .mi-account-stats,
+  .mi-account-links,
+  .mi-account-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .mi-account-panel__head,
+  .mi-setup-step {
+    grid-template-columns: 1fr;
+  }
+  .mi-account-panel__head {
+    display: grid;
+  }
+  .mi-status-pill {
+    justify-self: start;
+  }
+}
+
+/* ---- Registration benefits panel -------------------------------------- */
+.mi-registration-benefits {
+  margin: 0 0 1.25rem;
+  border: 1.5px solid var(--mi-line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 1rem;
+  color: var(--mi-navy-700);
+}
+.mi-registration-benefits__head h2 {
+  margin: 0 0 .35rem;
+  font-family: var(--mi-font-display);
+  font-size: 1.35rem;
+  line-height: 1.2;
+  color: var(--mi-navy-700);
+}
+.mi-registration-benefits__head p {
+  margin: 0;
+  color: var(--mi-navy-400);
+}
+.mi-registration-benefits ul {
+  list-style: none;
+  margin: .9rem 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .65rem;
+}
+.mi-registration-benefits li {
+  min-width: 0;
+  border: 1px solid var(--mi-line);
+  border-radius: 8px;
+  background: var(--mi-cream-100);
+  padding: .75rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: .45rem .6rem;
+  align-items: start;
+}
+.mi-registration-benefits li > span {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: var(--mi-coral-600);
+  grid-row: span 2;
+}
+.mi-registration-benefits svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+.mi-registration-benefits strong,
+.mi-registration-benefits em {
+  display: block;
+  min-width: 0;
+  font-style: normal;
+}
+.mi-registration-benefits strong {
+  font-weight: 800;
+  line-height: 1.2;
+}
+.mi-registration-benefits em {
+  color: var(--mi-navy-400);
+  font-size: .86rem;
+  line-height: 1.35;
+}
+.mi-registration-benefits__link {
+  display: inline-flex;
+  color: var(--mi-coral-600);
+  font-weight: 800;
+  text-decoration: underline;
+}
+@media (max-width: 560px) {
+  .mi-registration-benefits ul {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Volunteering ------------------------------------------------------ */
+.mi-volunteer-tabs,
+.mi-volunteer-section,
+.mi-volunteer-form,
+.mi-volunteer-dashboard {
+  margin-bottom: 1rem;
+}
+.mi-volunteer-tabs .mi-surface-tab {
+  flex: 1 1 10.5rem;
+  text-align: center;
+}
+.mi-volunteer-opportunities {
+  align-items: start;
+}
+.mi-volunteer-card .heading5 {
+  margin: 0 0 .35rem;
+  color: var(--mi-navy-700);
+  font-size: 1.03rem;
+  line-height: 1.2;
+}
+.mi-volunteer-card__badges {
+  gap: .35rem;
+  margin: -.1rem 0 .55rem;
+}
+.mi-volunteer-card__meta {
+  margin-bottom: .4rem;
+}
+.mi-volunteer-card__actions {
+  margin-top: .65rem;
+}
+.mi-volunteer-details {
+  margin: .35rem 0 0;
+  padding-top: .4rem;
+  border-top: 1px solid var(--mi-line);
+}
+.mi-volunteer-details summary {
+  color: var(--mi-coral-600);
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 850;
+}
+.mi-volunteer-hours-form {
+  align-items: center;
+  margin-top: .45rem;
+}
+.mi-volunteer-hours-form label {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin: 0;
+  color: var(--mi-navy-700);
+  font-weight: 800;
+}
+.mi-volunteer-hours-form input {
+  width: 4.5rem;
+  min-height: 2rem;
+  padding: .25rem .45rem;
+}
+.mi-volunteer-list-row {
+  display: flex;
+  justify-content: space-between;
+  gap: .8rem;
+  min-height: auto;
+}
+.mi-volunteer-form {
+  display: grid;
+  gap: .85rem;
+}
+.mi-volunteer-form .mi-account-settings-form {
+  display: grid;
+  gap: .75rem;
+}
+.mi-volunteer-form__intro {
+  max-width: 48rem;
+  margin: -.25rem 0 .1rem;
+  color: var(--mi-navy-400);
+  line-height: 1.45;
+}
+.mi-volunteer-form__grid {
+  align-items: start;
+}
+.mi-volunteer-form__schedule,
+.mi-volunteer-form__split {
+  display: grid;
+  gap: .6rem;
+  align-items: start;
+}
+.mi-volunteer-form__schedule {
+  grid-template-columns: 1.15fr 1.35fr .7fr;
+}
+.mi-volunteer-form__split {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.mi-volunteer-form__group {
+  border: 1px solid var(--mi-line);
+  border-radius: 8px;
+  background: var(--mi-cream-100);
+  padding: .55rem;
+  margin: 0;
+}
+.mi-volunteer-form__group legend {
+  padding: 0 .2rem;
+  color: var(--mi-navy-700);
+  font-family: var(--mi-font-display);
+  font-size: .86rem;
+  font-weight: 850;
+}
+.mi-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.7rem, 1fr));
+  gap: .28rem;
+  margin-top: .4rem;
+}
+.mi-choice-grid--days,
+.mi-choice-grid--months {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.mi-choice-grid--time {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.mi-choice-grid--compact {
+  grid-template-columns: repeat(auto-fit, minmax(6.2rem, 1fr));
+}
+.mi-account-settings-form .mi-choice-pill {
+  position: relative;
+  display: block;
+  margin: 0;
+  min-width: 0;
+  cursor: pointer;
+}
+.mi-choice-pill input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  min-height: 0;
+  opacity: 0;
+}
+.mi-choice-pill span {
+  position: relative;
+  min-height: 1.75rem;
+  border: 1px solid rgba(14, 59, 84, .16);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--mi-navy-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .32rem;
+  padding: .24rem .38rem;
+  font-size: .74rem;
+  font-weight: 780;
+  line-height: 1.12;
+  text-align: center;
+  overflow-wrap: anywhere;
+  transition: background-color 140ms var(--mi-ease),
+              border-color 140ms var(--mi-ease),
+              color 140ms var(--mi-ease);
+}
+.mi-choice-pill span::before {
+  content: "";
+  width: .86rem;
+  height: .86rem;
+  border: 1.5px solid rgba(14, 59, 84, .32);
+  border-radius: 4px;
+  background: #fff;
+  color: #fff;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  font-size: .72rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.mi-choice-pill input:checked + span {
+  border-color: var(--mi-coral-600);
+  background: var(--mi-navy-800);
+  color: #fff;
+  font-weight: 850;
+  box-shadow: 0 0 0 2px rgba(224, 82, 65, .28), inset 0 -2px 0 rgba(255, 255, 255, .16);
+}
+.mi-choice-pill input:checked + span::before {
+  content: "✓";
+  border-color: #fff;
+  background: var(--mi-coral-600);
+  color: #fff;
+}
+.mi-choice-pill input:focus-visible + span {
+  outline: 2px solid var(--mi-sun-600);
+  outline-offset: 2px;
+}
+.mi-choice-pill:hover span {
+  border-color: var(--mi-coral-600);
+}
+.mi-account-settings__actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-start;
+}
+.mi-organization-section {
+  margin-bottom: 1rem;
+  scroll-margin-top: 5rem;
+}
+.mi-organization-workflow {
+  min-width: 0;
+  border: 1px solid var(--mi-line);
+  border-radius: 8px;
+  background: var(--mi-cream-100);
+  padding: .85rem;
+  margin-top: .9rem;
+}
+.mi-organization-workflow h3,
+.mi-organization-request-list h3 {
+  margin: 0 0 .55rem;
+  color: var(--mi-navy-700);
+}
+.mi-organization-workflow p {
+  margin: 0 0 .75rem;
+}
+.mi-organization-workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .85rem;
+  align-items: start;
+  margin-top: .9rem;
+}
+.mi-organization-request-list {
+  margin-top: 1rem;
+}
+.mi-organization-list-row {
+  min-width: 0;
+  border: 1px solid var(--mi-line);
+  border-radius: 8px;
+  background: var(--mi-cream-100);
+  padding: .75rem;
+  display: flex;
+  justify-content: space-between;
+  gap: .85rem;
+  align-items: center;
+  margin-bottom: .55rem;
+}
+.mi-organization-list-row > span,
+.mi-organization-list-row strong,
+.mi-organization-list-row small {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.mi-organization-list-row small {
+  color: var(--mi-navy-400);
+}
+.mi-organization-list-row--stacked {
+  align-items: stretch;
+  display: grid;
+}
+.mi-organization-list-row--stacked p {
+  margin: 0;
+}
+.mi-organization-inline-form {
+  display: flex;
+  flex: 0 1 32rem;
+  flex-wrap: wrap;
+  gap: .45rem;
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin: 0;
+}
+.mi-organization-inline-form label {
+  flex: 1 1 9rem;
+}
+.mi-organization-inline-form input[type="number"] {
+  max-width: 6rem;
+}
+.mi-admin-quicknav__groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: .85rem;
+  margin-top: 1rem;
+}
+.mi-admin-quicknav__group {
+  min-width: 0;
+}
+.mi-admin-quicknav__group h3 {
+  margin: 0 0 .45rem;
+  font-size: 1rem;
+}
+.mi-admin-quicknav__links {
+  display: grid;
+  gap: .45rem;
+}
+.mi-admin-quicknav__link {
+  min-height: 3.6rem;
+  border: 1px solid var(--mi-line);
+  border-radius: 8px;
+  background: #fff;
+  padding: .65rem .7rem;
+  color: var(--mi-navy-700);
+  display: block;
+  text-decoration: none;
+}
+.mi-admin-quicknav__link:hover,
+.mi-admin-quicknav__link:focus-visible {
+  box-shadow: inset 0 0 0 1.5px var(--mi-coral-600);
+  color: var(--mi-navy-800);
+}
+.mi-admin-quicknav__link strong,
+.mi-admin-quicknav__link span {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.mi-admin-quicknav__link span {
+  margin-top: .15rem;
+  color: var(--mi-navy-400);
+  font-size: .84rem;
+  line-height: 1.35;
+}
+@media (max-width: 760px) {
+  .mi-organization-workflow-grid,
+  .mi-admin-quicknav__groups {
+    grid-template-columns: 1fr;
+  }
+  .mi-organization-list-row {
+    align-items: stretch;
+    display: grid;
+  }
+  .mi-organization-inline-form {
+    justify-content: stretch;
+  }
+  .mi-organization-inline-form input[type="number"] {
+    max-width: 100%;
+  }
+  .mi-organization-inline-form .mi-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+.mi-volunteer-form__actions {
+  display: flex;
+  justify-content: flex-start;
+}
+.mi-volunteer-form textarea {
+  min-height: 4.5rem;
+}
+@media (max-width: 980px) {
+  .mi-volunteer-form__schedule,
+  .mi-volunteer-form__split {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .mi-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mi-choice-grid--days,
+  .mi-choice-grid--months {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .mi-choice-grid--time,
+  .mi-choice-grid--compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ============================================================
+   12. Homepage closing CTA content block (decidim-bih :mi_cta)
+   ============================================================ */
+.mi-cta { text-align: center; }
+.mi-cta__mark { height: 64px; width: auto; margin: 0 auto 22px; display: block; }
+.mi-cta__title {
+  font-family: var(--mi-font-display);
+  font-weight: 800;
+  font-size: clamp(30px, 5.5vw, 64px);
+  line-height: .96;
+  letter-spacing: .01em;
+  color: var(--mi-navy-700);
+  margin: 0;
+  text-wrap: balance;
+}
+.mi-cta__title-accent { color: var(--mi-coral-600); }
+.mi-cta__sub {
+  font-size: 18px;
+  color: var(--mi-navy-600);
+  max-width: 540px;
+  margin: 18px auto 30px;
+}
+.mi-cta__actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.mi-cta__hashtag {
+  margin: 18px 0 0;
+  font-family: var(--mi-font-display);
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--mi-coral-600);
+}
+
+/* Name-and-phone registration keeps normal scrolling for validation and zoom. */
+.mi-registration-compact { max-width: 34rem; padding-top: .75rem; padding-bottom: 1rem; }
+.mi-registration-compact .mi-surface { padding: 1rem; }
+.mi-registration-compact h1 { font-size: 1.65rem; margin: 0 0 .5rem; }
+.mi-registration-compact__offer { margin: 0 0 .75rem; }
+.mi-registration-compact .mi-account-settings-form { display: grid; gap: .6rem; }
+.mi-registration-compact label { margin: 0; }
+.mi-registration-compact input[type="text"], .mi-registration-compact input[type="tel"] { font-size: 1rem; margin: .25rem 0 0; min-height: 2.75rem; }
+.mi-registration-compact__terms { display: flex; align-items: flex-start; gap: .5rem; font-size: .875rem; }
+.mi-registration-compact__terms input { flex: none; margin-top: .2rem; }
+.mi-registration-compact .mi-registration-login { margin: .75rem 0 0; font-size: .875rem; }
+.mi-komsiluk-setup { margin-bottom: 1rem; }
+
+.mi-komsiluk-notification-choice { display: flex; gap: .5rem; align-items: flex-start; }
+.mi-komsiluk-notification-choice input { flex: none; margin-top: .25rem; }
+
+.mi-komsiluk-setup-address { margin-bottom: .75rem; }
+.mi-komsiluk-setup .mi-account-panel { padding: .75rem; }
+.mi-komsiluk-setup .mi-account-panel h2 { font-size: 1.1rem; margin-bottom: .35rem; }
+.mi-komsiluk-setup .mi-account-settings-form { gap: .4rem; }
+.mi-komsiluk-setup .help-text { font-size: .8rem; }
+
+/* Compact signup choices retain native checkbox dimensions and readable copy. */
+.mi-registration-compact .mi-account-settings-form .mi-registration-compact__terms,
+.mi-account-settings-form .mi-komsiluk-notification-choice {
+  display: flex; align-items: flex-start; gap: .5rem;
+}
+.mi-registration-compact .mi-account-settings-form input[type="checkbox"],
+.mi-account-settings-form .mi-komsiluk-notification-choice input[type="checkbox"] {
+  width: 1.25rem; height: 1.25rem; min-height: 1.25rem;
+  flex: 0 0 1.25rem; padding: 0; margin: .15rem 0 0;
+}
+
+/* Center the registration journey and keep the code as the primary action. */
+.mi-registration-compact { width: 100%; margin-inline: auto; }
+.mi-registration-compact > .mi-surface { width: 100%; margin-inline: auto; }
+.mi-registration-compact h1 { text-align: center; }
+.mi-phone-verification {
+  box-sizing: border-box; width: calc(100% - 2rem); max-width: 34rem;
+  margin: 1.5rem auto; padding: clamp(1rem, 4vw, 2rem);
+  background: #fff; border: 1px solid #dce4ed; border-radius: 1rem;
+  box-shadow: 0 8px 28px rgb(20 42 67 / 6%);
+}
+.mi-phone-verification h1 { font-size: clamp(1.6rem, 5vw, 2rem); line-height: 1.2; text-align: center; margin: 0 0 1rem; }
+.mi-phone-verification__lead { text-align: center; margin-bottom: .75rem; }
+.mi-phone-verification__hidden-code { margin: 1.25rem 0; padding: 1rem; border-radius: .75rem; background: #f3f7fb; }
+.mi-phone-verification__hidden-code summary { font-weight: 700; cursor: pointer; margin-bottom: .75rem; }
+.mi-phone-verification__hidden-code form { display: grid; gap: .75rem; }
+.mi-phone-verification__hidden-code input { width: 100%; min-width: 0; min-height: 3rem; margin: 0; font-size: 1.5rem; letter-spacing: .2em; text-align: center; }
+.mi-phone-verification__hidden-code button { width: 100%; min-height: 2.75rem; }
+.mi-phone-verification__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; padding-top: .5rem; }
+.mi-komsiluk-setup__header { max-width: 48rem; margin-bottom: 1.75rem; }
+.mi-komsiluk-setup__header h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.2; margin: 0 0 1rem; }
+.mi-komsiluk-setup__header p { font-size: 1.125rem; line-height: 1.6; margin: 0; }
+.mi-komsiluk-setup > .mi-account-panel { margin-bottom: 1rem; }
+main.wrapper:has(.mi-komsiluk-setup) { padding-inline: 1rem; }
+
+/* Shared compact community and personal-points surfaces. */
+.mi-goodwill-page { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: 1rem; }
+.mi-goodwill-page .mi-surface, .mi-goodwill-page .mi-account-grid > *, .mi-goodwill-page .mi-report-grid > * { min-width: 0; max-width: 100%; }
+.mi-goodwill-page .mi-surface-header { margin-bottom: .75rem; gap: .75rem; padding-block: .5rem; }
+.mi-goodwill-page .mi-surface-header__mark { width: 2.5rem; height: 2.5rem; }
+.mi-goodwill-page .mi-surface-header h1 { font-size: clamp(1.4rem, 3vw, 1.9rem); line-height: 1.2; }
+.mi-goodwill-page .mi-surface-header__intro { font-size: .9rem; margin-top: .25rem; }
+.mi-goodwill-page .mi-metric-grid { grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: .5rem; margin-bottom: .65rem; }
+.mi-goodwill-page .mi-metric-card { min-width: 0; padding: .55rem .75rem; }
+.mi-goodwill-page .mi-metric-card strong { font-size: 1.25rem; line-height: 1.2; overflow-wrap: anywhere; }
+.mi-goodwill-page .mi-metric-card span { font-size: .78rem; }
+.mi-goodwill-page .mi-community-summary { padding: .65rem .85rem; margin-bottom: .75rem; }
+.mi-goodwill-page .mi-account-panel__head { margin-bottom: .45rem; }
+.mi-goodwill-page .mi-account-panel__head h2 { font-size: 1.05rem; }
+.mi-goodwill-page .mi-account-progress { padding: .45rem .75rem; gap: .5rem; font-size: .8rem; }
+.mi-goodwill-page .mi-volunteer-tabs { margin-block: .75rem 1rem; }
+.mi-goodwill-page .mi-community-panel--narrow { width: 100%; max-width: 40rem; margin-inline: auto; }
+.mi-wallet-page .mi-account-panel, .mi-goodwill-page .mi-community-panel__body { padding: 1rem; }
+.mi-wallet-page .mi-account-grid, .mi-wallet-page .mi-report-grid { gap: .75rem; }
+.mi-wallet-page .mi-data-list > li { padding-block: .55rem; }
+.mi-goodwill-page .mi-data-list, .mi-goodwill-page .mi-data-list li > *, .mi-goodwill-page .mi-invite-qr > * { min-width: 0; overflow-wrap: anywhere; }
+.mi-goodwill-page input, .mi-goodwill-page select { max-width: 100%; min-width: 0; }
+.mi-board-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.mi-board-actions .mi-btn { margin: 0; }
+@media (max-width: 640px) {
+  .mi-goodwill-page .mi-surface-header__mark { display: none; }
+  .mi-goodwill-page .mi-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.mi-goodwill-page .mi-reward-row, .mi-goodwill-page .mi-gift-row { flex-wrap: wrap; }
+.mi-goodwill-page .mi-reward-row > span:first-child, .mi-goodwill-page .mi-gift-row > span:first-child { min-width: 0; flex-basis: 12rem; overflow-wrap: anywhere; }
+.mi-goodwill-page .mi-gift-row form { flex-wrap: wrap; max-width: 100%; }
+@media (max-width: 640px) {
+  .mi-goodwill-page .mi-surface-header { grid-template-columns: minmax(0, 1fr); }
+  .mi-board-toolbar .mi-board-actions { width: 100%; flex-wrap: nowrap; }
+  .mi-board-toolbar .mi-board-actions .mi-btn { flex: 1 1 0; min-width: 0; min-height: 44px; padding: .55rem .65rem; font-size: .85rem; text-align: center; }
+}
+
+/* Monthly statements need room for three totals, not narrow report tiles. */
+.mi-wallet-months {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: .85rem;
+  min-width: 0;
+}
+.mi-wallet-month { min-width: 0; padding: 1rem; }
+.mi-wallet-month h3 { margin-bottom: .6rem; font-size: 1.1rem; }
+.mi-wallet-page .mi-wallet-month__totals {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .5rem;
+  margin-bottom: .75rem;
+}
+.mi-wallet-month__totals .mi-metric-card { min-width: 0; padding: .6rem; }
+.mi-wallet-month__totals .mi-metric-card span { overflow-wrap: anywhere; }
+.mi-wallet-month dl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .3rem .75rem; margin: 0; font-size: .85rem; }
+.mi-wallet-month dt { min-width: 0; overflow-wrap: anywhere; }
+.mi-wallet-month dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }

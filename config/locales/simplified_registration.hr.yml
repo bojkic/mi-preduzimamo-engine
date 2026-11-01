@@ -1,0 +1,32 @@
+hr:
+  decidim:
+    bih:
+      simplified_registration:
+        title: Registruj se
+        intro: Potvrdi broj telefona, pa izaberi komšiluk u kojem živiš.
+        submit: Pošalji mi kod
+        recovery: Već postoji započeta registracija za ovaj broj. Za nastavak otvori
+          link iz poruke na telefonu. Ponovno slanje je ograničeno na jednu poruku
+          u minuti i najviše pet poruka u 15 minuta.
+        komsiluk_intro: 'Još jedan korak: izaberi komšiluk u kojem živiš. Tako dobijaš
+          lokalne informacije i tvoje učešće se računa tvom komšiluku.'
+        analytics:
+          title: 'Registracija: posljednjih 30 dana'
+          note: Koraci su brojani po datumu u vremenskoj zoni Sarajevo, nisu jedna
+            kohorta. Podaci koriste preostale građanske naloge i sačuvane datume;
+            obrisani nepotvrđeni nalozi nisu dostupni.
+          waiting: Telefon potvrđen, komšiluk još nije izabran
+          day: Datum
+          created: Otvoreni nalozi
+          verified: Potvrđeni telefoni
+          komsiluk: Potvrđeni komšiluci
+          under_hour: Manje od jednog sata
+          under_day: Od jednog sata do 24 sata
+          under_week: Od jednog do sedam dana
+          over_week: Sedam dana ili više
+        komsiluk_list_title: Izaberi svoj komšiluk
+        komsiluk_list_hint: Odaberi komšiluk u kojem živiš iz liste.
+        komsiluk_title: Još izaberi svoj komšiluk
+        komsiluk_filter: Pretraži naziv komšiluka
+        komsiluk_help: Ne možeš pronaći komšiluk? Piši nam.
+        name_label: Tvoje ime

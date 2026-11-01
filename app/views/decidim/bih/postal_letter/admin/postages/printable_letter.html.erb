@@ -1,0 +1,318 @@
+<%#
+  Printable postal letter — rendered ONCE after the admin presses "print the
+  letter". The confirm URL and QR SVG are minted here and shown only in this
+  response. The raw token is never logged or stored in plaintext.
+
+  This is a REAL LETTER, not an admin screen, and it renders in its own
+  standalone layout (layouts/decidim/bih/postal_letter) so no framework CSS or
+  navigation can reach the paper. See that file for why.
+
+  GEOMETRY. A4, folded in thirds into a DL window envelope. The recipient block
+  starts 45mm from the top of the sheet, which puts it inside the top third
+  (0-99mm) with room above and below the fold. Its HORIZONTAL position follows
+  the envelope: Setting "postal"/"window_side" is "right" (the default, matching
+  the envelopes this foundation uses) or "left" (DIN 5008). Everything is in mm
+  so the on-screen preview is the page the printer produces.
+
+  @pending_authorization — the AuthorizationPresenter wrapping the just-updated auth
+  @postal_data           — PostalTokenService::Result with confirm_url and qr_svg
+%>
+<%
+  scope = "decidim.bih.postal.admin.postages.printable_letter"
+  settings = ::Decidim::Bih::Setting.namespace_for(current_organization, "postal")
+  org_name = translated_attribute(current_organization.name)
+  benefits = t("#{scope}.benefits", default: {})
+
+  # Window geometry. "right" unless explicitly set to "left" — an unrecognised
+  # value must not silently produce a letter that misses the window. Both
+  # offsets can be overridden outright ("window_left_mm"/"window_top_mm") so a
+  # foundation whose envelopes differ adjusts a setting instead of this file.
+  default_left_mm = settings["window_side"].to_s == "left" ? 20 : 115
+  address_left_mm = Integer(settings["window_left_mm"], exception: false) || default_left_mm
+  address_top_mm = Integer(settings["window_top_mm"], exception: false) || 45
+
+  # Where the copy resumes. The address field ends at address_top + 32mm; the
+  # body element already starts PAGE_PADDING_TOP + MASTHEAD below the sheet's
+  # top edge, so subtract those or the copy is pushed down twice.
+  address_block_height_mm = 32
+  page_padding_top_mm = 14
+  masthead_height_mm = 17
+  body_top_offset_mm = [
+    address_top_mm + address_block_height_mm + 3 - page_padding_top_mm - masthead_height_mm,
+    0
+  ].max
+
+  # An unset letterhead is the DEFAULT state, and a letter posted without a
+  # settlement line cannot be delivered. Warn the operator on screen, before the
+  # print dialog, rather than discovering it in a postbox.
+  # Only city_line blocks delivery. sender_line is optional by design — a
+  # foundation that does not want a return address printed simply leaves it
+  # unset, and must not be nagged about it on every letter.
+  missing_letterhead = %w(city_line).reject { |key| settings[key].present? }
+
+  # A posted letter needs a settlement line. Addresses are captured as free text
+  # and most carry only a street, so append the configured city line unless the
+  # citizen already wrote a postcode.
+  raw_address = @pending_authorization.verification_address.to_s
+  city_line = settings["city_line"].presence
+  address_lines = raw_address.split(/[\r\n]+/).map(&:strip).reject(&:empty?)
+  address_lines << city_line if city_line && raw_address !~ /\b\d{5}\b/
+%>
+
+<style>
+  @page { size: A4; margin: 0; }
+
+  html, body { margin: 0; padding: 0; background: #e9edf1; }
+
+  .mi-letter-page {
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 210mm;
+    height: 297mm;
+    padding: 14mm 20mm 12mm 20mm;
+    margin: 0 auto;
+    background: #fff;
+    color: #1c3d53;
+    font-family: 'Mulish', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 10pt;
+    line-height: 1.45;
+    overflow: hidden; /* a long address can never push the page to a second sheet */
+  }
+  .mi-letter-page h1,
+  .mi-letter-page h2,
+  .mi-letter-page .mi-display {
+    font-family: 'Jost', 'Century Gothic', Futura, system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: .01em;
+    margin: 0;
+  }
+
+  /* --- Masthead, opposite the address block --- */
+  .mi-letter-head { height: 17mm; display: flex; align-items: flex-start; }
+  .mi-letter-head img { max-height: 15mm; max-width: 62mm; object-fit: contain; }
+
+  /* --- Recipient block, absolutely placed: 45mm from the sheet's top edge.
+         Absolute positioning keeps it independent of anything above it, so
+         editing the masthead can never drag the address out of the window. --- */
+  .mi-letter-address {
+    position: absolute;
+    width: 85mm;
+    height: 32mm;
+  }
+  .mi-letter-sender {
+    font-size: 7pt;
+    color: #51606b;
+    border-bottom: .3pt solid #9aa7b1;
+    padding-bottom: .8mm;
+    margin-bottom: 2.5mm;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mi-letter-recipient { font-size: 11pt; line-height: 1.4; }
+  .mi-letter-recipient strong { font-weight: 700; }
+
+  /* Content resumes below the address field: 45mm + 32mm = 77mm from the top,
+     minus the 14mm padding the flow already sits inside. */
+  /* flex:1 makes the body absorb the slack, which is what pins the footer to
+     the foot of the sheet. padding-top is set inline from the window offset so
+     the copy always starts just below the address field, wherever the envelope
+     puts it. */
+  .mi-letter-body { flex: 1 1 auto; min-height: 0; }
+  .mi-letter-date { text-align: right; font-size: 8.5pt; color: #51606b; margin-bottom: 3.5mm; }
+  .mi-letter-body > p { margin: 0 0 2.2mm; }
+  .mi-letter-lede { font-size: 11pt; }
+
+  /* --- The verification block --- */
+  .mi-verify {
+    display: flex;
+    gap: 6mm;
+    align-items: center;
+    border: 1.2pt solid #357499;
+    border-radius: 3.5mm;
+    background: #eef6fb;
+    padding: 4mm 5mm;
+    margin: 4mm 0 4.5mm;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .mi-verify-qr { flex: 0 0 30mm; }
+  .mi-verify-qr svg { display: block; width: 30mm; height: 30mm; }
+  .mi-verify-qr-missing {
+    width: 30mm; height: 30mm; display: flex; align-items: center;
+    justify-content: center; text-align: center; font-size: 7.5pt;
+    color: #51606b; border: .6pt dashed #9aa7b1; border-radius: 2mm;
+  }
+  .mi-verify-main { flex: 1 1 auto; min-width: 0; }
+  .mi-verify-step { font-size: 8.5pt; color: #357499; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+  .mi-verify-code {
+    font-family: 'Jost', 'Century Gothic', Futura, monospace;
+    font-size: 23pt; font-weight: 700; letter-spacing: .2em;
+    line-height: 1.15; margin: 1mm 0 1.5mm; color: #02263a;
+  }
+  .mi-verify-url {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 7pt; color: #51606b; word-break: break-all; line-height: 1.3;
+  }
+
+  /* --- What the platform is for --- */
+  .mi-benefits { margin: 0 0 3.5mm; padding: 0; list-style: none; }
+  .mi-benefits li { position: relative; padding-left: 5.5mm; margin-bottom: 1.2mm; }
+  .mi-benefits li::before {
+    content: ""; position: absolute; left: 0; top: 1.6mm;
+    width: 2.4mm; height: 2.4mm; border-radius: 50%; background: #9bbb5f;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+
+  .mi-letter-signoff { margin-top: 3mm; }
+
+  /* Footer pinned to the sheet, not to the end of the copy, so the letter never
+     ends with a ragged gap. */
+  .mi-letter-foot {
+    margin-top: auto;
+    padding-top: 2mm;
+    border-top: .3pt solid #e4e9ed;
+    font-size: 7.5pt;
+    color: #51606b;
+  }
+
+  /* --- Screen-only operator chrome. Nothing here reaches paper. --- */
+  .mi-letter-toolbar {
+    width: 210mm; box-sizing: border-box; margin: 0 auto;
+    padding: 10px 20mm; display: flex; gap: 12px; align-items: center;
+    flex-wrap: wrap; background: #02263a; color: #fff;
+    font-family: 'Mulish', system-ui, sans-serif; font-size: 13px;
+  }
+  .mi-letter-toolbar a, .mi-letter-toolbar button {
+    font: inherit; border-radius: 999px; padding: 6px 16px; cursor: pointer;
+    border: 1px solid rgba(255,255,255,.45); background: transparent; color: #fff;
+    text-decoration: none;
+  }
+  .mi-letter-toolbar button { background: #fbe48f; border-color: #fbe48f; color: #02263a; font-weight: 700; }
+  .mi-letter-warning {
+    width: 210mm; box-sizing: border-box; margin: 0 auto;
+    padding: 10px 20mm; background: #f7dccf; color: #8a3a1f;
+    border-bottom: 2px solid #c25435;
+    font-family: 'Mulish', system-ui, sans-serif; font-size: 13px; line-height: 1.5;
+  }
+  .mi-letter-opnote {
+    width: 210mm; box-sizing: border-box; margin: 0 auto 24px;
+    padding: 8px 20mm 12px; background: #fdf6d6; color: #51606b;
+    font-family: 'Mulish', system-ui, sans-serif; font-size: 12px; line-height: 1.5;
+  }
+
+  @media print {
+    html, body { background: #fff; }
+    .mi-letter-toolbar, .mi-letter-opnote, .mi-letter-warning { display: none !important; }
+    .mi-letter-page { margin: 0; box-shadow: none; }
+  }
+  @media screen {
+    .mi-letter-page { box-shadow: 0 8px 24px rgba(28,61,83,.16); margin-bottom: 0; }
+  }
+</style>
+
+<div class="mi-letter-toolbar">
+  <%= link_to t("#{scope}.back_to_list"), pending_authorizations_path %>
+  <button type="button" onclick="window.print();"><%= t("#{scope}.print") %></button>
+  <span style="opacity:.75;"><%= t("#{scope}.toolbar_hint") %></span>
+</div>
+
+<% if missing_letterhead.any? %>
+  <p class="mi-letter-warning">
+    <%= t("#{scope}.letterhead_missing", keys: missing_letterhead.join(", ")) %>
+  </p>
+<% end %>
+
+<div class="mi-letter-page">
+  <div class="mi-letter-head">
+    <% if current_organization.attached_uploader(:logo).attached? %>
+      <%= image_tag current_organization.attached_uploader(:logo).variant_url(:medium), alt: org_name %>
+    <% else %>
+      <span class="mi-display" style="font-size:15pt;"><%= org_name %></span>
+    <% end %>
+  </div>
+
+  <div class="mi-letter-address" style="left: <%= address_left_mm %>mm; top: <%= address_top_mm %>mm;">
+    <% if settings["sender_line"].present? %>
+      <%# The return address, and ONLY when it has actually been configured.
+          It used to fall back to the organisation name, which printed the
+          foundation's name directly above the citizen's own name and read as
+          though the letter were addressed to the foundation. A return address
+          is the org name AND its street; half of it is worse than none. %>
+      <div class="mi-letter-sender"><%= settings["sender_line"] %></div>
+    <% end %>
+    <div class="mi-letter-recipient">
+      <strong><%= @pending_authorization.user.name %></strong><br>
+      <%# address is filtered from request logs via filter_parameters (:address partial match) %>
+      <%= safe_join(address_lines, tag.br) %>
+    </div>
+  </div>
+
+  <div class="mi-letter-body" style="padding-top: <%= body_top_offset_mm %>mm;">
+    <div class="mi-letter-date">
+      <%# The date is NUMERIC on purpose: rails-i18n's :sr month names are
+          Cyrillic ekavian, so a localized long date would drop Cyrillic words
+          into an otherwise Latin letter. %>
+      <%= [settings["place"].presence, l(Date.current, format: "%d.%m.%Y.")].compact.join(", ") %>
+    </div>
+
+    <h1 class="mi-display" style="font-size:18pt; line-height:1.12; margin-bottom:2.5mm;">
+      <%= t("#{scope}.letter_title") %>
+    </h1>
+
+    <p class="mi-letter-lede"><%= t("#{scope}.greeting", name: @pending_authorization.user.name) %></p>
+    <p><%= t("#{scope}.thanks", organization: org_name) %></p>
+    <p><%= t("#{scope}.why_letter") %></p>
+
+    <div class="mi-verify">
+      <div class="mi-verify-qr">
+        <% if @postal_data&.qr_svg.present? %>
+          <%# QR SVG is inline; the token is embedded only in this one-time print view %>
+          <%= @postal_data.qr_svg.html_safe %> <%# rubocop:disable Rails/OutputSafety %>
+        <% else %>
+          <div class="mi-verify-qr-missing"><%= t("#{scope}.qr_unavailable") %></div>
+        <% end %>
+      </div>
+      <div class="mi-verify-main">
+        <div class="mi-verify-step"><%= t("#{scope}.verify_step") %></div>
+        <div class="mi-verify-code"><%= @pending_authorization.verification_code %></div>
+        <p style="margin:0 0 1.5mm; font-size:9pt;">
+          <%= t("#{scope}.verify_help", site: current_organization.host) %>
+        </p>
+        <% if @postal_data&.confirm_url.present? %>
+          <div class="mi-verify-url">
+            <%# raw token travels in this URL — admin print context only, never logged %>
+            <%= @postal_data.confirm_url %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <h2 class="mi-display" style="font-size:12pt; margin-bottom:2mm;">
+      <%= t("#{scope}.benefits_title") %>
+    </h2>
+    <ul class="mi-benefits">
+      <% benefits.each_value do |benefit| %>
+        <li><strong><%= benefit[:title] %></strong> — <%= benefit[:body] %></li>
+      <% end %>
+    </ul>
+
+    <p><%= t("#{scope}.encouragement") %></p>
+
+    <div class="mi-letter-signoff">
+      <p style="margin:0;"><%= t("#{scope}.signoff") %></p>
+      <p class="mi-display" style="margin-top:1mm; font-size:11pt;"><%= org_name %></p>
+    </div>
+  </div>
+
+  <div class="mi-letter-foot">
+    <%= t("#{scope}.privacy_note") %>
+    <% if settings["contact_line"].present? %>
+      <br><%= settings["contact_line"] %>
+    <% end %>
+  </div>
+</div>
+
+<p class="mi-letter-opnote"><%= t("#{scope}.token_note") %></p>

@@ -1,0 +1,12 @@
+sr:
+  decidim:
+    bih:
+      report_staff_alert:
+        title: "Nova prijava %{reference} čeka pregled."
+      admin:
+        reports:
+          events:
+            types:
+              staff_alerts_created: "Obavještenja osoblju kreirana"
+            metadata:
+              recipient_count: "Broj primalaca"

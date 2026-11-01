@@ -1,0 +1,213 @@
+<% copy = "decidim.bih.admin.volunteering.workspace" %>
+<% context = params.permit(:tab, :status, :task, :q, :page, :date, :category, :komsiluk_id).to_h.symbolize_keys %>
+<% add_decidim_page_title(@opportunity.title) %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :volunteering %>
+<p><%= link_to t("#{copy}.back"), admin_bih_volunteering_path(context.reverse_merge(tab: "opportunities")) %></p>
+
+<div class="card" id="volunteer-opportunity-<%= @opportunity.id %>">
+  <div class="card-section">
+    <h1><%= @opportunity.title %></h1>
+    <p><%= render "decidim/bih/shared/prepare_board_notice", source_kind: "activity", source_id: @opportunity.id %></p>
+    <p><%= simple_format(@opportunity.description) %></p>
+    <p><strong><%= t("#{copy}.organizer") %>:</strong> <%= @opportunity.partner_name.presence || @opportunity.author&.name.presence || t("#{copy}.foundation") %></p>
+    <p><strong><%= t("#{copy}.category") %>:</strong> <%= @opportunity.category_label %> · <strong><%= t("#{copy}.location") %>:</strong> <%= @opportunity.location_label %></p>
+    <p><strong><%= t("#{copy}.requirements") %>:</strong> <%= @opportunity.requirements.presence || t("#{copy}.none") %></p>
+    <p><strong><%= t("#{copy}.proposal_identity") %>:</strong> <%= @opportunity.reward_proposal_identity %></p>
+    <% if @opportunity.pending_review? && bih_allowed?(:volunteering_opportunity_review) %>
+      <div class="callout secondary">
+        <h2><%= t("#{copy}.publish") %></h2>
+        <p><%= t("#{copy}.publish_help") %></p>
+        <%= form_with url: publish_volunteer_opportunity_path({ id: @opportunity.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+          <% unconfirmed_partners = @terms.select { |term| term.pending_review? && term.partner_name.present? && !term.partner_confirmed? } %>
+          <% if unconfirmed_partners.any? %>
+            <label><%= check_box_tag :confirm_partner, "1", false, required: true %> <%= t("#{copy}.confirm_partner_scope", name: unconfirmed_partners.map(&:partner_name).uniq.join(", "), count: unconfirmed_partners.length) %></label>
+          <% end %>
+          <%= submit_tag t("#{copy}.publish"), class: "button button__sm button__secondary" %>
+        <% end %>
+        <details><summary><%= t("#{copy}.return_for_correction") %></summary>
+          <%= form_with url: return_volunteer_opportunity_path({ id: @opportunity.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+            <label><%= t("#{copy}.reason") %><br><%= text_area_tag :reason, nil, required: true, maxlength: 1000 %></label>
+            <%= submit_tag t("#{copy}.return_for_correction"), class: "button button__sm button__transparent-secondary" %>
+          <% end %>
+        </details>
+        <details><summary><%= t("#{copy}.reject") %></summary>
+          <%= form_with url: reject_volunteer_opportunity_goodwill_path({ id: @opportunity.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+            <label><%= t("#{copy}.reason") %><br><%= text_area_tag :rejection_reason, nil, required: true, maxlength: 1000 %></label>
+            <%= submit_tag t("#{copy}.reject"), class: "button button__sm button__transparent-secondary" %>
+          <% end %>
+        </details>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<nav aria-label="<%= t("#{copy}.areas") %>" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0;">
+  <%= link_to t("#{copy}.tabs.opportunities"), "#terms", class: "button button__sm button__transparent-secondary" %>
+  <%= link_to t("#{copy}.tabs.applications"), "#applications", class: "button button__sm button__transparent-secondary" %>
+  <%= link_to t("#{copy}.tabs.hours"), "#hours", class: "button button__sm button__transparent-secondary" %>
+</nav>
+
+<section class="card" id="terms"><div class="card-section">
+  <h2><%= t("#{copy}.terms") %> (<%= @terms.length %>)</h2>
+  <div class="table-stacked"><table class="table-list"><thead><tr><th><%= t("#{copy}.term") %></th><th><%= t("#{copy}.when") %></th><th><%= t("#{copy}.deadline") %></th><th><%= t("#{copy}.capacity") %></th><th><%= t("#{copy}.status") %></th></tr></thead><tbody>
+    <% @terms.each do |term| %><tr id="volunteer-term-<%= term.id %>">
+      <td><%= term.series_position || term.id %></td>
+      <td><%= term.time_frame_label.presence || t("#{copy}.unscheduled") %>
+        <% if term.local_duration_hours %>
+          <br><small><%= t("decidim.bih.volunteer.revision.duration", hours: term.local_duration_hours) %></small>
+        <% end %>
+        <% if @terms.any? { |other| other.id != term.id && term.overlaps?(other) } %>
+          <br><small><%= t("decidim.bih.volunteer.revision.overlap_warning") %></small>
+        <% end %>
+      </td>
+      <td><%= term.signup_deadline_label.presence || t("#{copy}.none") %></td><td><%= term.capacity.presence || t("#{copy}.unlimited") %></td>
+      <td><%= t("#{copy}.opportunity_states.#{term.cancelled? ? 'cancelled' : term.review_status}", default: term.review_status) %>
+        <% if term.applications_paused_at.present? %> · <%= t("#{copy}.paused") %><% end %>
+      </td>
+    </tr><% end %>
+  </tbody></table></div>
+  <% if bih_allowed?(:volunteering_series_manage) %>
+    <details id="manage-volunteering"><summary><%= t("#{copy}.manage") %></summary>
+      <p><%= t("#{copy}.manage_help") %></p>
+      <% @terms.each do |term| %>
+        <% impact = @term_previews[term] %>
+        <div class="callout secondary">
+          <h3><%= t("#{copy}.term") %> <%= term.series_position || term.id %></h3>
+          <p><%= t("#{copy}.impact", terms: impact.terms.length, going: impact.going, waiting: impact.waitlisted, pending: impact.pending, attendance: impact.attendance, logs: impact.logs) %></p>
+          <%= form_with url: manage_volunteer_opportunity_path({ id: term.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+            <%= hidden_field_tag :scope, "term" %><%= hidden_field_tag :preview_token, impact.token %>
+            <label><%= t("#{copy}.operation") %><br><%= select_tag :operation, options_for_select(%w(edit pause resume postpone cancel republish).map { |key| [t("#{copy}.operations.#{key}"), key] }) %></label>
+            <label><%= t("#{copy}.title_field") %><br><%= text_field_tag :title, term.title %></label>
+            <label><%= t("#{copy}.meeting_point") %><br><%= text_field_tag :meeting_point, term.meeting_point %></label>
+            <label><%= t("#{copy}.category") %><br><%= select_tag :category, options_for_select(Decidim::Bih::VolunteeringTaxonomy.option_pairs(:categories), term.category) %></label>
+            <label><%= t("#{copy}.requirements") %><br><%= text_area_tag :requirements, term.requirements, rows: 2 %></label>
+            <label><%= t("#{copy}.capacity") %><br><%= number_field_tag :capacity, term.capacity, min: 1 %></label>
+            <label><%= t("#{copy}.start") %><br><%= datetime_local_field_tag :starts_at, term.starts_at&.in_time_zone("Europe/Sarajevo")&.strftime("%Y-%m-%dT%H:%M") %></label>
+            <label><%= t("#{copy}.end") %><br><%= datetime_local_field_tag :ends_at, term.ends_at&.in_time_zone("Europe/Sarajevo")&.strftime("%Y-%m-%dT%H:%M") %></label>
+            <label><%= t("#{copy}.deadline") %><br><%= datetime_local_field_tag :signup_deadline_at, term.signup_deadline_at&.in_time_zone("Europe/Sarajevo")&.strftime("%Y-%m-%dT%H:%M") %></label>
+            <label><%= t("#{copy}.postpone_days") %><br><%= number_field_tag :shift_days, nil, min: 1, max: 365 %></label>
+            <label><%= t("#{copy}.reason") %><br><%= text_field_tag :reason, nil, maxlength: 1000 %></label>
+            <%= submit_tag t("#{copy}.confirm_management"), class: "button button__sm button__secondary" %>
+          <% end %>
+        </div>
+      <% end %>
+      <% representative = @terms.find(&:series?) %>
+      <% if representative %>
+        <% future_impact = @series_previews[representative] %>
+        <div class="callout warning">
+          <h3><%= t("#{copy}.future_series") %></h3>
+          <p><%= t("#{copy}.impact", terms: future_impact.terms.length, going: future_impact.going, waiting: future_impact.waitlisted, pending: future_impact.pending, attendance: future_impact.attendance, logs: future_impact.logs) %></p>
+          <%= form_with url: manage_volunteer_opportunity_path({ id: representative.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+            <%= hidden_field_tag :scope, "future" %><%= hidden_field_tag :preview_token, future_impact.token %>
+            <label><%= t("#{copy}.operation") %><br><%= select_tag :operation, options_for_select(%w(pause resume postpone cancel).map { |key| [t("#{copy}.operations.#{key}"), key] }) %></label>
+            <label><%= t("#{copy}.postpone_days") %><br><%= number_field_tag :shift_days, nil, min: 1, max: 365 %></label>
+            <label><%= t("#{copy}.reason") %><br><%= text_field_tag :reason, nil, maxlength: 1000 %></label>
+            <%= submit_tag t("#{copy}.confirm_management"), class: "button button__sm button__secondary" %>
+          <% end %>
+        </div>
+      <% end %>
+    </details>
+  <% end %>
+</div></section>
+
+<section class="card" id="applications"><div class="card-section">
+  <h2><%= t("#{copy}.tabs.applications") %></h2>
+  <% signups = @terms.flat_map { |term| term.signups.to_a }.sort_by { |signup| [signup.review_status == "pending" ? 0 : 1, signup.created_at, signup.id] } %>
+  <% if signups.empty? %><p><%= t("#{copy}.empty.applications") %></p><% end %>
+  <% signups.each do |signup| %>
+    <div class="callout secondary" id="volunteer-signup-<%= signup.id %>">
+      <h3><%= signup.user&.name %> · <%= signup.opportunity.time_frame_label %></h3>
+      <p><%= t("#{copy}.application_states.#{signup.review_status}", default: signup.review_status) %> · <%= t("#{copy}.seat_states.#{signup.status}", default: signup.status) %>
+        <% if signup.review_source == "legacy_auto" && signup.review_status == "pending" %> · <%= t("#{copy}.legacy_seat") %><% end %>
+      </p>
+      <% signup.dated_attendances.order(:work_date).each do |attendance| %>
+        <p><%= t("#{copy}.work_date") %>: <%= l(attendance.work_date) %> ·
+          <%= t("#{copy}.attendance_states.#{attendance.status}", default: attendance.status) %>
+          (<%= l(attendance.confirmed_at, format: :short) %>)</p>
+      <% end %>
+      <% if signup.review_status == "pending" && bih_allowed?(:volunteering_application_review) %>
+        <%= form_with url: decide_volunteer_application_path({ id: signup.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+          <%= hidden_field_tag :decision, "approve" %><%= submit_tag t("#{copy}.approve_application"), class: "button button__sm button__secondary" %>
+        <% end %>
+        <details><summary><%= t("#{copy}.reject" ) %></summary>
+          <%= form_with url: decide_volunteer_application_path({ id: signup.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+            <%= hidden_field_tag :decision, "reject" %><label><%= t("#{copy}.reason") %><br><%= text_field_tag :reason, nil, required: true %></label>
+            <%= submit_tag t("#{copy}.reject"), class: "button button__sm button__transparent-secondary" %>
+          <% end %>
+        </details>
+      <% end %>
+      <% if signup.going? && signup.review_approved? && bih_allowed?(:volunteering_attendance_confirm) %>
+        <%= form_with url: confirm_volunteer_signup_attendance_path({ id: signup.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+          <label><%= t("#{copy}.work_date") %><br><%= date_field_tag :work_date, nil, required: true %></label>
+          <%= button_tag t("#{copy}.confirm_attendance"), type: "submit", name: "attendance_status", value: "confirmed", class: "button button__sm button__secondary" %>
+          <%= button_tag t("#{copy}.mark_absent"), type: "submit", name: "attendance_status", value: "absent", class: "button button__sm button__transparent-secondary" %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div></section>
+
+<section class="card" id="hours"><div class="card-section">
+  <h2><%= t("#{copy}.tabs.hours") %></h2>
+  <% if @bonus_commitments.any? %>
+    <p><%= t("#{copy}.bonus_allocation") %></p>
+    <p><%= t("#{copy}.bonus_outstanding", points: @bonus_commitments.values.sum(&:outstanding_points)) %></p>
+  <% end %>
+  <% logs = @terms.flat_map { |term| term.logs.to_a }.sort_by { |log| [log.pending? ? 0 : 1, log.created_at, log.id] } %>
+  <% if logs.empty? %><p><%= t("#{copy}.empty.hours") %></p><% end %>
+  <% logs.each do |log| %>
+    <div class="callout secondary" id="volunteer-log-<%= log.id %>">
+      <h3><%= log.user&.name %> · <%= number_with_precision(log.hours, strip_insignificant_zeros: true) %> h</h3>
+      <p><%= t("#{copy}.work_date") %>: <%= log.respond_to?(:work_date) && log.work_date ? l(log.work_date) : t("#{copy}.unknown_date") %> · <%= t("#{copy}.claim_states.#{log.status}", default: log.status) %></p>
+      <% if log.worked_from_at && log.worked_until_at %>
+        <p><strong><%= t("#{copy}.evidence_interval") %>:</strong>
+          <%= l(log.worked_from_at.in_time_zone("Europe/Sarajevo"), format: :short) %> –
+          <%= l(log.worked_until_at.in_time_zone("Europe/Sarajevo"), format: :short) %></p>
+      <% end %>
+      <% if log.work_date %>
+        <% daily = Decidim::Bih::VolunteerDailyAward.find_by(organization: current_organization, user: log.user, work_date: log.work_date) %>
+        <% base_transaction = daily&.active? ? Decidim::Bih::Goodwill::Transaction.includes(:entries).find_by(id: daily.transaction_id) : nil %>
+        <% base_reversed = base_transaction && Decidim::Bih::Goodwill::Transaction.exists?(organization: current_organization, idempotency_key: "reversal_of:#{base_transaction.id}") %>
+        <% commitment = @bonus_commitments[log.id] %>
+        <% other_claims = Decidim::Bih::VolunteerLog.where(organization: current_organization, user: log.user, work_date: log.work_date).where.not(id: log.id).count %>
+        <p><strong><%= t("#{copy}.base_points_day_total") %>:</strong> <%= base_transaction && !base_reversed ? base_transaction.credited_amount : 0 %> ·
+          <strong><%= t("#{copy}.organization_bonus_claim") %>:</strong> <%= commitment&.current_paid_points || 0 %>
+          <% if commitment %>
+            · <%= t("#{copy}.bonus_states.#{commitment.effective_status}") %>
+            · <%= t("#{copy}.bonus_requested", points: commitment.requested_points) %>
+            · <%= t("#{copy}.bonus_outstanding", points: commitment.outstanding_points) %>
+          <% elsif log.approved? && log.opportunity.org_bonus_enabled? %> · <%= t("#{copy}.bonus_unpaid") %><% end %>
+        </p>
+        <p><%= t("#{copy}.other_claims_same_day", count: other_claims) %></p>
+      <% end %>
+      <% if bih_allowed?(:organization_spending_decide, resource: log.opportunity) &&
+            ((log.approved? && log.opportunity.org_bonus_enabled? && commitment&.effective_status != "reversed") || commitment&.status == "admin_pending") %>
+        <%= form_with url: retry_volunteer_bonus_path(id: log.id), method: :post, class: "form form-defaults" do %>
+          <label><%= t("#{copy}.reason") %><br><%= text_field_tag :reason, nil, required: true, maxlength: 1000 %></label>
+          <%= submit_tag t("#{copy}.retry_bonus"), class: "button button__sm button__secondary" %>
+        <% end %>
+      <% end %>
+      <% if log.pending? && bih_allowed?(:volunteering_hours_review) %>
+        <%= form_with url: verify_volunteer_log_goodwill_path({ id: log.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+          <% if bih_allowed?(:volunteering_attendance_confirm) %>
+            <label><%= check_box_tag :confirm_attendance, "1" %> <%= t("#{copy}.confirm_presence_and_verify") %></label>
+          <% end %>
+          <%= submit_tag t("#{copy}.verify_hours"), class: "button button__sm button__secondary" %>
+        <% end %>
+        <details><summary><%= t("#{copy}.reject") %></summary>
+          <%= form_with url: reject_volunteer_log_goodwill_path({ id: log.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+            <label><%= t("#{copy}.reason") %><br><%= text_field_tag :rejection_reason, nil, required: true %></label>
+            <%= submit_tag t("#{copy}.reject"), class: "button button__sm button__transparent-secondary" %>
+          <% end %>
+        </details>
+      <% elsif log.approved? && bih_allowed?(:volunteering_hours_review) %>
+        <details><summary><%= t("#{copy}.correction") %></summary>
+          <%= form_with url: correct_volunteer_log_goodwill_path({ id: log.id }.merge(context)), method: :post, class: "form form-defaults" do %>
+            <label><%= t("#{copy}.reason") %><br><%= text_field_tag :reason, nil, required: true, maxlength: 1000 %></label>
+            <%= submit_tag t("#{copy}.correction"), class: "button button__sm button__transparent-secondary" %>
+          <% end %>
+        </details>
+      <% end %>
+    </div>
+  <% end %>
+</div></section>

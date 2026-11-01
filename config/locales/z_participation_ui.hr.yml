@@ -1,0 +1,163 @@
+# Serbian Cyrillic is generated from the Serbian Latin source.
+---
+hr:
+  decidim:
+    shared:
+      floating_help:
+        help: Kako učestvovati
+    searches:
+      filters:
+        jump_to: 'Otvori stranicu:'
+    participatory_process_steps:
+      index:
+        process_steps: Faze izbora
+    participatory_processes:
+      participatory_processes:
+        description:
+          area_name: Područje
+          data: O procesu
+          developer_group: Organizator
+          local_area: Komšiluci
+          meta_scope: Obuhvat
+          participatory_scope: Šta biramo
+          participatory_structure: Kako odlučujemo
+          target: Ko učestvuje
+    proposals:
+      application_helper:
+        filter_origin_values:
+          all: Svi prijedlozi
+          meetings: Sa sastanaka
+          official: Organizator
+          participants: Građani
+        filter_state_values:
+          all: Svi statusi
+          not_answered: Čeka odgovor
+        filter_type_values:
+          all: Sve vrste
+          amendments: Izmjene
+          proposals: Prijedlozi
+      answers:
+        accepted: Prihvaćen
+        evaluating: U razmatranju
+        rejected: Odbijen
+        not_answered: Čeka odgovor
+        withdrawn: Povučen
+      proposals:
+        index:
+          new_proposal: Novi prijedlog
+          see_all: Svi prijedlozi
+          click_here: Pogledaj sve prijedloge
+          grid_mode: Prikaz kartica
+          list_mode: Prikaz liste
+        new:
+          send: Nastavi na pregled
+          title: Novi prijedlog
+        edit_draft:
+          send: Pregledaj prijedlog
+          title: Uredi nacrt prijedloga
+          discard: Odbaci nacrt
+          discard_confirmation: Želiš li odbaciti ovaj nacrt prijedloga?
+        preview:
+          announcement_title: Prijedlog još nije objavljen
+          announcement_body: Sačuvan je kao nacrt. Klikni „Objavi prijedlog” da postane
+            vidljiv drugima.
+          modify: Uredi prijedlog
+          publish: Objavi prijedlog
+          title: Pregledaj i objavi prijedlog
+        wizard_steps:
+          title: Koraci za objavu prijedloga
+          step_1: Opiši ideju
+          step_2: Pregledaj i objavi
+          current_step: Trenutni korak
+        wizard_aside:
+          back: Nazad
+          back_from_step_1: Nazad na prijedloge
+          back_from_step_2: Nazad na uređivanje
+        filters:
+          activity: Moja aktivnost
+          origin: Ko je predložio
+          my_proposals: Moji prijedlozi
+          search: Pretraži prijedloge
+          voted: Moji glasovi
+          type: Vrsta
+        orders:
+          label: 'Poredaj prijedloge:'
+          recent: Najnoviji
+          most_commented: Najviše komentara
+          most_voted: Najviše glasova
+          most_followed: Najviše pratilaca
+          random: Nasumično
+          most_liked: Najviše sviđanja
+        vote_button:
+          vote: Glasaj
+          votes_blocked: Glasanje nije otvoreno
+          already_voted: Glas je zabilježen
+          already_voted_hover: Povuci glas
+          maximum_votes_reached: Dostignut je najveći broj glasova
+          no_votes_remaining: Nema preostalih glasova
+        voting_rules:
+          title: Pravila učešća
+          vote_limit:
+            description: Možeš glasati za najviše %{limit} prijedlog(a).
+            votes: 'Preostalo glasova: %{number}'
+          success: Tvoj glas je zabilježen.
+        show:
+          proposal_accepted_reason: 'Prijedlog je prihvaćen iz sljedećih razloga:'
+          proposal_in_evaluation_reason: Organizator razmatra ovaj prijedlog.
+          proposal_rejected_reason: 'Prijedlog nije prihvaćen iz sljedećih razloga:'
+          answer: Odgovor organizatora
+          estimated_cost: Procijenjeni trošak
+          edit_proposal: Uredi
+          withdraw_proposal: Povuci prijedlog
+        edit:
+          add_attachments: Dodaj prilog
+          attachment_legend: Dodaj dokument ili sliku
+          back: Nazad
+          send: Sačuvaj
+          title: Uredi prijedlog
+      publish:
+        success: Prijedlog je objavljen.
+        error: Prijedlog nije objavljen. Provjeri unesene podatke i pokušaj ponovo.
+    accessibility:
+      skip_button: Preskoči na glavni sadržaj
+      external_link: Spoljna poveznica
+  layouts:
+    decidim:
+      announcements:
+        view_more: Pročitaj više
+        view_less: Prikaži manje
+      data_consent:
+        details:
+          columns:
+            description: Opis
+            name: Naziv
+            service: Usluga
+            type: Vrsta
+            expiration: Trajanje
+          types:
+            cookie: Kolačić
+            local_storage: Lokalna memorija
+          items:
+            _session_id:
+              service: Ova platforma
+              description: Održava prijavu dok prelaziš sa jedne stranice na drugu.
+            pwaInstallPromptSeen:
+              service: Ova platforma
+              description: Pamti da li je prikazana ponuda za instaliranje aplikacije.
+        modal:
+          toggle: 'Promijeni izbor: %{consent_category}'
+      footer:
+        cc_by_license: Licenca za sadržaj
+      language_chooser:
+        choose_language: Izaberi jezik
+  forms:
+    required: Obavezno polje
+    required_explanation: Obavezna polja označena su zvjezdicom (*).
+    correct_errors: Provjeri označena polja i ispravi podatke da nastaviš.
+  activemodel:
+    attributes:
+      proposal:
+        title: Naslov prijedloga
+        body: Opis prijedloga
+        address: Lokacija
+        has_address: Prijedlog se odnosi na određenu lokaciju

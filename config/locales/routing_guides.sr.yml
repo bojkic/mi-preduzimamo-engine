@@ -1,0 +1,15 @@
+sr:
+  decidim:
+    bih:
+      routing_guides:
+        title: "Pregledana uputstva za usmjeravanje"
+        key: "Ključ"
+        name: "Naslov"
+        body: "Uputstvo"
+        categories: "Kategorije"
+        recipients: "Odobreni primaoci"
+        active: "Aktivno"
+        save: "Potvrdi uputstvo"
+      evidence_shares:
+        title: "Privatni prilozi podijeljeni sa službom"
+        revoke: "Opozovi pristup"

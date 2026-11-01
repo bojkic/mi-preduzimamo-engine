@@ -1,0 +1,45 @@
+<% w = "decidim.bih.review_workspace" %>
+<% add_decidim_page_title(t("#{w}.batch.title")) %>
+<link rel="stylesheet" href="/mi/report-review-batch.css?v=1">
+<div class="report-batch-page">
+<p><%= link_to t("#{w}.queue"), @list_path %></p>
+<h1><%= t("#{w}.batch.title") %></h1>
+<p><%= t("#{w}.batch.help") %></p>
+<%= form_tag admin_bih_report_review_batch_preview_path, class: "form form-defaults" do %>
+<%= hidden_field_tag :return_to, @queue_context.path %>
+<div class="report-batch-table"><table class="table-list"><thead><tr>
+<% %w(report decision choose).each do |key| %><th scope="col"><%= t("#{w}.batch.#{key}") %></th><% end %>
+</tr></thead><tbody>
+<% @rows.each_with_index do |row, index| %>
+<% report = row[:report]; prefix = "batch_items[#{index}]" %>
+<tr id="batch-report-<%= report.id %>">
+<td><h2><%= link_to report.reference, admin_bih_report_path(reference: report.reference, return_to: @queue_context.path) %></h2>
+<p><%= report.address %></p>
+<details><summary><%= t("#{w}.evidence") %></summary>
+<%= simple_format(report.description) %>
+<% report.case_messages.order(:id).each do |message| %><p><strong><%= l(message.created_at, format: :short) %></strong> · <%= t("#{w}.batch.roles.#{message.actor_role}", default: t("#{w}.batch.roles.staff")) %></p><%= simple_format(message.body) %><% end %>
+</details>
+</td>
+<td>
+<% if row[:ready] %>
+<strong><%= t("#{w}.actions.#{row[:action]}") %></strong><p><%= t("#{w}.batch.origins.#{row[:origin]}") %></p>
+<% if row[:proposal] %><%= simple_format(row[:proposal].proposal["rationale"]) %><% end %>
+<%= render "values", values: row[:values], action: row[:action] %>
+<%= hidden_field_tag "#{prefix}[reference]", report.reference %>
+<%= hidden_field_tag "#{prefix}[action]", row[:action] %>
+<%= hidden_field_tag "#{prefix}[version]", row[:version] %>
+<% row[:values].slice(*Decidim::Bih::ReportDecision::FIELDS.map(&:to_s)).each do |key, value| %><%= hidden_field_tag "#{prefix}[values][#{key}]", value %><% end %>
+<% else %><p><%= t("#{w}.batch.needs_draft") %></p><% end %>
+<p><%= link_to t("#{w}.batch.edit"), admin_bih_report_path(reference: report.reference, return_to: @queue_context.path) %></p>
+</td>
+<td><% if row[:ready] %><label><%= check_box_tag "#{prefix}[choose]", "1", false %> <%= t("#{w}.batch.include", reference: report.reference) %></label><% else %>—<% end %></td>
+</tr>
+<% end %>
+</tbody></table></div>
+<% if @rows.any? { |row| row[:ready] } %><%= submit_tag t("#{w}.batch.preview"), class: "button button__sm button__secondary" %><% else %><p><%= t("#{w}.batch.none") %></p><% end %>
+<% end %>
+<nav aria-label="<%= t("#{w}.pagination") %>">
+<% (1..@page_count).each do |page| %><%= link_to page, admin_bih_report_review_batch_path(return_to: @queue_context.path(page:)), aria: { current: page == @page ? "page" : nil } %> <% end %>
+</nav>
+
+</div>

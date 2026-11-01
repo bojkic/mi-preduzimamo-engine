@@ -1,0 +1,30 @@
+<%#
+  Standalone layout for the printable postal letter.
+
+  WHY THIS EXISTS: the letter used to render inside "decidim/admin/users", so
+  every print carried the admin chrome — the hamburger, the organisation name,
+  "See site", the language switcher, the signed-in operator's e-mail address and
+  the breadcrumb — onto paper that goes to a citizen. Worse, the admin layout's
+  own wrapper margins shifted the page content, so the address block could never
+  land where a window envelope expects it, and the extra height pushed the
+  letter onto a second, near-empty page.
+
+  A letter is not an admin screen. It gets its own document: no framework CSS,
+  no navigation, nothing but the page itself, so the millimetre geometry below
+  is the geometry the printer receives.
+%>
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title><%= t("decidim.bih.postal.admin.postages.printable_letter.title") %></title>
+    <%# Installed into every host's public/ by Decidim::Bih::REQUIRED_PUBLIC_ASSETS.
+        Falls back to the system stack if it is ever missing. %>
+    <link rel="stylesheet" href="/mi/mi-fonts.css">
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

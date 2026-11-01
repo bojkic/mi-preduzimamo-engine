@@ -1,0 +1,28 @@
+{
+  "bs": {
+    "decidim": {
+      "bih": {
+        "channel_connections": {
+          "title": "Povezani kanali za poruke",
+          "explanation": "Povežite razgovor sa svojim nalogom. Ovo ne uključuje obavještenja ni prijavu na nalog. Dozvole za obavještenja birate odvojeno. Automatske Messenger i Instagram poruke zahtijevaju vašu nedavnu poruku.",
+          "connected": "Povezano sa ovim nalogom.",
+          "disconnected": "Veza je uklonjena.",
+          "disconnect": "Prekini vezu",
+          "connect": "Poveži",
+          "unavailable": "Ovaj kanal još nije dostupan.",
+          "finish": "Završite povezivanje",
+          "send_command": "Pošaljite ovu tačnu naredbu u naš postojeći %{channel} razgovor u roku od 10 minuta. Ne dijelite je.",
+          "confirm_help": "Unesite poseban kod koji stigne u vaš razgovor. Potvrdite samo kod koji ste dobili u svom razgovoru. Ako naredba više nije vidljiva, počnite ponovo.",
+          "code": "Kod potvrde iz vašeg razgovora",
+          "confirm": "Potvrdi povezivanje",
+          "back": "Nazad na moj nalog",
+          "invalid": "Kod za povezivanje nije važeći ili je istekao. Počnite ponovo sa svog naloga.",
+          "chat_confirmation": "Za povezivanje svog naloga unesite %{code} na stranici naloga gdje ste započeli. Ne dijelite ovaj kod. Ako niste započeli povezivanje, zanemarite ovu poruku.",
+          "opted_out": "Obavještenja putem ovog kanala su isključena. Ovo možete promijeniti u postavkama naloga.",
+          "command_label": "Naredba za povezivanje — pritisnite i zadržite da kopirate",
+          "opt_out_unmatched": "Nismo mogli povezati ovaj razgovor s nalogom, pa postavke obavještenja nisu promijenjene. Prijavite se da isključite obavještenja putem poruka: %{url}"
+        }
+      }
+    }
+  }
+}

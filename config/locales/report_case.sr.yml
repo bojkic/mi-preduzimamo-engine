@@ -1,0 +1,123 @@
+{
+  "sr": {
+    "decidim": {
+      "bih": {
+        "report_case": {
+          "second_reminder_due": "Dopunu prijave pošaljite do %{due}. Nakon toga prijava može biti zatvorena i uklonjena iz javnog prikaza.",
+          "evidence": "Sadržaj prijave",
+          "private_help": "Privatni pregled za ovlašteno osoblje. Sadržaj i fotografija nisu javni.",
+          "address": "Lokacija",
+          "photo": "Fotografija uz prijavu",
+          "anonymous": "Anonimno u javnosti",
+          "yes": "Da",
+          "no": "Ne",
+          "review": "Pregled i zaduženje",
+          "decision": "Odluka pregleda",
+          "category": "Kategorija",
+          "department": "Nadležna služba",
+          "severity": "Prioritet",
+          "recipient": "Primalac",
+          "recipient_help": "Prikazane su adrese iz postavki Sistem 48. Administrator može ažurirati te postavke. Provjeri nadležnost prije slanja.",
+          "owner": "Zadužena osoba",
+          "due": "Rok za sljedeći korak (lokalno vrijeme)",
+          "rejection_reason": "Obrazloženje odbijanja (javno)",
+          "resolution": "Dokaz ili opis rješenja",
+          "resolution_help": "Ovaj opis vidi i podnosilac putem privatne veze. Sačuvaj ga prije označavanja prijave kao riješene.",
+          "save_review": "Sačuvaj pregled",
+          "conversation": "Razgovor o prijavi",
+          "message": "Poruka",
+          "ask_information": "Traži dodatne informacije i postavi rok",
+          "message_help": "Poruka ostaje u privatnom razgovoru. Povezanom nalogu stižu obavještenje, uključeni push i poruka putem dozvoljenih kanala. WhatsApp koristi odobreni šablon sa statusom prijave; cijeli razgovor ostaje ovdje. Za nepovezanu prijavu podnosilac treba sačuvanu privatnu vezu.",
+          "send_message": "Pošalji poruku",
+          "forwarding": "Prosljeđivanje prijave",
+          "preview": "Pregledaj prije slanja",
+          "record_external": "Evidentiraj slanje izvan platforme",
+          "external_reference": "Potvrda prijema ili referenca vanjskog slanja",
+          "confirm_external": "Potvrđujem da sam prijavu već poslao/la izvan platforme. Ova radnja ne šalje poruku.",
+          "confirm_send": "Provjerio/la sam primaoca i sadržaj. Želim poslati ovu prijavu.",
+          "send_now": "Pošalji prijavu",
+          "back": "Nazad na prijavu",
+          "no_messages": "Još nema poruka.",
+          "opened": "Otvoreno",
+          "feedback": "Povratna informacija podnosioca",
+          "reply": "Pošalji odgovor",
+          "saved": "Pregled je sačuvan.",
+          "message_saved": "Poruka je sačuvana.",
+          "send_queued": "Slanje je zakazano. Ishod će biti prikazan u evidenciji.",
+          "external_recorded": "Vanjsko slanje je evidentirano. Platforma nije poslala poruku.",
+          "new_message": "Nova poruka o prijavi %{reference}.",
+          "overdue": "Istekao je rok za prijavu %{reference}.",
+          "states": {
+            "pending": "Čeka pregled",
+            "validated": "Provjerena",
+            "needs_information": "Čeka dodatne informacije",
+            "rejected": "Odbijena"
+          },
+          "roles": {
+            "staff": "Tim za prijave",
+            "citizen": "Podnosilac prijave"
+          },
+          "delivery": {
+            "pending": "Obavještenje čeka obradu",
+            "bell_created": "Obavještenje je kreirano u nalogu",
+            "no_recipient": "Nema povezanog naloga za obavještenje; razgovor je dostupan putem privatne veze"
+          },
+          "feedback_options": {
+            "accepted": "Potvrđujem da je riješeno",
+            "problem_persists": "Problem i dalje postoji"
+          },
+          "errors": {
+            "already_forwarded": "Prijava je već proslijeđena; podaci slanja se ne mogu prepisati.",
+            "invalid_owner": "Odaberi aktivnu ovlaštenu osobu ove organizacije.",
+            "invalid_recipient": "Odaberi primaoca iz konfigurisanih adresa i kategoriju.",
+            "invalid_decision": "Odaberi važeću odluku pregleda.",
+            "rejection_reason": "Navedi obrazloženje odbijanja.",
+            "invalid_due": "Za pitanje navedi budući rok. Provjeri format datuma.",
+            "terminal": "Završena prijava se prvo mora ponovo otvoriti.",
+            "not_resolved": "Povratna informacija o rješenju je dostupna za riješene prijave.",
+            "invalid_feedback": "Odaberi važeću povratnu informaciju.",
+            "external_reference": "Navedi potvrdu prijema ili referencu vanjskog slanja (do 240 znakova).",
+            "not_validated": "Prvo provjeri prijavu, odaberi primaoca i sačuvaj odluku da je spremna za prosljeđivanje.",
+            "preview_required": "Pregled je istekao ili je prijava promijenjena. Ponovo pregledaj i potvrdi slanje.",
+            "confirm_external": "Potvrdi da je prijava već poslata izvan platforme.",
+            "use_forward": "Koristi pregled i slanje, ili posebno evidentiraj već izvršeno vanjsko slanje. Promjena statusa ne šalje prijavu.",
+            "resolution_evidence": "Prije završetka sačuvaj opis ili dokaz rješenja u pregledu prijave.",
+            "confirm_review": "Pregledao/la sam sadržaj i potvrđujem odluku o prihvatanju ili odbijanju."
+          },
+          "forwarding_note": "Dodatne informacije za primaoca (razgovor se ne prosljeđuje automatski)",
+          "confirm_review": "Pregledao/la sam sadržaj i potvrđujem odluku o prihvatanju ili odbijanju.",
+          "owners": {
+            "mine": "Moja zaduženja",
+            "unassigned": "Bez zadužene osobe"
+          },
+          "external_delivery": "Kopija u aplikaciji za poruke",
+          "external_ineligible": "Nema dostupnog dozvoljenog kanala: nalog treba da uključi obavještenja o prijavama i ispuni uslove kanala. Privatna poruka i obavještenje ostaju dostupni.",
+          "reply_link": "Odgovori na prijavu (privatna veza)",
+          "external_states": {
+            "pending": "Čeka obradu",
+            "sending": "Slanje u toku",
+            "accepted": "Provajder prihvatio; isporuka još nije potvrđena",
+            "rejected": "Odbijeno",
+            "failed": "Neuspjelo",
+            "unknown": "Ishod nepoznat",
+            "skipped": "Preskočeno",
+            "delivered": "Isporuka potvrđena"
+          }
+        },
+        "admin": {
+          "reports": {
+            "events": {
+              "types": {
+                "case_reviewed": "Pregled sačuvan",
+                "case_message_created": "Poruka u prijavi sačuvana",
+                "case_assignment_updated": "Zaduženje ažurirano",
+                "case_external_submission_recorded": "Vanjsko slanje evidentirano",
+                "case_deadline_reminded": "Podsjetnik za rok kreiran"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

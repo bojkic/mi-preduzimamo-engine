@@ -1,0 +1,20 @@
+<%# MI PRE(D)UZIMAMO! — homepage closing CTA content block (engine-owned).
+    Centered heart mark, display headline with the terracotta "Mijenjamo ga
+    MI." line, join/projects pills and optional campaign hashtag. Styling lives in
+    the host theme (public/mi/mi-theme.css). %>
+<% campaign_hashtag = t_scope("hashtag").to_s.strip %>
+<section id="mi-cta" class="home__section mi-cta">
+  <img class="mi-cta__mark" src="<%= heart_mark_path %>" alt="" aria-hidden="true" width="728" height="745" loading="lazy" decoding="async">
+  <h2 class="mi-cta__title">
+    <%= t_scope("title_line1") %><br>
+    <span class="mi-cta__title-accent"><%= t_scope("title_line2") %></span>
+  </h2>
+  <p class="mi-cta__sub"><%= t_scope("sub") %></p>
+  <div class="mi-cta__actions">
+    <%= link_to t_scope(primary_cta_key), primary_cta_href, class: "mi-btn mi-btn--primary mi-btn--lg" %>
+    <%= link_to t_scope("cta_projects"), secondary_cta_href, class: "mi-btn mi-btn--ghost mi-btn--lg" %>
+  </div>
+  <% if campaign_hashtag.present? %>
+    <p class="mi-cta__hashtag"><%= campaign_hashtag %></p>
+  <% end %>
+</section>

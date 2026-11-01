@@ -1,0 +1,42 @@
+<%#
+  Magic-link landing page. GET only peeks at the token; the confirmation is
+  the POST this form makes (messaging apps prefetch links for previews and
+  must never burn a single-use token).
+
+  In a real browser the small script below submits that form as soon as the
+  page has loaded, so the citizen lands on the next step without a tap.
+  Preview fetchers do not run JavaScript, and without JavaScript the button
+  still works exactly as before.
+%>
+<% add_decidim_page_title(t(".title.#{@purpose}")) %>
+<main class="wrapper">
+  <div class="mi-surface mi-magic-link">
+    <div class="mi-surface-card mi-surface-card--strip acc-coral">
+      <div class="mi-card-strip"></div>
+      <div class="mi-surface-card__body mi-magic-link__body">
+        <span class="mi-magic-link__mark" aria-hidden="true"><img src="/mi/heart-mark.png" alt=""></span>
+        <h1 class="heading3"><%= t(".title.#{@purpose}") %></h1>
+        <p class="mi-magic-link__intro"><%= t(".intro.#{@purpose}", name: @token.user.name) %></p>
+        <%= button_to t(".confirm.#{@purpose}"),
+                      consume_magic_link_path(token: params[:token]),
+                      class: "mi-btn mi-btn--primary mi-btn--lg",
+                      form: { id: "mi-magic-link-form", class: "mi-magic-link__form" } %>
+        <p class="mi-magic-link__status" id="mi-magic-link-status" role="status" aria-live="polite" hidden><%= t(".auto_submitting") %></p>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+  (function () {
+    var form = document.getElementById("mi-magic-link-form");
+    var status = document.getElementById("mi-magic-link-status");
+    if (!form || form.dataset.autoSubmitted === "true") return;
+    form.dataset.autoSubmitted = "true";
+    var button = form.querySelector("button, input[type=submit]");
+    window.setTimeout(function () {
+      if (button) button.disabled = true;
+      if (status) status.hidden = false;
+      if (typeof form.requestSubmit === "function") form.requestSubmit(); else form.submit();
+    }, 150);
+  })();
+</script>

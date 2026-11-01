@@ -1,0 +1,17 @@
+<% add_decidim_page_title(notice_text("phone_title")) %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :staff_publication %>
+<div class="card" id="board-notice-phone"><div class="item_show__header"><h1 class="item_show__header-title"><%= notice_text("phone_title") %></h1></div><div class="card-section">
+  <h2><%= @post.title %></h2><p><%= notice_text("phone_hint") %></p>
+  <%= link_to notice_text("back_to_notice"), admin_bih_komsiluk_post_path(@post) %>
+  <%= form_tag admin_bih_board_notice_phone_path(@post), class: "form form-defaults" do %>
+    <fieldset class="mi-board-notice-channels"><legend><%= notice_text("channels") %></legend><% %w(viber whatsapp sms).each do |channel| %><label><%= check_box_tag "notice[channels][]", channel, Array(@values[:channels]).include?(channel) %> <%= notice_text("channels_labels.#{channel}") %></label><% end %><p><%= notice_text("channel_order") %></p></fieldset>
+    <div><%= render "delivery_modes", selected_mode: @values[:mode] %></div>
+    <div><%= label_tag "notice_text", notice_text("phone_text") %><%= text_area_tag "notice[text]", @values[:text], id: "notice_text", rows: 5, maxlength: 1000, required: true %><small><%= notice_text("link_hint") %></small></div>
+    <div><%= label_tag "notice_sms_text", notice_text("sms_text") %><%= text_area_tag "notice[sms_text]", @values[:sms_text], id: "notice_sms_text", rows: 3, maxlength: 1000 %><small><%= notice_text("sms_hint") %></small></div>
+    <div><%= label_tag "notice_urgency_reason", notice_text("urgency_reason") %><%= text_field_tag "notice[urgency_reason]", @values[:urgency_reason], id: "notice_urgency_reason", maxlength: 300 %></div>
+    <div><%= label_tag "notice_expires_at", notice_text("expires_at") %><%= datetime_local_field_tag "notice[expires_at]", @values[:expires_at].respond_to?(:in_time_zone) ? @values[:expires_at].in_time_zone("Europe/Sarajevo").strftime("%Y-%m-%dT%H:%M") : @values[:expires_at], id: "notice_expires_at", required: true %><small><%= notice_text("time_zone") %></small></div>
+    <label><%= check_box_tag "notice[retry_failed]", "1", ActiveModel::Type::Boolean.new.cast(@values[:retry_failed]) %> <%= notice_text("retry_rejected") %></label>
+    <%= submit_tag notice_text("preview"), class: "button button__sm button__secondary" %>
+  <% end %>
+  <% if bih_allowed?(:komsiluk_notification_policy_manage) %><p><%= link_to notice_text("delivery_settings"), admin_bih_board_notice_settings_path %></p><% end %>
+</div></div>

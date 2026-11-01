@@ -1,0 +1,75 @@
+sr:
+  decidim:
+    bih:
+      address_candidates:
+        hint: "Izaberi odgovarajući rezultat. Naziv ulice ili naselja ne određuje tačnu lokaciju tvog doma."
+        choose: "Izaberi ovaj komšiluk"
+        show_map: "Prikaži na mapi"
+        map_hint: "Prikazana je približna lokacija. Na mapi izaberi komšiluk u kojem živiš."
+        precision:
+          address: "Adresa sa kućnim brojem — provjeri lokaciju."
+          street: "Ulica — približna lokacija."
+          street_segment: "Dio ulice — provjeri lokaciju na mapi."
+          place: "Naselje ili područje — približna lokacija."
+          approximate: "Približna lokacija."
+          neighbourhood: "Lokalno prepoznat komšiluk — izaberi ako ovdje živiš."
+bs:
+  decidim:
+    bih:
+      address_candidates:
+        hint: "Izaberi odgovarajući rezultat. Naziv ulice ili naselja ne određuje tačnu lokaciju tvog doma."
+        choose: "Izaberi ovaj komšiluk"
+        show_map: "Prikaži na mapi"
+        map_hint: "Prikazana je približna lokacija. Na mapi izaberi komšiluk u kojem živiš."
+        precision:
+          address: "Adresa sa kućnim brojem — provjeri lokaciju."
+          street: "Ulica — približna lokacija."
+          street_segment: "Dio ulice — provjeri lokaciju na mapi."
+          place: "Naselje ili područje — približna lokacija."
+          approximate: "Približna lokacija."
+          neighbourhood: "Lokalno prepoznat komšiluk — izaberi ako ovdje živiš."
+hr:
+  decidim:
+    bih:
+      address_candidates:
+        hint: "Odaberi odgovarajući rezultat. Naziv ulice ili naselja ne određuje točnu lokaciju tvog doma."
+        choose: "Odaberi ovaj komšiluk"
+        show_map: "Prikaži na karti"
+        map_hint: "Prikazana je približna lokacija. Na karti odaberi komšiluk u kojem živiš."
+        precision:
+          address: "Adresa s kućnim brojem — provjeri lokaciju."
+          street: "Ulica — približna lokacija."
+          street_segment: "Dio ulice — provjeri lokaciju na mapi."
+          place: "Naselje ili područje — približna lokacija."
+          approximate: "Približna lokacija."
+          neighbourhood: "Lokalno prepoznat komšiluk — odaberi ako ovdje živiš."
+en:
+  decidim:
+    bih:
+      address_candidates:
+        hint: "Choose the matching result. A street or settlement name does not identify your exact home location."
+        choose: "Choose this neighbourhood"
+        show_map: "Show on map"
+        map_hint: "This location is approximate. Choose the neighbourhood where you live on the map."
+        precision:
+          address: "Address with a house number — check the location."
+          street: "Street — approximate location."
+          street_segment: "Part of a street — check the map location."
+          place: "Settlement or area — approximate location."
+          approximate: "Approximate location."
+          neighbourhood: "Locally identified neighbourhood — choose it if you live here."
+sr-Cyrl:
+  decidim:
+    bih:
+      address_candidates:
+        hint: "Изабери одговарајући резултат. Назив улице или насеља не одређује тачну локацију твог дома."
+        choose: "Изабери овај комшилук"
+        show_map: "Прикажи на мапи"
+        map_hint: "Приказана је приближна локација. На мапи изабери комшилук у којем живиш."
+        precision:
+          address: "Адреса са кућним бројем — провјери локацију."
+          street: "Улица — приближна локација."
+          street_segment: "Дио улице — провјери локацију на мапи."
+          place: "Насеље или подручје — приближна локација."
+          approximate: "Приближна локација."
+          neighbourhood: "Локално препознат комшилук — изабери ако овдје живиш."

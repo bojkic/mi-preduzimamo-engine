@@ -1,0 +1,11 @@
+<% selected_mode = selected_mode.to_s.presence || "fallback" %>
+<fieldset class="mi-board-notice-modes" aria-describedby="notice_mode_hint">
+  <legend><%= notice_text("mode") %></legend>
+  <% Decidim::Bih::Komsiluk::NoticePhonePolicy::MODES.each do |mode| %>
+    <label for="notice_mode_<%= mode %>">
+      <%= radio_button_tag "notice[mode]", mode, selected_mode == mode, id: "notice_mode_#{mode}", required: true %>
+      <span><%= notice_text("modes.#{mode}") %></span>
+    </label>
+  <% end %>
+</fieldset>
+<small id="notice_mode_hint"><%= notice_text("mode_hint") %></small>

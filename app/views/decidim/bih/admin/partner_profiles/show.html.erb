@@ -1,0 +1,117 @@
+<% add_decidim_page_title(@profile.display_name) %>
+
+<%= render "decidim/bih/admin/shared/navigation",
+           current_item: :partner_profiles,
+           current_step_label: [@profile.display_name, t("decidim.bih.admin.partner_profiles.show.review_step")] %>
+
+<header class="mi-admin-page-header" id="admin-partner-profile-review">
+  <div>
+    <h1 class="mi-admin-page-header__title"><%= @profile.display_name %></h1>
+    <p class="mi-admin-page-header__intro"><%= t("decidim.bih.admin.partner_profiles.show.intro") %></p>
+  </div>
+  <div class="mi-admin-page-header__actions">
+    <%= link_to t("decidim.bih.admin.partner_profiles.show.edit"), edit_partner_profile_path(@profile), class: "button button__sm button__secondary" %>
+    <%= link_to t("decidim.bih.admin.partner_profiles.show.memberships", count: @memberships.count), memberships_partner_profile_path(@profile), class: "button button__sm button__transparent-secondary" %>
+    <% if bih_allowed?(:operator_message_send) && @memberships.any?(&:accepted?) %>
+      <%= link_to t("decidim.bih.admin.partner_profiles.show.message_owner"), new_operator_message_path(context_type: "partner_profile", context_id: @profile.id), class: "button button__sm button__transparent-secondary" %>
+    <% end %>
+    <% if @profile.verified? %>
+      <%= link_to t("decidim.bih.admin.partner_profiles.show.public_preview"), decidim_bih.organization_path(@profile.slug), class: "button button__sm button__transparent-secondary", target: "_blank", rel: "noopener" %>
+    <% end %>
+  </div>
+</header>
+
+<div class="mi-admin-grid">
+  <section class="card" aria-labelledby="partner-profile-public-title">
+    <div class="item_show__header"><h2 class="item_show__header-title" id="partner-profile-public-title"><%= t("decidim.bih.admin.partner_profiles.show.public_title") %></h2></div>
+    <div class="card-section">
+      <dl>
+        <dt><%= t("decidim.bih.admin.partner_profiles.form.legal_name") %></dt><dd><%= @profile.legal_name.presence || "-" %></dd>
+        <dt><%= t("decidim.bih.admin.partner_profiles.form.kind") %></dt><dd><%= t("decidim.bih.partner_profiles.kinds.#{@profile.kind}") %></dd>
+        <dt><%= t("decidim.bih.admin.partner_profiles.form.website") %></dt><dd><%= @profile.website.present? ? link_to(@profile.website, @profile.website, target: "_blank", rel: "noopener") : "-" %></dd>
+        <dt><%= t("decidim.bih.admin.partner_profiles.form.slug") %></dt><dd><code><%= @profile.slug %></code></dd>
+        <dt><%= t("decidim.bih.admin.partner_profiles.form.public_description") %></dt><dd><%= simple_format(@profile.public_description.presence || "-") %></dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="partner-profile-private-title">
+    <div class="item_show__header"><h2 class="item_show__header-title" id="partner-profile-private-title"><%= t("decidim.bih.admin.partner_profiles.show.private_title") %></h2></div>
+    <div class="card-section">
+      <p class="mi-admin-help"><%= t("decidim.bih.admin.partner_profiles.show.private_help") %></p>
+      <dl>
+        <dt><%= t("decidim.bih.admin.partner_profiles.form.private_contact_name") %></dt><dd><%= @profile.private_contact_name.presence || "-" %></dd>
+        <dt><%= t("decidim.bih.admin.partner_profiles.form.private_contact_email") %></dt><dd><%= @profile.private_contact_email.presence || "-" %></dd>
+        <dt><%= t("decidim.bih.admin.partner_profiles.form.private_contact_phone") %></dt><dd><%= @profile.private_contact_phone.presence || "-" %></dd>
+      </dl>
+    </div>
+  </section>
+</div>
+
+<section class="card" aria-labelledby="partner-profile-verification-title">
+  <div class="item_show__header"><h2 class="item_show__header-title" id="partner-profile-verification-title"><%= t("decidim.bih.admin.partner_profiles.show.verification_title") %></h2></div>
+  <div class="card-section mi-admin-stack">
+    <% status_tone = @profile.verified? ? "ok" : (@profile.verification_status == "submitted" ? "attention" : "neutral") %>
+    <p><span class="mi-admin-status mi-admin-status--<%= status_tone %>"><%= t("decidim.bih.partner_profiles.statuses.#{@profile.verification_status}") %></span></p>
+    <p class="mi-admin-help"><%= t("decidim.bih.admin.partner_profiles.form.status_locked") %></p>
+    <div class="callout warning">
+      <strong><%= t("decidim.bih.admin.partner_profiles.show.decision_title") %></strong>
+      <p><%= t("decidim.bih.admin.partner_profiles.show.decision_consequences") %></p>
+      <p><%= t("decidim.bih.admin.partner_profiles.show.evidence_retention") %></p>
+    </div>
+    <% if @profile.rejection_reason.present? %>
+      <div class="callout alert"><strong><%= t("decidim.bih.admin.partner_profiles.show.rejection_reason") %>:</strong> <%= @profile.rejection_reason %></div>
+    <% end %>
+
+    <div>
+      <h3><%= t("decidim.bih.admin.partner_profiles.form.verification_documents") %></h3>
+      <% if @profile.verification_documents.attached? %>
+        <ul>
+          <% @profile.verification_documents.each do |document| %>
+            <li><%= link_to document.filename.to_s, Rails.application.routes.url_helpers.rails_blob_path(document, only_path: true), target: "_blank", rel: "noopener" %> <small>(<%= number_to_human_size(document.byte_size) %>)</small></li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="mi-admin-help"><%= t("decidim.bih.admin.partner_profiles.form.no_verification_documents") %></p>
+      <% end %>
+    </div>
+
+    <% if bih_allowed?(:partner_profiles_verify) %>
+      <div class="mi-admin-actions" id="partner-profile-verification-actions">
+        <% unless @profile.verified? %>
+          <%= form_with url: verify_partner_profile_path(@profile), method: :post, class: "form form-defaults mi-admin-action-group" do %>
+            <%= label_tag :verify_private_reason, t("decidim.bih.admin.private_action_reason.label") %>
+            <%= text_field_tag :private_reason, nil, id: :verify_private_reason, required: true, maxlength: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH %>
+            <span class="help-text"><%= t("decidim.bih.admin.private_action_reason.help", count: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH) %></span>
+            <label><%= check_box_tag :evidence_reviewed, "1", false, required: true %> <%= t("decidim.bih.admin.partner_profiles.show.evidence_attestation") %></label>
+            <%= submit_tag t("decidim.bih.admin.partner_profiles.index.verify"), class: "button button__sm button__secondary", data: { confirm: t("decidim.bih.admin.partner_profiles.show.verify_confirm") } %>
+          <% end %>
+        <% end %>
+        <% if @profile.verification_status == "submitted" %>
+          <%= form_with url: reject_partner_profile_path(@profile), method: :post, class: "form form-defaults mi-admin-action-group" do %>
+            <%= text_field_tag :rejection_reason, nil, required: true, placeholder: t("decidim.bih.admin.partner_profiles.index.rejection_reason"), aria: { label: t("decidim.bih.admin.partner_profiles.index.rejection_reason") } %>
+            <%= label_tag :reject_private_reason, t("decidim.bih.admin.private_action_reason.label") %>
+            <%= text_field_tag :private_reason, nil, id: :reject_private_reason, required: true, maxlength: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH %>
+            <label><%= check_box_tag :evidence_reviewed, "1", false, required: true %> <%= t("decidim.bih.admin.partner_profiles.show.evidence_attestation") %></label>
+            <%= submit_tag t("decidim.bih.admin.partner_profiles.index.reject"), class: "button button__sm button__transparent-secondary mi-admin-action--danger", data: { confirm: t("decidim.bih.admin.partner_profiles.show.reject_confirm") } %>
+          <% end %>
+        <% end %>
+        <% if @profile.verified? %>
+          <%= form_with url: suspend_partner_profile_path(@profile), method: :post, class: "form form-defaults mi-admin-action-group" do %>
+            <%= label_tag :suspend_private_reason, t("decidim.bih.admin.private_action_reason.label") %>
+            <%= text_field_tag :private_reason, nil, id: :suspend_private_reason, required: true, maxlength: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH %>
+            <label><%= check_box_tag :evidence_reviewed, "1", false, required: true %> <%= t("decidim.bih.admin.partner_profiles.show.evidence_attestation") %></label>
+            <%= submit_tag t("decidim.bih.admin.partner_profiles.index.suspend"), class: "button button__sm button__transparent-secondary mi-admin-action--danger", data: { confirm: t("decidim.bih.admin.partner_profiles.show.suspend_confirm") } %>
+          <% end %>
+        <% elsif @profile.verification_status == "suspended" %>
+          <%= form_with url: restore_partner_profile_path(@profile), method: :post, class: "form form-defaults mi-admin-action-group" do %>
+            <%= label_tag :restore_private_reason, t("decidim.bih.admin.private_action_reason.label") %>
+            <%= text_field_tag :private_reason, nil, id: :restore_private_reason, required: true, maxlength: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH %>
+            <label><%= check_box_tag :evidence_reviewed, "1", false, required: true %> <%= t("decidim.bih.admin.partner_profiles.show.evidence_attestation") %></label>
+            <%= submit_tag t("decidim.bih.admin.partner_profiles.index.restore"), class: "button button__sm button__secondary", data: { confirm: t("decidim.bih.admin.partner_profiles.show.restore_confirm") } %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>

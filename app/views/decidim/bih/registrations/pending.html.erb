@@ -1,0 +1,63 @@
+<%#
+  "Poslali smo ti poruku" — the waiting room of the one-step registration, for
+  a citizen who is NOT signed in yet. The body is the same one delivery A's
+  phone-verification page renders; all this page owns is where its own actions
+  live, its own copy scope, the hand-off sentence and the field that takes a
+  corrected number.
+
+  Three differences from A's page, all deliberate:
+  * the status poll is a POST (R-D4) — it can sign this browser in, and that
+    must never be something a GET does;
+  * "wrong number" does not send the citizen back to a phone form they have no
+    session for; the number is re-entered here (see the controller's #change);
+  * that number field is shown only to the browser that did the registering.
+    Pointing the verification at a different phone decides who ends up owning
+    the account, and the mailed reminder is a credential that reached an
+    address nobody has proven. Whoever holds only that link gets the honest
+    alternative instead: start over, which destroys the never-verified account
+    rather than redirecting it.
+
+  The copy scope carries pending.reverify_lead even though this page can never
+  enter reverify mode (Registration::PendingAccess refuses a granted account,
+  so @reverify is never set here): the shared body reads that one key while
+  building the page whatever mode it is in. The rest of the reverify copy is
+  delivery A's alone and is deliberately not duplicated here.
+%>
+<% add_decidim_page_title(t(".title")) %>
+
+<main class="wrapper">
+  <div class="mi-surface">
+    <% if @change_number %>
+      <section class="mi-account-panel" data-mi-new-phone>
+        <h2><%= t(".new_phone_title") %></h2>
+        <p><%= t(".new_phone_hint") %></p>
+        <%= form_with url: pending_action_path("/ponovo"), method: :post, class: "mi-account-settings-form" do %>
+          <label for="mi-new-phone"><%= t(".new_phone_label") %></label>
+          <input id="mi-new-phone" type="tel" name="phone" inputmode="tel" autocomplete="tel" required>
+          <button type="submit" class="mi-btn mi-btn--primary mi-btn--sm"><%= t(".new_phone_submit") %></button>
+        <% end %>
+      </section>
+    <% end %>
+
+    <%= render "decidim/bih/phone_verification/message_sent",
+               scope: "decidim.bih.registrations.pending",
+               masked_phone: masked_phone,
+               expired: @expired,
+               status_url: pending_action_path("/status"),
+               status_method: "post",
+               confirm_url: pending_action_path("/kod"),
+               resend_url: (phone_on_record.present? ? pending_action_path("/ponovo") : nil),
+               change_url: pending_page_path,
+               check_url: pending_page_path %>
+
+    <% if @handoff %>
+      <p class="mi-phone-verification__handoff" data-mi-handoff><%= t(".handoff") %></p>
+    <% else %>
+      <section class="mi-account-panel" data-mi-start-over>
+        <p><%= t(".start_over_hint") %></p>
+        <%= button_to t(".start_over"), pending_action_path("/pocni-ispocetka"),
+                      method: :post, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+      </section>
+    <% end %>
+  </div>
+</main>

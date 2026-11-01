@@ -1,0 +1,15 @@
+<% add_decidim_page_title(t(".title")) %>
+<div class="wrapper"><div class="row column" style="max-width:40rem;margin:auto">
+  <h1 class="heading3"><%= t(".title") %></h1>
+  <dl>
+    <dt><%= t(".recipient") %></dt><dd><%= @recipient.display_label %></dd>
+    <dt><%= t(".amount") %></dt><dd><%= number_with_delimiter(@amount) %></dd>
+    <dt><%= t(".balance_after") %></dt><dd><%= number_with_delimiter(@balance_after) %></dd>
+  </dl>
+  <p><%= t("decidim.bih.gifts.index.policy_note") %></p>
+  <%= form_with url: gift_path, method: :post do %>
+    <%= hidden_field_tag :confirmation, @confirmation %>
+    <%= submit_tag t(".confirm"), class: "button button__primary" %>
+  <% end %>
+  <%= link_to t(".back"), gifts_path %>
+</div></div>

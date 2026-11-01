@@ -1,0 +1,91 @@
+<% add_decidim_page_title(translated_attribute(@project.title)) %>
+<%
+  raised = @project_totals&.total&.to_d
+  totals_available = !raised.nil?
+  goal = @project.budget_amount.to_d
+  progress = totals_available && goal.positive? ? [(raised / goal * 100).round, 100].min : 0
+%>
+
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: translated_attribute(@project.title),
+               intro: (@partner_profile ? t(".by_organization", organization: @partner_profile.display_name) : t(".approved_by_lfbn")),
+               action_label: (@donate_url.present? ? t(".donate") : nil),
+               action_path: @donate_url,
+               action_class: "mi-btn mi-btn--primary" %>
+
+    <section class="mi-account-panel mi-account-panel--wide">
+      <div class="mi-action-row">
+        <%= render "decidim/bih/shared/prepare_board_notice", source_kind: "project", source_id: @project.id, button_class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+        <%= render "decidim/shared/resource_actions", resource: @project, skip_report: true %>
+        <%= cell "decidim/share_widget", @project %>
+      </div>
+      <div class="editor-content"><%= decidim_sanitize_editor_admin translated_attribute(@project.description) %></div>
+      <% if @submission&.address.present? || @submission&.starts_on.present? || @submission&.ends_on.present? %>
+        <p class="mi-report-card__meta">
+          <span><%= @submission.address %></span>
+          <% if @submission.starts_on || @submission.ends_on %>
+            <span><%= [@submission.starts_on, @submission.ends_on].compact.map { |date| l(date) }.join(" – ") %></span>
+          <% end %>
+        </p>
+      <% end %>
+      <div class="mi-metric-grid">
+        <article class="mi-metric-card">
+          <strong><%= number_with_delimiter(goal.to_i, delimiter: ".") %> <%= @currency_label %></strong>
+          <span><%= t(".fundraising_goal") %></span>
+        </article>
+        <% if totals_available %>
+          <article class="mi-metric-card">
+            <strong><%= number_with_delimiter(raised.to_i, delimiter: ".") %> <%= @currency_label %></strong>
+            <span><%= t(".raised") %></span>
+          </article>
+        <% end %>
+      </div>
+      <% if totals_available %>
+        <progress value="<%= progress %>" max="100" aria-label="<%= t(".progress", percent: progress) %>"><%= progress %>%</progress>
+      <% end %>
+      <p class="mi-report-card__meta"><%= t(".donation_guardrail") %></p>
+      <% if !@partner_participation_enabled %>
+        <p class="callout warning"><%= t(".participation_paused_note") %></p>
+      <% elsif !@fundraising_enabled %>
+        <p class="callout warning"><%= t(".fundraising_paused_note") %></p>
+      <% end %>
+
+      <% if @project.photos.any? || @project.documents.any? %>
+        <%= attachments_for(@project) %>
+      <% end %>
+    </section>
+
+    <section class="mi-account-panel mi-account-panel--wide" aria-labelledby="project-volunteering-title">
+      <div class="mi-account-panel__head">
+        <h2 id="project-volunteering-title"><%= t(".volunteering") %></h2>
+        <%= link_to t(".all_help_calls"), volunteer_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+      </div>
+      <% if @volunteer_opportunities.any? %>
+        <ul class="mi-data-list">
+          <% @volunteer_opportunities.each do |opportunity| %>
+            <li class="mi-account-activity__summary">
+              <span><strong><%= opportunity.title %></strong><small><%= opportunity.schedule_label %></small></span>
+              <%= link_to t(".volunteer"), volunteer_path(tab: "prilike", anchor: "volunteer-opportunity-#{opportunity.id}"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="mi-report-card__meta"><%= t(".no_volunteering") %></p>
+      <% end %>
+    </section>
+
+    <%= render "decidim/bih/volunteer/contribution_needs",
+               needs: @contribution_needs,
+               viewer: current_organization_user,
+               title: t(".other_needs") %>
+
+    <%= comments_for @project, polymorphic: [@project.budget] %>
+
+    <div class="mi-action-row">
+      <%= link_to t(".back"), community_projects_path, class: "mi-btn mi-btn--ghost" %>
+    </div>
+  </div>
+</main>

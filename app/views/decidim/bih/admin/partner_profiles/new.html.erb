@@ -1,0 +1,14 @@
+<% add_decidim_page_title(t("decidim.bih.admin.partner_profiles.new.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation",
+           current_item: :partner_profiles,
+           current_step_label: t("decidim.bih.admin.partner_profiles.new.step") %>
+
+<header class="mi-admin-page-header" id="admin-partner-profile-new">
+  <div>
+    <h1 class="mi-admin-page-header__title"><%= t("decidim.bih.admin.partner_profiles.new.title") %></h1>
+    <p class="mi-admin-page-header__intro"><%= t("decidim.bih.admin.partner_profiles.new.intro") %></p>
+  </div>
+</header>
+
+<%= render "form", profile: @profile %>

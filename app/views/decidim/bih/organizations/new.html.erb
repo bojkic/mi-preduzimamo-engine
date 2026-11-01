@@ -1,0 +1,78 @@
+<% editing_profile = @profile.persisted? %>
+<% add_decidim_page_title(editing_profile ? t(".edit_title", default: t(".title")) : t(".title")) %>
+
+<main class="wrapper">
+  <div class="mi-surface">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: editing_profile ? t(".edit_title", default: t(".title")) : t(".title"),
+               intro: editing_profile ? t(".edit_subtitle", default: t(".subtitle")) : t(".subtitle") %>
+
+    <section class="mi-account-panel mi-volunteer-form">
+      <% if @profile.errors.any? %>
+        <div class="callout alert" role="alert" aria-labelledby="organization-errors-title">
+          <h2 class="heading5" id="organization-errors-title"><%= t(".errors_title") %></h2>
+          <ul>
+            <% @profile.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+          <p><%= t(".files_retry") %></p>
+        </div>
+      <% end %>
+      <% if editing_profile && @profile.rejection_reason.present? %>
+        <div class="callout warning"><strong><%= t(".rejection_reason") %></strong> <%= @profile.rejection_reason %></div>
+      <% end %>
+      <%= form_with model: @profile,
+                    url: editing_profile ? update_organization_profile_path(@profile) : organization_profiles_path,
+                    method: editing_profile ? :patch : :post,
+                    html: { class: "mi-account-settings-form", multipart: true } do |form| %>
+        <div class="mi-account-form-grid mi-volunteer-form__grid">
+          <label><%= t(".display_name") %>
+            <%= form.text_field :display_name, required: true %>
+          </label>
+          <label><%= t(".legal_name") %>
+            <%= form.text_field :legal_name %>
+          </label>
+          <label><%= t(".kind") %>
+            <%= form.select :kind,
+                            Decidim::Bih::PartnerProfile::KINDS.map { |kind| [t("decidim.bih.partner_profiles.kinds.#{kind}"), kind] },
+                            {},
+                            required: true %>
+          </label>
+          <label><%= t(".website") %>
+            <%= form.url_field :website %>
+          </label>
+        </div>
+        <label><%= t(".public_description") %>
+          <%= form.text_area :public_description, rows: 4, maxlength: 5_000 %>
+        </label>
+        <div class="mi-account-form-grid mi-volunteer-form__grid">
+          <label><%= t(".private_contact_name") %>
+            <%= form.text_field :private_contact_name, required: true %>
+          </label>
+          <label><%= t(".private_contact_email") %>
+            <%= form.email_field :private_contact_email, required: true %>
+          </label>
+          <label><%= t(".private_contact_phone") %>
+            <%= form.text_field :private_contact_phone %>
+          </label>
+        </div>
+        <label><%= t(".verification_documents") %>
+          <%= form.file_field :verification_documents,
+                              multiple: true,
+                              accept: Decidim::Bih::PartnerProfile::VERIFICATION_DOCUMENT_CONTENT_TYPES.join(",") %>
+        </label>
+        <p class="mi-report-card__meta"><%= t(".verification_documents_help") %></p>
+        <p class="mi-report-card__meta"><%= t(".verification_note") %></p>
+        <p class="mi-report-card__meta"><%= t(".verification_retention") %></p>
+        <% if Decidim::Bih.public_support_email.present? %>
+          <p class="mi-report-card__meta"><%= t(".verification_support_html", support: mail_to(Decidim::Bih.public_support_email)) %></p>
+        <% end %>
+        <div class="mi-volunteer-form__actions">
+          <%= form.submit editing_profile ? t(".resubmit") : t(".submit"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+        </div>
+      <% end %>
+    </section>
+  </div>
+</main>

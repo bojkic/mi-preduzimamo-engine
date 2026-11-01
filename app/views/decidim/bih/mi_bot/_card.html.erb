@@ -1,0 +1,94 @@
+<%#
+  Rich message card. Same renderer for both in-conversation cards (inside a chat
+  bubble, `standalone: false`) and the template sheet (`standalone: true`, with a
+  fixed width + a top accent strip). `card[:kind]` selects the body. Progress
+  percentages are computed here so the data stays declarative.
+%>
+<div class="mi-bot-card<%= " mi-bot-card--standalone" if standalone %>">
+  <% if standalone && accent %>
+    <div class="mi-bot-card__strip" style="background: <%= accent %>;"></div>
+  <% end %>
+
+  <% case card[:kind] %>
+  <% when "prijava" %>
+    <div class="mi-bot-card__strip" style="background: var(--mi-coral-600);"></div>
+    <div class="mi-bot-card__pad">
+      <div class="mi-bot-card-prijava__head">
+        <span class="mi-bot-card-prijava__icon"><%= mi_bot_icon("construction", size: 19) %></span>
+        <div class="mi-bot-card-prijava__titles">
+          <div class="mi-bot-card__title"><%= card[:title] %></div>
+          <div class="mi-bot-card-prijava__addr"><%= card[:addr] %></div>
+        </div>
+        <span class="mi-bot-card-prijava__id"><%= card[:id] %></span>
+      </div>
+      <div class="mi-bot-card-prijava__status">
+        <span class="mi-bot-card-prijava__dot"></span> <%= card[:status] %>
+      </div>
+    </div>
+
+  <% when "prijedlog" %>
+    <% pct = (card[:support].to_f / card[:goal] * 100).round %>
+    <div class="mi-bot-card__strip" style="background: var(--mi-sava-500);"></div>
+    <div class="mi-bot-card__pad">
+      <span class="mi-bot-card__eyebrow" style="color: var(--mi-sava-700);">PRIJEDLOG</span>
+      <div class="mi-bot-card__title mi-bot-card__title--lg"><%= card[:title] %></div>
+      <div class="mi-bot-card__meterline">
+        <span class="mi-bot-card__support"><%= card[:support] %> / <%= card[:goal] %> podrški</span>
+        <span class="mi-bot-card__pct" style="color: var(--mi-park-600);"><%= pct %>%</span>
+      </div>
+      <div class="mi-bot-card__bar"><i style="width: <%= pct %>%; background: var(--mi-park-500);"></i></div>
+      <div class="mi-bot-card__actions">
+        <span class="mi-bot-card__btn mi-bot-card__btn--primary">Podrži</span>
+        <span class="mi-bot-card__btn mi-bot-card__btn--ghost">Podijeli</span>
+      </div>
+    </div>
+
+  <% when "budzet" %>
+    <div class="mi-bot-card__strip" style="background: var(--mi-park-500);"></div>
+    <div class="mi-bot-card__pad">
+      <span class="mi-bot-card__eyebrow" style="color: var(--mi-park-600);">IZABERI PROJEKTE</span>
+      <div class="mi-bot-card-budzet__items">
+        <% card[:items].each do |label, amount| %>
+          <div class="mi-bot-card-budzet__item">
+            <%= mi_bot_icon("check", size: 16, stroke: 3, color: "var(--mi-park-600)") %>
+            <span class="mi-bot-card-budzet__label"><%= label %></span>
+            <span class="mi-bot-card-budzet__amount"><%= amount %> KM</span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+  <% when "donacija" %>
+    <div class="mi-bot-card__pad">
+      <span class="mi-bot-card__eyebrow" style="color: var(--mi-coral-700);">PROJEKAT · DONACIJA</span>
+      <div class="mi-bot-card__title mi-bot-card__title--lg"><%= card[:title] %></div>
+      <div class="mi-bot-card__meterline">
+        <span class="mi-bot-card__support"><%= card[:raised] %> / <%= card[:goal] %> KM</span>
+        <span class="mi-bot-card__pct" style="color: var(--mi-coral-600);"><%= card[:pct] %>%</span>
+      </div>
+      <div class="mi-bot-card__bar" style="margin-bottom: 13px;"><i style="width: <%= card[:pct] %>%; background: var(--mi-coral-600);"></i></div>
+      <div class="mi-bot-card-donacija__amounts">
+        <% ["10", "20", "50"].each do |amt| %>
+          <span class="mi-bot-card-donacija__amount<%= " is-active" if amt == "20" %>"><%= amt %> KM</span>
+        <% end %>
+      </div>
+      <span class="mi-bot-card-donacija__cta">&#10084; Doniraj 20 KM</span>
+    </div>
+
+  <% when "akcije" %>
+    <div class="mi-bot-card-akcije">
+      <% card[:options].each do |opt| %>
+        <span class="mi-bot-card-akcije__chip"><%= opt %></span>
+      <% end %>
+    </div>
+
+  <% when "obavjestenje" %>
+    <div class="mi-bot-card__pad mi-bot-card-push">
+      <span class="mi-bot-card-push__icon"><%= mi_bot_icon("bell", size: 20) %></span>
+      <div>
+        <div class="mi-bot-card__title"><%= card[:title] %></div>
+        <p class="mi-bot-card-push__body"><%= card[:body] %></p>
+      </div>
+    </div>
+  <% end %>
+</div>

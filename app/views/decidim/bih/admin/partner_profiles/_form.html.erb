@@ -1,0 +1,114 @@
+<%= form_with model: profile,
+              url: profile.persisted? ? partner_profile_path(profile) : partner_profiles_path,
+              method: profile.persisted? ? :patch : :post,
+              multipart: true,
+              class: "form form-defaults mi-admin-form mi-admin-form--narrow" do |form| %>
+  <% if profile.errors.any? %>
+    <div class="mi-admin-form__error-summary" role="alert" id="partner-profile-errors">
+      <strong><%= t("decidim.bih.admin.partner_profiles.form.errors_title", count: profile.errors.count) %></strong>
+      <ul>
+        <% profile.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <fieldset class="mi-admin-form__section">
+    <legend class="mi-admin-form__legend"><%= t("decidim.bih.admin.partner_profiles.form.public_section") %></legend>
+    <p class="mi-admin-form__help"><%= t("decidim.bih.admin.partner_profiles.form.public_section_help") %></p>
+    <div class="mi-admin-form__grid">
+      <div class="mi-admin-form__field">
+        <%= form.text_field :display_name,
+                            required: true,
+                            label: t("decidim.bih.admin.partner_profiles.form.display_name") %>
+      </div>
+      <div class="mi-admin-form__field">
+        <%= form.text_field :legal_name,
+                            label: t("decidim.bih.admin.partner_profiles.form.legal_name") %>
+      </div>
+      <div class="mi-admin-form__field">
+        <%= form.select :kind,
+                        Decidim::Bih::PartnerProfile::KINDS.map { |kind| [t("decidim.bih.partner_profiles.kinds.#{kind}"), kind] },
+                        { label: t("decidim.bih.admin.partner_profiles.form.kind") },
+                        required: true %>
+      </div>
+      <div class="mi-admin-form__field">
+        <%= form.url_field :website,
+                           label: t("decidim.bih.admin.partner_profiles.form.website") %>
+      </div>
+    </div>
+
+    <div class="mi-admin-form__field">
+      <%= form.text_field :slug,
+                          disabled: profile.persisted? && profile.verified?,
+                          label: t("decidim.bih.admin.partner_profiles.form.slug"),
+                          help_text: t(profile.persisted? && profile.verified? ?
+                            "decidim.bih.admin.partner_profiles.form.slug_locked_help" :
+                            "decidim.bih.admin.partner_profiles.form.slug_help") %>
+    </div>
+
+    <div class="mi-admin-form__field">
+      <%= form.text_area :public_description,
+                         rows: 5,
+                         maxlength: 5_000,
+                         label: t("decidim.bih.admin.partner_profiles.form.public_description") %>
+    </div>
+  </fieldset>
+
+  <fieldset class="mi-admin-form__section">
+    <legend class="mi-admin-form__legend"><%= t("decidim.bih.admin.partner_profiles.form.private_section") %></legend>
+    <p class="mi-admin-form__help"><%= t("decidim.bih.admin.partner_profiles.form.private_section_help") %></p>
+    <div class="mi-admin-form__grid">
+      <div class="mi-admin-form__field">
+        <%= form.text_field :private_contact_name,
+                            label: t("decidim.bih.admin.partner_profiles.form.private_contact_name") %>
+      </div>
+      <div class="mi-admin-form__field">
+        <%= form.email_field :private_contact_email,
+                             label: t("decidim.bih.admin.partner_profiles.form.private_contact_email") %>
+      </div>
+      <div class="mi-admin-form__field">
+        <%= form.text_field :private_contact_phone,
+                            inputmode: "tel",
+                            autocomplete: "tel",
+                            label: t("decidim.bih.admin.partner_profiles.form.private_contact_phone") %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="mi-admin-form__section">
+    <legend class="mi-admin-form__legend"><%= t("decidim.bih.admin.partner_profiles.form.verification_documents") %></legend>
+    <p class="mi-admin-form__help"><%= t("decidim.bih.admin.partner_profiles.form.verification_documents_private") %></p>
+    <% if profile.persisted? && profile.verification_documents.attached? %>
+      <ul>
+        <% profile.verification_documents.each do |document| %>
+          <li>
+            <%= link_to document.filename.to_s,
+                        Rails.application.routes.url_helpers.rails_blob_path(document, only_path: true),
+                        target: "_blank",
+                        rel: "noopener" %>
+            <small>(<%= number_to_human_size(document.byte_size) %>)</small>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="mi-admin-form__help"><%= t("decidim.bih.admin.partner_profiles.form.no_verification_documents") %></p>
+    <% end %>
+    <div class="mi-admin-form__field">
+      <%= form.file_field :verification_documents,
+                          multiple: true,
+                          accept: Decidim::Bih::PartnerProfile::VERIFICATION_DOCUMENT_CONTENT_TYPES.join(","),
+                          label: t("decidim.bih.admin.partner_profiles.form.add_verification_documents"),
+                          help_text: t("decidim.bih.admin.partner_profiles.form.verification_documents_help") %>
+    </div>
+  </fieldset>
+
+  <div class="mi-admin-form__footer">
+    <%= form.submit t("decidim.bih.admin.partner_profiles.form.save"),
+                    class: "button button__sm button__secondary" %>
+    <%= link_to t("decidim.bih.admin.partner_profiles.form.cancel"),
+                profile.persisted? ? partner_profile_path(profile) : partner_profiles_path,
+                class: "button button__sm button__transparent-secondary" %>
+  </div>
+<% end %>

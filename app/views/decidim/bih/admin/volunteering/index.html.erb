@@ -1,0 +1,107 @@
+<% add_decidim_page_title(t("decidim.bih.admin.volunteering.workspace.title")) %>
+<div class="mi-volunteering-workspace">
+<%= render "decidim/bih/admin/shared/navigation", current_item: :volunteering %>
+<% copy = "decidim.bih.admin.volunteering.workspace" %>
+
+<div class="card" id="admin-volunteering-header">
+  <div class="card-section">
+    <h1><%= t("#{copy}.title") %></h1>
+    <nav aria-label="<%= t("#{copy}.areas") %>" class="mi-volunteering-tabs" style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <% Decidim::Bih::Admin::VolunteeringRoster::TABS.each do |area| %>
+        <%= link_to admin_bih_volunteering_path(tab: area),
+                    class: "button button__sm #{@roster.tab == area ? 'button__secondary' : 'button__transparent-secondary'}",
+                    aria: { current: (@roster.tab == area ? "page" : nil) } do %>
+          <%= t("#{copy}.tabs.#{area}") %>
+          <% if @roster.counts[area.to_sym].positive? %>
+            <span class="badge"><%= @roster.counts[area.to_sym] %></span>
+          <% end %>
+        <% end %>
+      <% end %>
+    </nav>
+  </div>
+  <details class="card-section mi-volunteering-filter-details">
+    <summary><%= t("#{copy}.more_filters") %></summary>
+    <%= form_tag(admin_bih_volunteering_path, method: :get, class: "form form-defaults mi-admin-filter") do %>
+      <%= hidden_field_tag :tab, @roster.tab %>
+      <label><%= t("#{copy}.search") %><br><%= search_field_tag :q, @roster.filters[:q], maxlength: 100 %></label>
+      <label><%= t("#{copy}.status") %><br>
+        <%= select_tag :status, options_for_select(@roster.status_options.map { |status| [t("#{copy}.statuses.#{status}", default: t("#{copy}.opportunity_states.#{status}", default: status)), status] }, @roster.filters[:status]) %>
+      </label>
+      <% if @roster.tab == "applications" %>
+        <label><%= t("#{copy}.task") %><br>
+          <%= select_tag :task, options_for_select(Decidim::Bih::Admin::VolunteeringRoster::APPLICATION_TASKS.map { |task| [t("#{copy}.tasks.#{task}"), task] }, @roster.filters[:task]) %>
+        </label>
+      <% end %>
+      <details>
+        <summary><%= t("#{copy}.more_filters") %></summary>
+        <label><%= t("#{copy}.date") %><br><%= select_tag :date, options_for_select(%w(all upcoming recent).map { |key| [t("decidim.bih.admin.volunteering.index.date_filter.#{key}"), key] }, @roster.filters[:date]) %></label>
+        <label><%= t("#{copy}.category") %><br><%= select_tag :category, options_for_select([[t("#{copy}.all"), ""]] + @roster.category_options, @roster.filters[:category]) %></label>
+        <label><%= t("#{copy}.area") %><br><%= select_tag :komsiluk_id, options_for_select([[t("#{copy}.all"), ""]] + @roster.komsiluk_options, @roster.filters[:komsiluk_id]) %></label>
+      </details>
+      <%= submit_tag t("#{copy}.apply"), class: "button button__sm button__secondary" %>
+      <%= link_to t("#{copy}.reset"), admin_bih_volunteering_path(tab: @roster.tab), class: "button button__sm button__transparent-secondary" %>
+    <% end %>
+  </details>
+</div>
+<div id="admin-volunteering-list" class="card">
+  <div class="card-section">
+    <h2><%= t("#{copy}.tabs.#{@roster.tab}") %> <small>(<%= @roster.total_count %>)</small></h2>
+    <% if @roster.records.empty? %>
+      <p><%= t("#{copy}.empty.#{@roster.tab}") %></p>
+    <% else %>
+      <div class="table-stacked">
+        <table class="table-list">
+          <thead><tr>
+            <% case @roster.tab %>
+            <% when "opportunities" %>
+              <th><%= t("#{copy}.opportunity") %></th><th><%= t("#{copy}.organizer") %></th><th><%= t("#{copy}.next_term") %></th><th><%= t("#{copy}.status") %></th><th></th>
+            <% when "applications" %>
+              <th><%= t("#{copy}.person") %></th><th><%= t("#{copy}.opportunity") %></th><th><%= t("#{copy}.decision") %></th><th><%= t("#{copy}.place") %></th><th></th>
+            <% else %>
+              <th><%= t("#{copy}.person") %></th><th><%= t("#{copy}.work_date") %></th><th><%= t("#{copy}.opportunity") %></th><th><%= t("#{copy}.actual_hours") %></th><th><%= t("#{copy}.status") %></th><th></th>
+            <% end %>
+          </tr></thead>
+          <tbody>
+            <% @roster.records.each do |entry| %>
+              <% if @roster.tab == "opportunities" %>
+                <% opportunity = entry[:opportunity] %>
+                <tr id="volunteer-opportunity-<%= opportunity.id %>">
+                  <td data-label="<%= t("#{copy}.opportunity") %>"><strong><%= opportunity.title %></strong><br><small><%= t("#{copy}.term_count", count: entry[:term_count]) %></small></td>
+                  <td data-label="<%= t("#{copy}.organizer") %>"><%= opportunity.partner_name.presence || opportunity.author&.name.presence || t("#{copy}.foundation") %></td>
+                  <td data-label="<%= t("#{copy}.next_term") %>"><%= entry[:next_start] ? l(entry[:next_start].in_time_zone("Europe/Sarajevo"), format: :short) : t("#{copy}.unscheduled") %></td>
+                  <td data-label="<%= t("#{copy}.status") %>"><%= t("#{copy}.opportunity_states.#{opportunity.cancelled? ? 'cancelled' : opportunity.review_status}", default: opportunity.review_status) %></td>
+                  <td><%= link_to t("#{copy}.review"), admin_bih_volunteer_opportunity_path({ id: opportunity.id }.merge(@roster.filters)), class: "button button__sm button__secondary" %></td>
+                </tr>
+              <% elsif @roster.tab == "applications" %>
+                <% signup = entry %><% opportunity = signup.opportunity %>
+                <tr>
+                  <td data-label="<%= t("#{copy}.person") %>"><%= signup.user&.name %></td><td data-label="<%= t("#{copy}.opportunity") %>"><%= opportunity.title %><br><small><%= opportunity.time_frame_label %></small></td>
+                  <td data-label="<%= t("#{copy}.decision") %>"><%= t("#{copy}.application_states.#{signup.review_status}", default: signup.review_status) %></td>
+                  <td data-label="<%= t("#{copy}.place") %>"><%= t("#{copy}.seat_states.#{signup.status}", default: signup.status) %></td>
+                  <td><%= link_to t("#{copy}.review"), admin_bih_volunteer_opportunity_path({ id: opportunity.id, tab: "applications", anchor: "volunteer-signup-#{signup.id}" }.merge(@roster.filters)), class: "button button__sm button__secondary" %></td>
+                </tr>
+              <% else %>
+                <% log = entry %><% opportunity = log.opportunity %>
+                <tr>
+                  <td data-label="<%= t("#{copy}.person") %>"><%= log.user&.name %></td>
+                  <td data-label="<%= t("#{copy}.work_date") %>"><%= log.respond_to?(:work_date) && log.work_date ? l(log.work_date) : t("#{copy}.unknown_date") %></td>
+                  <td data-label="<%= t("#{copy}.opportunity") %>"><%= opportunity.title %><% if !opportunity.active? %><br><small><%= t("#{copy}.inactive") %></small><% end %></td>
+                  <td data-label="<%= t("#{copy}.actual_hours") %>"><%= log.hours %></td><td data-label="<%= t("#{copy}.status") %>"><%= t("#{copy}.claim_states.#{log.status}", default: log.status) %></td>
+                  <td><%= link_to t("#{copy}.review"), admin_bih_volunteer_opportunity_path({ id: opportunity.id, tab: "hours", anchor: "volunteer-log-#{log.id}" }.merge(@roster.filters)), class: "button button__sm button__secondary" %></td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+    <% if @roster.total_pages > 1 %>
+      <nav aria-label="<%= t("#{copy}.pages") %>" style="display:flex;gap:.5rem;align-items:center;">
+        <% if @roster.page > 1 %><%= link_to t("#{copy}.previous"), admin_bih_volunteering_path(@roster.filters.merge(page: @roster.page - 1)), class: "button button__sm button__transparent-secondary" %><% end %>
+        <span><%= t("#{copy}.page_of", page: @roster.page, total: @roster.total_pages) %></span>
+        <% if @roster.page < @roster.total_pages %><%= link_to t("#{copy}.next"), admin_bih_volunteering_path(@roster.filters.merge(page: @roster.page + 1)), class: "button button__sm button__transparent-secondary" %><% end %>
+      </nav>
+    <% end %>
+  </div>
+</div>
+</div>

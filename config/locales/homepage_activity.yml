@@ -1,0 +1,82 @@
+{
+  "sr": {
+    "decidim": {
+      "bih": {
+        "homepage_activity": {
+          "title": "Trenutno na platformi",
+          "report_title": "%{reference} · %{status}",
+          "kinds": {
+            "report": "Prijava problema",
+            "volunteering": "Volonterska prilika",
+            "organization": "Nova organizacija",
+            "notice": "Obavještenje organizacije"
+          }
+        }
+      }
+    }
+  },
+  "bs": {
+    "decidim": {
+      "bih": {
+        "homepage_activity": {
+          "title": "Trenutno na platformi",
+          "report_title": "%{reference} · %{status}",
+          "kinds": {
+            "report": "Prijava problema",
+            "volunteering": "Volonterska prilika",
+            "organization": "Nova organizacija",
+            "notice": "Obavještenje organizacije"
+          }
+        }
+      }
+    }
+  },
+  "hr": {
+    "decidim": {
+      "bih": {
+        "homepage_activity": {
+          "title": "Trenutno na platformi",
+          "report_title": "%{reference} · %{status}",
+          "kinds": {
+            "report": "Prijava problema",
+            "volunteering": "Volonterska prilika",
+            "organization": "Nova organizacija",
+            "notice": "Obavijest organizacije"
+          }
+        }
+      }
+    }
+  },
+  "en": {
+    "decidim": {
+      "bih": {
+        "homepage_activity": {
+          "title": "Currently on the platform",
+          "report_title": "%{reference} · %{status}",
+          "kinds": {
+            "report": "Problem report",
+            "volunteering": "Volunteer opportunity",
+            "organization": "New organization",
+            "notice": "Organization notice"
+          }
+        }
+      }
+    }
+  },
+  "sr-Cyrl": {
+    "decidim": {
+      "bih": {
+        "homepage_activity": {
+          "title": "Тренутно на платформи",
+          "report_title": "%{reference} · %{status}",
+          "kinds": {
+            "report": "Пријава проблема",
+            "volunteering": "Волонтерска прилика",
+            "organization": "Нова организација",
+            "notice": "Обавјештење организације"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "bs": {
+    "decidim": {
+      "bih": {
+        "reports": {
+          "public_statuses": {
+            "duplicate": "Duplikat — povezana prijava"
+          },
+          "statuses": {
+            "duplicate": "Duplikat — povezana prijava"
+          },
+          "duplicate_display": {
+            "explanation": "Ovaj problem obrađujemo kroz prijavu %{reference}. Vaša prijava i dopune su sačuvane.",
+            "unavailable": "Prijava je povezana s drugom prijavom istog problema.",
+            "main_status": "Status glavne prijave: %{status}",
+            "activity": "Prijava %{reference} povezana je s prijavom %{main_reference}."
+          }
+        },
+        "report_case": {
+          "states": {
+            "duplicate": "Duplikat — povezana prijava"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1619 @@
+== emergency_threat
+-- turn 1
+prompt: "Neko mi prijeti, bojim se"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "safety_guidance"
+answer_intent: "safety"
+tone: "core"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ako si u opasnosti, odmah pozovi policiju: 122. Nasilje u porodici: SOS telefon 1264, besplatno i 24 sata. Hitna pomoć 124, vatrogasci 123. Milica ne šalje hitne službe.
+== end emergency_threat
+
+== emergency_ambulance
+-- turn 1
+prompt: "Treba mi hitna pomoć odmah"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "safety_guidance"
+answer_intent: "safety"
+tone: "core"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ako si u opasnosti, odmah pozovi policiju: 122. Nasilje u porodici: SOS telefon 1264, besplatno i 24 sata. Hitna pomoć 124, vatrogasci 123. Milica ne šalje hitne službe.
+== end emergency_ambulance
+
+== emergency_domestic_violence_en
+-- turn 1
+prompt: "This is domestic violence, what do I do"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "safety_guidance"
+answer_intent: "safety"
+tone: "core"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ako si u opasnosti, odmah pozovi policiju: 122. Nasilje u porodici: SOS telefon 1264, besplatno i 24 sata. Hitna pomoć 124, vatrogasci 123. Milica ne šalje hitne službe.
+== end emergency_domestic_violence_en
+
+== emergency_signalled_message
+-- turn 1
+prompt: "Bojim se za svoju sigurnost"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "safety_guidance"
+answer_intent: "safety"
+tone: "core"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ako si u opasnosti, odmah pozovi policiju: 122. Nasilje u porodici: SOS telefon 1264, besplatno i 24 sata. Hitna pomoć 124, vatrogasci 123. Milica ne šalje hitne službe.
+== end emergency_signalled_message
+
+== emergency_cyrillic_police
+-- turn 1
+prompt: "Зови полицију, напали су ме"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "safety_guidance"
+answer_intent: "safety"
+tone: "core"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ако си у опасности, одмах позови полицију: 122. Насиље у породици: СОС телефон 1264, бесплатно и 24 сата. Хитна помоћ 124, ватрогасци 123. Милица не шаље хитне службе.
+== end emergency_cyrillic_police
+
+== emergency_after_cancel
+-- turn 1
+prompt: "Odustani. Neko mi prijeti."
+understanding: route
+model_calls: 0
+reads: []
+resolution: "safety_guidance"
+answer_intent: "safety"
+tone: "core"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ako si u opasnosti, odmah pozovi policiju: 122. Nasilje u porodici: SOS telefon 1264, besplatno i 24 sata. Hitna pomoć 124, vatrogasci 123. Milica ne šalje hitne službe.
+== end emergency_after_cancel
+
+== emergency_follow_up_after_answer
+-- turn 1
+prompt: "Neko mi prijeti"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "safety_guidance"
+answer_intent: "safety"
+tone: "core"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ako si u opasnosti, odmah pozovi policiju: 122. Nasilje u porodici: SOS telefon 1264, besplatno i 24 sata. Hitna pomoć 124, vatrogasci 123. Milica ne šalje hitne službe.
+-- turn 2
+prompt: "A šta ako se vrati sutra?"
+understanding: help/unknown/clarify
+model_calls: 1
+reads: []
+resolution: "clarification"
+answer_intent: "service"
+tone: nil
+quick_replies: [{:label=>"Želim prijaviti problem", :send=>"Želim prijaviti problem"}, {:label=>"Pomoć s nalogom", :send=>"Pomoć s nalogom"}, {:label=>"Kada se odvozi smeće?", :send=>"Kada se odvozi smeće?"}, {:label=>"Šta ima novo u mom komšiluku?", :send=>"Šta ima novo u mom komšiluku?"}]
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>"query", "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>1, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>"query", "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>1, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Želiš li prijaviti gradski problem, pomoć s nalogom, podatke o gradskoj usluzi ili informacije o komšiluku?
+== end emergency_follow_up_after_answer
+
+== allegation_corruption
+-- turn 1
+prompt: "Prijavljujem korupciju u opštini"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "unsupported"
+answer_intent: "moderation"
+tone: "core"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Navod nije isto što i utvrđena činjenica. Navedi datume, dokumente i ono čemu si lično svjedočio/la, bez prijetnji i ličnih podataka. Portal ne može utvrđivati krivičnu, prekršajnu ili drugu pravnu odgovornost.
+== end allegation_corruption
+
+== precedence_credentials_refused
+-- turn 1
+prompt: "Moj kod je 123456"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "unsupported"
+answer_intent: "setup"
+tone: "core"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Radi tvoje sigurnosti, nemoj slati kodove, lozinke ili podatke za prijavu u razgovor. Unesi ih samo u odgovarajuće polje na zvaničnoj stranici za prijavu ili potvrdu naloga.
+== end precedence_credentials_refused
+
+== precedence_personal_number_mentioned
+-- turn 1
+prompt: "Moj JMBG je 0101990123456"
+understanding: route
+model_calls: 1
+reads: []
+resolution: "clarification"
+answer_intent: "service"
+tone: nil
+quick_replies: [{:label=>"Želim prijaviti problem", :send=>"Želim prijaviti problem"}, {:label=>"Pomoć s nalogom", :send=>"Pomoć s nalogom"}, {:label=>"Kada se odvozi smeće?", :send=>"Kada se odvozi smeće?"}, {:label=>"Šta ima novo u mom komšiluku?", :send=>"Šta ima novo u mom komšiluku?"}]
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>"query", "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>1, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>"query", "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>1, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Želiš li prijaviti gradski problem, pomoć s nalogom, podatke o gradskoj usluzi ili informacije o komšiluku?
+== end precedence_personal_number_mentioned
+
+== civic_document_birth_certificate
+-- turn 1
+prompt: "Kako da izvadim rodni list"
+understanding: route
+model_calls: 0
+reads: ["ask_information/city_service/{\"query\"=>\"Kako da izvadim rodni list\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["proc:rodni-list"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"city_service", "pending_slot"=>nil, "entities"=>{"query"=>"Kako da izvadim rodni list"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"city_service", "pending_slot"=>nil, "entities"=>{"query"=>"Kako da izvadim rodni list"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Rodni list se vadi u matičnoj službi, šalter 3.
+Izvor: Grad Bijeljina
+Sadržaj provjeren: 1.9.2026.
+https://bijeljina.example/obavjestenja
+Provjereno: juče u 10:00
+== end civic_document_birth_certificate
+
+== civic_board_notices
+-- turn 1
+prompt: "Ima li obavjestenja na tabli mog komsiluka"
+understanding: route
+model_calls: 0
+reads: ["neighborhood_information/neighborhood/{\"query\"=>\"Ima li obavjestenja na tabli mog komsiluka\"}/sr"]
+resolution: "handoff"
+answer_intent: "komsiluk_read"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=true completed=false
+state: {"version"=>0, "active_task"=>"neighborhood_information", "topic"=>"neighborhood", "pending_slot"=>nil, "entities"=>{"query"=>"Ima li obavjestenja na tabli mog komsiluka"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"neighborhood_information", "topic"=>"neighborhood", "pending_slot"=>nil, "entities"=>{"query"=>"Ima li obavjestenja na tabli mog komsiluka"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovaj sadržaj treba odgovarajući nalog i pristup komšiluku. Sam izbor mjesta ne dodjeljuje pristup. Nalog: /mi/moj-nalog
+== end civic_board_notices
+
+== civic_earn_points
+-- turn 1
+prompt: "Kako da zaradim bodove"
+understanding: route
+model_calls: 0
+reads: ["ask_information/goodwill/{\"category\"=>\"earn\", \"query\"=>\"Kako da zaradim bodove\"}/sr"]
+resolution: "answered"
+answer_intent: "goodwill"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["goodwill:schedule"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"Kako da zaradim bodove", "category"=>"earn"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"Kako da zaradim bodove", "category"=>"earn"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Registracija nosi 20 bodova.
+Izvor: Bodovnik
+https://bijeljina.example/obavjestenja
+Provjereno: juče u 10:00
+== end civic_earn_points
+
+== civic_earn_points_phrase
+-- turn 1
+prompt: "kako se skupljaju bodovi"
+understanding: route
+model_calls: 0
+reads: ["ask_information/goodwill/{\"category\"=>\"earn\", \"query\"=>\"kako se skupljaju bodovi\"}/sr"]
+resolution: "unsupported"
+answer_intent: "goodwill"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"kako se skupljaju bodovi", "category"=>"earn"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"kako se skupljaju bodovi", "category"=>"earn"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+== end civic_earn_points_phrase
+
+== civic_earn_value
+-- turn 1
+prompt: "Koliko bodova nosi prijava problema"
+understanding: route
+model_calls: 0
+reads: ["ask_information/goodwill/{\"category\"=>\"earn\", \"query\"=>\"Koliko bodova nosi prijava problema\"}/sr"]
+resolution: "unsupported"
+answer_intent: "goodwill"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"Koliko bodova nosi prijava problema", "category"=>"earn"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"Koliko bodova nosi prijava problema", "category"=>"earn"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+== end civic_earn_value
+
+== civic_pharmacy_tonight
+-- turn 1
+prompt: "Ima li dežurna apoteka noćas?"
+understanding: route
+model_calls: 0
+reads: ["ask_information/health/{\"query\"=>\"Ima li dežurna apoteka noćas?\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["health:apoteka"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"health", "pending_slot"=>nil, "entities"=>{"query"=>"Ima li dežurna apoteka noćas?"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"health", "pending_slot"=>nil, "entities"=>{"query"=>"Ima li dežurna apoteka noćas?"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Dežurna apoteka: Zdravlje, Karađorđeva 5, 0-24.
+Izvor: Dom zdravlja Bijeljina
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 08:00
+== end civic_pharmacy_tonight
+
+== civic_invitation_status
+-- turn 1
+prompt: "Jesam li pozvan na 17.9?"
+understanding: route
+model_calls: 0
+reads: ["ask_information/goodwill/{\"category\"=>\"invitation\", \"query\"=>\"Jesam li pozvan na 17.9?\"}/sr"]
+resolution: "answered"
+answer_intent: "goodwill"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["launch:invitation"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"Jesam li pozvan na 17.9?", "category"=>"invitation"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"Jesam li pozvan na 17.9?", "category"=>"invitation"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Imaš rezervaciju broj 128.
+Izvor: Lansiranje
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 09:00
+== end civic_invitation_status
+
+== civic_invitation_reservation_number
+-- turn 1
+prompt: "moj broj rezervacije"
+understanding: route
+model_calls: 0
+reads: ["ask_information/goodwill/{\"category\"=>\"invitation\", \"query\"=>\"moj broj rezervacije\"}/sr"]
+resolution: "unsupported"
+answer_intent: "goodwill"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"moj broj rezervacije", "category"=>"invitation"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"moj broj rezervacije", "category"=>"invitation"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+== end civic_invitation_reservation_number
+
+== civic_launch_date
+-- turn 1
+prompt: "kada je lansiranje platforme"
+understanding: route
+model_calls: 0
+reads: ["ask_information/goodwill/{\"category\"=>\"invitation\", \"query\"=>\"kada je lansiranje platforme\"}/sr"]
+resolution: "unsupported"
+answer_intent: "goodwill"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"kada je lansiranje platforme", "category"=>"invitation"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"kada je lansiranje platforme", "category"=>"invitation"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+== end civic_launch_date
+
+== civic_komsiluk_mine
+-- turn 1
+prompt: "Koji je moj komšiluk?"
+understanding: route
+model_calls: 0
+reads: ["ask_information/goodwill/{\"category\"=>\"komsiluk\", \"query\"=>\"Koji je moj komšiluk?\"}/sr"]
+resolution: "answered"
+answer_intent: "goodwill"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["own:komsiluk"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"Koji je moj komšiluk?", "category"=>"komsiluk"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"Koji je moj komšiluk?", "category"=>"komsiluk"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Tvoj komšiluk je Dvorovi.
+Izvor: Platforma
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 09:00
+== end civic_komsiluk_mine
+
+== civic_komsiluk_registered_where
+-- turn 1
+prompt: "u kom sam komsiluku"
+understanding: route
+model_calls: 0
+reads: ["ask_information/goodwill/{\"category\"=>\"komsiluk\", \"query\"=>\"u kom sam komsiluku\"}/sr"]
+resolution: "unsupported"
+answer_intent: "goodwill"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"u kom sam komsiluku", "category"=>"komsiluk"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"u kom sam komsiluku", "category"=>"komsiluk"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+== end civic_komsiluk_registered_where
+
+== civic_mz_contact
+-- turn 1
+prompt: "Ko je predsjednik mz Janja"
+understanding: route
+model_calls: 0
+reads: ["choose_area/neighborhood/{\"area_query\"=>\"janja\", \"query\"=>\"Ko je predsjednik mz Janja\"}/sr"]
+resolution: "answered"
+answer_intent: "local_area_guidance"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["mz:janja"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"choose_area", "topic"=>"neighborhood", "pending_slot"=>nil, "entities"=>{"query"=>"Ko je predsjednik mz Janja", "area_query"=>"janja"}, "entity_provenance"=>{"query"=>"citizen", "area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"choose_area", "topic"=>"neighborhood", "pending_slot"=>nil, "entities"=>{"query"=>"Ko je predsjednik mz Janja", "area_query"=>"janja"}, "entity_provenance"=>{"query"=>"citizen", "area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Predsjednik MZ Janja: Marko Marković, 055/123-456.
+Izvor: Imenik mjesnih zajednica
+https://bijeljina.example/obavjestenja
+Provjereno: 12.9.2026. u 11:00
+== end civic_mz_contact
+
+== civic_mz_contact_no_area
+-- turn 1
+prompt: "ko je predsjednik moje mjesne zajednice"
+understanding: route
+model_calls: 0
+reads: ["choose_area/neighborhood/{\"query\"=>\"ko je predsjednik moje mjesne zajednice\"}/sr"]
+resolution: "clarification"
+answer_intent: "local_area_guidance"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"choose_area", "topic"=>"neighborhood", "pending_slot"=>"area_query", "entities"=>{"query"=>"ko je predsjednik moje mjesne zajednice"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>1, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"choose_area", "topic"=>"neighborhood", "pending_slot"=>"area_query", "entities"=>{"query"=>"ko je predsjednik moje mjesne zajednice"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>1, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+U kojem naselju ili ulici? Možeš navesti mjesto bez dijeljenja trenutne lokacije.
+== end civic_mz_contact_no_area
+
+== service_waste_schedule_facts
+-- turn 1
+prompt: "Kada se odvozi smeće u Dvorovima?"
+understanding: ask_information/waste/start
+model_calls: 1
+reads: ["ask_information/waste/{\"area_query\"=>\"Dvorovi\"}/sr"]
+resolution: "answered"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["waste:dvorovi"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Smeće se odvozi utorkom i petkom.
+Izvor: Eko-dep
+Datum na koji se obavještenje odnosi: 15.9.2026.
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 07:00
+Područje i vrijeme: Dvorovi
+== end service_waste_schedule_facts
+
+== service_stale_read
+-- turn 1
+prompt: "Ima li prekida struje u Janji?"
+understanding: ask_information/electricity/start
+model_calls: 1
+reads: ["ask_information/electricity/{\"area_query\"=>\"Janja\", \"query\"=>\"prekid struje\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["elec:janja"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"electricity", "pending_slot"=>nil, "entities"=>{"area_query"=>"Janja", "query"=>"prekid struje"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"electricity", "pending_slot"=>nil, "entities"=>{"area_query"=>"Janja", "query"=>"prekid struje"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Radovi u Janji od 8 do 14.
+Izvor: Elektro Bijeljina
+Početak važenja: 11.9.2026.
+https://bijeljina.example/obavjestenja
+
+Ovaj podatak je zastario; ne mogu potvrditi da još važi.
+Provjereno: 10.9.2026. u 07:00
+== end service_stale_read
+
+== service_empty_read
+-- turn 1
+prompt: "Ima li obustava vode danas?"
+understanding: ask_information/water/start
+model_calls: 1
+reads: ["ask_information/water/{\"area_query\"=>\"Bijeljina\", \"query\"=>\"obustava vode danas\"}/sr"]
+resolution: "unsupported"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Bijeljina", "query"=>"obustava vode danas"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Bijeljina", "query"=>"obustava vode danas"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+Izvor: Vodovod Bijeljina
+Provjereno: danas u 08:00
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+== end service_empty_read
+
+== service_unavailable_read
+-- turn 1
+prompt: "Kakvo je stanje sa grijanjem?"
+understanding: ask_information/heating/start
+model_calls: 1
+reads: ["ask_information/heating/{\"area_query\"=>\"Centar\", \"query\"=>\"stanje grijanja\"}/sr"]
+resolution: "source_unavailable"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"heating", "pending_slot"=>nil, "entities"=>{"area_query"=>"Centar", "query"=>"stanje grijanja"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"heating", "pending_slot"=>nil, "entities"=>{"area_query"=>"Centar", "query"=>"stanje grijanja"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ovaj izvor mi trenutno nije dostupan, pa ne mogu provjeriti. Probaj za nekoliko minuta ili preko podrške: /pages/pomoc
+
+Odgovor važi samo za navedeni izvor, područje i vrijeme; nije potvrda trenutnog stanja na terenu.
+== end service_unavailable_read
+
+== service_unreviewed_read
+-- turn 1
+prompt: "Da li je put za Amajlije zatvoren?"
+understanding: ask_information/roads/start
+model_calls: 1
+reads: ["ask_information/roads/{\"area_query\"=>\"Amajlije\"}/sr"]
+resolution: "source_unavailable"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"roads", "pending_slot"=>nil, "entities"=>{"area_query"=>"Amajlije"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"roads", "pending_slot"=>nil, "entities"=>{"area_query"=>"Amajlije"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Izvor postoji, ali sadržaj još nije pregledan za odgovor građanima. Provjeri preko podrške: /pages/pomoc
+
+Odgovor važi samo za navedeni izvor, područje i vrijeme; nije potvrda trenutnog stanja na terenu.
+== end service_unreviewed_read
+
+== service_conflicting_facts
+-- turn 1
+prompt: "Radi li most preko Drine?"
+understanding: ask_information/roads/start
+model_calls: 1
+reads: ["ask_information/roads/{\"area_query\"=>\"Drina\"}/sr"]
+resolution: "source_unavailable"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"roads", "pending_slot"=>nil, "entities"=>{"area_query"=>"Drina"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"roads", "pending_slot"=>nil, "entities"=>{"area_query"=>"Drina"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Važeći navodi izvora se ne slažu. Ne mogu potvrditi koji je tačan; provjerite oba citirana obavještenja kod nadležne službe.
+
+Most je otvoren.
+Izvor: Grad Bijeljina
+https://bijeljina.example/obavjestenja
+
+Most je zatvoren.
+Izvor: Grad Bijeljina
+https://bijeljina.example/obavjestenja
+== end service_conflicting_facts
+
+== service_water_level_compaction
+-- turn 1
+prompt: "Koliki je vodostaj Drine?"
+understanding: ask_information/water_levels/start
+model_calls: 1
+reads: ["ask_information/water_levels/{\"query\"=>\"Koliki je vodostaj Drine?\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["wl:drina", "wl:sava"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"water_levels", "pending_slot"=>nil, "entities"=>{"query"=>"vodostaj Drine"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"water_levels", "pending_slot"=>nil, "entities"=>{"query"=>"vodostaj Drine"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Drina kod Bijeljine: 212 cm.
+Vrijeme mjerenja ili zapažanja: danas u 08:00
+
+Sava kod Brčkog: 301 cm.
+Vrijeme mjerenja ili zapažanja: danas u 08:00
+
+Izvor: RHMZ
+https://rhmz.example/vodostaji
+Provjereno: danas u 08:00
+
+Odgovor važi samo za navedeni izvor, područje i vrijeme; nije potvrda trenutnog stanja na terenu.
+== end service_water_level_compaction
+
+== service_event_grouping
+-- turn 1
+prompt: "Ima li radova na vodovodu?"
+understanding: ask_information/water/start
+model_calls: 1
+reads: ["ask_information/water/{\"area_query\"=>\"Dvorovi\", \"query\"=>\"radovi na vodovodu\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["ev:1", "ev:2"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"radovi na vodovodu"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"radovi na vodovodu"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Za sljedeća obavještenja iz ovog izvora: od 8 do 14
+
+Radovi na mreži u Dvorovima. cijelo naselje
+Datum na koji se obavještenje odnosi: 15.9.2026.
+
+Zamjena ventila u ulici Svetog Save.
+Datum na koji se obavještenje odnosi: 16.9.2026.
+
+Izvor: Vodovod Bijeljina
+https://vodovod.example/radovi
+Provjereno: danas u 08:00
+
+Područje i vrijeme: Dvorovi
+== end service_event_grouping
+
+== service_ambiguous_then_area
+-- turn 1
+prompt: "Kada se odvozi smeće?"
+understanding: ask_information/waste/start
+model_calls: 1
+reads: ["ask_information/waste/{\"query\"=>\"odvoz smeća\"}/sr"]
+resolution: "unsupported"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"query"=>"odvoz smeća"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"query"=>"odvoz smeća"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+-- turn 2
+prompt: "U Dvorovima"
+understanding: ask_information/waste/continue
+model_calls: 1
+reads: ["ask_information/waste/{\"area_query\"=>\"Dvorovi\", \"query\"=>\"odvoz smeća\"}/sr"]
+resolution: "answered"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["waste:dvorovi"]
+handoff: offered=false completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"query"=>"odvoz smeća", "area_query"=>"Dvorovi"}, "entity_provenance"=>{"query"=>"citizen", "area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"query"=>"odvoz smeća", "area_query"=>"Dvorovi"}, "entity_provenance"=>{"query"=>"citizen", "area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Smeće se odvozi utorkom i petkom.
+Izvor: Grad Bijeljina
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 07:00
+== end service_ambiguous_then_area
+
+== service_unsupported_topic_clarify
+-- turn 1
+prompt: "Šta ima novo?"
+understanding: ask_information/unknown/start
+model_calls: 1
+reads: []
+resolution: "clarification"
+answer_intent: "service"
+tone: nil
+quick_replies: [{:label=>"Želim prijaviti problem", :send=>"Želim prijaviti problem"}, {:label=>"Pomoć s nalogom", :send=>"Pomoć s nalogom"}, {:label=>"Kada se odvozi smeće?", :send=>"Kada se odvozi smeće?"}, {:label=>"Šta ima novo u mom komšiluku?", :send=>"Šta ima novo u mom komšiluku?"}]
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"unknown", "pending_slot"=>"query", "entities"=>{"query"=>"šta ima novo"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>1, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"unknown", "pending_slot"=>"query", "entities"=>{"query"=>"šta ima novo"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>1, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Želiš li prijaviti gradski problem, pomoć s nalogom, podatke o gradskoj usluzi ili informacije o komšiluku?
+== end service_unsupported_topic_clarify
+
+== registration_handoff
+-- turn 1
+prompt: "Kako da se registrujem?"
+understanding: registration/account/start
+model_calls: 1
+reads: []
+resolution: "handoff"
+answer_intent: "setup"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=true completed=false
+state: {"version"=>0, "active_task"=>"registration", "topic"=>"account", "pending_slot"=>nil, "entities"=>{"query"=>"kako da se registrujem"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"registration", "topic"=>"account", "pending_slot"=>nil, "entities"=>{"query"=>"kako da se registrujem"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Hajde da otvorimo nalog — traje minut: /registracija
+Kad završiš, vrati se u razgovor; sačuvala sam gdje smo stali.
+== end registration_handoff
+
+== registration_phone_purpose
+-- turn 1
+prompt: "Zašto je potreban broj telefona za registraciju?"
+understanding: ask_information/account/start
+model_calls: 1
+reads: []
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=true completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"account", "pending_slot"=>nil, "entities"=>{"query"=>"zasto treba telefon za registraciju"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"account", "pending_slot"=>nil, "entities"=>{"query"=>"zasto treba telefon za registraciju"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Pri registraciji telefonom, broj služi za potvrdu pristupa i kasniju prijavu. Unesi ga u obrazac; kod ili vezu iz poruke koristi u postupku potvrde, ne u ovom razgovoru. Ovdje nisam poslala kod niti potvrdila nalog. Podržani sljedeći korak: /registracija
+== end registration_phone_purpose
+
+== registration_sign_in
+-- turn 1
+prompt: "Hoću da se prijavim"
+understanding: sign_in/account/start
+model_calls: 1
+reads: []
+resolution: "handoff"
+answer_intent: "setup"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=true completed=false
+state: {"version"=>0, "active_task"=>"sign_in", "topic"=>"account", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"sign_in", "topic"=>"account", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Prijavi se na postojeći nalog ovdje: /users/sign_in
+== end registration_sign_in
+
+== registration_verification_completed
+-- turn 1
+prompt: "Da li je moj broj potvrđen?"
+understanding: verification/account/start
+model_calls: 0
+reads: ["ask_information/goodwill/{\"category\"=>\"verification\", \"query\"=>\"Da li je moj broj potvrđen?\"}/sr"]
+resolution: "answered"
+answer_intent: "goodwill"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["account:verification"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"Da li je moj broj potvrđen?", "category"=>"verification"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"goodwill", "pending_slot"=>nil, "entities"=>{"query"=>"Da li je moj broj potvrđen?", "category"=>"verification"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Broj telefona je potvrđen.
+Izvor: Grad Bijeljina
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 11:00
+== end registration_verification_completed
+
+== registration_change_area
+-- turn 1
+prompt: "Hoću da promijenim komšiluk"
+understanding: change_area/account/start
+model_calls: 1
+reads: []
+resolution: "handoff"
+answer_intent: "setup"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=true completed=false
+state: {"version"=>0, "active_task"=>"change_area", "topic"=>"account", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"change_area", "topic"=>"account", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Podržani sljedeći korak je ovdje: /mi/moj-nalog
+== end registration_change_area
+
+== catalogue_budget
+-- turn 1
+prompt: "Koliki je budžet za 2026?"
+understanding: ask_information/budget/start
+model_calls: 1
+reads: ["ask_information/budget/{\"query\"=>\"budzet 2026\"}/sr"]
+resolution: "answered"
+answer_intent: "budget"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["budget:2026"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"budget", "pending_slot"=>nil, "entities"=>{"query"=>"budzet 2026"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"budget", "pending_slot"=>nil, "entities"=>{"query"=>"budzet 2026"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Budžet za 2026. iznosi 48.000.000 KM.
+Izvor: Budžet Grada
+Sadržaj provjeren: 30.8.2026.
+https://bijeljina.example/obavjestenja
+Provjereno: 1.9.2026. u 11:00
+== end catalogue_budget
+
+== catalogue_gazette
+-- turn 1
+prompt: "Gdje je službeni glasnik?"
+understanding: ask_information/gazette/start
+model_calls: 1
+reads: ["ask_information/gazette/{\"query\"=>\"sluzbeni glasnik\"}/sr"]
+resolution: "answered"
+answer_intent: "gazette"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["gazette:7"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"gazette", "pending_slot"=>nil, "entities"=>{"query"=>"sluzbeni glasnik"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"gazette", "pending_slot"=>nil, "entities"=>{"query"=>"sluzbeni glasnik"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Službeni glasnik broj 7/2026.
+Izvor: Službeni glasnik
+Izvor objavio: 5.9.2026.
+https://bijeljina.example/obavjestenja
+Provjereno: 10.9.2026. u 11:00
+== end catalogue_gazette
+
+== catalogue_rewards
+-- turn 1
+prompt: "Koje nagrade mogu dobiti?"
+understanding: ask_information/rewards/start
+model_calls: 1
+reads: ["ask_information/rewards/{\"query\"=>\"nagrade\"}/sr"]
+resolution: "answered"
+answer_intent: "goodwill"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["reward:1"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"rewards", "pending_slot"=>nil, "entities"=>{"query"=>"nagrade"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"rewards", "pending_slot"=>nil, "entities"=>{"query"=>"nagrade"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Pozivnica za lansiranje — 20 bodova.
+Izvor: Katalog nagrada
+https://bijeljina.example/obavjestenja
+Provjereno: juče u 11:00
+== end catalogue_rewards
+
+== catalogue_donation
+-- turn 1
+prompt: "Kako mogu donirati?"
+understanding: ask_information/donation/start
+model_calls: 0
+reads: ["ask_information/community/{\"category\"=>\"organizacija\", \"query\"=>\"Kako mogu donirati?\"}/sr"]
+resolution: "answered"
+answer_intent: "participation_guidance"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["donation:1"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"community", "pending_slot"=>nil, "entities"=>{"query"=>"Kako mogu donirati?", "category"=>"organizacija"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"community", "pending_slot"=>nil, "entities"=>{"query"=>"Kako mogu donirati?", "category"=>"organizacija"}, "entity_provenance"=>{"query"=>"citizen", "category"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Donacije se uplaćuju na račun fondacije.
+Izvor: Fondacija
+https://bijeljina.example/obavjestenja
+Provjereno: 11.9.2026. u 11:00
+== end catalogue_donation
+
+== catalogue_volunteer_empty
+-- turn 1
+prompt: "Ima li volonterskih akcija?"
+understanding: ask_information/volunteer/start
+model_calls: 1
+reads: ["ask_information/volunteer/{\"query\"=>\"volonterske akcije\"}/sr"]
+resolution: "unsupported"
+answer_intent: "volunteer_guidance"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"volunteer", "pending_slot"=>nil, "entities"=>{"query"=>"volonterske akcije"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"volunteer", "pending_slot"=>nil, "entities"=>{"query"=>"volonterske akcije"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+Provjereno: danas u 11:00
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+== end catalogue_volunteer_empty
+
+== catalogue_public_calls_empty
+-- turn 1
+prompt: "Ima li otvorenih javnih poziva?"
+understanding: ask_information/public_calls/start
+model_calls: 1
+reads: ["ask_information/public_calls/{\"query\"=>\"javni pozivi\"}/sr"]
+resolution: "unsupported"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"public_calls", "pending_slot"=>nil, "entities"=>{"query"=>"javni pozivi"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"public_calls", "pending_slot"=>nil, "entities"=>{"query"=>"javni pozivi"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+Provjereno: danas u 11:00
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+== end catalogue_public_calls_empty
+
+== control_thanks
+-- turn 1
+prompt: "hvala ti puno"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "answered"
+answer_intent: "help"
+tone: "neighborly"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Nema na čemu. Ako još nešto zapne, tu sam.
+== end control_thanks
+
+== control_greeting_cyrillic
+-- turn 1
+prompt: "Здраво"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "answered"
+answer_intent: "help"
+tone: "neighborly"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ћао! Ја сам Комшиница Милица. Ти објасни људски, ја ћу превести на формуларски. Од чега крећемо: рупа, аутобус, одвоз, буџет или налог?
+== end control_greeting_cyrillic
+
+== control_capabilities
+-- turn 1
+prompt: "Šta sve znaš?"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "answered"
+answer_intent: "help"
+tone: "neighborly"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ne treba ti naziv odjeljenja ni broj kancelarije. Reci ljudski šta ti treba: prijava problema, status, gradska usluga, odvoz otpada, parking, autobus, budžet, Službeni glasnik, tvoj Komšiluk, ideja, glasanje, volontiranje, bodovi ili projekti. Ja ću pohvatati konce.
+== end control_capabilities
+
+== control_help_keyword
+-- turn 1
+prompt: "pomoc"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "clarification"
+answer_intent: "help"
+tone: "core"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Želiš li prijaviti gradski problem, pomoć s nalogom, podatke o gradskoj usluzi ili informacije o komšiluku?
+== end control_help_keyword
+
+== control_farewell
+-- turn 1
+prompt: "doviđenja"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "answered"
+answer_intent: "help"
+tone: "neighborly"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: nil
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Ćao! Navrati kad god nešto zapne.
+== end control_farewell
+
+== control_resume_nothing
+-- turn 1
+prompt: "nastavi"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "answered"
+answer_intent: "help"
+tone: "neighborly"
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Nemam sačuvano pitanje. Šta te zanima?
+== end control_resume_nothing
+
+== control_clear_conversation
+-- turn 1
+prompt: "novi razgovor"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "cancelled"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+U redu, odustali smo od ovog zadatka. Šta želiš dalje?
+== end control_clear_conversation
+
+== control_cancel_then_question
+-- turn 1
+prompt: "Odustajem od prijave. Kako da izvadim rodni list?"
+understanding: route
+model_calls: 0
+reads: ["ask_information/city_service/{\"query\"=>\"Kako da izvadim rodni list?\"}/sr"]
+resolution: "unsupported"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"city_service", "pending_slot"=>nil, "entities"=>{"query"=>"Kako da izvadim rodni list?"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"city_service", "pending_slot"=>nil, "entities"=>{"query"=>"Kako da izvadim rodni list?"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+U redu, odustali smo od prethodnog zadatka.
+
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+== end control_cancel_then_question
+
+== continuity_evidence_source
+-- turn 1
+prompt: "Kada se odvozi smeće u Dvorovima?"
+understanding: ask_information/waste/start
+model_calls: 1
+reads: ["ask_information/waste/{\"area_query\"=>\"Dvorovi\"}/sr"]
+resolution: "answered"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["waste:dvorovi"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Smeće se odvozi utorkom i petkom.
+Izvor: Grad Bijeljina
+Datum na koji se obavještenje odnosi: 15.9.2026.
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 07:00
+Područje i vrijeme: Dvorovi
+-- turn 2
+prompt: "odakle ti to"
+understanding: route
+model_calls: 0
+reads: ["follow_up:reference/{:message=>\"odakle ti to\", :source_ids=>[\"grad_bijeljina\"]}/sr"]
+resolution: "answered"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["waste:dvorovi"]
+handoff: offered=false completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Posljednji sačuvani činjenični odgovor naveo je izvor: Grad Bijeljina
+== end continuity_evidence_source
+
+== continuity_evidence_date
+-- turn 1
+prompt: "Kada se odvozi smeće u Dvorovima?"
+understanding: ask_information/waste/start
+model_calls: 1
+reads: ["ask_information/waste/{\"area_query\"=>\"Dvorovi\"}/sr"]
+resolution: "answered"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["waste:dvorovi"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Smeće se odvozi utorkom i petkom.
+Izvor: Grad Bijeljina
+Datum na koji se obavještenje odnosi: 15.9.2026.
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 07:00
+Područje i vrijeme: Dvorovi
+-- turn 2
+prompt: "za koji datum vazi"
+understanding: route
+model_calls: 0
+reads: ["follow_up:reference/{:message=>\"za koji datum vazi\", :source_ids=>[\"grad_bijeljina\"]}/sr"]
+resolution: "answered"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["waste:dvorovi"]
+handoff: offered=false completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Podatak 1 (Grad Bijeljina) — važenje: 15.9.2026.
+== end continuity_evidence_date
+
+== continuity_evidence_disagreement
+-- turn 1
+prompt: "Kada se odvozi smeće u Dvorovima?"
+understanding: ask_information/waste/start
+model_calls: 1
+reads: ["ask_information/waste/{\"area_query\"=>\"Dvorovi\"}/sr"]
+resolution: "answered"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["waste:dvorovi"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Smeće se odvozi utorkom i petkom.
+Izvor: Grad Bijeljina
+Datum na koji se obavještenje odnosi: 15.9.2026.
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 07:00
+Područje i vrijeme: Dvorovi
+-- turn 2
+prompt: "nije tako kod mene"
+understanding: route
+model_calls: 0
+reads: ["follow_up:reference/{:message=>\"nije tako kod mene\", :source_ids=>[\"grad_bijeljina\"]}/sr"]
+resolution: "handoff"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["waste:dvorovi"]
+handoff: offered=true completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Hvala što si navela drukčije stanje. To ne mijenja izvor ni objavu; možeš provjeriti ili prijaviti stanje ovdje: /mi/prijavi
+== end continuity_evidence_disagreement
+
+== continuity_evidence_without_prior_answer
+-- turn 1
+prompt: "odakle ti to"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "clarification"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>nil, "topic"=>"unknown", "pending_slot"=>nil, "entities"=>{}, "entity_provenance"=>{}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Nemam više provjerljiv sačuvani činjenični odgovor. Ponovno napiši uslugu ili područje koje želiš provjeriti.
+== end continuity_evidence_without_prior_answer
+
+== continuity_walking_stop_request
+-- turn 1
+prompt: "Kako do autobuske stanice iz Dvorova?"
+understanding: ask_information/transport/start
+model_calls: 1
+reads: ["ask_information/transport/{\"query\"=>\"Kako do autobuske stanice iz Dvorova?\", \"stop\"=>\"Dvorovi\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["transport_stop:abc123def456"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"transport", "pending_slot"=>nil, "entities"=>{"query"=>"od Dvorova do stanice", "stop"=>"Dvorovi"}, "entity_provenance"=>{"query"=>"citizen", "stop"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"transport", "pending_slot"=>nil, "entities"=>{"query"=>"od Dvorova do stanice", "stop"=>"Dvorovi"}, "entity_provenance"=>{"query"=>"citizen", "stop"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Polazna stanica: Dvorovi (centar).
+Izvor: Registar stajališta
+Provjereno: danas u 09:00
+-- turn 2
+prompt: "kako da pjeske stignem do te stanice"
+understanding: route
+model_calls: 0
+reads: ["follow_up:reference/{:message=>\"kako da pjeske stignem do te stanice\", :source_ids=>[\"public_transport_stop_registry\"]}/sr", "follow_up:walking/{:stop_id=>\"transport_stop:abc123def456\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["transport_stop:abc123def456"]
+handoff: offered=false completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"transport", "pending_slot"=>nil, "entities"=>{"query"=>"od Dvorova do stanice", "stop"=>"Dvorovi"}, "entity_provenance"=>{"query"=>"citizen", "stop"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"transport", "pending_slot"=>nil, "entities"=>{"query"=>"od Dvorova do stanice", "stop"=>"Dvorovi"}, "entity_provenance"=>{"query"=>"citizen", "stop"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Pješačenje do stanice Dvorovi (centar): 7 minuta.
+Izvor: Registar stajališta
+https://karta.example/dvorovi
+== end continuity_walking_stop_request
+
+== continuity_service_contact_follow_up
+-- turn 1
+prompt: "Ima li obustave vode u Dvorovima?"
+understanding: ask_information/water/start
+model_calls: 1
+reads: ["ask_information/water/{\"area_query\"=>\"Dvorovi\", \"query\"=>\"obustava vode\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["service:vodovod"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Vodovod Bijeljina održava mrežu u Dvorovima.
+Izvor: Vodovod Bijeljina
+Provjereno: danas u 08:00
+-- turn 2
+prompt: "koji je njihov broj telefona"
+understanding: route
+model_calls: 0
+reads: ["follow_up:reference/{:message=>\"koji je njihov broj telefona\", :source_ids=>[\"city_services:vodovod\"]}/sr", "follow_up:service/{:focus=>\"contact\", :source_id=>\"city_services:vodovod\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["service:vodovod"]
+handoff: offered=false completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Vodovod Bijeljina, telefon 055/210-000.
+Izvor: Vodovod Bijeljina
+Provjereno: danas u 08:00
+== end continuity_service_contact_follow_up
+
+== continuity_procedure_fee_follow_up
+-- turn 1
+prompt: "Kako se vadi uvjerenje o prebivalištu?"
+understanding: ask_information/city_service/start
+model_calls: 1
+reads: ["ask_information/city_service/{\"query\"=>\"uvjerenje o prebivalistu\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["procedure:uvjerenje"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"city_service", "pending_slot"=>nil, "entities"=>{"query"=>"uvjerenje o prebivalistu"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"city_service", "pending_slot"=>nil, "entities"=>{"query"=>"uvjerenje o prebivalistu"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Uvjerenje o prebivalištu izdaje MUP, šalter 2.
+Izvor: Grad Bijeljina
+Provjereno: juče u 10:00
+-- turn 2
+prompt: "koliko to kosta"
+understanding: route
+model_calls: 0
+reads: ["follow_up:reference/{:message=>\"koliko to kosta\", :source_ids=>[\"procedure:uvjerenje\"]}/sr", "follow_up:procedure/{:focus=>\"fee\", :procedure_id=>\"procedure:uvjerenje\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["procedure:uvjerenje"]
+handoff: offered=false completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"city_service", "pending_slot"=>nil, "entities"=>{"query"=>"uvjerenje o prebivalistu"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"city_service", "pending_slot"=>nil, "entities"=>{"query"=>"uvjerenje o prebivalistu"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Taksa iznosi 5 KM.
+Izvor: Grad Bijeljina
+Provjereno: juče u 10:00
+== end continuity_procedure_fee_follow_up
+
+== continuity_utility_household_scope
+-- turn 1
+prompt: "Ima li obustave vode u Dvorovima?"
+understanding: ask_information/water/start
+model_calls: 1
+reads: ["ask_information/water/{\"area_query\"=>\"Dvorovi\", \"query\"=>\"obustava vode\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["water:dvorovi"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Obustava vode u Dvorovima od 9 do 13.
+Izvor: Grad Bijeljina
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 08:00
+-- turn 2
+prompt: "Znači li to da je svaka kuća u Dvorovima bez vode?"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Sam naziv naselja u obavještenju ne potvrđuje da je svaka kuća bez usluge. Za određenu adresu potreban je izričit obuhvat iz objave ili potvrda pružaoca usluge. Ne mogu potvrditi stanje u svim domaćinstvima.
+== end continuity_utility_household_scope
+
+== continuity_public_reference_follow_up
+-- turn 1
+prompt: "Ima li obustave vode u Dvorovima?"
+understanding: ask_information/water/start
+model_calls: 1
+reads: ["ask_information/water/{\"area_query\"=>\"Dvorovi\", \"query\"=>\"obustava vode\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["water:dvorovi"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Obustava vode u Dvorovima od 9 do 13.
+Izvor: Grad Bijeljina
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 08:00
+-- turn 2
+prompt: "A gdje to piše?"
+understanding: route
+model_calls: 0
+reads: ["follow_up:reference/{:message=>\"A gdje to piše?\", :source_ids=>[\"grad_bijeljina\"]}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["water:dvorovi:ref"]
+handoff: offered=false completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"water", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"obustava vode"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Objavljeno na stranici Vodovoda, 14.9.2026.
+Izvor: Grad Bijeljina
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 08:00
+== end continuity_public_reference_follow_up
+
+== continuity_correction_repair
+-- turn 1
+prompt: "Kada se odvozi smeće u Dvorovima?"
+understanding: ask_information/waste/start
+model_calls: 1
+reads: ["ask_information/waste/{\"area_query\"=>\"Dvorovi\"}/sr"]
+resolution: "unsupported"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Za ovo nemam provjeren podatak. To ne znači da ga nema — samo da ga ja ne vidim.
+
+Sljedeći korak: napiši nam preko podrške koji podatak ti treba: /pages/pomoc
+-- turn 2
+prompt: "pogrešno si me razumjela"
+understanding: route
+model_calls: 0
+reads: []
+resolution: "clarification"
+answer_intent: "waste"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>1, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>"query", "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>2, "active_task"=>"ask_information", "topic"=>"waste", "pending_slot"=>"query", "entities"=>{"area_query"=>"Dvorovi"}, "entity_provenance"=>{"area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Izvini, pogrešno sam razumjela. Šta treba da ispravim — vrstu pitanja ili neki podatak?
+== end continuity_correction_repair
+
+== report_problem_start_then_area
+-- turn 1
+prompt: "Smeće nije odvezeno, hoću prijaviti"
+understanding: report_problem/waste/start
+model_calls: 1
+reads: []
+resolution: "clarification"
+answer_intent: "report_guidance"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"report_problem", "topic"=>"waste", "pending_slot"=>"area_query", "entities"=>{"description"=>"Smeće nije odvezeno"}, "entity_provenance"=>{"description"=>"citizen"}, "locale"=>"sr", "clarification_count"=>1, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"report_problem", "topic"=>"waste", "pending_slot"=>"area_query", "entities"=>{"description"=>"Smeće nije odvezeno"}, "entity_provenance"=>{"description"=>"citizen"}, "locale"=>"sr", "clarification_count"=>1, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+U kojem naselju ili ulici? Možeš navesti mjesto bez dijeljenja trenutne lokacije.
+-- turn 2
+prompt: "U Dvorovima"
+understanding: report_problem/waste/continue
+model_calls: 1
+reads: []
+resolution: "handoff"
+answer_intent: "report_guidance"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=true completed=false
+state: {"version"=>1, "active_task"=>"report_problem", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"description"=>"Smeće nije odvezeno", "area_query"=>"Dvorovi"}, "entity_provenance"=>{"description"=>"citizen", "area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>true, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>2, "active_task"=>"report_problem", "topic"=>"waste", "pending_slot"=>nil, "entities"=>{"description"=>"Smeće nije odvezeno", "area_query"=>"Dvorovi"}, "entity_provenance"=>{"description"=>"citizen", "area_query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>true, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Prijavu možeš završiti u zvaničnom obrascu: /mi/prijavi
+Ništa još nije poslano. Opis, mjesto i priloge unesi i potvrdi u obrascu; razgovor ih ne prenosi automatski.
+== end report_problem_start_then_area
+
+== report_status_reference
+-- turn 1
+prompt: "status moje posljednje prijave"
+understanding: route
+model_calls: 0
+reads: ["report_status/report/{\"query\"=>\"status moje posljednje prijave\"}/sr"]
+resolution: "answered"
+answer_intent: "status"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["report:42"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"report_status", "topic"=>"report", "pending_slot"=>nil, "entities"=>{"query"=>"status moje posljednje prijave"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"report_status", "topic"=>"report", "pending_slot"=>nil, "entities"=>{"query"=>"status moje posljednje prijave"}, "entity_provenance"=>{"query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Prijava BR-2026-0042 je u obradi.
+Izvor: Platforma
+https://bijeljina.example/obavjestenja
+Provjereno: danas u 10:00
+== end report_status_reference
+
+== report_neighborhood_post
+-- turn 1
+prompt: "Hoću objaviti poruku komšijama"
+understanding: neighborhood_post/neighborhood/start
+model_calls: 1
+reads: []
+resolution: "handoff"
+answer_intent: "komsiluk_post"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: []
+handoff: offered=true completed=false
+state: {"version"=>0, "active_task"=>"neighborhood_post", "topic"=>"neighborhood", "pending_slot"=>nil, "entities"=>{"description"=>"Sastanak u petak"}, "entity_provenance"=>{"description"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+stored: {"version"=>1, "active_task"=>"neighborhood_post", "topic"=>"neighborhood", "pending_slot"=>nil, "entities"=>{"description"=>"Sastanak u petak"}, "entity_provenance"=>{"description"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>nil}
+reply:
+Objavu za komšiluk možeš pripremiti na tabli: /mi/komsiluk
+Ovdje ništa nije objavljeno. Tabla provjerava pristup i traži potvrdu objave.
+== end report_neighborhood_post
+
+== report_neighborhood_information
+-- turn 1
+prompt: "Šta ima u mom komšiluku?"
+understanding: neighborhood_information/neighborhood/start
+model_calls: 1
+reads: ["ask_information/neighborhood/{\"area_query\"=>\"Dvorovi\", \"query\"=>\"Šta ima u mom komšiluku?\"}/sr"]
+resolution: "answered"
+answer_intent: "service"
+tone: nil
+quick_replies: []
+report: nil
+fact_ids: ["nb:notice", "nb:report", "nb:activity"]
+handoff: offered=false completed=false
+state: {"version"=>0, "active_task"=>"ask_information", "topic"=>"neighborhood", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"Šta ima u mom komšiluku?"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+stored: {"version"=>1, "active_task"=>"ask_information", "topic"=>"neighborhood", "pending_slot"=>nil, "entities"=>{"area_query"=>"Dvorovi", "query"=>"Šta ima u mom komšiluku?"}, "entity_provenance"=>{"area_query"=>"citizen", "query"=>"citizen"}, "locale"=>"sr", "clarification_count"=>0, "report_handoff_offered"=>false, "resume_offered"=>false, "suspended_task"=>nil, "draft"=>nil, "prior_evidence"=>"public_read"}
+reply:
+Pregled za Dvorovi prema dostupnim podacima:
+
+Javna servisna obavještenja
+
+Područje i vrijeme: Dvorovi
+
+Radovi na parku počinju u ponedjeljak.
+Izvor: Grad Bijeljina
+https://bijeljina.example/obavjestenja
+
+Javne prijave problema
+
+Prijavljena rupa u ulici Svetog Save.
+Izvor: Platforma
+
+Javne aktivnosti
+
+Volonterska prilika: Volonterska akcija čišćenja.
+Izvor: Platforma
+
+Odgovor važi samo za navedeni izvor, područje i vrijeme; nije potvrda trenutnog stanja na terenu.
+== end report_neighborhood_information

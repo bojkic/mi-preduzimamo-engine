@@ -1,0 +1,32 @@
+<% w = "decidim.bih.review_workspace" %>
+<% add_decidim_page_title(t("#{w}.batch.confirm_title")) %>
+<link rel="stylesheet" href="/mi/report-review-batch.css?v=1">
+<div class="report-batch-page">
+<h1><%= t("#{w}.batch.confirm_title") %></h1>
+<p><%= t("#{w}.batch.confirm_help") %></p>
+<%= form_tag admin_bih_report_review_batch_confirm_path, class: "form form-defaults" do %>
+<%= hidden_field_tag :return_to, @queue_context.path %>
+<% @results.each_with_index do |row, index| %>
+<section class="card card-section report-batch-confirm" aria-labelledby="batch-title-<%= index %>">
+<h2 id="batch-title-<%= index %>"><%= row.reference %></h2>
+<% if row.state == "prepared" %>
+<h3><%= t("#{w}.actions.#{row.action}") %></h3>
+<%= render "values", values: row.decision_values, action: row.action %>
+<% if row.snapshot %>
+<p><strong><%= t("decidim.bih.report_case.recipient") %>:</strong> <%= row.snapshot[:to].join(", ") %></p>
+<h3><%= row.snapshot[:subject] %></h3>
+<pre><%= row.snapshot[:body] %></pre>
+<%= render "decidim/bih/admin/reports/evidence_attachments", attachments: row.snapshot.fetch(:attachments, []) %>
+<% end %>
+<%= render "decidim/bih/admin/shared/send_consequences", consequences: Decidim::Bih::ReportDecision.notification_consequences(row.action) %>
+<%= hidden_field_tag "batch_items[#{index}][token]", row.token %>
+<label><%= check_box_tag "batch_items[#{index}][approve]", "1", false %> <%= t("#{w}.batch.approve", reference: row.reference) %></label>
+<% else %><p class="callout warning"><%= row.error %></p><% end %>
+<% if row.reference.present? %><p><%= link_to t("#{w}.batch.edit"), admin_bih_report_path(reference: row.reference, return_to: @queue_context.path) %></p><% end %>
+</section>
+<% end %>
+<% if @results.any? { |row| row.state == "prepared" } %><%= submit_tag t("#{w}.batch.apply"), class: "button button__sm button__secondary" %><% end %>
+<% end %>
+<p><%= link_to t("#{w}.batch.back"), admin_bih_report_review_batch_path(return_to: @queue_context.path) %></p>
+
+</div>

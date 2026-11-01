@@ -1,0 +1,36 @@
+<% add_decidim_page_title(t("decidim.bih.simplified_registration.title")) %>
+<main class="wrapper mi-registration-compact">
+  <section class="mi-surface mi-registration-form">
+    <h1><%= t("decidim.bih.simplified_registration.title") %></h1>
+    <%= render "decidim/bih/registrations/offer" %>
+    <% if @form.errors.any? %>
+      <div class="callout alert" role="alert"><%= t("decidim.bih.registrations.create.invalid") %></div>
+    <% end %>
+    <%= form_with model: @form, url: registration_form_path, method: :post,
+                  builder: ActionView::Helpers::FormBuilder,
+                  html: { id: "mi-registration-form", class: "mi-account-settings-form" } do |f| %>
+      <% if referral_code_for_form %>
+        <%= hidden_field_tag :ref, referral_code_for_form, id: "mi-registration-ref" %>
+      <% end %>
+      <label for="mi-registration-name">
+        <%= t("decidim.bih.simplified_registration.name_label") %>
+        <%= f.text_field :name, id: "mi-registration-name", required: true, autocomplete: "name", maxlength: Decidim::Bih::PhoneRegistrationForm::NAME_MAX_LENGTH, size: nil %>
+      </label>
+      <% if @form.errors[:name].any? %><p class="form-error is-visible" role="alert"><%= @form.errors[:name].to_sentence %></p><% end %>
+      <label for="mi-registration-phone">
+        <%= t("decidim.bih.registrations.new.phone_label") %>
+        <%= f.telephone_field :mobile_phone_number, id: "mi-registration-phone", required: true, autocomplete: "tel", inputmode: "tel", placeholder: "06X XXX XXX" %>
+      </label>
+      <p class="help-text"><%= t(whatsapp_code_copy? ? "decidim.bih.registrations.new.phone_hint_whatsapp" : "decidim.bih.registrations.new.phone_hint") %></p>
+      <% if @form.errors[:mobile_phone_number].any? %><p class="form-error is-visible" role="alert"><%= @form.errors[:mobile_phone_number].to_sentence %></p><% end %>
+      <label for="mi-registration-tos" class="mi-registration-compact__terms">
+        <%= f.check_box :tos_agreement, id: "mi-registration-tos", required: true, checked: @form.tos_agreement.nil? || @form.tos_agreement %>
+        <span><%= t("decidim.bih.registrations.new.tos_html", link: link_to(t("decidim.bih.registrations.new.tos_link"), decidim.page_path("terms-of-service"))) %></span>
+      </label>
+      <% if @form.errors[:tos_agreement].any? %><p class="form-error is-visible" role="alert"><%= t("decidim.bih.registrations.new.tos_required") %></p><% end %>
+      <% if @form.errors[:base].any? %><p class="form-error is-visible" role="alert"><%= @form.errors[:base].to_sentence %></p><% end %>
+      <button type="submit" class="mi-btn mi-btn--primary"><%= t("decidim.bih.simplified_registration.submit") %></button>
+    <% end %>
+    <p class="mi-registration-login"><%= t("decidim.bih.registrations.new.have_account") %> <%= link_to t("decidim.bih.registrations.new.have_account_link"), decidim.new_user_session_path %></p>
+  </section>
+</main>

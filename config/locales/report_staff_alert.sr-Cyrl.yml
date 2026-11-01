@@ -1,0 +1,12 @@
+sr-Cyrl:
+  decidim:
+    bih:
+      report_staff_alert:
+        title: "Нова пријава %{reference} чека преглед."
+      admin:
+        reports:
+          events:
+            types:
+              staff_alerts_created: "Обавјештења особљу креирана"
+            metadata:
+              recipient_count: "Број прималаца"

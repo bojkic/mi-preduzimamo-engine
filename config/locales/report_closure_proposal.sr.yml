@@ -1,0 +1,5 @@
+sr:
+  decidim:
+    bih:
+      report_case:
+        closure_proposed: "Prijava %{reference}: razmotrite administrativno zatvaranje zbog izostanka dopune; odluku donosi tim."

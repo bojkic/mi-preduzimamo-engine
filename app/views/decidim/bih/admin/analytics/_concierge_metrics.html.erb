@@ -1,0 +1,39 @@
+<% scope = "decidim.bih.admin.concierge_metrics" %>
+<div class="card" id="admin-concierge-metrics">
+  <div class="item_show__header"><h2 class="item_show__header-title"><%= t("#{scope}.title") %></h2></div>
+  <div class="card-section">
+    <p><%= t("#{scope}.intro") %></p>
+    <p><%= t("#{scope}.limits") %></p>
+    <%= form_with url: admin_bih_analytics_path, method: :get, local: true, class: "form form-defaults mi-admin-filter" do %>
+      <%= hidden_field_tag :tab, "metrics" %>
+      <div class="field">
+        <%= label_tag :period, t("#{scope}.period") %>
+        <%= select_tag :period, options_for_select([7, 30], metrics.period) %>
+      </div>
+      <div class="field">
+        <%= label_tag :cohort, t("#{scope}.cohort") %>
+        <%= select_tag :cohort, options_for_select(Decidim::Bih::Admin::ConciergeMetricsSummary::COHORTS.map { |value| [t("#{scope}.cohorts.#{value}"), value] }, metrics.cohort) %>
+      </div>
+      <div class="field">
+        <%= label_tag :traffic, t("#{scope}.traffic") %>
+        <%= select_tag :traffic, options_for_select(Decidim::Bih::Admin::ConciergeMetricsSummary::TRAFFIC_FILTERS.map { |value| [t("#{scope}.traffic_kinds.#{value}"), value] }, metrics.traffic) %>
+      </div>
+      <%= submit_tag t("#{scope}.apply"), class: "button button__sm button__secondary" %>
+    <% end %>
+    <p><%= metrics.started_on.iso8601 %> – <%= metrics.ended_on.iso8601 %> (Europe/Sarajevo)</p>
+    <p data-metrics-status="<%= metrics.summary[:coverage_status] %>"><%= t("#{scope}.statuses.#{metrics.summary[:coverage_status]}") %></p>
+    <p data-metrics-total><%= t("#{scope}.sample") %>: <%= metrics.summary[:sample_size] || t("#{scope}.unknown") %></p>
+    <% if metrics.summary[:privacy_status] == "suppressed" %><p><%= t("#{scope}.suppression", minimum: Decidim::Bih::Admin::ConciergeMetricsSummary::MIN_SAMPLE) %></p><% end %>
+    <% if bih_allowed?(:analytics_export) %>
+      <%= link_to t("decidim.bih.admin.analytics.index.download_csv"), admin_bih_analytics_export_path(dataset: "mi_bot_metrics", format: :csv, **metrics.filters), class: "button button__sm button__transparent-secondary" %>
+    <% end %>
+    <div class="table-stacked" style="display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+      <table class="table-list">
+        <thead><tr><% %w(topic facet typed_outcome traffic_kind release_sha count).each do |field| %><th scope="col"><%= t("#{scope}.fields.#{field}") %></th><% end %></tr></thead>
+        <tbody><% metrics.rows.drop(1).each do |row| %><tr>
+          <% %i(topic facet typed_outcome traffic_kind release_sha count).each do |field| %><td data-label="<%= t("#{scope}.fields.#{field}") %>"><%= row[field] || t("#{scope}.unknown") %></td><% end %>
+        </tr><% end %></tbody>
+      </table>
+    </div>
+  </div>
+</div>

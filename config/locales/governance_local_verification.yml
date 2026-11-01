@@ -1,0 +1,64 @@
+en:
+  decidim:
+    bih:
+      admin:
+        governance:
+          form:
+            local_policy_unavailable: Local verification policy is unavailable. Release approval is disabled until the policy is configured.
+            verification_lane: Verification lane
+            verification_result_digest: Local verification result digest
+            required_scopes: Additional required scopes
+            local_gate_status: Local verification status
+            local_verification_help: Review the exact local result. Mandatory scopes come from the selected lane policy; select any additional scopes required by the result. This approval does not execute checks.
+
+bs:
+  decidim:
+    bih:
+      admin:
+        governance:
+          form:
+            local_policy_unavailable: Politika lokalne provjere nije dostupna. Odobrenje izdanja je onemogućeno dok se politika ne podesi.
+            verification_lane: Putanja provjere
+            verification_result_digest: Digest rezultata lokalne provjere
+            required_scopes: Dodatne obavezne provjere
+            local_gate_status: Status lokalne provjere
+            local_verification_help: Pregledaj tačan lokalni rezultat. Obavezne provjere određuje politika izabrane putanje; označi dodatne provjere koje rezultat zahtijeva. Odobrenje ne izvršava provjere.
+
+hr:
+  decidim:
+    bih:
+      admin:
+        governance:
+          form:
+            local_policy_unavailable: Politika lokalne provjere nije dostupna. Odobrenje izdanja je onemogućeno dok se politika ne podesi.
+            verification_lane: Putanja provjere
+            verification_result_digest: Digest rezultata lokalne provjere
+            required_scopes: Dodatne obvezne provjere
+            local_gate_status: Status lokalne provjere
+            local_verification_help: Pregledaj točan lokalni rezultat. Obvezne provjere određuje politika izabrane putanje; označi dodatne provjere koje rezultat zahtijeva. Odobrenje ne izvršava provjere.
+
+sr:
+  decidim:
+    bih:
+      admin:
+        governance:
+          form:
+            local_policy_unavailable: Politika lokalne provjere nije dostupna. Odobrenje izdanja je onemogućeno dok se politika ne podesi.
+            verification_lane: Putanja provjere
+            verification_result_digest: Digest rezultata lokalne provjere
+            required_scopes: Dodatne obavezne provjere
+            local_gate_status: Status lokalne provjere
+            local_verification_help: Pregledaj tačan lokalni rezultat. Obavezne provjere određuje politika izabrane putanje; označi dodatne provjere koje rezultat zahtijeva. Odobrenje ne izvršava provjere.
+
+sr-Cyrl:
+  decidim:
+    bih:
+      admin:
+        governance:
+          form:
+            local_policy_unavailable: Политика локалне провјере није доступна. Одобрење издања је онемогућено док се политика не подеси.
+            verification_lane: Путања провјере
+            verification_result_digest: Дигест резултата локалне провјере
+            required_scopes: Додатне обавезне провјере
+            local_gate_status: Статус локалне провјере
+            local_verification_help: Прегледај тачан локални резултат. Обавезне провјере одређује политика изабране путање; означи додатне провјере које резултат захтијева. Одобрење не извршава провјере.

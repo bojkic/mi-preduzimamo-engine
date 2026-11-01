@@ -1,0 +1,12 @@
+<% shares = Decidim::Bih::ReportEvidenceShare.joins(:evidence_item).where(decidim_bih_report_evidence_items: { report_id: @report.id }).order(id: :desc) %>
+<% if shares.any? %>
+  <section class="card-section">
+    <h2><%= t("decidim.bih.evidence_shares.title") %></h2>
+    <% shares.each do |share| %>
+      <div><%= share.evidence_item.blob.filename.to_s %> · <%= l(share.expires_at, format: :short) %> · <%= share.access_count %>
+      <% if share.revoked_at.nil? && Decidim::Bih::OperatorAuthorization.allowed?(current_user, :sistem48_settings_manage, organization: current_organization) %>
+        <%= button_to t("decidim.bih.evidence_shares.revoke"), admin_bih_report_evidence_share_revoke_path(id: share.id), method: :post %>
+      <% end %></div>
+    <% end %>
+  </section>
+<% end %>

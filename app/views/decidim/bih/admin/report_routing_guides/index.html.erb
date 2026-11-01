@@ -1,0 +1,13 @@
+<h1><%= t("decidim.bih.routing_guides.title") %></h1>
+<% (@guides.to_a + [@guide]).each do |guide| %>
+  <%= form_with model: guide, scope: :guide, url: guide.persisted? ? admin_bih_report_routing_guide_path(guide) : admin_bih_report_routing_guides_path, method: guide.persisted? ? :patch : :post, class: "form form-defaults" do |f| %>
+    <% if guide.errors.any? %><p role="alert"><%= guide.errors.full_messages.join(", ") %></p><% end %>
+    <%= f.label :key, t("decidim.bih.routing_guides.key") %><%= f.text_field :key, required: true %>
+    <%= f.label :title, t("decidim.bih.routing_guides.name") %><%= f.text_field :title, required: true %>
+    <%= f.label :body_sr, t("decidim.bih.routing_guides.body") %><%= f.text_area :body_sr, required: true %>
+    <%= f.label :categories, t("decidim.bih.routing_guides.categories") %><%= f.select :categories, Decidim::Bih::ReportTaxonomy::CATEGORIES, {}, multiple: true %>
+    <%= f.label :approved_recipient_keys, t("decidim.bih.routing_guides.recipients") %><%= f.select :approved_recipient_keys, Decidim::Bih::ReportRoutingGuide.recipient_keys(current_organization), {}, multiple: true %>
+    <%= f.check_box :active %><%= f.label :active, t("decidim.bih.routing_guides.active") %>
+    <%= f.submit t("decidim.bih.routing_guides.save"), class: "button button__sm button__secondary" %>
+  <% end %>
+<% end %>

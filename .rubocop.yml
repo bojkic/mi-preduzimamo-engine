@@ -1,0 +1,27 @@
+inherit_gem:
+  decidim-dev: rubocop-decidim.yml
+
+# Gem entrypoint must keep its hyphenated name so `require "decidim-bih"` works.
+Naming/FileName:
+  Exclude:
+    - lib/decidim-bih.rb
+
+# This engine's tests run as plain host-free Minitest (test_helper only requires
+# minitest/autorun — no ActiveSupport test extensions), where `assert_not` is
+# undefined. `refute` is intentional and required here, so the cop is a false
+# positive; autocorrecting it to `assert_not` would break the whole suite.
+Rails/RefuteMethods:
+  Enabled: false
+
+# PolygonArea uses intentional single-letter parameters (y for vertical coordinate)
+# and min/max ternary logic as part of its scanline algorithm — exact style here
+# matters for clarity and maintainability of the geometric computation.
+Naming/MethodParameterName:
+  Exclude:
+    - app/services/decidim/bih/geo/polygon_area.rb
+Style/MinMaxComparison:
+  Exclude:
+    - app/services/decidim/bih/geo/polygon_area.rb
+Style/SelfAssignment:
+  Exclude:
+    - app/services/decidim/bih/geo/polygon_area.rb

@@ -1,0 +1,35 @@
+---
+en:
+  decidim:
+    bih:
+      report_tasks:
+        title: Open team tasks
+        help: What the team still has to resolve on this report.
+        what: What to do
+        due: due
+        closes_with_decision: Closes by itself when you make any decision below (message to the citizen, question to the service, confirm review…).
+        closes_here_only: 'Not closed by a decision below: when it is resolved, mark it here.'
+        close: Mark as resolved
+        close_help: Sends nothing and does not change the report status; recorded in the history.
+        closed: The task is marked as resolved.
+        explain:
+          approve_police_channel_and_referral: Decide whether to refer the report to the traffic police. The police publish no e-mail for such reports (phone %{phone}). If you told the citizen to contact the police or decided not to refer it, mark as resolved.
+          confirm_receipt_and_assess_protective_response: 'The report describes a possible danger: “%{quote}”. Check that the service received it and whether to ask for urgent protection. Then mark as resolved or ask the service.'
+          parking_capacity_planning: The parking-capacity part belongs in a planning collection. Once added, mark as resolved.
+          mail_review: 'A service e-mail arrived (%{date}): “%{subject}”. Read it under the correspondence and decide below: record the service answer, inform the citizen or reply to the service.'
+          provider_undeliverable: The message to the citizen was not delivered. Try another channel or close the report if the citizen cannot be reached.
+          citizen_replied_via_channel: After the reminder the citizen wrote on Viber/WhatsApp (it reached Milica, not the report). Automatic closure is held; decide below.
+          second_reminder_undelivered: The Viber/WhatsApp reminder to the citizen was not delivered, so the case will not close by itself. The citizen has not answered; decide below (e.g. close as "citizen did not reply").
+          city_overdue_after_reply: The City already answered this report, but the deadline for a final answer has passed. No automatic reminder is sent because it would ignore their answer; decide below (e.g. ask the City for confirmation or ask the citizen to confirm it is resolved).
+          assessment_not_authorized: The citizen sent a photo the AI does not review. Look at the photo in the conversation.
+        kinds:
+          review: Review the report and decide below.
+          dispatch_approval: Decide on sending the report to a new recipient.
+          mail_review: Read the new correspondence with the service and decide the next step.
+          delivery_exception: A message was not delivered; decide how to continue.
+          closure_approval: Decide on closing the report.
+          dispute_review: Review the citizen's dispute.
+        reasons:
+          done: Resolved
+          not_needed: Not needed
+          handled_elsewhere: Handled another way

@@ -1,0 +1,46 @@
+<%
+  race = Decidim::Bih::Race::Config.new(organization: current_organization)
+  registration = rules.points_for(:verification) + rules.points_for(:komsiluk_selected)
+  duplicate_points = Decidim::Bih::Goodwill::ReportEntitlement::DUPLICATE_POINTS
+  prefix = "decidim.bih.kako.show"
+  rows = [
+    ["registration", { points: registration }, { points: race.weights[:registered] }],
+    ["report", { points: rules.points_for(:report), cap: rules.cap_for(:report) }, { points: race.weights[:report], cap: race.caps[:report] }],
+    ["duplicate", { points: duplicate_points }, {}],
+    ["proposal", { points: rules.points_for(:proposal), cap: rules.cap_for(:proposal) }, { points: race.weights[:proposal], cap: race.caps[:proposal] }],
+    ["other", {}, {}]
+  ]
+%>
+<section class="mi-surface-card mi-community-panel" aria-labelledby="points-measures-title">
+  <div class="mi-surface-card__body mi-community-panel__body">
+    <h2 id="points-measures-title"><%= t("#{prefix}.measures_title") %></h2>
+    <% %w(wallet contribution season race).each do |measure| %>
+      <p><%= t("#{prefix}.measures.#{measure}") %></p>
+    <% end %>
+    <h3><%= t("#{prefix}.comparison_title") %></h3>
+    <div style="overflow-x: auto;">
+      <table class="table">
+        <thead><tr><% %w(action personal race).each do |heading| %><th scope="col"><%= t("#{prefix}.comparison_headers.#{heading}") %></th><% end %></tr></thead>
+        <tbody>
+          <% rows.each do |action, personal, contest| %>
+            <tr><th scope="row"><%= t("#{prefix}.comparison.#{action}") %></th>
+              <td><%= t("#{prefix}.comparison.#{action}_personal", **personal) %></td>
+              <td><%= t("#{prefix}.comparison.#{action}_race", **contest) %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <p><%= t("#{prefix}.comparison_note") %> <%= link_to t("decidim.bih.community_hub.race.title"), "/trka" %></p>
+    <p><%= t("#{prefix}.period_note") %></p>
+    <p><%= t("#{prefix}.report_rule", ordinary: rules.points_for(:report), duplicate: duplicate_points) %></p>
+    <p><%= t("#{prefix}.referral_rule", points: rules.points_for(:referral),
+              hours: Decidim::Bih::Goodwill::ReferralRewardJob::REWARD_DELAY / 1.hour,
+              cap: Decidim::Bih::Goodwill::Referrals::MONTHLY_CAP) %></p>
+    <p><%= t("#{prefix}.visibility_rule") %></p>
+    <p><%= t("#{prefix}.correction_rule") %></p>
+    <h3><%= t("#{prefix}.faq_title") %></h3>
+    <% %w(corrections volunteering moves ties projects closed privacy).each do |topic| %>
+      <details><summary><%= t("#{prefix}.faq.#{topic}.q") %></summary><p><%= t("#{prefix}.faq.#{topic}.a") %></p></details>
+    <% end %>
+  </div>
+</section>

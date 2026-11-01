@@ -1,0 +1,15 @@
+bs:
+  decidim:
+    bih:
+      report_obligations:
+        review: Tim pregleda prijavu
+        dispatch_approval: Tim odobrava slanje
+        closure_approval: Tim odlučuje o zatvaranju
+        info_request: Čekamo Vašu dopunu
+        evidence_collection: Čekamo traženi dokaz
+        evidence_handoff: Dostavljamo dokaz službi
+        city_response: Čekamo odgovor službe
+        city_commitment: Čekamo dogovoreni rad službe
+        mail_review: Tim pregleda prepisku
+        dispute_review: Tim pregleda osporavanje
+        delivery_exception: Tim provjerava dostavu

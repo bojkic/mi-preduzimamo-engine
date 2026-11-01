@@ -1,0 +1,191 @@
+<%#
+  Operator chat-health tab. Aggregate counts only: no messages, replies,
+  senders, session digests, user names or contact fields. A nil figure is
+  rendered as "unknown" — it means the platform has no instrumentation for it,
+  never that the value is zero.
+%>
+<% health = local_assigns.fetch(:health) %>
+<% scope = "decidim.bih.admin.analytics.chat_health" %>
+<% unknown = t("#{scope}.unknown") %>
+<% show = ->(value) { value.nil? ? content_tag(:span, unknown, class: "text-gray", data: { chat_health_unknown: "" }) : value } %>
+<% show_time = ->(value) { value.nil? ? show.call(nil) : value.in_time_zone.strftime("%d.%m.%Y %H:%M") } %>
+<% show_day = ->(value) { value.nil? ? show.call(nil) : value.strftime("%d.%m.%Y") } %>
+<% bucket_label = ->(bucket) { bucket.nil? ? show.call(nil) : (bucket == "overflow" ? t("#{scope}.latency_overflow") : bucket) } %>
+<div class="card" id="admin-chat-health" data-chat-health-period="<%= health.period_days %>">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("#{scope}.title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("#{scope}.intro") %></p>
+    <p><em><%= t("#{scope}.privacy_note") %></em></p>
+    <p><small><%= t("#{scope}.unknown_hint", unknown:) %></small></p>
+    <nav id="admin-chat-health-period" aria-label="<%= t("#{scope}.period_label") %>" style="display:flex; gap:0.45rem; flex-wrap:wrap; align-items:center;">
+      <span><%= t("#{scope}.period_label") %>:</span>
+      <% Decidim::Bih::Admin::ChatHealthSummary::PERIODS.each do |days| %>
+        <%= link_to t("#{scope}.period_days", count: days),
+                    admin_bih_analytics_path(tab: "chat_health", period: days),
+                    class: ["button", "button__sm", (health.period_days == days ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                    aria: { current: ("page" if health.period_days == days) },
+                    data: { chat_health_period_link: days } %>
+      <% end %>
+    </nav>
+
+    <h3 id="admin-chat-health-resolutions" style="font-size:1rem; margin-top:1.25rem;"><%= t("#{scope}.resolutions_title") %></h3>
+    <p><%= t("#{scope}.resolutions_intro") %></p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(11rem, 1fr)); gap:0.75rem;">
+      <% health.resolutions.each do |resolution, count| %>
+        <div style="border:1px solid #ddd; border-radius:4px; padding:0.75rem;" data-chat-health-resolution="<%= resolution %>">
+          <h4 style="font-size:0.95rem; margin:0 0 0.35rem;"><%= t("#{scope}.resolution_labels.#{resolution}") %></h4>
+          <p style="margin:0; font-size:1.4rem;"><strong><%= show.call(count) %></strong></p>
+          <details><summary><%= t("decidim.bih.admin.integrations.diagnostics") %></summary><code><%= resolution %></code></details>
+        </div>
+      <% end %>
+    </div>
+    <p><small><%= t("#{scope}.resolutions_uncolumned_note") %></small></p>
+
+    <h3 id="admin-chat-health-failures" style="font-size:1rem; margin-top:1.25rem;"><%= t("#{scope}.failures_title") %></h3>
+    <p><%= t("#{scope}.failures_intro") %></p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(11rem, 1fr)); gap:0.75rem;">
+      <% health.failures.each do |outcome, count| %>
+        <div style="border:1px solid #ddd; border-radius:4px; padding:0.75rem;" data-chat-health-failure="<%= outcome %>">
+          <h4 style="font-size:0.95rem; margin:0 0 0.35rem;"><%= t("#{scope}.failure_labels.#{outcome}") %></h4>
+          <p style="margin:0; font-size:1.4rem;"><strong><%= show.call(count) %></strong></p>
+        </div>
+      <% end %>
+    </div>
+
+    <h3 id="admin-chat-health-inbound" style="font-size:1rem; margin-top:1.25rem;"><%= t("#{scope}.inbound_title") %></h3>
+    <p><%= t("#{scope}.inbound_intro", days: health.inbound_retention_days) %></p>
+    <% if health.inbound_window_clamped? %>
+      <p><em><%= t("#{scope}.inbound_clamped_note", days: health.inbound_window_days) %></em></p>
+    <% end %>
+    <div class="table-stacked" style="display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("#{scope}.inbound_headers.channel") %></th>
+            <th><%= t("#{scope}.inbound_headers.total") %></th>
+            <% Decidim::Bih::Viber::InboundDelivery::STATES.each do |state| %>
+              <th><%= t("#{scope}.inbound_headers.#{state}") %></th>
+            <% end %>
+            <th><%= t("#{scope}.inbound_headers.last_inbound_at") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% health.inbound_channels.each do |row| %>
+            <tr data-chat-health-channel="<%= row[:channel] %>">
+              <td>
+                <%= t("#{scope}.channels.#{row[:channel]}", default: row[:channel]) %>
+                <% unless row[:instrumented] %>
+                  <br><small><%= t("#{scope}.inbound_not_instrumented") %></small>
+                <% end %>
+              </td>
+              <td><%= show.call(row[:total]) %></td>
+              <% Decidim::Bih::Viber::InboundDelivery::STATES.each do |state| %>
+                <td><%= show.call(row[:states]&.fetch(state, nil)) %></td>
+              <% end %>
+              <td><%= show_time.call(row[:last_inbound_at]) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="admin-chat-health-sends" style="font-size:1rem; margin-top:1.25rem;"><%= t("#{scope}.sends_title") %></h3>
+    <p><%= t("#{scope}.sends_intro", job: Decidim::Bih::Admin::ChatHealthSummary::EXHAUSTED_JOB_CLASS) %></p>
+    <% sends = health.exhausted_sends %>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(11rem, 1fr)); gap:0.75rem;">
+      <div style="border:1px solid #ddd; border-radius:4px; padding:0.75rem;" data-chat-health-sends="dead">
+        <h4 style="font-size:0.95rem; margin:0 0 0.35rem;"><%= t("#{scope}.sends_dead") %></h4>
+        <p style="margin:0; font-size:1.4rem;"><strong><%= show.call(sends[:dead]) %></strong></p>
+      </div>
+      <div style="border:1px solid #ddd; border-radius:4px; padding:0.75rem;" data-chat-health-sends="retrying">
+        <h4 style="font-size:0.95rem; margin:0 0 0.35rem;"><%= t("#{scope}.sends_retrying") %></h4>
+        <p style="margin:0; font-size:1.4rem;"><strong><%= show.call(sends[:retrying]) %></strong></p>
+      </div>
+    </div>
+    <% unless sends[:available] %>
+      <p><em data-chat-health-sends-unavailable=""><%= t("#{scope}.sends_unavailable") %></em></p>
+    <% end %>
+    <p><small><%= t("#{scope}.sends_caveat") %></small></p>
+
+    <h3 id="admin-chat-health-rollup" style="font-size:1rem; margin-top:1.25rem;"><%= t("#{scope}.rollup_title") %></h3>
+    <p><%= t("#{scope}.rollup_intro") %></p>
+    <% if health.rollup_available? %>
+      <% if health.rollup_days.any? %>
+        <div class="table-stacked" style="display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+          <table class="table-list">
+            <thead>
+              <tr>
+                <th><%= t("#{scope}.rollup_headers.day") %></th>
+                <th><%= t("#{scope}.rollup_headers.answers") %></th>
+                <th><%= t("#{scope}.rollup_headers.technical_failures") %></th>
+                <th><%= t("#{scope}.rollup_headers.failure_rate") %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% health.rollup_days.each do |row| %>
+                <tr data-chat-health-rollup-day="<%= row[:day].iso8601 %>">
+                  <td><%= show_day.call(row[:day]) %></td>
+                  <td><%= row[:answers] %></td>
+                  <td><%= row[:technical_failures] %></td>
+                  <td><%= row[:failure_rate_percent].nil? ? show.call(nil) : "#{row[:failure_rate_percent]} %" %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p><em data-chat-health-rollup-empty=""><%= t("#{scope}.rollup_answers_empty") %></em></p>
+      <% end %>
+      <p><small><%= t("#{scope}.rollup_technical_note") %></small></p>
+    <% else %>
+      <p><em data-chat-health-rollup-empty=""><%= t("#{scope}.rollup_empty", unknown:) %></em></p>
+    <% end %>
+
+    <h3 id="admin-chat-health-latency" style="font-size:1rem; margin-top:1.25rem;"><%= t("#{scope}.latency_title") %></h3>
+    <p><%= t("#{scope}.latency_intro") %></p>
+    <% latency = health.understanding_latency %>
+    <% if latency %>
+      <p>
+        <strong><%= t("#{scope}.latency_p50") %>:</strong> <span data-chat-health-latency-p50=""><%= bucket_label.call(latency[:percentiles][:p50]) %></span>
+        &middot;
+        <strong><%= t("#{scope}.latency_p95") %>:</strong> <span data-chat-health-latency-p95=""><%= bucket_label.call(latency[:percentiles][:p95]) %></span>
+      </p>
+      <div class="table-stacked" style="display:block; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+        <table class="table-list">
+          <thead>
+            <tr>
+              <th><%= t("#{scope}.latency_headers.bucket") %></th>
+              <th><%= t("#{scope}.latency_headers.completed") %></th>
+              <th><%= t("#{scope}.latency_headers.failed") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% latency[:buckets].each do |row| %>
+              <tr data-chat-health-latency-bucket="<%= row[:bucket] %>">
+                <td><%= bucket_label.call(row[:bucket]) %></td>
+                <td><%= row[:completed] %></td>
+                <td><%= row[:failed] %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p><em data-chat-health-latency-empty=""><%= t("#{scope}.latency_empty", unknown:) %></em></p>
+    <% end %>
+
+    <h3 id="admin-chat-health-stamp" style="font-size:1rem; margin-top:1.25rem;"><%= t("#{scope}.stamp_title") %></h3>
+    <p><%= t("#{scope}.stamp_intro") %></p>
+    <% stamp = health.release_stamp %>
+    <dl>
+      <dt><%= t("#{scope}.stamp_release_sha") %></dt>
+      <dd data-chat-health-stamp="release_sha"><%= stamp.nil? ? show.call(nil) : (stamp[:release_sha].nil? ? show.call(nil) : content_tag(:code, stamp[:release_sha])) %></dd>
+      <dt><%= t("#{scope}.stamp_prompt_version") %></dt>
+      <dd data-chat-health-stamp="prompt_version"><%= show.call(stamp&.fetch(:prompt_version, nil)) %></dd>
+      <dt><%= t("#{scope}.stamp_day") %></dt>
+      <dd data-chat-health-stamp="day"><%= show_day.call(stamp&.fetch(:day, nil)) %></dd>
+    </dl>
+  </div>
+</div>

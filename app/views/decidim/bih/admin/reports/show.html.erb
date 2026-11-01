@@ -1,0 +1,93 @@
+<% if (next_action = Decidim::Bih::ReportObligations.next_action(@report)) %>
+<p class="report-next-action"><%= Decidim::Bih::ReportObligations.label(next_action) %></p>
+<% end %>
+<% staff_tasks = @report.obligations.open.where(actor: "staff").order(:due_at, :id) %>
+<% if staff_tasks.any? && bih_allowed?(:reports_update_status) %>
+<section class="card card-section" id="report-open-tasks">
+<h2><%= t("decidim.bih.report_tasks.title") %></h2>
+<p><small><%= t("decidim.bih.report_tasks.help") %></small></p>
+<ul>
+<% staff_tasks.each do |task| %>
+<li data-open-task="<%= task.kind %>"><strong><%= Decidim::Bih::ReportObligations.label(task) %></strong><% if task.due_at %> · <%= t("decidim.bih.report_tasks.due") %> <%= l(task.due_at, format: :short) %><% end %>
+<% explanation = Decidim::Bih::ReportTaskExplanation.call(task) %>
+<% if explanation.present? %><p data-task-explanation><%= t("decidim.bih.report_tasks.what") %>: <%= explanation %></p><% end %>
+<p><small><%= Decidim::Bih::ReportTaskExplanation.closes_automatically?(task) ? t("decidim.bih.report_tasks.closes_with_decision") : t("decidim.bih.report_tasks.closes_here_only") %></small></p>
+<%= form_tag admin_bih_report_task_close_path(reference: @report.reference, id: task.id), class: "form form-defaults report-task-close" do %>
+<%= submit_tag t("decidim.bih.report_tasks.close"), class: "button button__sm button__transparent-secondary" %> <small><%= t("decidim.bih.report_tasks.close_help") %></small>
+<% end %></li>
+<% end %>
+</ul>
+</section>
+<% end %>
+<% add_decidim_page_title(@report.reference) %>
+<% w = "decidim.bih.review_workspace"; c = "decidim.bih.report_case" %>
+<%
+  metadata_value = lambda do |key, value|
+    key = key.to_s
+    if %w(from_status to_status status).include?(key)
+      t("decidim.bih.reports.statuses.#{value}", default: value)
+    elsif key == "lease"
+      t("decidim.bih.admin.reports.events.leases.#{value}", default: value.to_s)
+    elsif key.end_with?("_at")
+      begin
+        l(Time.zone.parse(value.to_s), format: :short)
+      rescue ArgumentError, TypeError
+        value
+      end
+    elsif value == true || value == false
+      t("decidim.bih.admin.reports.events.booleans.#{value}", default: value.to_s)
+    else
+      value
+    end
+  end
+%>
+
+<link rel="stylesheet" href="/mi/report-review-workspace.css?v=1">
+<div class="report-workspace">
+<header class="card card-section">
+<%= link_to t("#{w}.queue"), @queue_context.path %>
+<h1><%= @report.reference %> · <%= Decidim::Bih::ReportStatusPresenter.label(@report) %></h1>
+<p><%= t("#{w}.views.#{Decidim::Bih::ReportWorkQueue.waiting_on(@report)}") %> · <%= @report.assigned_to&.name || t("#{w}.unassigned") %>
+<% if (due = Decidim::Bih::ReportWorkQueue.due_at(@report)) %> · <%= l(due, format: :short) %><% end %></p>
+<%= link_to t("decidim.bih.admin.reports.show.public_status"), decidim_bih.report_path(@report.reference), target: "_blank", rel: "noopener noreferrer" %>
+<p><%= render "decidim/bih/shared/prepare_board_notice", source_kind: "report", source_id: @report.id %></p>
+</header>
+<div class="report-workspace__columns">
+<div>
+<section class="card card-section" id="report-private-evidence">
+<h2><%= t("#{w}.evidence") %></h2>
+<%= simple_format(@report.description) %>
+<p><strong><%= t("#{c}.address") %>:</strong> <%= @report.address.presence || "—" %></p>
+<% if @report.photo.attached? %><%= image_tag main_app.rails_blob_path(@report.photo, only_path: true), alt: t("#{c}.photo"), class: "report-workspace__photo" %><% end %>
+<p><%= t("#{c}.private_help") %></p>
+<% if @report.original_location.present? %><details><summary><%= t("decidim.bih.report_planning.original_location") %></summary><%= @report.original_location["address"] %></details><% end %>
+</section>
+<section class="card card-section" id="report-case-conversation">
+<h2><%= t("#{c}.conversation") %></h2>
+<% if @report.review_state == "pending" && @report.last_citizen_reply_at %><p class="callout warning"><%= t("#{w}.new_reply") %> · <%= l(@report.last_citizen_reply_at, format: :short) %></p><% end %>
+<%= render "decidim/bih/reports/case_messages", report: @report, staff: true %>
+<details><summary><%= t("decidim.bih.admin.reports.index.internal_note") %></summary><%= simple_format(@report.internal_note.presence || "—") %></details>
+</section>
+</div>
+<div>
+<% if bih_allowed?(:reports_update_status) || bih_allowed?(:reports_internal_note) %>
+<%= render "review_proposal", report: @report %>
+<%= render "decision_form", report: @report %>
+<% end %>
+<%= render "dispatches", report: @report %>
+<% if @report.forwarding_failed_at? %>
+<details class="card card-section" id="report-legacy-delivery-failure">
+<summary><%= t("decidim.bih.admin.reports.events.types.forwarding_failed") %></summary>
+<p><%= l(@report.forwarding_failed_at, format: :short) %> · <%= @report.forwarding_error_code %> · <%= @report.forwarding_error_class %></p>
+<%= simple_format(@report.forwarding_error_message) %>
+</details>
+<% end %>
+</div>
+</div>
+<%= render "workspace_events", metadata_value: metadata_value %>
+</div>
+<script defer src="/mi/report-review-workspace.js?v=2"></script>
+
+<%= render "correspondence" %>
+
+<%= render "evidence_shares", report: @report %>

@@ -1,0 +1,14 @@
+<% add_decidim_page_title(t(".title")) %>
+<div class="wrapper">
+  <div class="row column" style="max-width: 28rem; margin: 2rem auto; text-align:center;">
+    <div class="card" style="padding: 2rem 1.5rem;">
+      <h1 class="heading4" style="color:var(--mi-navy-700);"><%= t(".title") %></h1>
+      <p style="color:var(--mi-navy-400);"><%= t(".body") %></p>
+      <div class="mi-action-row" style="justify-content:center;">
+        <%= link_to t(".phone_login"), decidim.new_user_session_path, class: "button button__sm" %>
+        <%= link_to t(".authorizations"), decidim_verifications.authorizations_path, class: "button hollow button__sm" %>
+        <%= link_to t(".account"), decidim_bih.account_overview_path, class: "button hollow button__sm" %>
+      </div>
+    </div>
+  </div>
+</div>

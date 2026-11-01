@@ -1,0 +1,6 @@
+<% if attachments.any? %>
+<h3><%= t("decidim.bih.report_evidence.attachments") %></h3>
+<ul><% attachments.each do |entry| %><% item = entry.symbolize_keys %>
+<li><%= item.fetch(:filename) %> — <%= number_to_human_size(item.fetch(:byte_size)) %></li>
+<% end %></ul>
+<% end %>

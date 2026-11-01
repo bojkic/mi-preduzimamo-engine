@@ -1,0 +1,506 @@
+---
+sr:
+  decidim:
+    bih:
+      admin:
+        board_review:
+          title: Komšiluk tabla
+          new_notice: Nova objava
+          tabs_label: Redovi za pregled
+          filters: Pretraga i filteri
+          search: Pretraga
+          category: Kategorija
+          origin: Vrsta objave
+          area: Komšiluk
+          any: Sve
+          from: Objavljeno od
+          to: Objavljeno do
+          apply: Primijeni
+          clear: Poništi
+          showing: Prikazano %{shown} od %{total} objava
+          review: Pregledaj
+          back: Nazad na red za pregled
+          scrubbed: Tekst ove završene objave više nije sačuvan.
+          expires: Važi do %{date}
+          flags: 'Prijave sadržaja: %{count}'
+          pagination: Stranice objava
+          previous: Prethodna
+          next: Sljedeća
+          page: Stranica %{page} od %{pages}
+          none: isključeno
+          policy_intro: Ova pravila uređuju dodatno isticanje hitnih objava. Obavještenje u platformi ostaje dostupno članovima; njihove postavke upravljaju push i telefonskim obavještenjima.
+          policy_summary: 'Hitne kategorije: %{categories}. Utišanih komšiluka: %{count}.'
+          area_search: Pronađi komšiluk po nazivu
+          selected_areas: Izabrani komšiluci
+          status: Status objave
+          author: Autor ili izvor
+          created: Objavljeno
+          valid_until: Važi do
+          no_expiry: Bez postavljenog roka
+          review_state: Pregled sadržaja
+          flag_count: Ukupno prijava sadržaja
+          unknown_author: Nalog više nije dostupan
+          source_link: Otvori izvor
+          source_authority: Podaci izvora i povlačenje sa svih tabli uređuju se u gradskim obavještenjima.
+          decision: Odluka o sadržaju
+          action: Radnja
+          reason: Razlog
+          choose_reason: Izaberi razlog
+          save_decision: Sačuvaj odluku i nastavi
+          saved: 'Odluka je sačuvana. Status objave: %{status}.'
+          history: Istorija pregleda
+          no_history: Još nema odluka o ovoj objavi.
+          transition: "%{before} → %{after}, verzija sadržaja %{revision}"
+          local_hide_scope: Skrivanje ovdje važi za ovu tablu i zaustavlja njenu dostavu na čekanju. Za ispravku izvora ili povlačenje sa svih tabli otvori gradsko obavještenje.
+          empty_help: Promijeni filtere ili otvori drugi red.
+          scope_title: Područje rada moderatora
+          scope_help: Ovo ograničenje važi samo za ulogu moderatora Komšiluka. Ne daje dozvolu za telefonsko slanje niti za uređivanje gradskih izvora.
+          scope_all: Svi komšiluci
+          scope_selected: Samo izabrani komšiluci
+          choose_areas: Izaberi područja za moderatora
+          tabs:
+            review: Za pregled
+            published: Objavljeno
+            hidden: Skriveno
+            archive: Arhiva
+            all: Sve objave
+            settings: Podešavanja
+          origins:
+            citizen: Objava komšije
+            staff: Obavještenje fondacije
+            city_service: Gradsko obavještenje
+            legacy: Ranija objava
+          empty:
+            review: Nema neriješenih prijava sadržaja.
+            published: Nema važećih objava.
+            hidden: Nema skrivenih objava.
+            archive: Nema arhiviranih objava.
+            all: Nema objava za izabrane filtere.
+          review_states:
+            unreviewed: Nije bilo prijave sadržaja
+            pending: Čeka pregled
+            reviewed: Pregledano
+          actions:
+            keep: Pregledano — ostaje
+            hide: Sakrij
+            restore: Vrati prethodni status
+          reasons:
+            valid: Sadržaj je primjeren
+            inappropriate: Neprimjeren sadržaj
+            spam: Neželjena ili reklamna poruka
+            personal_data: Otkriva privatne podatke
+            duplicate: Ponavlja postojeću objavu
+            inaccurate: Netačan ili obmanjujući sadržaj
+            expired: Više nije aktuelno
+            other: Drugi razlog
+          errors:
+            invalid_action: Izaberi ponuđenu radnju.
+            invalid_reason: Izaberi razlog odluke.
+            stale: Objava je izmijenjena nakon otvaranja. Pregledaj aktuelni sadržaj prije nove odluke.
+            archived: Tekst više nije sačuvan i objava ne može ponovo biti otvorena.
+            not_hidden: Objava više nije skrivena. Pregledaj njen aktuelni status.
+            hidden: Skrivenoj objavi prvo odaberi vraćanje ili potvrdi skrivanje.
+bs:
+  decidim:
+    bih:
+      admin:
+        board_review:
+          title: Komšiluk tabla
+          new_notice: Nova objava
+          tabs_label: Redovi za pregled
+          filters: Pretraga i filteri
+          search: Pretraga
+          category: Kategorija
+          origin: Vrsta objave
+          area: Komšiluk
+          any: Sve
+          from: Objavljeno od
+          to: Objavljeno do
+          apply: Primijeni
+          clear: Poništi
+          showing: Prikazano %{shown} od %{total} objava
+          review: Pregledaj
+          back: Nazad na red za pregled
+          scrubbed: Tekst ove završene objave više nije sačuvan.
+          expires: Važi do %{date}
+          flags: 'Prijave sadržaja: %{count}'
+          pagination: Stranice objava
+          previous: Prethodna
+          next: Sljedeća
+          page: Stranica %{page} od %{pages}
+          none: isključeno
+          policy_intro: Ova pravila uređuju dodatno isticanje hitnih objava. Obavještenje u platformi ostaje dostupno članovima; njihove postavke upravljaju push i telefonskim obavještenjima.
+          policy_summary: 'Hitne kategorije: %{categories}. Utišanih komšiluka: %{count}.'
+          area_search: Pronađi komšiluk po nazivu
+          selected_areas: Izabrani komšiluci
+          status: Status objave
+          author: Autor ili izvor
+          created: Objavljeno
+          valid_until: Važi do
+          no_expiry: Bez postavljenog roka
+          review_state: Pregled sadržaja
+          flag_count: Ukupno prijava sadržaja
+          unknown_author: Nalog više nije dostupan
+          source_link: Otvori izvor
+          source_authority: Podaci izvora i povlačenje sa svih tabli uređuju se u gradskim obavještenjima.
+          decision: Odluka o sadržaju
+          action: Radnja
+          reason: Razlog
+          choose_reason: Izaberi razlog
+          save_decision: Sačuvaj odluku i nastavi
+          saved: 'Odluka je sačuvana. Status objave: %{status}.'
+          history: Istorija pregleda
+          no_history: Još nema odluka o ovoj objavi.
+          transition: "%{before} → %{after}, verzija sadržaja %{revision}"
+          local_hide_scope: Skrivanje ovdje važi za ovu tablu i zaustavlja njenu dostavu na čekanju. Za ispravku izvora ili povlačenje sa svih tabli otvori gradsko obavještenje.
+          empty_help: Promijeni filtere ili otvori drugi red.
+          scope_title: Područje rada moderatora
+          scope_help: Ovo ograničenje važi samo za ulogu moderatora Komšiluka. Ne daje dozvolu za telefonsko slanje niti za uređivanje gradskih izvora.
+          scope_all: Svi komšiluci
+          scope_selected: Samo izabrani komšiluci
+          choose_areas: Izaberi područja za moderatora
+          tabs:
+            review: Za pregled
+            published: Objavljeno
+            hidden: Skriveno
+            archive: Arhiva
+            all: Sve objave
+            settings: Podešavanja
+          origins:
+            citizen: Objava komšije
+            staff: Obavještenje fondacije
+            city_service: Gradsko obavještenje
+            legacy: Ranija objava
+          empty:
+            review: Nema neriješenih prijava sadržaja.
+            published: Nema važećih objava.
+            hidden: Nema skrivenih objava.
+            archive: Nema arhiviranih objava.
+            all: Nema objava za izabrane filtere.
+          review_states:
+            unreviewed: Nije bilo prijave sadržaja
+            pending: Čeka pregled
+            reviewed: Pregledano
+          actions:
+            keep: Pregledano — ostaje
+            hide: Sakrij
+            restore: Vrati prethodni status
+          reasons:
+            valid: Sadržaj je primjeren
+            inappropriate: Neprimjeren sadržaj
+            spam: Neželjena ili reklamna poruka
+            personal_data: Otkriva privatne podatke
+            duplicate: Ponavlja postojeću objavu
+            inaccurate: Netačan ili obmanjujući sadržaj
+            expired: Više nije aktuelno
+            other: Drugi razlog
+          errors:
+            invalid_action: Izaberi ponuđenu radnju.
+            invalid_reason: Izaberi razlog odluke.
+            stale: Objava je izmijenjena nakon otvaranja. Pregledaj aktuelni sadržaj prije nove odluke.
+            archived: Tekst više nije sačuvan i objava ne može ponovo biti otvorena.
+            not_hidden: Objava više nije skrivena. Pregledaj njen aktuelni status.
+            hidden: Skrivenoj objavi prvo odaberi vraćanje ili potvrdi skrivanje.
+hr:
+  decidim:
+    bih:
+      admin:
+        board_review:
+          title: Komšiluk tabla
+          new_notice: Nova objava
+          tabs_label: Redovi za pregled
+          filters: Pretraga i filteri
+          search: Pretraga
+          category: Kategorija
+          origin: Vrsta objave
+          area: Komšiluk
+          any: Sve
+          from: Objavljeno od
+          to: Objavljeno do
+          apply: Primijeni
+          clear: Poništi
+          showing: Prikazano %{shown} od %{total} objava
+          review: Pregledaj
+          back: Nazad na red za pregled
+          scrubbed: Tekst ove završene objave više nije sačuvan.
+          expires: Važi do %{date}
+          flags: 'Prijave sadržaja: %{count}'
+          pagination: Stranice objava
+          previous: Prethodna
+          next: Sljedeća
+          page: Stranica %{page} od %{pages}
+          none: isključeno
+          policy_intro: Ova pravila uređuju dodatno isticanje hitnih objava. Obavještenje u platformi ostaje dostupno članovima; njihove postavke upravljaju push i telefonskim obavještenjima.
+          policy_summary: 'Hitne kategorije: %{categories}. Utišanih komšiluka: %{count}.'
+          area_search: Pronađi komšiluk po nazivu
+          selected_areas: Izabrani komšiluci
+          status: Status objave
+          author: Autor ili izvor
+          created: Objavljeno
+          valid_until: Važi do
+          no_expiry: Bez postavljenog roka
+          review_state: Pregled sadržaja
+          flag_count: Ukupno prijava sadržaja
+          unknown_author: Nalog više nije dostupan
+          source_link: Otvori izvor
+          source_authority: Podaci izvora i povlačenje sa svih tabli uređuju se u gradskim obavještenjima.
+          decision: Odluka o sadržaju
+          action: Radnja
+          reason: Razlog
+          choose_reason: Izaberi razlog
+          save_decision: Sačuvaj odluku i nastavi
+          saved: 'Odluka je sačuvana. Status objave: %{status}.'
+          history: Istorija pregleda
+          no_history: Još nema odluka o ovoj objavi.
+          transition: "%{before} → %{after}, verzija sadržaja %{revision}"
+          local_hide_scope: Skrivanje ovdje važi za ovu tablu i zaustavlja njenu dostavu na čekanju. Za ispravku izvora ili povlačenje sa svih tabli otvori gradsko obavještenje.
+          empty_help: Promijeni filtere ili otvori drugi red.
+          scope_title: Područje rada moderatora
+          scope_help: Ovo ograničenje važi samo za ulogu moderatora Komšiluka. Ne daje dozvolu za telefonsko slanje niti za uređivanje gradskih izvora.
+          scope_all: Svi komšiluci
+          scope_selected: Samo izabrani komšiluci
+          choose_areas: Izaberi područja za moderatora
+          tabs:
+            review: Za pregled
+            published: Objavljeno
+            hidden: Skriveno
+            archive: Arhiva
+            all: Sve objave
+            settings: Podešavanja
+          origins:
+            citizen: Objava komšije
+            staff: Obavještenje fondacije
+            city_service: Gradsko obavještenje
+            legacy: Ranija objava
+          empty:
+            review: Nema neriješenih prijava sadržaja.
+            published: Nema važećih objava.
+            hidden: Nema skrivenih objava.
+            archive: Nema arhiviranih objava.
+            all: Nema objava za izabrane filtere.
+          review_states:
+            unreviewed: Nije bilo prijave sadržaja
+            pending: Čeka pregled
+            reviewed: Pregledano
+          actions:
+            keep: Pregledano — ostaje
+            hide: Sakrij
+            restore: Vrati prethodni status
+          reasons:
+            valid: Sadržaj je primjeren
+            inappropriate: Neprimjeren sadržaj
+            spam: Neželjena ili reklamna poruka
+            personal_data: Otkriva privatne podatke
+            duplicate: Ponavlja postojeću objavu
+            inaccurate: Netačan ili obmanjujući sadržaj
+            expired: Više nije aktuelno
+            other: Drugi razlog
+          errors:
+            invalid_action: Izaberi ponuđenu radnju.
+            invalid_reason: Izaberi razlog odluke.
+            stale: Objava je izmijenjena nakon otvaranja. Pregledaj aktuelni sadržaj prije nove odluke.
+            archived: Tekst više nije sačuvan i objava ne može ponovo biti otvorena.
+            not_hidden: Objava više nije skrivena. Pregledaj njen aktuelni status.
+            hidden: Skrivenoj objavi prvo odaberi vraćanje ili potvrdi skrivanje.
+en:
+  decidim:
+    bih:
+      admin:
+        board_review:
+          title: Neighbourhood board
+          new_notice: New notice
+          tabs_label: Review queues
+          filters: Search and filters
+          search: Search
+          category: Category
+          origin: Notice type
+          area: Neighbourhood
+          any: All
+          from: Published from
+          to: Published until
+          apply: Apply
+          clear: Clear
+          showing: Showing %{shown} of %{total} notices
+          review: Review
+          back: Back to the review queue
+          scrubbed: This completed notice's text is no longer retained.
+          expires: Valid until %{date}
+          flags: 'Content reports: %{count}'
+          pagination: Notice pages
+          previous: Previous
+          next: Next
+          page: Page %{page} of %{pages}
+          none: disabled
+          policy_intro: These rules control additional urgent emphasis. Platform notifications remain available to members; their settings control push and phone notifications.
+          policy_summary: 'Urgent categories: %{categories}. Muted neighbourhoods: %{count}.'
+          area_search: Find a neighbourhood by name
+          selected_areas: Selected neighbourhoods
+          status: Notice status
+          author: Author or source
+          created: Published
+          valid_until: Valid until
+          no_expiry: No expiry set
+          review_state: Content review
+          flag_count: Total content reports
+          unknown_author: Account no longer available
+          source_link: Open source
+          source_authority: Source facts and withdrawal from all boards are managed in city notices.
+          decision: Content decision
+          action: Action
+          reason: Reason
+          choose_reason: Choose a reason
+          save_decision: Save decision and continue
+          saved: 'Decision saved. Notice status: %{status}.'
+          history: Review history
+          no_history: No decisions have been recorded for this notice.
+          transition: "%{before} → %{after}, content revision %{revision}"
+          local_hide_scope: Hiding here affects this board and stops its pending delivery. Open the city notice to correct the source or withdraw it from every board.
+          empty_help: Change the filters or open another queue.
+          scope_title: Moderator's areas
+          scope_help: This restriction applies only to the neighbourhood moderator role. It grants neither phone sending nor city-source management.
+          scope_all: All neighbourhoods
+          scope_selected: Selected neighbourhoods only
+          choose_areas: Choose the moderator's areas
+          tabs:
+            review: Needs review
+            published: Published
+            hidden: Hidden
+            archive: Archive
+            all: All notices
+            settings: Settings
+          origins:
+            citizen: Neighbour's notice
+            staff: Organization notice
+            city_service: City-service notice
+            legacy: Earlier notice
+          empty:
+            review: No unresolved content reports.
+            published: No current notices.
+            hidden: No hidden notices.
+            archive: No archived notices.
+            all: No notices match these filters.
+          review_states:
+            unreviewed: No content report
+            pending: Awaiting review
+            reviewed: Reviewed
+          actions:
+            keep: Reviewed — keep
+            hide: Hide
+            restore: Restore previous status
+          reasons:
+            valid: Appropriate content
+            inappropriate: Inappropriate content
+            spam: Spam or advertising
+            personal_data: Exposes private information
+            duplicate: Repeats an existing notice
+            inaccurate: Inaccurate or misleading content
+            expired: No longer relevant
+            other: Other reason
+          errors:
+            invalid_action: Choose an available action.
+            invalid_reason: Choose a decision reason.
+            stale: The notice changed after you opened it. Review its current content before deciding.
+            archived: The text is no longer retained, so this notice cannot be reopened.
+            not_hidden: This notice is no longer hidden. Review its current status.
+            hidden: Choose restore or confirm hiding for this hidden notice.
+sr-Cyrl:
+  decidim:
+    bih:
+      admin:
+        board_review:
+          title: Комшилук табла
+          new_notice: Нова објава
+          tabs_label: Редови за преглед
+          filters: Претрага и филтери
+          search: Претрага
+          category: Категорија
+          origin: Врста објаве
+          area: Комшилук
+          any: Све
+          from: Објављено од
+          to: Објављено до
+          apply: Примијени
+          clear: Поништи
+          showing: Приказано %{shown} од %{total} објава
+          review: Прегледај
+          back: Назад на ред за преглед
+          scrubbed: Текст ове завршене објаве више није сачуван.
+          expires: Важи до %{date}
+          flags: 'Пријаве садржаја: %{count}'
+          pagination: Странице објава
+          previous: Претходна
+          next: Сљедећа
+          page: Страница %{page} од %{pages}
+          none: искључено
+          policy_intro: Ова правила уређују додатно истицање хитних објава. Обавјештење у платформи остаје доступно члановима; њихове поставке управљају пусх и телефонским обавјештењима.
+          policy_summary: 'Хитне категорије: %{categories}. Утишаних комшилука: %{count}.'
+          area_search: Пронађи комшилук по називу
+          selected_areas: Изабрани комшилуци
+          status: Статус објаве
+          author: Аутор или извор
+          created: Објављено
+          valid_until: Важи до
+          no_expiry: Без постављеног рока
+          review_state: Преглед садржаја
+          flag_count: Укупно пријава садржаја
+          unknown_author: Налог више није доступан
+          source_link: Отвори извор
+          source_authority: Подаци извора и повлачење са свих табли уређују се у градским обавјештењима.
+          decision: Одлука о садржају
+          action: Радња
+          reason: Разлог
+          choose_reason: Изабери разлог
+          save_decision: Сачувај одлуку и настави
+          saved: 'Одлука је сачувана. Статус објаве: %{status}.'
+          history: Историја прегледа
+          no_history: Још нема одлука о овој објави.
+          transition: "%{before} → %{after}, верзија садржаја %{revision}"
+          local_hide_scope: Скривање овдје важи за ову таблу и зауставља њену доставу на чекању. За исправку извора или повлачење са свих табли отвори градско обавјештење.
+          empty_help: Промијени филтере или отвори други ред.
+          scope_title: Подручје рада модератора
+          scope_help: Ово ограничење важи само за улогу модератора Комшилука. Не даје дозволу за телефонско слање нити за уређивање градских извора.
+          scope_all: Сви комшилуци
+          scope_selected: Само изабрани комшилуци
+          choose_areas: Изабери подручја за модератора
+          tabs:
+            review: За преглед
+            published: Објављено
+            hidden: Скривено
+            archive: Архива
+            all: Све објаве
+            settings: Подешавања
+          origins:
+            citizen: Објава комшије
+            staff: Обавјештење фондације
+            city_service: Градско обавјештење
+            legacy: Ранија објава
+          empty:
+            review: Нема неријешених пријава садржаја.
+            published: Нема важећих објава.
+            hidden: Нема скривених објава.
+            archive: Нема архивираних објава.
+            all: Нема објава за изабране филтере.
+          review_states:
+            unreviewed: Није било пријаве садржаја
+            pending: Чека преглед
+            reviewed: Прегледано
+          actions:
+            keep: Прегледано — остаје
+            hide: Сакриј
+            restore: Врати претходни статус
+          reasons:
+            valid: Садржај је примјерен
+            inappropriate: Непримјерен садржај
+            spam: Нежељена или рекламна порука
+            personal_data: Открива приватне податке
+            duplicate: Понавља постојећу објаву
+            inaccurate: Нетачан или обмањујући садржај
+            expired: Више није актуелно
+            other: Други разлог
+          errors:
+            invalid_action: Изабери понуђену радњу.
+            invalid_reason: Изабери разлог одлуке.
+            stale: Објава је измијењена након отварања. Прегледај актуелни садржај прије нове одлуке.
+            archived: Текст више није сачуван и објава не може поново бити отворена.
+            not_hidden: Објава више није скривена. Прегледај њен актуелни статус.
+            hidden: Скривеној објави прво одабери враћање или потврди скривање.

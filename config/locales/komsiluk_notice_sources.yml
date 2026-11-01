@@ -1,0 +1,86 @@
+---
+sr:
+  decidim:
+    bih:
+      komsiluk_notice_sources:
+        prepare: Pripremi objavu za tablu
+        report_title: Prijava %{reference}
+        report_body: |-
+          Prijava %{reference} · %{category}
+          Status: %{status}
+          Javni pregled prijave: %{url}
+        activity_link: 'Detalji aktivnosti i prijava: %{url}'
+        project_link: 'Javni detalji projekta: %{url}'
+        settings_title: Obavještenja sa komšijskih tabli
+        settings_inbox: Svaka nova objava ide u obavještenja na platformi. Push dobijaju članovi koji su uključili obavještenja iz komšiluka i imaju aktivnu pretplatu uređaja.
+        settings_phone: Viber, WhatsApp i SMS zahtijevaju poseban pregled publike, uslova slanja i potvrdu. SMS se koristi za hitne objave uz odobrenu tarifu i dnevni limit.
+        settings_open: Otvori postavke slanja na telefon
+        settings_legacy: Postavke slanja su premještene. Kategorije i utišavanje tabli više ne određuju nova obavještenja.
+bs:
+  decidim:
+    bih:
+      komsiluk_notice_sources:
+        prepare: Pripremi objavu za tablu
+        report_title: Prijava %{reference}
+        report_body: |-
+          Prijava %{reference} · %{category}
+          Status: %{status}
+          Javni pregled prijave: %{url}
+        activity_link: 'Detalji aktivnosti i prijava: %{url}'
+        project_link: 'Javni detalji projekta: %{url}'
+        settings_title: Obavještenja sa komšijskih tabli
+        settings_inbox: Svaka nova objava ide u obavještenja na platformi. Push dobijaju članovi koji su uključili obavještenja iz komšiluka i imaju aktivnu pretplatu uređaja.
+        settings_phone: Viber, WhatsApp i SMS zahtijevaju poseban pregled publike, uslova slanja i potvrdu. SMS se koristi za hitne objave uz odobrenu tarifu i dnevni limit.
+        settings_open: Otvori postavke slanja na telefon
+        settings_legacy: Postavke slanja su premještene. Kategorije i utišavanje tabli više ne određuju nova obavještenja.
+hr:
+  decidim:
+    bih:
+      komsiluk_notice_sources:
+        prepare: Pripremi objavu za ploču
+        report_title: Prijava %{reference}
+        report_body: |-
+          Prijava %{reference} · %{category}
+          Status: %{status}
+          Javni pregled prijave: %{url}
+        activity_link: 'Detalji aktivnosti i prijava: %{url}'
+        project_link: 'Javni detalji projekta: %{url}'
+        settings_title: Obavijesti s komšijskih ploča
+        settings_inbox: Svaka nova objava ide u obavijesti na platformi. Push dobivaju članovi koji su uključili obavijesti iz komšiluka i imaju aktivnu pretplatu uređaja.
+        settings_phone: Viber, WhatsApp i SMS zahtijevaju poseban pregled publike, uvjeta slanja i potvrdu. SMS se koristi za hitne objave uz odobrenu tarifu i dnevno ograničenje.
+        settings_open: Otvori postavke slanja na telefon
+        settings_legacy: Postavke slanja su premještene. Kategorije i utišavanje ploča više ne određuju nove obavijesti.
+en:
+  decidim:
+    bih:
+      komsiluk_notice_sources:
+        prepare: Prepare a board notice
+        report_title: Report %{reference}
+        report_body: |-
+          Report %{reference} · %{category}
+          Status: %{status}
+          Public report overview: %{url}
+        activity_link: 'Activity details and signup: %{url}'
+        project_link: 'Public project details: %{url}'
+        settings_title: Neighborhood board notifications
+        settings_inbox: Every new notice creates a platform notification. Push goes to members who enabled neighborhood notifications and have an active device subscription.
+        settings_phone: Viber, WhatsApp and SMS require a separate audience and delivery review and confirmation. SMS is for urgent notices with an approved tariff and daily limit.
+        settings_open: Open phone delivery settings
+        settings_legacy: Delivery settings have moved. Categories and muted boards no longer determine new notifications.
+sr-Cyrl:
+  decidim:
+    bih:
+      komsiluk_notice_sources:
+        prepare: Припреми објаву за таблу
+        report_title: Пријава %{reference}
+        report_body: |-
+          Пријава %{reference} · %{category}
+          Статус: %{status}
+          Јавни преглед пријаве: %{url}
+        activity_link: 'Детаљи активности и пријава: %{url}'
+        project_link: 'Јавни детаљи пројекта: %{url}'
+        settings_title: Обавјештења са комшијских табли
+        settings_inbox: Свака нова објава иде у обавјештења на платформи. Пусх добијају чланови који су укључили обавјештења из комшилука и имају активну претплату уређаја.
+        settings_phone: Вибер, WhatsApp и СМС захтијевају посебан преглед публике, услова слања и потврду. СМС се користи за хитне објаве уз одобрену тарифу и дневни лимит.
+        settings_open: Отвори поставке слања на телефон
+        settings_legacy: Поставке слања су премјештене. Категорије и утишавање табли више не одређују нова обавјештења.

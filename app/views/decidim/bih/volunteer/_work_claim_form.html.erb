@@ -1,0 +1,14 @@
+<%= form_with url: volunteer_log_hours_path, method: :post, html: { class: "mi-action-row mi-volunteer-hours-form" } do %>
+  <%= hidden_field_tag :opportunity_id, opportunity.id %>
+  <label><%= t("decidim.bih.volunteer.index.work_date_label") %>
+    <input type="date" name="work_date" required>
+  </label>
+  <label><%= t("decidim.bih.volunteer.index.worked_from_label") %>
+    <input type="time" name="worked_from_time" required>
+  </label>
+  <label><%= t("decidim.bih.volunteer.index.worked_until_label") %>
+    <input type="time" name="worked_until_time" required>
+  </label>
+  <p class="mi-report-card__meta"><%= t("decidim.bih.volunteer.index.midnight_work_hint") %></p>
+  <%= submit_tag t("decidim.bih.volunteer.index.log_hours"), class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+<% end %>

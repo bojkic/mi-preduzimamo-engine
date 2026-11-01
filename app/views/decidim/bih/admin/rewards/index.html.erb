@@ -1,0 +1,208 @@
+<%#
+  Admin rewards catalog — list of table-backed rewards with cost/stock/expiry/
+  active and per-row actions. The page is split into workflow tabs so stock
+  review and import diagnostics do not compete with routine catalog edits.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.rewards.index.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :rewards %>
+
+<div class="card" id="admin-rewards-header" data-rewards-active-tab="<%= @active_rewards_tab %>">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.rewards.index.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.rewards.index.intro") %></p>
+    <%= link_to t("decidim.bih.admin.rewards.index.new"),
+                new_admin_bih_reward_path, class: "button button__sm button__secondary" %>
+    <nav id="admin-rewards-workflow-nav" aria-label="<%= t("decidim.bih.admin.rewards.index.workflow_nav_label") %>" style="display:flex; gap:0.45rem; flex-wrap:wrap; margin-top:1rem;">
+      <%= link_to t("decidim.bih.admin.rewards.index.workflow_catalog"),
+                  admin_bih_rewards_path(tab: "catalog"),
+                  class: ["button", "button__sm", (@active_rewards_tab == "catalog" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_rewards_tab == "catalog") },
+                  data: { rewards_workflow_tab: "catalog" } %>
+      <%= link_to t("decidim.bih.admin.rewards.index.workflow_stock"),
+                  admin_bih_rewards_path(tab: "stock"),
+                  class: ["button", "button__sm", (@active_rewards_tab == "stock" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_rewards_tab == "stock") },
+                  data: { rewards_workflow_tab: "stock" } %>
+      <%= link_to t("decidim.bih.admin.rewards.index.workflow_diagnostics"),
+                  admin_bih_rewards_path(tab: "diagnostics"),
+                  class: ["button", "button__sm", (@active_rewards_tab == "diagnostics" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_rewards_tab == "diagnostics") },
+                  data: { rewards_workflow_tab: "diagnostics" } %>
+    </nav>
+  </div>
+</div>
+
+<% if @active_rewards_tab == "catalog" %>
+<div class="card" id="catalog-availability">
+  <div class="card-section">
+    <h2><%= t("decidim.bih.admin.rewards.catalog.title") %></h2>
+    <p><%= t("decidim.bih.admin.rewards.catalog.modes.#{@catalog_mode || Decidim::Bih::Goodwill::RewardsCatalog.mode(current_organization)}") %></p>
+    <%= form_tag catalog_admin_bih_rewards_path, method: :post, class: "form form-defaults" do %>
+      <%= select_tag :mode, options_for_select(%w(managed closed).map { |value| [t("decidim.bih.admin.rewards.catalog.modes.#{value}"), value] }, @catalog_mode) %>
+      <%= text_field_tag :approval_rationale, nil, required: true, placeholder: t("decidim.bih.admin.rewards.index.approval_rationale_placeholder"), aria: { label: t("decidim.bih.admin.rewards.index.approval_rationale") } %>
+      <%= submit_tag t("decidim.bih.admin.rewards.catalog.save"), class: "button button__sm button__secondary" %>
+    <% end %>
+  </div>
+</div>
+<div class="card" id="admin-rewards-list">
+  <% if @rewards.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.rewards.index.col_key") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_name") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_cost") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_stock") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_expires") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_active") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @rewards.each do |reward| %>
+            <tr>
+              <td><code><%= reward.key %></code></td>
+              <td><%= reward.name %></td>
+              <td><%= number_with_delimiter(reward.cost, delimiter: ".") %></td>
+              <td><%= reward.stock.nil? ? t("decidim.bih.admin.rewards.index.unlimited") : reward.stock %></td>
+              <td>
+                <% if reward.expires_at.present? %>
+                  <%= l(reward.expires_at, format: :short) %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td>
+                <% if reward.active? %>
+                  <span style="color:#27ae60;"><%= t("decidim.bih.admin.rewards.index.yes") %></span>
+                <% else %>
+                  <span style="color:#888;"><%= t("decidim.bih.admin.rewards.index.no") %></span>
+                <% end %>
+              </td>
+              <td style="display:flex; gap:0.4rem; flex-wrap:wrap; align-items:flex-start;">
+                <%= link_to t("decidim.bih.admin.rewards.index.edit"),
+                            edit_admin_bih_reward_path(reward), class: "button button__sm button__transparent-secondary" %>
+                <% if reward.active? %>
+                  <%= form_tag deactivate_admin_bih_reward_path(reward), method: :post, style: "display:flex; gap:0.35rem; flex-wrap:wrap; align-items:flex-start;", class: "form form-defaults" do %>
+                    <input type="text"
+                           name="approval_rationale"
+                           value="<%= @approval_rationale_input if @failed_reward_id == reward.id %>"
+                           placeholder="<%= t("decidim.bih.admin.rewards.index.approval_rationale_placeholder") %>"
+                           aria-label="<%= t("decidim.bih.admin.rewards.index.approval_rationale") %>"
+                           style="max-width:14rem;">
+                    <%= submit_tag t("decidim.bih.admin.rewards.index.deactivate"),
+                                   class: "button button__sm button__transparent-secondary mi-admin-action--danger",
+                                   data: { confirm: t("decidim.bih.admin.rewards.index.deactivate_confirm") } %>
+                  <% end %>
+                <% else %>
+                  <%= form_tag activate_admin_bih_reward_path(reward), method: :post, style: "display:flex; gap:0.35rem; flex-wrap:wrap; align-items:flex-start;", class: "form form-defaults" do %>
+                    <input type="text"
+                           name="approval_rationale"
+                           value="<%= @approval_rationale_input if @failed_reward_id == reward.id %>"
+                           placeholder="<%= t("decidim.bih.admin.rewards.index.approval_rationale_placeholder") %>"
+                           aria-label="<%= t("decidim.bih.admin.rewards.index.approval_rationale") %>"
+                           style="max-width:14rem;">
+                    <%= submit_tag t("decidim.bih.admin.rewards.index.activate"),
+                                   class: "button button__sm button__secondary" %>
+                  <% end %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.rewards.index.empty") %></p>
+      <p><%= link_to t("decidim.bih.admin.rewards.index.empty_diagnostics_link"),
+                     admin_bih_rewards_path(tab: "diagnostics") %></p>
+    </div>
+  <% end %>
+</div>
+<% end %>
+
+<% if @active_rewards_tab == "stock" %>
+<div class="card" id="admin-rewards-stock-review">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.rewards.index.stock_review_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.rewards.index.stock_review_intro") %></p>
+  </div>
+  <% if @rewards.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.rewards.index.col_name") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_active") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_stock") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_consumed") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_remaining") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_expires") %></th>
+            <th><%= t("decidim.bih.admin.rewards.index.col_actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @rewards.each do |reward| %>
+            <% used_slots = @reward_stock_usage.fetch(reward.key, 0) %>
+            <% remaining_slots = reward.stock.nil? ? nil : [reward.stock - used_slots, 0].max %>
+            <tr>
+              <td>
+                <strong><%= reward.name %></strong><br>
+                <small><code><%= reward.key %></code></small>
+              </td>
+              <td>
+                <% if reward.active? %>
+                  <span style="color:#27ae60;"><%= t("decidim.bih.admin.rewards.index.yes") %></span>
+                <% else %>
+                  <span style="color:#888;"><%= t("decidim.bih.admin.rewards.index.no") %></span>
+                <% end %>
+              </td>
+              <td><%= reward.stock.nil? ? t("decidim.bih.admin.rewards.index.unlimited") : reward.stock %></td>
+              <td><%= used_slots %></td>
+              <td><%= remaining_slots.nil? ? t("decidim.bih.admin.rewards.index.unlimited") : remaining_slots %></td>
+              <td>
+                <% if reward.expires_at.present? %>
+                  <%= l(reward.expires_at, format: :short) %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td>
+                <%= link_to t("decidim.bih.admin.rewards.index.edit"),
+                            edit_admin_bih_reward_path(reward), class: "button button__sm button__transparent-secondary" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.rewards.index.empty") %></p>
+    </div>
+  <% end %>
+</div>
+<% end %>
+
+<% if @active_rewards_tab == "diagnostics" %>
+<div class="card" id="admin-rewards-diagnostics">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.rewards.index.diagnostics_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.rewards.index.diagnostics_intro") %></p>
+    <details>
+      <summary><%= t("decidim.bih.admin.rewards.index.import_details_summary") %></summary>
+      <p><em><%= t("decidim.bih.admin.rewards.index.empty_import_hint") %></em></p>
+      <pre style="white-space:pre-wrap;">bundle exec rake "decidim_bih:goodwill:import_rewards_catalog[<%= current_organization.host %>]"</pre>
+    </details>
+  </div>
+</div>
+<% end %>

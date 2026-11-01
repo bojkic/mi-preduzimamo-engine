@@ -1,0 +1,93 @@
+<%#
+  Shared new/edit form for an admin-managed reward. Operators fill the Latin
+  Serbian (sr), Bosnian (bs), and Croatian (hr) title/description; the Cyrillic
+  (sr-Cyrl) slot is generated server-side by the transliterator on save.
+%>
+<% read_title = @reward.read_attribute(:title) || {} %>
+<% read_desc = @reward.read_attribute(:description) || {} %>
+
+<div class="row" style="margin-bottom:1rem;">
+  <div class="columns medium-4">
+    <label>
+      <%= t("decidim.bih.admin.rewards.form.key") %>
+      <% if @reward.key_locked? %>
+        <input type="text" value="<%= @reward.key %>" readonly aria-readonly="true">
+        <input type="hidden" name="reward[key]" value="<%= @reward.key %>">
+      <% else %>
+        <input type="text" name="reward[key]" value="<%= @reward.key %>" required>
+      <% end %>
+    </label>
+    <small><%= t(@reward.key_locked? ? "decidim.bih.admin.rewards.form.key_locked_hint" : "decidim.bih.admin.rewards.form.key_hint",
+                 default: t("decidim.bih.admin.rewards.form.key_hint")) %></small>
+  </div>
+  <div class="columns medium-4">
+    <label>
+      <%= t("decidim.bih.admin.rewards.form.cost") %>
+      <input type="number" name="reward[cost]" min="1" value="<%= @reward.cost %>" required>
+    </label>
+  </div>
+</div>
+
+<div class="row" style="margin-bottom:1rem;">
+  <div class="columns medium-4">
+    <label>
+      <%= t("decidim.bih.admin.rewards.form.stock") %>
+      <input type="number" name="reward[stock]" min="0" value="<%= @reward.stock %>">
+    </label>
+    <small><%= t("decidim.bih.admin.rewards.form.stock_hint") %></small>
+  </div>
+  <div class="columns medium-4">
+    <label>
+      <%= t("decidim.bih.admin.rewards.form.expires_at") %>
+      <input type="datetime-local" name="reward[expires_at]"
+             value="<%= @reward.expires_at&.strftime("%Y-%m-%dT%H:%M") %>">
+    </label>
+    <small><%= t("decidim.bih.admin.rewards.form.expires_at_hint") %></small>
+  </div>
+  <div class="columns medium-4">
+    <label>
+      <input type="hidden" name="reward[active]" value="0">
+      <input type="checkbox" name="reward[active]" value="1" <%= "checked" if @reward.active? %>>
+      <%= t("decidim.bih.admin.rewards.form.active") %>
+    </label>
+  </div>
+</div>
+
+<% %w(sr bs hr).each do |locale| %>
+  <div class="row" style="margin-bottom:1rem;">
+    <div class="columns medium-6">
+      <label>
+        <%= t("decidim.bih.admin.rewards.form.title", lang: locale.upcase) %>
+        <input type="text" name="reward[title_<%= locale %>]" value="<%= read_title[locale] %>"
+               <%= "required" if locale == "sr" %>>
+      </label>
+    </div>
+    <div class="columns medium-6">
+      <label>
+        <%= t("decidim.bih.admin.rewards.form.description", lang: locale.upcase) %>
+        <input type="text" name="reward[description_<%= locale %>]" value="<%= read_desc[locale] %>">
+      </label>
+    </div>
+  </div>
+<% end %>
+
+<small><%= t("decidim.bih.admin.rewards.form.cyrillic_note") %></small>
+
+<div class="row" style="margin-top:1rem;">
+  <div class="columns medium-12">
+    <label>
+      <%= t("decidim.bih.admin.rewards.form.approval_rationale") %>
+      <input type="text" name="approval_rationale"
+             value="<%= params[:approval_rationale].to_s %>"
+             placeholder="<%= t("decidim.bih.admin.rewards.form.approval_rationale_placeholder") %>">
+    </label>
+    <small><%= t("decidim.bih.admin.rewards.form.approval_rationale_hint") %></small>
+  </div>
+</div>
+
+<div class="row" style="margin-top:1rem;">
+  <div class="columns">
+    <%= submit_tag t("decidim.bih.admin.rewards.form.submit"), class: "button button__secondary" %>
+    <%= link_to t("decidim.bih.admin.rewards.form.cancel"), admin_bih_rewards_path, class: "button button__transparent-secondary" %>
+  </div>
+</div>

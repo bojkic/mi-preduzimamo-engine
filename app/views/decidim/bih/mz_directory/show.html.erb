@@ -1,0 +1,85 @@
+<%#
+  Public, read-only Mjesna zajednica (MZ) detail page.
+  Shows name / predsjednik / telefon plus a Leaflet map of the MZ boundary,
+  centered on a guaranteed-interior representative point.
+
+  The boundary GeoJSON is fetched from this same URL with .json (the controller's
+  #show responds to JSON with a GeoJSON Feature). The map block is only rendered
+  when the MZ has a boundary + a resolvable center. Self-contained Leaflet via
+  the host-vended /leaflet/ assets (loads from 'self' under Decidim's CSP).
+  On-brand (MI theme tokens).
+%>
+<% add_decidim_page_title("#{t(".eyebrow")} — #{@area.translated_name}") %>
+<div class="wrapper">
+  <div class="row column" style="max-width: 52rem; margin: 0 auto;">
+    <p style="margin: 0 0 0.75rem;">
+      <%= link_to "← #{t(".back", default: "Sve mjesne zajednice")}", mz_directory_path, style: "color: var(--mi-navy-500); text-decoration: none; font-size: 0.92rem;" %>
+    </p>
+
+    <header style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.75rem;">
+      <img src="/mi/heart-mark.png" alt="" aria-hidden="true" style="height: 44px; width: auto; flex: none;">
+      <div>
+        <p class="mi-eyebrow" style="margin: 0;"><%= t(".eyebrow", default: "Mjesna zajednica") %></p>
+        <h1 class="heading2" style="margin: 0;"><%= @area.translated_name %></h1>
+      </div>
+    </header>
+
+    <div style="background: #fff; border: 1.5px solid var(--mi-line); border-radius: var(--mi-radius-card); box-shadow: var(--mi-shadow-sm); padding: 1rem 1.1rem; margin: 0.5rem 0 1rem;">
+      <p style="margin: 0 0 0.4rem; color: var(--mi-navy-600);">
+        <strong><%= t(".predsjednik", default: "Predsjednik") %>:</strong>
+        <%= @area.predsjednik.present? ? @area.display_predsjednik : t(".missing_contact_field", default: "nije dostupno") %>
+      </p>
+      <p style="margin: 0; color: var(--mi-navy-600);">
+        <strong><%= t(".telefon", default: "Telefon") %>:</strong>
+        <% if @area.telefon.present? %>
+          <%= link_to @area.telefon, "tel:#{@area.telefon}", style: "color: var(--mi-coral-700);" %>
+        <% else %>
+          <%= t(".missing_contact_field", default: "nije dostupan") %>
+        <% end %>
+      </p>
+      <% if @area.predsjednik.blank? && @area.telefon.blank? %>
+        <p style="margin: 0; color: var(--mi-navy-400);"><%= t(".no_contact", default: "Kontakt podaci nisu dostupni.") %></p>
+      <% end %>
+    </div>
+
+    <aside class="mi-notice" aria-label="<%= t(".data_note_title") %>">
+      <strong><%= t(".data_note_title") %></strong>
+      <p><%= t(".data_note", source: @source_label.presence || t(".source_fallback"), date: @last_updated_at ? l(@last_updated_at.to_date, format: :decidim_short) : t(".date_unknown")) %></p>
+      <% if @support_email %>
+        <p><%= t(".correction_html", support: @support_name.presence || t(".support_fallback"), email: mail_to(@support_email)) %></p>
+      <% end %>
+    </aside>
+
+    <% if @boundary.present? && @center.present? %>
+      <link rel="stylesheet" href="/leaflet/leaflet.css">
+      <div style="background: #fff; border: 1.5px solid var(--mi-line); border-radius: var(--mi-radius-card); box-shadow: var(--mi-shadow-sm); padding: 0.75rem;">
+        <div
+          id="bih-mz-map"
+          style="height: 460px; border-radius: 12px;"
+          data-boundary-url="<%= mz_area_path(slug: @area.slug, format: :json) %>"
+          data-center-lat="<%= @center.first %>"
+          data-center-lng="<%= @center.last %>"
+          data-zoom="14"
+          data-tile-url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          data-tile-attribution="<%= t(".attribution", default: "© saradnici OpenStreetMap-a") %>"
+          aria-label="<%= t(".map_label") %>"
+          data-status-id="bih-mz-map-status"
+          data-retry-button-id="bih-mz-map-retry"
+          data-status-loading="<%= t(".map_loading") %>"
+          data-status-ready="<%= t(".map_ready") %>"
+          data-status-unavailable="<%= t(".map_unavailable") %>"></div>
+        <div class="mi-notice" style="margin-top: .75rem;">
+          <p id="bih-mz-map-status" role="status" aria-live="polite" style="margin: 0;"><%= t(".map_loading") %></p>
+          <p class="mi-action-row" style="margin: .6rem 0 0;">
+            <button type="button" id="bih-mz-map-retry" class="mi-btn mi-btn--ghost mi-btn--sm" hidden><%= t(".map_retry") %></button>
+            <%= link_to t(".map_list_fallback"), mz_directory_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+          </p>
+        </div>
+      </div>
+
+      <% bih_mz_map_v = (File.mtime(Rails.root.join("public/mi/bih-mz-map.js")).to_i rescue 1) %>
+      <script src="/leaflet/leaflet.js"></script>
+      <script defer src="/mi/bih-mz-map.js?v=<%= bih_mz_map_v %>"></script>
+    <% end %>
+  </div>
+</div>

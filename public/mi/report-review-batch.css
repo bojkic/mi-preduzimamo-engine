@@ -1,0 +1,21 @@
+.report-batch-page { max-width: 1280px; margin: auto; }
+.report-batch-page h1 { font-size: 1.6rem; font-weight: 700; margin-block: 0.5rem 1rem; }
+.report-batch-page h2 { font-size: 1.2rem; font-weight: 650; margin-block: 0.5rem; }
+.report-batch-page h3 { font-weight: 650; margin-block: 0.5rem; }
+.report-batch-page p { margin-block: 0.75rem; }
+.report-batch-page .card-section { padding: 1.25rem; margin-block: 1rem; border: 1px solid #ddd; border-radius: 0.35rem; }
+.report-batch-page :focus-visible { outline: 3px solid #1c3d53; outline-offset: 3px; }
+.report-batch-page nav { margin-block: 1rem; }
+.report-batch-page nav a { padding: 0.5rem; }
+.report-batch-table table { width: 100%; table-layout: fixed; }
+.report-batch-table td, .report-batch-table th { vertical-align: top; overflow-wrap: anywhere; padding: 1rem; }
+.report-batch-table h2 { font-size: 1.15rem; }
+.report-batch-table details { margin-block: 1rem; }
+.report-batch-values dt { font-weight: 600; }
+.report-batch-values dd { margin: 0 0 0.8rem; overflow-wrap: anywhere; }
+.report-batch-confirm pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 720px) {
+  .report-batch-table thead { position: absolute; clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; }
+  .report-batch-table tr, .report-batch-table td { display: block; width: 100%; }
+  .report-batch-table tr { border-bottom: 2px solid #ddd; padding-block: 0.5rem; }
+}

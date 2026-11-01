@@ -1,0 +1,46 @@
+<% add_decidim_page_title(t("decidim.bih.postal.public.new.title")) %>
+
+<div class="wrapper">
+  <div class="row column">
+    <section class="mi-postal-page" aria-labelledby="mi-postal-title">
+      <div class="mi-postal-page__intro">
+        <p class="mi-eyebrow"><%= t("decidim.bih.postal.public.eyebrow") %></p>
+        <h1 id="mi-postal-title" class="heading2"><%= t("decidim.bih.postal.public.new.title") %></h1>
+        <p><%= t("decidim.bih.postal.public.new.body") %></p>
+      </div>
+
+      <div class="mi-postal-page__grid">
+        <%= decidim_form_for(@form, url: authorization_path, html: { class: "mi-postal-form" }) do |form| %>
+          <%= form_required_explanation %>
+
+          <div class="form__wrapper">
+            <%= form.text_field :full_address,
+                                label: t("decidim.bih.postal.public.new.address_label"),
+                                help_text: t("decidim.bih.postal.public.new.address_help") %>
+          </div>
+
+          <div class="form__wrapper-block flex-col-reverse md:flex-row justify-between">
+            <%= link_to authorizations_back_path(current_user, redirect_url:), class: "button button__sm md:button__lg button__text-secondary" do %>
+              <%= icon "arrow-left-line", class: "fill-current" %>
+              <%= t("decidim.wizard_step_form.wizard_aside.back") %>
+            <% end %>
+            <button type="submit" class="button button__sm md:button__lg button__secondary">
+              <%= t("decidim.bih.postal.public.new.send") %>
+              <%= icon "arrow-right-line", class: "fill-current" %>
+            </button>
+          </div>
+        <% end %>
+
+        <aside class="mi-postal-note" aria-label="<%= t("decidim.bih.postal.public.privacy_title") %>">
+          <h2 class="heading5"><%= t("decidim.bih.postal.public.privacy_title") %></h2>
+          <ul>
+            <li><%= t("decidim.bih.postal.public.privacy.address") %></li>
+            <li><%= t("decidim.bih.postal.public.privacy.komsiluk") %></li>
+            <li><%= t("decidim.bih.postal.public.privacy.profile") %></li>
+          </ul>
+          <p><%= t("decidim.bih.postal.public.new.after_send") %></p>
+        </aside>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<% add_decidim_page_title(t("decidim.bih.admin.goodwill_corrections.title")) %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :goodwill %>
+<div class="card">
+  <div class="card-section">
+    <h1><%= t("decidim.bih.admin.goodwill_corrections.title") %></h1>
+    <p><%= t("decidim.bih.admin.goodwill_corrections.intro") %></p>
+    <%= form_tag preview_goodwill_corrections_path, method: :get, class: "form form-defaults" do %>
+      <%= label_tag :reference, t("decidim.bih.admin.goodwill_corrections.reference") %>
+      <%= text_field_tag :reference, params[:reference], required: true %>
+      <%= submit_tag t("decidim.bih.admin.goodwill_corrections.preview"), class: "button button__secondary" %>
+    <% end %>
+  </div>
+</div>
+<div class="card table-stacked"><table class="table-list">
+  <thead><tr><% %w(source recognition wallet status).each do |key| %><th><%= t("decidim.bih.admin.goodwill_corrections.#{key}") %></th><% end %></tr></thead>
+  <tbody><% @corrections.each do |correction| %>
+    <tr><td><%= correction.source_key %> / #<%= correction.id %><br><%= l(correction.created_at, format: :short) %></td>
+      <td><%= correction.previous_target %> → <%= correction.target_amount %> (<%= correction.recognition_delta %>)</td>
+      <td><%= correction.settlement&.wallet_delta %></td>
+      <td><%= t("decidim.bih.admin.goodwill_corrections.statuses.#{correction.settlement&.status || 'pending'}") %>
+        <% if correction.settlement&.status == "admin_pending" %>
+          <%= button_to t("decidim.bih.admin.goodwill_corrections.settle"), settle_goodwill_correction_path(correction), method: :post, class: "button button__sm button__secondary" %>
+        <% end %>
+      </td></tr>
+  <% end %></tbody>
+</table></div>
+<%= paginate @corrections %>

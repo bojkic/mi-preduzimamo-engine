@@ -1,0 +1,26 @@
+<% w = "decidim.bih.review_workspace" %>
+<%
+  keys = []
+  keys += %w(category severity forwarding_note forwarding_recipient assigned_to_id response_due_at) if %w(send external ask review plan).include?(action)
+  keys += %w(body assigned_to_id response_due_at) if %w(ask supplement followup).include?(action)
+  keys += %w(reason) if %w(reject resolve reopen).include?(action)
+  keys += %w(resolution_evidence) if action == "resolve"
+  keys += %w(duplicate_reference) if action == "duplicate"
+  keys += %w(external_reference) if action == "external"
+  if action == "plan"
+    keys += %w(report_collection_id report_subtype)
+    if values["report_collection_id"].blank?
+      keys += %w(collection_title collection_topic collection_summary)
+    else
+      keys -= %w(assigned_to_id response_due_at)
+    end
+  end
+  keys += %w(address location_kind latitude longitude location_end_latitude location_end_longitude edit_location) if values["edit_location"] == "1" && %w(send external ask review plan).include?(action)
+%>
+<dl class="report-batch-values">
+<% values.slice(*keys).each do |key, value| %>
+<% next if value.blank? %>
+<dt><%= t("#{w}.batch.fields.#{key}") %></dt>
+<dd><% if key == "category" %><%= t("decidim.bih.reports.categories.#{value}") %><% elsif key == "severity" %><%= t("decidim.bih.reports.severities.#{value}") %><% elsif key == "assigned_to_id" %><%= Decidim::Bih::ReportCaseWorkflow.staff(current_organization).find_by(id: value)&.name %><% elsif key == "report_collection_id" %><%= Decidim::Bih::ReportCollection.find_by(organization: current_organization, id: value)&.title %><% elsif key == "location_kind" %><%= t("decidim.bih.report_planning.location_kinds.#{value}") %><% elsif key == "edit_location" %><%= t("#{w}.batch.location_change") %><% else %><%= simple_format(value.to_s) %><% end %></dd>
+<% end %>
+</dl>

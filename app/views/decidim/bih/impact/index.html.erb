@@ -1,0 +1,268 @@
+<%#
+  Public impact dashboard.
+
+  PII-SAFE: @summary contains only aggregate counts/totals, public project
+  titles and MZ names. It does not carry report descriptions, contacts,
+  coordinates, donor identities, volunteer free text, Komšiluk bodies or user
+  names.
+%>
+<% add_decidim_page_title(t(".title")) %>
+<%
+  number = ->(value) { number_with_delimiter(value.to_i, delimiter: ".") }
+  public_cell = lambda do |value|
+    value.nil? ? t(".areas.suppressed") : number.call(value)
+  end
+  money = ->(value, currency) { "#{number_with_delimiter(value.to_i, delimiter: ".")} #{currency}" }
+  report_category_label = lambda do |category|
+    t("decidim.bih.reports.categories.#{category}", default: category.to_s.humanize)
+  end
+  komsiluk_category_label = lambda do |category|
+    t("decidim.bih.komsiluk_board.categories.#{category}", default: category.to_s.humanize)
+  end
+  trend_delta_label = lambda do |metric|
+    t(".trends.delta.#{metric.direction}", count: number.call(metric.delta.to_i.abs))
+  end
+  trend_delta_color = lambda do |metric|
+    {
+      "up" => "var(--mi-green-700, #236c43)",
+      "down" => "var(--mi-coral-600)",
+      "steady" => "var(--mi-navy-400)"
+    }.fetch(metric.direction)
+  end
+  resolved_rate = if @summary.reports.total.to_i.positive?
+                    (@summary.reports.resolved.to_f * 100 / @summary.reports.total).round
+                  else
+                    0
+                  end
+%>
+
+<main class="wrapper">
+  <div class="row column">
+    <div style="display:flex; align-items:center; gap:0.85rem; margin-bottom:1rem;">
+      <img src="/mi/heart-mark.png" alt="" aria-hidden="true" style="height:46px; width:auto; flex:none;">
+      <div>
+        <p class="mi-eyebrow" style="margin:0;"><%= t(".eyebrow") %></p>
+        <h1 class="heading2" style="margin:0; color:var(--mi-navy-700);"><%= t(".title") %></h1>
+      </div>
+    </div>
+
+    <p style="max-width:48rem; color:var(--mi-navy-600); margin:0 0 1.2rem;">
+      <%= t(".intro") %>
+    </p>
+
+    <section aria-label="<%= t(".overview.aria") %>" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(11.5rem, 1fr)); gap:0.85rem; margin-bottom:1.25rem;">
+      <article style="background:#fff; border:1.5px solid var(--mi-line); border-radius:8px; padding:1rem;">
+        <p class="mi-eyebrow" style="margin:0 0 0.25rem;"><%= t(".overview.resolved_reports") %></p>
+        <p style="font-family:var(--mi-font-display); font-size:2rem; line-height:1; font-weight:800; color:var(--mi-navy-700); margin:0;">
+          <%= number.call(@summary.reports.resolved) %>
+        </p>
+        <p style="margin:0.45rem 0 0; color:var(--mi-navy-400); font-size:0.9rem;">
+          <%= t(".overview.resolved_rate", percent: resolved_rate) %>
+        </p>
+      </article>
+
+      <article style="background:#fff; border:1.5px solid var(--mi-line); border-radius:8px; padding:1rem;">
+        <p class="mi-eyebrow" style="margin:0 0 0.25rem;"><%= t(".overview.donations") %></p>
+        <p style="font-family:var(--mi-font-display); font-size:2rem; line-height:1; font-weight:800; color:var(--mi-navy-700); margin:0;">
+          <%= money.call(@summary.donations.total_amount, @summary.donations.currency_label) %>
+        </p>
+        <p style="margin:0.45rem 0 0; color:var(--mi-navy-400); font-size:0.9rem;">
+          <%= t(".overview.donation_orders", count: @summary.donations.orders_count) %>
+        </p>
+      </article>
+
+      <article style="background:#fff; border:1.5px solid var(--mi-line); border-radius:8px; padding:1rem;">
+        <p class="mi-eyebrow" style="margin:0 0 0.25rem;"><%= t(".overview.volunteer_hours") %></p>
+        <p style="font-family:var(--mi-font-display); font-size:2rem; line-height:1; font-weight:800; color:var(--mi-navy-700); margin:0;">
+          <%= number.call(@summary.volunteering.approved_hours) %>
+        </p>
+        <p style="margin:0.45rem 0 0; color:var(--mi-navy-400); font-size:0.9rem;">
+          <%= t(".overview.volunteers", count: @summary.volunteering.volunteers) %>
+        </p>
+      </article>
+
+      <article style="background:#fff; border:1.5px solid var(--mi-line); border-radius:8px; padding:1rem;">
+        <p class="mi-eyebrow" style="margin:0 0 0.25rem;"><%= t(".overview.points") %></p>
+        <p style="font-family:var(--mi-font-display); font-size:2rem; line-height:1; font-weight:800; color:var(--mi-navy-700); margin:0;">
+          <%= number.call(@summary.goodwill.points_issued) %>
+        </p>
+        <p style="margin:0.45rem 0 0; color:var(--mi-navy-400); font-size:0.9rem;">
+          <%= t(".overview.active_earners", count: @summary.goodwill.active_earners) %>
+        </p>
+      </article>
+    </section>
+
+    <section aria-labelledby="impact-trends-heading" style="background:#fff; border:1.5px solid var(--mi-line); border-radius:8px; padding:1rem; margin-bottom:1.25rem;">
+      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:0.65rem 1rem; align-items:end; margin-bottom:0.75rem;">
+        <div>
+          <p class="mi-eyebrow" style="margin:0 0 0.2rem;"><%= t(".trends.eyebrow") %></p>
+          <h2 id="impact-trends-heading" class="heading4" style="margin:0; color:var(--mi-navy-700);"><%= t(".trends.title", days: @summary.lookback_days) %></h2>
+        </div>
+        <p style="max-width:32rem; margin:0; color:var(--mi-navy-500); font-size:0.92rem;">
+          <%= t(".trends.intro") %>
+        </p>
+      </div>
+      <dl style="display:grid; grid-template-columns:repeat(auto-fit, minmax(10.5rem, 1fr)); gap:0; margin:0;">
+        <% @summary.trend_metrics.each do |metric| %>
+          <div style="min-width:0; padding:0.65rem 0.8rem 0.65rem 0; border-top:1px solid var(--mi-line);">
+            <dt class="mi-eyebrow" style="margin:0 0 0.25rem;"><%= t(".trends.metrics.#{metric.key}") %></dt>
+            <dd style="margin:0; font-family:var(--mi-font-display); font-size:1.65rem; line-height:1; font-weight:800; color:var(--mi-navy-700);">
+              <%= number.call(metric.current) %>
+            </dd>
+            <dd style="margin:0.4rem 0 0; color:<%= trend_delta_color.call(metric) %>; font-weight:700; font-size:0.88rem;">
+              <%= trend_delta_label.call(metric) %>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+    </section>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap:1rem; align-items:start;">
+      <section style="background:#fff; border:1.5px solid var(--mi-line); border-radius:8px; padding:1rem;">
+        <h2 class="heading4" style="margin:0 0 0.65rem; color:var(--mi-navy-700);"><%= t(".reports.title") %></h2>
+        <dl style="display:grid; grid-template-columns:1fr auto; gap:0.45rem 1rem; margin:0;">
+          <dt><%= t(".reports.total") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.reports.total) %></dd>
+          <dt><%= t(".reports.open") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.reports.open) %></dd>
+          <dt><%= t(".reports.recent", days: @summary.lookback_days) %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.reports.recent) %></dd>
+          <dt><%= t(".reports.located") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.reports.located) %></dd>
+          <dt><%= t(".reports.local_areas") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.reports.local_area_count) %></dd>
+        </dl>
+        <% if @summary.reports.category_counts.any? %>
+          <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.8rem;">
+            <% @summary.reports.category_counts.sort_by { |category, _count| report_category_label.call(category) }.each do |category, count| %>
+              <span style="border:1px solid var(--mi-line); border-radius:999px; background:var(--mi-cream-100); color:var(--mi-navy-700); padding:0.25rem 0.65rem; font-size:0.85rem;">
+                <%= report_category_label.call(category) %>: <strong><%= number.call(count) %></strong>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+        <p style="display:flex; flex-wrap:wrap; gap:0.5rem; margin:1rem 0 0;">
+          <%= link_to t(".reports.map"), reports_map_path, class: "button hollow" %>
+          <%= link_to t(".reports.heatmap"), report_heatmap_path, class: "button hollow" %>
+        </p>
+      </section>
+
+      <section style="background:#fff; border:1.5px solid var(--mi-line); border-radius:8px; padding:1rem;">
+        <h2 class="heading4" style="margin:0 0 0.65rem; color:var(--mi-navy-700);"><%= t(".donations.title") %></h2>
+        <p style="margin:0 0 0.75rem; color:var(--mi-navy-600);"><%= t(".donations.intro") %></p>
+        <% if @summary.donations.projects.any? || @summary.donations.unallocated? %>
+          <ul style="list-style:none; margin:0; padding:0; display:grid; gap:0.55rem;">
+            <% @summary.donations.projects.each do |project| %>
+              <li style="display:flex; justify-content:space-between; gap:0.85rem; border-bottom:1px solid var(--mi-line); padding-bottom:0.5rem;">
+                <span style="font-weight:700; color:var(--mi-navy-700);"><%= project.title %></span>
+                <% if project.total_amount.to_d.positive? %>
+                  <span style="white-space:nowrap; color:var(--mi-coral-600); font-weight:800;">
+                    <%= money.call(project.total_amount, project.currency_label) %>
+                  </span>
+                <% end %>
+              </li>
+            <% end %>
+            <% if @summary.donations.unallocated? %>
+              <li style="display:flex; justify-content:space-between; gap:0.85rem; border-bottom:1px solid var(--mi-line); padding-bottom:0.5rem;">
+                <span style="font-weight:700; color:var(--mi-navy-700);"><%= t(".donations.unallocated") %></span>
+                <span style="white-space:nowrap; color:var(--mi-coral-600); font-weight:800;">
+                  <%= money.call(@summary.donations.unallocated_amount, @summary.donations.currency_label) %>
+                </span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p style="margin:0; color:var(--mi-navy-400);"><%= t(".donations.no_projects") %></p>
+        <% end %>
+        <p style="margin:1rem 0 0; display:flex; flex-wrap:wrap; gap:0.5rem;">
+          <%= link_to t(".donations.page_cta"), donations_path, class: "button hollow" %>
+          <% if @summary.donations.donate_url.present? %>
+            <%= link_to t(".donations.cta"), @summary.donations.donate_url, class: "button", target: "_blank", rel: "noopener noreferrer" %>
+          <% end %>
+        </p>
+      </section>
+
+      <section style="background:#fff; border:1.5px solid var(--mi-line); border-radius:8px; padding:1rem;">
+        <h2 class="heading4" style="margin:0 0 0.65rem; color:var(--mi-navy-700);"><%= t(".volunteering.title") %></h2>
+        <dl style="display:grid; grid-template-columns:1fr auto; gap:0.45rem 1rem; margin:0;">
+          <dt><%= t(".volunteering.approved_logs") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.volunteering.approved_logs) %></dd>
+          <dt><%= t(".volunteering.active_opportunities") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.volunteering.active_opportunities) %></dd>
+          <dt><%= t(".volunteering.upcoming_opportunities") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.volunteering.upcoming_opportunities) %></dd>
+          <dt><%= t(".volunteering.recent_points", days: @summary.lookback_days) %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.goodwill.recent_points) %></dd>
+          <dt><%= t(".volunteering.redemptions") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.goodwill.reward_redemptions) %></dd>
+        </dl>
+        <p style="margin:1rem 0 0;">
+          <%= link_to t(".volunteering.cta"), volunteer_path, class: "button hollow" %>
+        </p>
+      </section>
+
+      <section style="background:#fff; border:1.5px solid var(--mi-line); border-radius:8px; padding:1rem;">
+        <h2 class="heading4" style="margin:0 0 0.65rem; color:var(--mi-navy-700);"><%= t(".komsiluk.title") %></h2>
+        <dl style="display:grid; grid-template-columns:1fr auto; gap:0.45rem 1rem; margin:0;">
+          <dt><%= t(".komsiluk.posts") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.komsiluk.posts) %></dd>
+          <dt><%= t(".komsiluk.visible") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.komsiluk.visible) %></dd>
+          <dt><%= t(".komsiluk.recent", days: @summary.lookback_days) %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.komsiluk.recent) %></dd>
+          <dt><%= t(".komsiluk.active_areas") %></dt>
+          <dd style="margin:0; font-weight:800;"><%= number.call(@summary.komsiluk.active_komsiluci) %></dd>
+        </dl>
+        <% if @summary.komsiluk.category_counts.any? %>
+          <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-top:0.8rem;">
+            <% @summary.komsiluk.category_counts.sort_by { |category, _count| komsiluk_category_label.call(category) }.each do |category, count| %>
+              <span style="border:1px solid var(--mi-line); border-radius:999px; background:var(--mi-cream-100); color:var(--mi-navy-700); padding:0.25rem 0.65rem; font-size:0.85rem;">
+                <%= komsiluk_category_label.call(category) %>: <strong><%= number.call(count) %></strong>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+        <p style="margin:1rem 0 0;">
+          <%= link_to t(".komsiluk.cta"), komsiluk_board_index_path, class: "button hollow" %>
+        </p>
+      </section>
+    </div>
+
+    <section style="margin-top:1.2rem; background:#fff; border:1.5px solid var(--mi-line); border-radius:8px; overflow-x:auto;">
+      <div style="padding:1rem 1rem 0;">
+        <h2 class="heading4" style="margin:0 0 0.35rem; color:var(--mi-navy-700);"><%= t(".areas.title") %></h2>
+        <p style="margin:0 0 0.85rem; color:var(--mi-navy-600);"><%= t(".areas.intro") %></p>
+      </div>
+      <% if @summary.area_activity.any? %>
+        <table class="table-list" style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr>
+              <th scope="col"><%= t(".areas.mz") %></th>
+              <th scope="col"><%= t(".areas.reports") %></th>
+              <th scope="col"><%= t(".areas.resolved") %></th>
+              <th scope="col"><%= t(".areas.komsiluk_posts") %></th>
+              <th scope="col"><%= t(".areas.total") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @summary.area_activity.each do |area| %>
+              <tr>
+                <th scope="row" style="text-align:left; font-family:var(--mi-font-display);"><%= area.name %></th>
+                <td><%= public_cell.call(area.public_reports) %></td>
+                <td><%= public_cell.call(area.public_resolved_reports) %></td>
+                <td><%= public_cell.call(area.public_komsiluk_posts) %></td>
+                <td><strong><%= number.call(area.total) %></strong></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p style="padding:0 1rem 1rem; color:var(--mi-navy-400); margin:0;"><%= t(".areas.empty") %></p>
+      <% end %>
+    </section>
+
+    <p style="margin:1rem 0 0; color:var(--mi-navy-400); font-size:0.9rem;">
+      <%= t(".privacy_note") %>
+    </p>
+  </div>
+</main>

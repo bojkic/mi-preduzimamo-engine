@@ -1,0 +1,19 @@
+{
+  "source": "Infobip OpenAPI snapshot inspected 2026-09-05: FacebookRequest and FacebookMessage schemas",
+  "path": "/messenger/1/messages",
+  "request": {
+    "required": ["messages"]
+  },
+  "message": {
+    "required": ["content", "destinations", "sender"],
+    "properties": ["sender", "destinations", "content", "options", "webhooks", "quickReplies"]
+  },
+  "content": {
+    "type": "TEXT",
+    "required": ["text", "type"],
+    "text_max_length": 2000
+  },
+  "quick_reply": {
+    "type_enum": ["TEXT", "PHONE_NUMBER", "EMAIL"]
+  }
+}

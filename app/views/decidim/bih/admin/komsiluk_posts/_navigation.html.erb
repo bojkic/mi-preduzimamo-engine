@@ -1,0 +1,8 @@
+<nav class="mi-board-admin-navigation" aria-label="<%= t("decidim.bih.admin.navigation.title") %>">
+  <%= link_to t("decidim.bih.admin.navigation.dashboard"), decidim_admin_bih.operations_path %>
+  <span aria-hidden="true">/</span>
+  <% if bih_allowed?(:komsiluk_posts_read) %><%= link_to t("decidim.bih.admin.board_review.title"), admin_bih_komsiluk_posts_path %><% end %>
+  <% if bih_allowed?(:broadcast_preview) %>
+    <%= link_to t("decidim.bih.admin.board_correction.publications"), new_admin_bih_board_notice_path %>
+  <% end %>
+</nav>

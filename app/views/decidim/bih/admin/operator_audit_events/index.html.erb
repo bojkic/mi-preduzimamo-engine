@@ -1,0 +1,87 @@
+<% add_decidim_page_title(t("decidim.bih.admin.operator_audit_events.index.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :operator_audit %>
+
+<div class="card">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.operator_audit_events.index.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.operator_audit_events.index.intro") %></p>
+    <%= form_tag(operator_audit_events_path, method: :get, class: "form form-defaults mi-admin-filter") do %>
+      <label>
+        <%= t("decidim.bih.admin.operator_audit_events.index.event_type") %><br>
+        <%= select_tag :event_type,
+                       options_for_select([[t("decidim.bih.admin.operator_audit_events.index.all_events"), ""]] + @event_types.map { |event_type| [t("decidim.bih.admin.operator_audit_events.events.#{event_type}", default: event_type.humanize), event_type] }, @event_type),
+                       style: "min-width:14rem;" %>
+      </label>
+      <label>
+        <%= t("decidim.bih.admin.operator_audit_events.index.actor") %><br>
+        <%= select_tag :actor_id,
+                       options_for_select([[t("decidim.bih.admin.operator_audit_events.index.all_actors", default: "Svi korisnici"), ""]] + @actors.map { |actor| [actor.name.presence || actor.nickname, actor.id] }, @actor_id),
+                       style: "min-width:14rem;" %>
+      </label>
+      <label>
+        <%= t("decidim.bih.admin.operator_audit_events.index.role", default: "Uloga") %><br>
+        <%= select_tag :role,
+                       options_for_select([[t("decidim.bih.admin.operator_audit_events.index.all_roles", default: "Sve uloge"), ""]] + @roles.map { |role| [t("decidim.bih.admin.operator_roles.roles.#{role}", default: role.humanize), role] }, @role) %>
+      </label>
+      <label>
+        <%= t("decidim.bih.admin.operator_audit_events.index.resource") %><br>
+        <%= select_tag :resource_type,
+                       options_for_select([[t("decidim.bih.admin.operator_audit_events.index.all_resources", default: "Svi resursi"), ""]] + @resource_types.map { |resource_type| [resource_type.demodulize.humanize, resource_type] }, @resource_type) %>
+      </label>
+      <label>
+        <%= t("decidim.bih.admin.operator_audit_events.index.from_date", default: "Od datuma") %><br>
+        <%= date_field_tag :from_date, @from_date&.iso8601 %>
+      </label>
+      <label>
+        <%= t("decidim.bih.admin.operator_audit_events.index.to_date", default: "Do datuma") %><br>
+        <%= date_field_tag :to_date, @to_date&.iso8601 %>
+      </label>
+      <%= submit_tag t("decidim.bih.admin.operator_audit_events.index.filter"), class: "button button__sm button__secondary" %>
+    <% end %>
+  </div>
+  <% if @events.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.operator_audit_events.index.when") %></th>
+            <th><%= t("decidim.bih.admin.operator_audit_events.index.actor") %></th>
+            <th><%= t("decidim.bih.admin.operator_audit_events.index.event") %></th>
+            <th><%= t("decidim.bih.admin.operator_audit_events.index.permission") %></th>
+            <th><%= t("decidim.bih.admin.operator_audit_events.index.resource") %></th>
+            <th><%= t("decidim.bih.admin.operator_audit_events.index.metadata") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @events.each do |event| %>
+            <tr>
+              <td><%= l(event.occurred_at, format: :short) %></td>
+              <td><%= event.user&.name || event.user&.nickname || t("decidim.bih.admin.operator_audit_events.index.system") %></td>
+              <td><%= t("decidim.bih.admin.operator_audit_events.events.#{event.event_type}", default: event.event_type.humanize) %></td>
+              <td><%= event.permission.present? ? t("decidim.bih.admin.operator_audit_events.permissions.#{event.permission}", default: event.permission.humanize) : "-" %></td>
+              <td><%= event.resource_type.present? ? "#{event.resource_type.demodulize.humanize} ##{event.resource_id}" : "-" %></td>
+              <td>
+                <% if event.metadata.present? %>
+                  <details>
+                    <summary><%= t("decidim.bih.admin.operator_audit_events.index.show_details", default: "Prikaži tehničke detalje") %></summary>
+                    <code><%= event.metadata.to_json %></code>
+                  </details>
+                <% else %>
+                  -
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.operator_audit_events.index.empty_filtered", default: "Nema evidentiranih radnji za odabrane filtere.") %></p></div>
+  <% end %>
+  <% if @events.respond_to?(:total_pages) && @events.total_pages > 1 %>
+    <div class="card-section"><%= paginate @events, params: request.query_parameters.except(:page) %></div>
+  <% end %>
+</div>

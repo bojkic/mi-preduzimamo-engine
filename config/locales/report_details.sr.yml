@@ -1,0 +1,26 @@
+sr:
+  decidim:
+    bih:
+      report_details:
+        legend: "Još nekoliko podataka (izbori su neobavezni)"
+        whole_city: "Odnosi se na cijeli grad"
+        observed_since: "Koliko dugo?"
+        recurrence: "Koliko često?"
+        hazard: "Postoji li opasnost?"
+        kind: "Kvar ili prijedlog?"
+        planning_note: "Prijedlozi za novu infrastrukturu mogu tražiti plansko rješavanje."
+        optional_photo: "Fotografija je neobavezna."
+        choices:
+          danas: "Od danas"
+          tjedan: "Oko sedmicu"
+          mjesec: "Oko mjesec"
+          duze: "Duže"
+          jednom: "Jednom"
+          povremeno: "Povremeno"
+          stalno: "Stalno"
+          pri_kisi: "Pri kiši"
+          nema: "Nema"
+          moguca: "Moguća"
+          ozbiljna: "Ozbiljna"
+          kvar: "Kvar"
+          prijedlog: "Prijedlog"

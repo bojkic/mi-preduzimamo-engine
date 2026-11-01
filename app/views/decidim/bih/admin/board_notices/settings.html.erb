@@ -1,0 +1,38 @@
+<% holds_copy = "decidim.bih.admin.phone_area_holds" %>
+<% add_decidim_page_title(notice_text("delivery_settings")) %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :staff_publication %>
+<div class="mi-board-admin" id="board-notice-settings">
+<header class="mi-board-admin-header"><h1><%= notice_text("delivery_settings") %></h1><%= link_to notice_text(bih_allowed?(:komsiluk_posts_read) ? "back_to_boards" : "back_to_publications"),
+                (bih_allowed?(:komsiluk_posts_read) ? admin_bih_komsiluk_posts_path : decidim_admin_bih.operations_path) %></header>
+<section class="card" id="board-channel-settings"><div class="card-section">
+  <h2><%= notice_text("channels_and_types_title") %></h2>
+  <p><%= notice_text("channels_and_types_hint") %></p>
+</div></section>
+<div class="card"><div class="card-section">
+  <h2><%= t("#{holds_copy}.sms_title") %></h2>
+  <p><%= notice_text("settings_hint") %></p>
+  <%= form_tag admin_bih_board_notice_settings_path, method: :patch, class: "form form-defaults" do %>
+    <%= hidden_field_tag "sms[enabled]", "0" %><label><%= check_box_tag "sms[enabled]", "1", ActiveModel::Type::Boolean.new.cast(@settings[:enabled]) %> <%= notice_text("sms_enabled") %></label>
+    <%= submit_tag notice_text("save_settings"), class: "button button__secondary" %>
+  <% end %>
+</div></div>
+<section class="card" id="board-phone-area-settings"><div class="card-section">
+  <details id="board-area-holds-details">
+  <summary><%= t("#{holds_copy}.title") %></summary>
+  <p><%= t("#{holds_copy}.intro") %></p>
+  <p><%= t("#{holds_copy}.inbox") %></p>
+  <%= form_tag admin_bih_board_notice_settings_path, method: :patch, id: "board-phone-area-holds-form", class: "form form-defaults" do %>
+    <%= render "area_picker", areas: @phone_areas, selected_ids: @phone_held_ids, name_prefix: "phone_policy",
+                              legend: t("#{holds_copy}.legend"), hint: t("#{holds_copy}.hint"), selected_label: t("#{holds_copy}.selected") %>
+    <%= submit_tag t("#{holds_copy}.save"), class: "button button__sm button__secondary" %>
+  <% end %>
+  <% if @legacy_phone_areas.any? %>
+    <details id="board-legacy-area-holds">
+      <summary><%= t("#{holds_copy}.legacy_title") %></summary>
+      <p><%= t("#{holds_copy}.legacy_hint") %></p>
+      <ul><% @legacy_phone_areas.each do |area| %><li><%= area.translated_name %></li><% end %></ul>
+    </details>
+  <% end %>
+  </details>
+</div></section>
+</div>

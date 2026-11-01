@@ -1,0 +1,89 @@
+<% add_decidim_page_title(t("decidim.bih.admin.partner_profiles.memberships.page_title", name: @profile.display_name)) %>
+
+<%= render "decidim/bih/admin/shared/navigation",
+           current_item: :partner_profiles,
+           current_step_label: [@profile.display_name, t("decidim.bih.admin.partner_profiles.memberships.step")] %>
+
+<header class="mi-admin-page-header" id="admin-partner-profile-memberships">
+  <div>
+    <h1 class="mi-admin-page-header__title"><%= t("decidim.bih.admin.partner_profiles.memberships.page_title", name: @profile.display_name) %></h1>
+    <p class="mi-admin-page-header__intro"><%= t("decidim.bih.admin.partner_profiles.memberships.intro") %></p>
+  </div>
+  <div class="mi-admin-page-header__actions">
+    <%= link_to t("decidim.bih.admin.partner_profiles.memberships.review"), partner_profile_path(@profile), class: "button button__sm button__transparent-secondary" %>
+    <%= link_to t("decidim.bih.admin.partner_profiles.memberships.edit_profile"), edit_partner_profile_path(@profile), class: "button button__sm button__transparent-secondary" %>
+  </div>
+</header>
+
+<section aria-labelledby="partner-membership-add-title">
+  <h2 id="partner-membership-add-title"><%= t("decidim.bih.admin.partner_profiles.memberships.add_title") %></h2>
+  <%= form_tag memberships_partner_profile_path(@profile), method: :get, class: "form form-defaults mi-admin-filter" do %>
+    <label>
+      <%= t("decidim.bih.admin.partner_profiles.memberships.search_label") %>
+      <%= search_field_tag :member_q, @member_query, minlength: 2, placeholder: t("decidim.bih.admin.partner_profiles.memberships.search_placeholder") %>
+    </label>
+    <%= submit_tag t("decidim.bih.admin.partner_profiles.memberships.search_submit"), class: "button button__sm button__secondary" %>
+  <% end %>
+
+  <% if @member_query.length >= 2 && @membership_users.any? %>
+    <%= form_tag partner_profile_memberships_path(@profile), method: :post, class: "form form-defaults mi-admin-form mi-admin-form--narrow" do %>
+      <div class="mi-admin-form__grid">
+        <div class="mi-admin-form__field">
+          <%= label_tag "partner_membership_decidim_user_id", t("decidim.bih.admin.partner_profiles.memberships.user_label") %>
+          <%= select_tag "partner_membership[decidim_user_id]", options_for_select(@membership_users.map { |user| ["#{user.name.presence || user.nickname} (@#{user.nickname})", user.id] }), id: "partner_membership_decidim_user_id", required: true %>
+        </div>
+        <div class="mi-admin-form__field">
+          <%= label_tag "partner_membership_role", t("decidim.bih.admin.partner_profiles.memberships.role_label") %>
+          <%= select_tag "partner_membership[role]", options_for_select(Decidim::Bih::PartnerMembership::ROLES.map { |role| [t("decidim.bih.partner_memberships.roles.#{role}"), role] }, "owner"), id: "partner_membership_role", required: true %>
+        </div>
+        <div class="mi-admin-form__field">
+          <%= label_tag "partner_membership_status", t("decidim.bih.admin.partner_profiles.memberships.status_label") %>
+          <%= hidden_field_tag "partner_membership[status]", "pending" %>
+          <p class="mi-admin-help"><%= t("decidim.bih.admin.partner_profiles.memberships.consent_help") %></p>
+        </div>
+      </div>
+      <div class="mi-admin-form__footer"><%= submit_tag t("decidim.bih.admin.partner_profiles.memberships.add"), class: "button button__sm button__secondary" %></div>
+    <% end %>
+  <% elsif @member_query.length >= 2 %>
+    <p class="mi-admin-empty-state"><%= t("decidim.bih.admin.partner_profiles.memberships.no_users") %></p>
+  <% else %>
+    <p class="mi-admin-help"><%= t("decidim.bih.admin.partner_profiles.memberships.search_help") %></p>
+  <% end %>
+</section>
+
+<section aria-labelledby="partner-memberships-title">
+  <h2 id="partner-memberships-title"><%= t("decidim.bih.admin.partner_profiles.memberships.title") %></h2>
+  <% if @memberships.any? %>
+    <div class="table-stacked">
+      <table class="table-list" id="admin-partner-memberships-list">
+        <thead><tr><th><%= t("decidim.bih.admin.partner_profiles.memberships.user") %></th><th><%= t("decidim.bih.admin.partner_profiles.memberships.role") %></th><th><%= t("decidim.bih.admin.partner_profiles.memberships.status") %></th><th><%= t("decidim.bih.admin.partner_profiles.memberships.invited_by") %></th><th><%= t("decidim.bih.admin.partner_profiles.memberships.actions") %></th></tr></thead>
+        <tbody>
+          <% @memberships.each do |membership| %>
+            <tr id="partner-membership-<%= membership.id %>">
+              <td data-label="<%= t("decidim.bih.admin.partner_profiles.memberships.user") %>"><strong><%= membership.user.name.presence || membership.user.nickname %></strong><br><small>@<%= membership.user.nickname %></small></td>
+              <td data-label="<%= t("decidim.bih.admin.partner_profiles.memberships.role") %>"><%= t("decidim.bih.partner_memberships.roles.#{membership.role}") %></td>
+              <td data-label="<%= t("decidim.bih.admin.partner_profiles.memberships.status") %>"><span class="mi-admin-status mi-admin-status--<%= membership.accepted? ? 'ok' : 'neutral' %>"><%= t("decidim.bih.partner_memberships.statuses.#{membership.status}") %></span></td>
+              <td data-label="<%= t("decidim.bih.admin.partner_profiles.memberships.invited_by") %>"><%= membership.invited_by&.name || membership.invited_by&.nickname || "-" %></td>
+              <td data-label="<%= t("decidim.bih.admin.partner_profiles.memberships.actions") %>">
+                <% if bih_allowed?(:operator_message_send) %>
+                  <%= link_to t("decidim.bih.admin.partner_profiles.memberships.message"), new_operator_message_path(context_type: "partner_membership", context_id: membership.id), class: "button button__sm button__transparent-secondary" %>
+                <% end %>
+                <%= form_tag partner_profile_membership_path(@profile, membership), method: :patch, class: "form form-defaults mi-admin-action-group" do %>
+                  <%= select_tag "partner_membership[role]", options_for_select(Decidim::Bih::PartnerMembership::ROLES.map { |role| [t("decidim.bih.partner_memberships.roles.#{role}"), role] }, membership.role), aria: { label: t("decidim.bih.admin.partner_profiles.memberships.role_label") } %>
+                  <% allowed_statuses = membership.accepted? ? %w(accepted pending revoked) : %w(pending revoked) %>
+                  <%= select_tag "partner_membership[status]", options_for_select(allowed_statuses.map { |status| [t("decidim.bih.partner_memberships.statuses.#{status}"), status] }, membership.status), aria: { label: t("decidim.bih.admin.partner_profiles.memberships.status_label") } %>
+                  <%= submit_tag t("decidim.bih.admin.partner_profiles.memberships.update"), class: "button button__sm button__secondary" %>
+                <% end %>
+                <% unless membership.status == "revoked" %>
+                  <%= button_to t("decidim.bih.admin.partner_profiles.memberships.revoke"), partner_profile_membership_path(@profile, membership), method: :delete, class: "button button__sm button__transparent-secondary mi-admin-action--danger", data: { confirm: t("decidim.bih.admin.partner_profiles.memberships.revoke_confirm") } %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="mi-admin-empty-state"><%= t("decidim.bih.admin.partner_profiles.memberships.no_memberships") %></div>
+  <% end %>
+</section>

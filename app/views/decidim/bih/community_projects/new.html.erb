@@ -1,0 +1,69 @@
+<% add_decidim_page_title(t(".title")) %>
+
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: t(".intro") %>
+
+    <section class="mi-account-panel mi-account-panel--wide mi-volunteer-form">
+      <div class="mi-notice">
+        <strong><%= t(".approval_title") %></strong>
+        <p><%= t(".approval_body") %></p>
+      </div>
+
+      <%= form_with model: @submission,
+                    url: (@submission.persisted? ? community_project_submission_path(@submission) : community_project_submissions_path),
+                    scope: :partner_project_submission, method: (@submission.persisted? ? :patch : :post),
+                    html: { class: "mi-account-settings-form" } do |form| %>
+        <% if @submission.persisted? %>
+          <%= hidden_field_tag "partner_project_submission[lock_version]", @submission.lock_version %>
+        <% end %>
+        <% if @submission.errors.any? %>
+          <div class="form-error is-visible" role="alert">
+            <%= @submission.errors.full_messages.to_sentence %>
+          </div>
+        <% end %>
+
+        <div class="mi-account-form-grid">
+          <%= form.label :partner_profile_id, t(".organization") do %>
+            <%= t(".organization") %>
+            <%= form.select :partner_profile_id,
+                            options_for_select(@partner_profiles.map { |profile| [profile.display_name, profile.id] }, @submission.partner_profile_id),
+                            {}, required: true %>
+          <% end %>
+          <%= form.label :title, t(".project_title") do %>
+            <%= t(".project_title") %>
+            <%= form.text_field :title, required: true, maxlength: 160 %>
+          <% end %>
+          <%= form.label :budget_amount, t(".budget_amount") do %>
+            <%= t(".budget_amount") %>
+            <%= form.number_field :budget_amount, required: true, min: 1, step: 1 %>
+          <% end %>
+          <%= form.label :address, t(".address") do %>
+            <%= t(".address") %>
+            <%= form.text_field :address, maxlength: 500 %>
+          <% end %>
+          <%= form.label :starts_on, t(".starts_on") do %>
+            <%= t(".starts_on") %>
+            <%= form.date_field :starts_on %>
+          <% end %>
+          <%= form.label :ends_on, t(".ends_on") do %>
+            <%= t(".ends_on") %>
+            <%= form.date_field :ends_on %>
+          <% end %>
+        </div>
+        <%= form.label :description, t(".description") do %>
+          <%= t(".description") %>
+          <%= form.text_area :description, rows: 7, required: true, maxlength: 5000 %>
+        <% end %>
+
+        <div class="mi-account-settings__actions">
+          <%= form.submit t(@submission.persisted? ? ".resubmit" : ".submit"), class: "mi-btn mi-btn--primary" %>
+          <%= link_to t(".cancel"), community_projects_path, class: "mi-btn mi-btn--ghost" %>
+        </div>
+      <% end %>
+    </section>
+  </div>
+</main>

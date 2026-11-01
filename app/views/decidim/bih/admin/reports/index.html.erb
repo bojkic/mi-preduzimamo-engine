@@ -1,0 +1,287 @@
+<%#
+  Admin report triage — filterable queue of citizen reports. Status, retry,
+  duplicate, and note actions live on the per-report review page. No reporter
+  PII in the list view; reference links to the public status page where the
+  citizen's own contact appears under the existing public access controls.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.reports.index.title")) %>
+<link rel="stylesheet" href="/mi/report-review-index.css?v=1">
+<div class="report-review-index">
+
+
+
+
+
+<% active_reports_tab = params[:tab] == "insights" ? "insights" : "queue" %>
+<% reports_tab_params = params.permit(*Decidim::Bih::ReportQueueContext::KEYS).to_h.except("batch") %>
+
+<div class="card" id="admin-reports-header">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.reports.index.title") %></h1>
+  </div>
+  <div class="card-section">
+    <% if active_reports_tab == "queue" %><p><%= t("decidim.bih.review_workspace.queue_intro") %></p><% end %>
+
+    <nav id="admin-reports-workflow-tabs"
+         aria-label="<%= t("decidim.bih.admin.reports.index.workflow_tabs_label") %>"
+         style="display:flex; gap:0.45rem; flex-wrap:wrap; margin:0.75rem 0 1rem;">
+      <% [
+        ["queue", t("decidim.bih.admin.reports.index.tabs.queue")],
+        ["insights", t("decidim.bih.admin.reports.index.tabs.insights")]
+      ].each do |tab, label| %>
+        <%= link_to label,
+                    admin_bih_reports_path(reports_tab_params.merge("tab" => tab)),
+                    class: "button button__sm #{active_reports_tab == tab ? 'button__secondary' : 'button__transparent-secondary'}" %>
+      <% end %>
+    </nav>
+
+    <% if active_reports_tab == "insights" %>
+      <details class="callout secondary" id="admin-reports-handoffs">
+        <summary><strong><%= t("decidim.bih.admin.reports.index.handoffs.title") %></strong></summary>
+        <p><%= t("decidim.bih.admin.reports.index.handoffs.body") %></p>
+        <div style="display:flex; gap:0.45rem; flex-wrap:wrap;">
+          <% if bih_allowed?(:analytics_export) %>
+            <%= link_to t("decidim.bih.admin.reports.index.handoffs.export"),
+                        admin_bih_analytics_export_path(dataset: "report_triage", format: :csv),
+                        class: "button button__sm button__transparent-secondary" %>
+          <% end %>
+        </div>
+        <details style="margin-top:0.65rem;">
+          <summary><%= t("decidim.bih.admin.reports.index.handoffs.operator_details") %></summary>
+          <code style="display:inline-block; margin-top:0.35rem;">bundle exec rake decidim_bih:reports:stale_digest</code>
+        </details>
+      </details>
+    <% end %>
+
+    <% if active_reports_tab == "queue" %>
+      <nav aria-label="<%= t('decidim.bih.review_workspace.queue') %>" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+      <% Decidim::Bih::ReportWorkQueue::VIEWS.each do |view| %>
+        <%= link_to "#{t("decidim.bih.review_workspace.views.#{view}")} (#{@queue_counts[view]})", admin_bih_reports_path(view: view), class: "button button__sm #{view == @work_view ? 'button__secondary' : 'button__transparent-secondary'}", aria: { current: (view == @work_view ? 'page' : nil) } %>
+      <% end %></nav>
+      <% if @work_view == "planning" %><%= render "planning_collections", collections: @collections %><% end %>
+      <%= form_tag admin_bih_reports_path, method: :get, class: "form form-defaults" do %>
+        <%= hidden_field_tag :view, @work_view %>
+        <%= label_tag :q, t('decidim.bih.review_workspace.search') %>
+        <%= search_field_tag :q, params[:q], maxlength: 120 %>
+        <%= submit_tag t('decidim.bih.review_workspace.search_button'), class: 'button button__sm button__secondary' %>
+      <% end %>
+      <details><summary><%= t('decidim.bih.review_workspace.advanced_filters') %></summary>
+      <%# Queue filters %>
+      <%= form_tag admin_bih_reports_path, method: :get, class: "form form-defaults mi-admin-filter" do %>
+        <%= hidden_field_tag :view, @work_view %>
+        <%= hidden_field_tag :q, params[:q] %>
+        <label><%= t("decidim.bih.report_case.owner") %><%= select_tag :case_owner, options_for_select(%w(mine unassigned).map { |v| [t("decidim.bih.report_case.owners.#{v}"), v] }, params[:case_owner]), include_blank: true %></label>
+        <label>
+          <%= t("decidim.bih.admin.reports.index.filter_status") %><br>
+          <%= select_tag :status,
+                options_for_select(
+                  [[t("decidim.bih.admin.reports.index.all_statuses"), ""]] +
+                  Decidim::Bih::ReportStatusPresenter.filter_statuses.map { |s|
+                    [t("decidim.bih.reports.statuses.#{s}", default: s), s]
+                  },
+                  @status_filter.to_s
+                ),
+                style: "min-width:10rem;" %>
+        </label>
+        <label>
+          <%= t("decidim.bih.admin.reports.index.filter_mz") %><br>
+          <%= select_tag :mz_slug,
+                options_for_select(
+                  [[t("decidim.bih.admin.reports.index.all_mz"), ""]] +
+                  @mz_options.map { |area| [area.translated_name, area.slug] },
+                  @mz_filter.to_s
+                ),
+                style: "min-width:12rem;" %>
+        </label>
+        <label>
+          <%= t("decidim.bih.admin.reports.index.filter_age") %><br>
+          <%= select_tag :age,
+                options_for_select(
+                  [[t("decidim.bih.admin.reports.index.all_ages"), ""]] +
+                  Decidim::Bih::Admin::ReportsController::AGE_FILTERS.map { |age|
+                    [t("decidim.bih.admin.reports.index.age_filters.#{age}"), age]
+                  },
+                  @age_filter.to_s
+                ),
+                style: "min-width:11rem;" %>
+        </label>
+        <label>
+          <%= t("decidim.bih.admin.reports.index.filter_attention") %><br>
+          <%= select_tag :attention,
+                options_for_select(
+                  [[t("decidim.bih.admin.reports.index.all_attention"), ""]] +
+                  Decidim::Bih::Admin::ReportsController::ATTENTION_FILTERS.map { |attention|
+                    [t("decidim.bih.admin.reports.index.attention_filters.#{attention}"), attention]
+                  },
+                  @attention_filter.to_s
+                ),
+                style: "min-width:13rem;" %>
+        </label>
+        <%= submit_tag t("decidim.bih.admin.reports.index.filter_apply"), class: "button button__sm button__secondary" %>
+        <%= link_to t("decidim.bih.admin.reports.index.filter_clear"), admin_bih_reports_path, class: "button button__sm button__transparent-secondary" %>
+      <% end %>
+
+      </details>
+      <p><em><%= t("decidim.bih.admin.reports.index.showing", shown: @reports.size, total: @total_count) %></em></p>
+
+      <% if @query_filter.present? && @total_count.zero? %>
+        <p><em><%= t("decidim.bih.admin.reports.index.no_search_results", query: @query_filter) %></em></p>
+      <% end %>
+
+    <% end %>
+  </div>
+</div>
+
+<% if active_reports_tab == "insights" %>
+  <%= render "review_metrics", metrics: @metrics %>
+  <details class="card" id="admin-reports-sla">
+  <summary><%= t("decidim.bih.review_workspace.metrics.task_details") %></summary>
+  <div class="card-section">
+    <p><%= t("decidim.bih.review_workspace.metrics.task_details_help") %></p>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.reports.index.sla.bucket") %></th>
+            <th><%= t("decidim.bih.admin.reports.index.sla.count") %></th>
+            <th><%= t("decidim.bih.admin.reports.index.sla.priority") %></th>
+            <th><%= t("decidim.bih.admin.reports.index.sla.review_action") %></th>
+            <th><%= t("decidim.bih.admin.reports.index.sla.oldest") %></th>
+            <th><%= t("decidim.bih.admin.reports.index.sla.action") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @sla_summary.each do |row| %>
+            <tr>
+              <td>
+                <strong><%= t("decidim.bih.admin.reports.index.sla.buckets.#{row[:key]}") %></strong>
+                <div style="font-size:0.85rem; color:#555;">
+                  <%= t("decidim.bih.admin.reports.index.sla.hints.#{row[:key]}") %>
+                </div>
+              </td>
+              <td><%= row[:count] %></td>
+              <td>
+                <%= t("decidim.bih.admin.reports.index.sla.priorities.#{row[:review_priority]}") %>
+              </td>
+              <td>
+                <%= t("decidim.bih.admin.reports.index.sla.review_actions.#{row[:review_action]}") %>
+              </td>
+              <td>
+                <% if row[:oldest_at] %>
+                  <%= l(row[:oldest_at], format: :short) %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td>
+                <%= link_to t("decidim.bih.admin.reports.index.sla.view"),
+                            admin_bih_reports_path(attention: row[:key]),
+                            class: "button button__sm button__transparent-secondary" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</details>
+
+<% end %>
+
+<%# ── Per-MZ problem heatmap (PII-free aggregate) ──────────────────────────
+    A community-level signal: how many reports per Mjesna zajednica × category
+    over a window. Reuses Decidim::Bih::ReportHeatmap; counts only, no PII. %>
+<% if active_reports_tab == "insights" %>
+  <div class="card" id="admin-reports-heatmap">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.reports.index.heatmap.title", default: "Problems by neighbourhood (MZ)") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.reports.index.heatmap.intro", default: "Reported problems grouped by neighbourhood and category. Counts only — no personal data.") %></p>
+
+    <p style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; margin-bottom:1rem;">
+      <span><strong><%= t("decidim.bih.admin.reports.index.heatmap.window", default: "Window") %>:</strong></span>
+      <% Decidim::Bih::Admin::ReportsController::HEATMAP_WINDOWS.each do |days| %>
+        <%= link_to t("decidim.bih.admin.reports.index.heatmap.last_days", count: days, default: "Last %{count} days"),
+                    admin_bih_reports_path(reports_tab_params.merge("tab" => "insights", "heatmap_days" => days)),
+                    class: "button button__sm #{@heatmap_window == days ? 'button__secondary' : 'button__transparent-secondary'}" %>
+      <% end %>
+    </p>
+
+    <% if @heatmap.total.zero? %>
+      <p><em><%= t("decidim.bih.admin.reports.index.heatmap.empty", default: "No located reports in this period yet.") %></em></p>
+    <% else %>
+      <%
+        heatmap_categories = @heatmap.categories
+        category_label = ->(category) { t("decidim.bih.reports.categories.#{category}", default: category) }
+      %>
+      <div class="table-stacked">
+        <table class="table-list">
+          <thead>
+            <tr>
+              <th><%= t("decidim.bih.admin.reports.index.heatmap.mz", default: "Neighbourhood (MZ)") %></th>
+              <th><%= t("decidim.bih.admin.reports.index.heatmap.total", default: "Total") %></th>
+              <th><%= t("decidim.bih.admin.reports.index.heatmap.top_category", default: "Most common") %></th>
+              <% heatmap_categories.each do |category| %>
+                <th><%= category_label.call(category) %></th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% @heatmap.areas.each do |area| %>
+              <tr>
+                <td><strong><%= area.mz_name %></strong></td>
+                <td><%= area.total %></td>
+                <td>
+                  <% if area.top_category.present? %>
+                    <%= category_label.call(area.top_category) %>
+                    <% if area.top_category_share %>
+                      (<%= number_to_percentage(area.top_category_share * 100, precision: 0) %>)
+                    <% end %>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <% heatmap_categories.each do |category| %>
+                  <td><%= area.category_counts[category].to_i %></td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<% if active_reports_tab == "queue" %>
+<% if bih_allowed?(:reports_update_status) %>
+<p><%= link_to t("decidim.bih.review_workspace.batch.title"), admin_bih_report_review_batch_path(return_to: request.fullpath), class: "button button__sm button__secondary" %></p>
+<% end %>
+<div class="card" id="admin-reports-list"><div class="table-stacked">
+<table class="table-list"><thead><tr>
+<% %w(report location next_step due owner open).each do |key| %><th><%= t("decidim.bih.review_workspace.#{key}") %></th><% end %>
+</tr></thead><tbody>
+<% @reports.each do |report| %>
+<tr>
+<td data-label="<%= t("decidim.bih.review_workspace.report") %>"><%= link_to report.reference, admin_bih_report_path(reference: report.reference, return_to: request.fullpath) %><br><%= report.category.present? ? t("decidim.bih.reports.categories.#{report.category}", default: "—") : "—" %><%= render "missing_category", report: report %></td>
+<td data-label="<%= t("decidim.bih.review_workspace.location") %>"><%= (@mz_names[report.mz_slug] || report.mz_slug).presence || t("decidim.bih.review_workspace.location_on_case") %></td>
+<td data-label="<%= t("decidim.bih.review_workspace.next_step") %>"><strong><%= Decidim::Bih::ReportStatusPresenter.label(report) %></strong><br><% if (next_action = Decidim::Bih::ReportObligations.next_action(report)) %><%= Decidim::Bih::ReportObligations.label(next_action) %><% else %><%= t("decidim.bih.review_workspace.views.#{Decidim::Bih::ReportWorkQueue.waiting_on(report)}") %><% end %>
+<% if report.review_state == "pending" && report.last_citizen_reply_at %><span class="label warning"><%= t("decidim.bih.review_workspace.new_reply") %></span><% end %>
+<% if report.forwarding_failed_at %><span class="label alert"><%= t("decidim.bih.admin.reports.index.failed") %></span><% end %></td>
+<td data-label="<%= t("decidim.bih.review_workspace.due") %>"><%= report.severity.present? ? t("decidim.bih.reports.severities.#{report.severity}", default: "—") : "—" %><br><% if (due = Decidim::Bih::ReportWorkQueue.due_at(report)) %><time datetime="<%= due.iso8601 %>"><%= l(due, format: :short) %></time><% if due < Time.current %> · <%= t("decidim.bih.review_workspace.overdue") %><% end %><% end %></td>
+<td data-label="<%= t("decidim.bih.review_workspace.owner") %>"><%= report.assigned_to&.name || t("decidim.bih.review_workspace.unassigned") %></td>
+<td data-label="<%= t("decidim.bih.review_workspace.open") %>"><%= link_to t("decidim.bih.review_workspace.open"), admin_bih_report_path(reference: report.reference, return_to: request.fullpath), class: "button button__sm button__secondary" %></td>
+</tr>
+<% end %>
+</tbody></table></div>
+<% if @reports.empty? %><p><%= t("decidim.bih.admin.reports.index.empty") %></p><% end %>
+<nav aria-label="<%= t('decidim.bih.review_workspace.pagination') %>" style="display:flex;gap:1rem;padding:1rem;align-items:center">
+<% if @page > 1 %><%= link_to t('decidim.bih.review_workspace.previous'), admin_bih_reports_path(request.query_parameters.merge(page: @page - 1)) %><% end %>
+<span><%= t('decidim.bih.review_workspace.page', page: @page, total: @page_count) %></span>
+<% if @page < @page_count %><%= link_to t('decidim.bih.review_workspace.next'), admin_bih_reports_path(request.query_parameters.merge(page: @page + 1)) %><% end %>
+</nav></div>
+<% end %>
+
+</div>

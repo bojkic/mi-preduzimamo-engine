@@ -1,0 +1,8 @@
+<h1><%= t("decidim.bih.report_mailbox.senders") %></h1>
+<% @senders.each do |sender| %><p><%= sender.label %> · <%= sender.masked_email %> · <%= sender.active %>
+<% if sender.active %><%= button_to t("decidim.bih.report_mailbox.deactivate"), deactivate_report_service_sender_path(sender), method: :post, class: "button button__sm button__secondary", form_class: "form form-defaults" %><% end %></p><% end %>
+<%= form_with url: report_service_senders_path, method: :post, builder: ActionView::Helpers::FormBuilder, class: "form form-defaults" do |form| %>
+  <%= form.label :email, t("decidim.bih.report_mailbox.sender") %><%= form.email_field :email, required: true %>
+  <%= form.label :label, t("decidim.bih.report_mailbox.label") %><%= form.text_field :label, required: true %>
+  <%= form.submit t("decidim.bih.report_mailbox.add"), class: "button button__sm button__secondary" %>
+<% end %>

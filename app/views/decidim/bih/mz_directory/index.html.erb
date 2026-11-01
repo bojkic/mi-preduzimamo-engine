@@ -1,0 +1,59 @@
+<%#
+  Public, read-only directory of Mjesne zajednice (MZ).
+  Card grid; each card links to the MZ show page (president, phone, area map).
+  predsjednik/telefon are public-official contact data — fine to show.
+  On-brand (MI theme tokens).
+%>
+<% add_decidim_page_title(t(".title")) %>
+<main class="wrapper">
+  <div class="row column">
+    <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.75rem;">
+      <img src="/mi/heart-mark.png" alt="" aria-hidden="true" style="height: 44px; width: auto; flex: none;">
+      <div>
+        <p class="mi-eyebrow" style="margin: 0;"><%= t(".eyebrow", default: "Mjesne zajednice") %></p>
+        <h1 class="heading2" style="margin: 0;"><%= t(".title", default: "Mjesne zajednice") %></h1>
+      </div>
+    </div>
+    <p style="max-width: 42rem; color: var(--mi-navy-600);"><%= t(".intro", default: "Pronađite svoju mjesnu zajednicu, predsjednika i kontakt telefon.") %></p>
+    <aside class="mi-notice" aria-label="<%= t(".data_note_title") %>">
+      <strong><%= t(".data_note_title") %></strong>
+      <p><%= t(".data_note", source: @source_label.presence || t(".source_fallback"), date: @last_updated_at ? l(@last_updated_at.to_date, format: :decidim_short) : t(".date_unknown")) %></p>
+      <% if @support_email %>
+        <p><%= t(".correction_html", support: @support_name.presence || t(".support_fallback"), email: mail_to(@support_email)) %></p>
+      <% end %>
+    </aside>
+
+    <% if @areas.empty? %>
+      <div class="card" style="text-align: center; padding: 2.5rem 1.5rem; margin-top: 1.25rem;">
+        <img src="/mi/heart-mark.png" alt="" aria-hidden="true" style="height: 56px; margin-bottom: 0.75rem;">
+        <h2 class="heading4" style="margin: 0 0 0.5rem; color: var(--mi-navy-700);"><%= t(".empty_title", default: "Još nema mjesnih zajednica") %></h2>
+        <p style="margin: 0; color: var(--mi-navy-600);"><%= t(".empty", default: "Nema dostupnih mjesnih zajednica.") %></p>
+      </div>
+    <% else %>
+      <ul style="list-style: none; padding: 0; margin: 1.25rem 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem;">
+        <% @areas.each do |area| %>
+          <li style="background: #fff; border: 1.5px solid var(--mi-line); border-radius: var(--mi-radius-card); box-shadow: var(--mi-shadow-sm); padding: 1rem 1.1rem;">
+            <h2 class="heading4" style="margin: 0 0 0.5rem;">
+              <%= link_to area.translated_name, mz_area_path(slug: area.slug), style: "color: var(--mi-navy-700); text-decoration: none;" %>
+            </h2>
+            <p style="margin: 0 0 0.25rem; color: var(--mi-navy-600); font-size: 0.92rem;">
+              <strong><%= t(".predsjednik", default: "Predsjednik") %>:</strong>
+              <%= area.predsjednik.present? ? area.display_predsjednik : t(".missing_contact_field", default: "nije dostupno") %>
+            </p>
+            <p style="margin: 0; color: var(--mi-navy-600); font-size: 0.92rem;">
+              <strong><%= t(".telefon", default: "Telefon") %>:</strong>
+              <% if area.telefon.present? %>
+                <%= link_to area.telefon, "tel:#{area.telefon}", style: "color: var(--mi-coral-700);" %>
+              <% else %>
+                <%= t(".missing_contact_field", default: "nije dostupan") %>
+              <% end %>
+            </p>
+            <p style="margin: 0.7rem 0 0;">
+              <%= link_to t(".view", default: "Pogledaj"), mz_area_path(slug: area.slug), class: "button hollow tiny" %>
+            </p>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+</main>

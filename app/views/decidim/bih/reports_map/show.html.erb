@@ -1,0 +1,120 @@
+<%#
+  Public map of located citizen problem reports ("Bice riseno!").
+
+  The map consumes the existing PII-safe GeoJSON endpoint. It exposes no
+  reporter contact details, descriptions, photos or status tokens.
+%>
+<% add_decidim_page_title(t(".title")) %>
+<%
+  status_colors = Decidim::Bih::ReportStatusPresenter.filter_statuses.index_with { |status| Decidim::Bih::ReportStatusPresenter.color(status) }
+  status_labels = Decidim::Bih::ReportStatusPresenter.labels
+  category_labels = Decidim::Bih::ReportTaxonomy::CATEGORIES.index_with do |category|
+    t("decidim.bih.reports.categories.#{category}", default: category.to_s)
+  end
+  severities = Decidim::Bih::ReportTaxonomy::SEVERITIES
+  severity_radii = {
+    "nizak" => 5,
+    "normalan" => 7,
+    "visok" => 10,
+    "hitan" => 13
+  }
+  severity_labels = severities.index_with do |severity|
+    t("decidim.bih.reports.severities.#{severity}", default: severity.to_s)
+  end
+%>
+<link rel="stylesheet" href="/leaflet/leaflet.css">
+
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: t(".intro") %>
+
+    <%= render "decidim/bih/shared/report_module_tabs", active: :map %>
+    <%= render "decidim/bih/shared/report_summary_cards", summary: @report_summary %>
+
+    <section class="mi-map-frame">
+      <div
+        id="bih-reports-map"
+        class="mi-map-frame__canvas"
+        style="height: 540px;"
+        data-geojson-url="<%= reports_map_path(format: :json) %>"
+        data-center-lat="<%= @map_center.first %>"
+        data-center-lng="<%= @map_center.last %>"
+        data-zoom="<%= @map_zoom %>"
+        data-tile-url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        data-tile-attribution="<%= t(".attribution") %>"
+        data-status-colors="<%= status_colors.to_json %>"
+        data-status-labels="<%= status_labels.to_json %>"
+        data-category-labels="<%= category_labels.to_json %>"
+        data-severity-radii="<%= severity_radii.to_json %>"
+        data-severity-labels="<%= severity_labels.to_json %>"
+        data-default-radius="7"
+        data-label-severity="<%= t(".popup.severity", default: "Hitnost") %>"
+        data-label-reference="<%= t(".popup.reference") %>"
+        data-label-category="<%= t(".popup.category") %>"
+        data-label-status="<%= t(".popup.status") %>"
+        data-label-details="<%= t(".popup.details") %>"
+        data-default-color="#6b7280"
+        data-fit-max-zoom="16"
+        data-resolved-ring-color="#15803d"
+        data-resolved-fill-color="#22c55e"
+        data-layer-reports="<%= t(".layers.reports", default: "Prijave") %>"
+        data-layer-resolved="<%= t(".layers.resolved_recently", default: "Nedavno riješeno") %>"
+        data-label-resolved-recently="<%= t(".popup.resolved_recently", default: "Nedavno riješeno") %>"
+        data-status-id="bih-reports-map-status"
+        data-retry-button-id="bih-reports-map-retry"
+        data-status-loading="<%= t(".loading") %>"
+        data-status-ready="<%= t(".ready") %>"
+        data-status-empty="<%= t(".empty") %>"
+        data-status-unavailable="<%= t(".unavailable") %>"
+        aria-describedby="bih-reports-map-status"
+      ></div>
+
+      <div class="mi-notice" style="margin-top: .75rem;">
+        <p id="bih-reports-map-status" role="status" aria-live="polite" style="margin: 0;"><%= t(".loading") %></p>
+        <p class="mi-action-row" style="margin: .6rem 0 0;">
+          <button type="button" id="bih-reports-map-retry" class="mi-btn mi-btn--ghost mi-btn--sm" hidden><%= t(".retry") %></button>
+          <%= link_to t(".list_fallback"), reports_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+        </p>
+      </div>
+
+      <div class="mi-map-legend bih-reports-map__legend" aria-label="<%= t(".legend") %>">
+        <strong><%= t(".legend") %></strong>
+        <ul>
+          <% Decidim::Bih::ReportStatusPresenter.filter_statuses.each do |status| %>
+            <li class="mi-filter-pill">
+              <span aria-hidden="true" class="mi-dot" style="background: <%= status_colors[status] %>;"></span>
+              <span><%= status_labels[status] %></span>
+            </li>
+          <% end %>
+          <li class="mi-filter-pill">
+            <span aria-hidden="true" class="mi-dot" style="background: #22c55e; border: 2px solid #15803d;"></span>
+            <span><%= t(".legend_resolved_recently", default: "Nedavno riješeno") %></span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mi-map-legend bih-reports-map__legend bih-reports-map__legend--severity" aria-label="<%= t(".legend_severity", default: "Hitnost") %>">
+        <strong><%= t(".legend_severity", default: "Hitnost") %></strong>
+        <ul>
+          <% severities.each do |severity| %>
+            <% diameter = severity_radii[severity.to_s].to_i * 2 %>
+            <li class="mi-filter-pill">
+              <span aria-hidden="true" style="display: inline-flex; width: 26px; justify-content: center;">
+                <span style="display: inline-block; width: <%= diameter %>px; height: <%= diameter %>px; border-radius: 50%; background: var(--mi-navy-600); box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(28,61,83,.12);"></span>
+              </span>
+              <span><%= severity_labels[severity] %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<% bih_reports_map_v = (File.mtime(Rails.root.join("public/mi/bih-reports-map.js")).to_i rescue 1) %>
+<script src="/leaflet/leaflet.js"></script>
+<script defer src="/mi/bih-reports-map.js?v=<%= bih_reports_map_v %>"></script>

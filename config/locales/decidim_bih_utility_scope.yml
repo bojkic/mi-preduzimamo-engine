@@ -1,0 +1,25 @@
+sr:
+  decidim:
+    bih:
+      dialogue:
+        utility_household_scope: "Sam naziv naselja u obavještenju ne potvrđuje da je svaka kuća bez usluge. Za određenu adresu potreban je izričit obuhvat iz objave ili potvrda pružaoca usluge. Ne mogu potvrditi stanje u svim domaćinstvima."
+sr-Cyrl:
+  decidim:
+    bih:
+      dialogue:
+        utility_household_scope: "Сам назив насеља у обавјештењу не потврђује да је свака кућа без услуге. За одређену адресу потребан је изричит обухват из објаве или потврда пружаоца услуге. Не могу потврдити стање у свим домаћинствима."
+bs:
+  decidim:
+    bih:
+      dialogue:
+        utility_household_scope: "Sam naziv naselja u obavještenju ne potvrđuje da je svaka kuća bez usluge. Za određenu adresu potreban je izričit obuhvat iz objave ili potvrda pružaoca usluge. Ne mogu potvrditi stanje u svim domaćinstvima."
+hr:
+  decidim:
+    bih:
+      dialogue:
+        utility_household_scope: "Sam naziv naselja u obavijesti ne potvrđuje da je svaka kuća bez usluge. Za određenu adresu potreban je izričit obuhvat iz objave ili potvrda pružatelja usluge. Ne mogu potvrditi stanje u svim kućanstvima."
+en:
+  decidim:
+    bih:
+      dialogue:
+        utility_household_scope: "A settlement name in a notice does not establish that every home has lost service. A specific address needs explicit coverage in the notice or confirmation from the service provider. I cannot confirm conditions in every household."

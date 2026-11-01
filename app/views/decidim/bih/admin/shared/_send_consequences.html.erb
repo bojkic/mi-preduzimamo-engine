@@ -1,0 +1,37 @@
+<%#
+  "This action also sends…" for a surface whose PURPOSE is not sending.
+
+  Deliberately NOT a composer: a report status change, an award or a reward
+  decision states its consequences and stays one click. Friction is
+  proportional - a bulk campaign previews and confirms, an operational action
+  does not grow a wizard.
+
+  Every sentence is derived from the registry via Messaging::SendConsequences.
+  No page names a message class, a channel or a recipient kind.
+
+  Locals:
+    consequences: Array<Hash> from Messaging::SendConsequences.tolerant_for(...)
+%>
+<% if consequences.present? %>
+  <div class="callout" data-send-consequences>
+    <strong><%= t("decidim.bih.admin.send_consequences.title") %></strong>
+    <p class="text-small"><%= t("decidim.bih.admin.send_consequences.intro") %></p>
+    <ul>
+      <% consequences.each do |row| %>
+        <li data-send-consequence="<%= row[:key] %>">
+          <% purpose = t("decidim.bih.admin.composer.purposes.#{row[:purpose]}", default: row[:purpose].to_s.tr("_", " ")) %>
+          <% if row[:external_boundary] %>
+            <%# MI does not send this one. Promising a send would be a false
+                statement, so the row says what it really is. %>
+            <%= t("decidim.bih.admin.send_consequences.boundary", purpose:) %>
+          <% else %>
+            <%= purpose %> &mdash;
+            <%= row[:recipient_kinds].map { |kind| t("decidim.bih.admin.send_consequences.to.#{kind}", default: kind) }.join(", ") %>
+            <%= t("decidim.bih.admin.send_consequences.via",
+                  channels: row[:channels].map { |channel| t("decidim.bih.admin.composer.channels.#{channel}", default: channel) }.join(", ")) %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

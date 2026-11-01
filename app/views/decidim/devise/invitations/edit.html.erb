@@ -1,0 +1,58 @@
+<%= render layout: "layouts/decidim/shared/layout_center" do %>
+
+  <div class="text-center py-12">
+    <h1 class="title-decorator inline-block text-left mb-12"><%= t "devise.invitations.edit.header" %></h1>
+
+    <p class="text-lg text-gray-2">
+      <%= current_organization.users_registration_mode_disabled? ? t("devise.invitations.edit.subtitle_no_password").html_safe : t("devise.invitations.edit.subtitle").html_safe %>
+    </p>
+  </div>
+
+  <%= decidim_form_for resource, namespace: "invitation", as: resource_name, url: invitation_path(resource_name, invite_redirect: params[:invite_redirect]), html: { method: :put, class: "register-form new_user" } do |f| %>
+    <%= form_required_explanation %>
+
+    <div class="form__wrapper">
+      <%= f.hidden_field :invitation_token %>
+
+      <%= f.text_field :nickname, help_text: t("devise.invitations.edit.nickname_help", organization: current_organization_name), required: "required", autocomplete: "nickname" %>
+
+      <% unless current_organization.users_registration_mode_disabled? %>
+        <%= render partial: "decidim/account/password_fields", locals: { form: f, user: resource.admin? ? :admin : :user } %>
+      <% end %>
+    </div>
+
+    <div class="form__wrapper-block">
+      <h4 class="h4"><%= t("tos_title", scope: "decidim.devise.registrations.new") %></h4>
+
+      <div>
+        <% terms_of_service_summary_content_blocks.each do |content_block| %>
+          <%= cell content_block.manifest.cell, content_block %>
+        <% end %>
+      </div>
+
+      <% link = link_to t("terms", scope: "decidim.devise.registrations.new"), page_path("terms-and-conditions"), target: "_blank" %>
+      <% label = t("tos_agreement", scope: "decidim.devise.registrations.new", link:) %>
+      <%= f.check_box :tos_agreement, label:, required: "required", label_options: { class: "form__wrapper-checkbox-label" } %>
+    </div>
+
+    <% if show_registration_topic_choice? %>
+    <div class="form__wrapper-block">
+      <% submitted = params.dig(resource_name, :newsletter_notifications) %>
+      <%= hidden_field_tag "#{resource_name}[newsletter_notifications]", "0" %>
+      <%= label_tag "mi-invitation-notifications", class: "form__wrapper-checkbox-label" do %>
+        <%= check_box_tag "#{resource_name}[newsletter_notifications]", "1", submitted.nil? || [true, "1", "true"].include?(submitted), id: "mi-invitation-notifications", "aria-describedby": "mi-notification-registration-help" %>
+        <%= t("decidim.bih.communication_settings.registration.label") %>
+      <% end %>
+      <%= render "decidim/bih/shared/notification_registration_help" %>
+    </div>
+    <% end %>
+
+    <div class="form__wrapper-block">
+      <button type="submit" class="button button__lg button__secondary">
+        <%= t("devise.invitations.edit.submit_button") %>
+        <%= icon "arrow-right-line", class: "fill-current" %>
+      </button>
+    </div>
+
+  <% end %>
+<% end %>

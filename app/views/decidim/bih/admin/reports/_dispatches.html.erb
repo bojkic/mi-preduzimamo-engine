@@ -1,0 +1,28 @@
+<% w = "decidim.bih.review_workspace" %>
+<% if report.forwarded_at || report.dispatches.exists? %>
+<section class="card card-section"><h2><%= t("#{w}.delivery") %></h2>
+<% if report.forwarded_at %><p><%= t("decidim.bih.admin.reports.index.forwarded") %> · <%= l(report.forwarded_at, format: :short) %></p><% end %>
+<% if report.external_submission_reference.present? %><p><%= report.external_submission_reference %></p><% end %>
+<% if report.sistem48_reference.present? %><p><%= t("decidim.bih.admin.reports.index.sistem48_reference") %>: <%= report.sistem48_reference %></p><% end %>
+<% if report.sistem48_status.present? %><p><%= t("decidim.bih.admin.reports.index.sistem48_status") %>: <%= report.sistem48_status %></p><% end %>
+<% report.dispatches.order(id: :desc).each do |dispatch| %>
+<details id="report-dispatch-<%= dispatch.id %>"<%= " open" if %w(queued sending unknown).include?(dispatch.state) %>><summary><%= t("#{w}.dispatch_states.#{dispatch.state}") %> · <%= l(dispatch.created_at, format: :short) %></summary>
+<p><%= t("#{w}.approved_by") %>: <%= dispatch.approved_by.name.presence || t("#{w}.deleted_actor") %></p>
+<% if dispatch.data_redacted_at %>
+<p><%= t("#{w}.retention_removed") %></p>
+<% else %>
+<% snapshot = dispatch.snapshot %><p><%= snapshot["to"].join(", ") %></p><pre style="white-space:pre-wrap;overflow-wrap:anywhere"><%= snapshot["body"] %></pre>
+<%= render "decidim/bih/admin/reports/evidence_attachments", attachments: snapshot.fetch("attachments", []) %>
+<% end %>
+<% if dispatch.state == "unknown" && bih_allowed?(:reports_retry_forwarding) %>
+<p><%= t("#{w}.unknown_help") %></p>
+<%= form_tag admin_bih_report_dispatch_reconcile_path(reference: report.reference, dispatch_id: dispatch.id), class: "form form-defaults" do %>
+<label><%= t("#{w}.checked_outcome") %><%= select_tag :outcome, options_for_select(%w(accepted not_sent).map { |s| [t("#{w}.dispatch_states.#{s}"), s] }), include_blank: true, required: true %></label>
+<label><%= t("#{w}.verification_evidence") %><%= text_area_tag :reconciliation_evidence, nil, maxlength: 1000, required: true %></label>
+<label><%= check_box_tag :confirm_decision, "1", false, required: true %> <%= t("#{w}.confirm_decision") %></label>
+<%= submit_tag t("#{w}.apply_decision"), class: "button button__sm button__secondary" %>
+<% end %><% end %>
+</details>
+<% end %>
+</section>
+<% end %>

@@ -1,0 +1,45 @@
+<div id="predlozi-potrebu" class="mi-organization-workflow" style="margin-top:1.5rem;">
+  <h3 class="heading5"><%= t("decidim.bih.volunteer.index.contributions.propose_need") %></h3>
+  <p><%= t("decidim.bih.volunteer.index.contributions.propose_need_intro") %></p>
+  <p class="mi-notice"><%= t("decidim.bih.volunteer.index.contributions.no_cash_note") %> <%= link_to t("decidim.bih.volunteer.index.contributions.projects_link"), new_community_project_path %></p>
+
+  <%= form_with url: contribution_needs_path, method: :post, html: { class: "mi-account-settings-form" } do %>
+    <div class="mi-account-form-grid mi-volunteer-form__grid">
+      <label><%= t("decidim.bih.volunteer.index.contributions.organization") %>
+        <%= select_tag :need_partner_profile_id,
+                       options_for_select([[t("decidim.bih.volunteer.index.opportunity_proposal.select_partner_profile"), ""]] + @partner_profile_options),
+                       required: true %>
+      </label>
+      <label><%= t("decidim.bih.volunteer.index.contributions.need_type") %>
+        <%= select_tag :need_type,
+                       options_for_select(Decidim::Bih::ContributionNeed::NEED_TYPES.map { |key| [t("decidim.bih.volunteer.index.contributions.need_types.#{key}"), key] }),
+                       required: true %>
+      </label>
+      <label><%= t("decidim.bih.volunteer.index.contributions.need_title") %>
+        <input type="text" name="need_title" required maxlength="160">
+      </label>
+      <label><%= t("decidim.bih.volunteer.index.contributions.project") %>
+        <%= select_tag :project_id,
+                       options_for_select([[t("decidim.bih.volunteer.index.contributions.no_project"), ""]] + @approved_project_options) %>
+      </label>
+      <label><%= t("decidim.bih.volunteer.index.contributions.quantity_label") %>
+        <input type="number" name="quantity" min="0.01" step="0.01" max="<%= Decidim::Bih::ContributionNeed::MAX_QUANTITY.to_s("F") %>" required>
+      </label>
+      <label><%= t("decidim.bih.volunteer.index.contributions.unit") %>
+        <input type="text" name="unit" required maxlength="50">
+      </label>
+      <label><%= t("decidim.bih.volunteer.index.contributions.needed_by_label") %>
+        <input type="date" name="needed_by">
+      </label>
+      <label><%= t("decidim.bih.volunteer.index.contributions.location") %>
+        <input type="text" name="need_location" maxlength="500">
+      </label>
+    </div>
+    <label><%= t("decidim.bih.volunteer.index.contributions.description") %>
+      <textarea name="need_description" rows="4" required maxlength="5000"></textarea>
+    </label>
+    <div class="mi-volunteer-form__actions">
+      <%= submit_tag t("decidim.bih.volunteer.index.contributions.need_submit"), class: "mi-btn mi-btn--primary mi-btn--sm" %>
+    </div>
+  <% end %>
+</div>

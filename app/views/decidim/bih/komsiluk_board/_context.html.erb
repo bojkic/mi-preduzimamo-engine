@@ -1,0 +1,18 @@
+<aside class="mi-board-context" aria-labelledby="board-context-title">
+  <h2 id="board-context-title"><%= board_t("context.title") %></h2>
+  <% if @board_context_links.present? %>
+    <ul class="mi-board-context__links">
+      <% @board_context_links.each do |item| %>
+        <% item = item.with_indifferent_access; href = board_context_href(item[:url]) %>
+        <% next unless href && item[:label].present? %>
+        <li><%= link_to item[:label], href %><% if item[:description].present? %><p><%= item[:description] %></p><% end %></li>
+      <% end %>
+    </ul>
+  <% end %>
+  <div class="mi-board-notifications">
+    <h3><%= board_t("notifications.title") %></h3>
+    <p><%= board_t("notifications.inbox") %></p>
+    <p><%= board_t("notifications.#{@topic_enabled ? 'enabled' : 'disabled'}") %></p>
+    <%= link_to board_t("notifications.settings"), decidim_bih.account_notification_settings_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+  </div>
+</aside>

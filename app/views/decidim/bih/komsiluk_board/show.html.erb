@@ -1,0 +1,44 @@
+<% add_decidim_page_title(@can_read_content ? (board_public_source_state(@post)[:updating] ? board_t("source_update.title") : @post.title) : board_t('unavailable.title')) %>
+<%= render 'assets' %>
+<main class="wrapper"><div class="mi-surface mi-surface--wide mi-board" data-board-draft-scope="<%= current_organization.id %>:<%= current_user.id %>:<%= @citizen_profile.komsiluk_id %>" data-board-draft-clear="<%= flash[:board_draft_clear] ? @post.id : '' %>">
+  <p><%= link_to board_t('back'), board_list_path %></p>
+  <div class="mi-board-layout"><div>
+    <% if @can_read_content %>
+      <%= render 'card', post: @post, detail: true %>
+      <% if @post.decidim_user_id == current_user.id %>
+        <% if @post.hidden? %><p class="mi-notice"><%= board_t('hidden_author') %></p><% end %>
+        <% if @post.open? %>
+          <%= form_tag decidim_bih.resolve_komsiluk_board_path(@post, board_filter_params), method: :patch, class: 'mi-board-completion' do %>
+            <label for="board-outcome"><%= board_t('completion') %><%= select_tag :outcome, options_for_select(Decidim::Bih::KomsilukPost::OUTCOMES.map { |key| [board_t("outcomes.#{key}"), key] }), id: 'board-outcome' %></label>
+            <%= submit_tag board_t('complete'), class: 'mi-btn mi-btn--primary mi-btn--sm' %>
+          <% end %>
+        <% end %>
+        <% if @helpers %>
+          <section class="mi-board-help"><h2><%= board_t('help.received') %></h2><p><%= board_t('help.owner_help') %></p>
+            <% if @helpers.any? %><ul><% @helpers.each do |item| %><li><%= link_to "@#{item.user.nickname}", decidim.profile_path(item.user.nickname) %></li><% end %></ul><%= paginate @helpers, param_name: :help_page if @helpers.total_pages > 1 %><% else %><p><%= board_t('help.none') %></p><% end %>
+          </section>
+        <% end %>
+      <% elsif @post.current? && @post.help_enabled? && @can_write && !board_public_source_state(@post)[:updating] %>
+        <section class="mi-board-help"><h2><%= board_t('help.title') %></h2><p><%= board_t('help.consent') %></p>
+          <% if @help_response && @help_response.withdrawn_at.nil? %>
+            <%= button_to board_t('help.withdraw'), decidim_bih.help_komsiluk_board_path(@post, board_filter_params), params: { withdraw: '1' }, class: 'mi-btn mi-btn--ghost' %>
+          <% else %><%= button_to board_t('help.action'), decidim_bih.help_komsiluk_board_path(@post, board_filter_params), class: 'mi-btn mi-btn--primary' %><% end %>
+        </section>
+      <% end %>
+    <% else %>
+      <section class="mi-empty-state">
+        <h1><%= board_t('unavailable.title') %></h1>
+        <p><%= board_t("unavailable.#{@post.effective_status}", default: board_t('unavailable.body')) %></p>
+        <% if @post.closed? && !board_public_source_state(@post)[:updating] %>
+          <p>
+            <% if Decidim::Bih::KomsilukPost::OUTCOMES.include?(@post.details['outcome']) %><%= board_t("outcomes.#{@post.details['outcome']}") %><% end %>
+            <% if @post.closed_at %><time datetime="<%= @post.closed_at.iso8601 %>"><%= board_datetime(@post.closed_at) %></time><% end %>
+          </p>
+        <% end %>
+      </section>
+    <% end %>
+    <% if !@post.current? && @help_response && @help_response.withdrawn_at.nil? %>
+      <%= button_to board_t('help.withdraw'), decidim_bih.help_komsiluk_board_path(@post, board_filter_params), params: { withdraw: '1' }, class: 'mi-btn mi-btn--ghost' %>
+    <% end %>
+  </div><%= render 'context' %></div>
+</div></main>

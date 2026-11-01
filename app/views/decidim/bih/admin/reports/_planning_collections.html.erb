@@ -1,0 +1,11 @@
+<details class="card-section" id="report-planning-collections">
+<summary><%= t("decidim.bih.report_planning.collections") %> (<%= collections.size %>)</summary>
+<ul>
+<% collections.each do |collection| %><li>
+<%= link_to collection.title, admin_bih_report_collection_path(collection) %>
+· <%= collection.assigned_to&.name || t("decidim.bih.review_workspace.unassigned") %>
+<% if collection.review_due_at %> · <%= l(collection.review_due_at, format: :short) %><% end %>
+</li><% end %>
+</ul>
+<%= link_to t("decidim.bih.review_workspace.metrics.all_collections"), admin_bih_report_collections_path %>
+</details>

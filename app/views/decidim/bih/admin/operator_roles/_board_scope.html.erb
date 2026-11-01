@@ -1,0 +1,22 @@
+<% copy = "decidim.bih.admin.board_review" %>
+<fieldset>
+  <legend><%= t("#{copy}.scope_title") %></legend>
+  <p><%= t("#{copy}.scope_help") %></p>
+  <label><%= radio_button_tag :area_scope, "all", true %><%= t("#{copy}.scope_all") %></label>
+  <label><%= radio_button_tag :area_scope, "selected", false %><%= t("#{copy}.scope_selected") %></label>
+  <details>
+    <summary><%= t("#{copy}.choose_areas") %></summary>
+    <div class="mi-board-area-picker" data-board-area-picker>
+      <label for="operator-board-area-search"><%= t("#{copy}.area_search") %></label>
+      <input type="search" id="operator-board-area-search" data-area-search autocomplete="off">
+      <p><%= t("#{copy}.selected_areas") %>: <span data-area-selection-count aria-live="polite">0</span></p>
+      <div class="mi-board-selected-areas" data-area-selected></div>
+      <%= hidden_field_tag "komsiluk_ids[]", "" %>
+      <div class="mi-board-area-options">
+        <% @komsiluk_areas.each do |area| %>
+          <label data-area-option data-area-name="<%= area.translated_name %>"><%= check_box_tag "komsiluk_ids[]", area.id, false, id: "operator_board_area_#{area.id}" %><span><%= area.translated_name %></span></label>
+        <% end %>
+      </div>
+    </div>
+  </details>
+</fieldset>

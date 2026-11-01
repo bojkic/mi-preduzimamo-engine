@@ -1,0 +1,10 @@
+<div id="bih-address-candidates" style="display:none" aria-live="polite"
+     data-choose-label="<%= t('decidim.bih.address_candidates.choose') %>"
+     data-map-label="<%= t('decidim.bih.address_candidates.show_map') %>"
+     <% %w(address street street_segment place approximate neighbourhood).each do |precision| %>
+       data-precision-<%= precision %>="<%= t("decidim.bih.address_candidates.precision.#{precision}") %>"
+     <% end %>>
+  <p><%= t('decidim.bih.address_candidates.hint') %></p>
+  <ul id="bih-address-candidate-list" style="list-style:none;padding:0"></ul>
+  <p id="bih-address-map-hint" style="display:none" role="status"><%= t('decidim.bih.address_candidates.map_hint') %></p>
+</div>

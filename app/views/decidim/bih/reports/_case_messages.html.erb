@@ -1,0 +1,22 @@
+<% c = "decidim.bih.report_case" %>
+<% if report.planned? %><p style="background:#eef1f3;color:#374151;padding:1rem"><%= t("decidim.bih.report_planning.citizen_help") %></p><% end %>
+<% messages = report.case_messages.includes(:account_notification).chronological %>
+<% if messages.empty? %><p><%= t("#{c}.no_messages") %></p><% end %>
+<ol style="padding-left:1.25rem;overflow-wrap:anywhere">
+  <% messages.each do |message| %>
+    <li id="report-message-<%= message.id %>" tabindex="-1" style="margin-bottom:1rem">
+      <strong><%= t("#{c}.roles.#{message.actor_role}") %></strong> · <%= l(message.created_at, format: :short) %>
+      <%= simple_format(message.body) %>
+      <% if message.photo.attached? %><p><%= link_to t("decidim.bih.report_evidence.download"), "?photo_message_id=#{message.id}" %></p><% end %>
+      <% if (delivery = message.account_notification) %>
+        <p><%= t("#{c}.external_delivery") %>: <%= delivery.channels.join(", ") %> — <%= t("#{c}.external_states.#{delivery.status}") %></p>
+        <% if delivery.status == "skipped" && delivery.reason == "ineligible" %>
+          <p><%= t("#{c}.external_ineligible") %></p>
+        <% end %>
+      <% end %>
+      <small><%= t("#{c}.delivery.#{message.notification_state}") %><% if message.read_at %> · <%= t("#{c}.opened") %> <%= l(message.read_at, format: :short) %><% end %></small>
+    </li>
+  <% end %>
+</ol>
+<% if report.resolution_evidence.present? %><h3><%= t("#{c}.resolution") %></h3><%= simple_format(report.resolution_evidence) %><% end %>
+<% if report.resident_feedback.present? %><p><strong><%= t("#{c}.feedback") %>:</strong> <%= t("#{c}.feedback_options.#{report.resident_feedback}") %></p><% end %>

@@ -1,0 +1,293 @@
+<%#
+  Citizen account summary. Operators see: contribution score, wallet balance,
+  level, last 20 ledger entries, open reward fulfillments, referrals, and a
+  manual-award form. No PII beyond what the admin already sees in Decidim's own
+  admin/users view (name + nickname + email). No cross-org data possible:
+  CitizensController#find_citizen! is scoped to current_organization.
+%>
+<% add_decidim_page_title("#{@citizen.name.presence || @citizen.nickname} — #{t("decidim.bih.admin.citizens.show.title")}") %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :citizens %>
+
+<div class="card" id="citizen-summary">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title">
+      <%= @citizen.name.presence || @citizen.nickname || "##{@citizen.id}" %>
+    </h1>
+  </div>
+  <div class="card-section">
+    <%= link_to t("decidim.bih.admin.citizens.show.back"),
+                admin_bih_citizens_path,
+                class: "button button__sm button__transparent-secondary",
+                style: "margin-bottom:1rem;" %>
+
+    <% if bih_allowed?(:general_support_message_send) %>
+      <%= link_to t("decidim.bih.admin.citizens.show.message_user"),
+                  new_operator_message_path(recipient_id: @citizen.id),
+                  class: "button button__sm button__secondary",
+                  style: "margin-bottom:1rem;" %>
+    <% end %>
+
+    <% if defined?(@account) && @account && defined?(@level) && @level %>
+      <div class="row">
+        <div class="columns medium-4">
+          <strong><%= number_with_delimiter(@account&.contribution_score.to_i, delimiter: ".") %></strong>
+          <div><%= t("decidim.bih.admin.citizens.show.contribution") %></div>
+        </div>
+        <div class="columns medium-4">
+          <strong><%= number_with_delimiter(@account&.balance.to_i, delimiter: ".") %></strong>
+          <div><%= t("decidim.bih.admin.citizens.show.balance") %></div>
+        </div>
+        <div class="columns medium-4">
+          <strong><%= @level.title %></strong>
+          <div><%= t("decidim.bih.admin.citizens.show.level") %></div>
+        </div>
+      </div>
+    <% else %>
+      <p><%= t("decidim.bih.admin.citizens.show.limited_lookup") %></p>
+    <% end %>
+  </div>
+</div>
+
+<%= render "decidim/bih/shared/account_channel_status", user: @citizen, organization: current_organization %>
+
+<%#
+  Round 25 (W4.7) — identity panel. Surfaces the Viber linkage status and the
+  komšiluk/MZ assignment, plus minimal correction actions. PRIVACY: never print
+  the raw phone or the viber_sender — only "linked/verified" + a masked last-4.
+%>
+<% if bih_allowed?(:citizen_identity_correction) %>
+<div class="card" id="citizen-identity">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.citizens.show.identity_title") %></h2>
+  </div>
+  <div class="card-section">
+    <div class="row">
+      <div class="columns medium-6">
+        <h3><%= t("decidim.bih.admin.citizens.show.viber_section") %></h3>
+        <% if @viber_linkage %>
+          <p>
+            <strong><%= t("decidim.bih.admin.citizens.show.viber_linked") %></strong>
+            <% if @viber_linkage.verified? %>
+              · <%= t("decidim.bih.admin.citizens.show.viber_verified") %>
+            <% end %>
+          </p>
+          <% if @viber_linkage.phone.present? %>
+            <p>
+              <%= t("decidim.bih.admin.citizens.show.viber_phone_masked") %>
+              <code>•••• <%= @viber_linkage.phone.to_s.last(4) %></code>
+            </p>
+          <% end %>
+          <%= button_to t("decidim.bih.admin.citizens.show.unlink_viber"),
+                        unlink_viber_admin_bih_citizen_path(@citizen),
+                        method: :post,
+                        class: "button button__sm button__transparent-secondary",
+                        data: { confirm: t("decidim.bih.admin.citizens.show.unlink_viber_confirm") } %>
+        <% else %>
+          <p><%= t("decidim.bih.admin.citizens.show.viber_not_linked") %></p>
+        <% end %>
+
+        <%#
+          Viber Business Messages delivery address. Separate from the Bot
+          linkage above: this is the phone proactive notices are sent to, and
+          it exists without any Bot involvement. Same privacy rule — masked
+          last-4 only, never the raw number.
+        %>
+        <h3><%= t("decidim.bih.admin.citizens.show.viber_business_section") %></h3>
+        <% if @viber_business_contact %>
+          <p>
+            <strong><%= t("decidim.bih.admin.citizens.show.viber_business_present") %></strong>
+          </p>
+          <% if @viber_business_contact.phone.present? %>
+            <p>
+              <%= t("decidim.bih.admin.citizens.show.viber_phone_masked") %>
+              <code>•••• <%= @viber_business_contact.phone.to_s.last(4) %></code>
+            </p>
+          <% end %>
+          <p class="help-text">
+            <%= t("decidim.bih.admin.citizens.show.viber_business_verified_on",
+                  date: l(@viber_business_contact.verified_at.to_date, format: :decidim_short)) %>
+          </p>
+        <% else %>
+          <p><%= t("decidim.bih.admin.citizens.show.viber_business_absent") %></p>
+        <% end %>
+      </div>
+
+      <div class="columns medium-6">
+        <h3><%= t("decidim.bih.admin.citizens.show.komsiluk_section") %></h3>
+        <% if @citizen_profile&.assigned? %>
+          <p>
+            <strong><%= t("decidim.bih.admin.citizens.show.komsiluk_label") %>:</strong>
+            <%= @citizen_profile.komsiluk&.translated_name %>
+          </p>
+          <% if @citizen_profile.mz %>
+            <p>
+              <strong><%= t("decidim.bih.admin.citizens.show.mz_label") %>:</strong>
+              <%= @citizen_profile.mz.translated_name %>
+            </p>
+          <% end %>
+          <%= button_to t("decidim.bih.admin.citizens.show.clear_komsiluk"),
+                        clear_komsiluk_admin_bih_citizen_path(@citizen),
+                        method: :post,
+                        class: "button button__sm button__transparent-secondary",
+                        data: { confirm: t("decidim.bih.admin.citizens.show.clear_komsiluk_confirm") } %>
+        <% else %>
+          <p><%= t("decidim.bih.admin.citizens.show.no_komsiluk") %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<% end %>
+
+<% if bih_allowed?(:goodwill_manual_award) %>
+<div class="card" id="citizen-manual-award">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.citizens.show.manual_award_title") %></h2>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.citizens.show.manual_award_intro") %></p>
+    <%= render "decidim/bih/admin/shared/send_consequences", consequences: @award_consequences %>
+    <%= form_tag award_admin_bih_citizen_path(@citizen), method: :post,
+                 style: "display:flex; gap:0.5rem; flex-wrap:wrap; align-items:flex-end;", class: "form form-defaults" do %>
+      <%= hidden_field_tag :request_key, SecureRandom.uuid %>
+      <label>
+        <%= t("decidim.bih.admin.citizens.show.amount_label") %><br>
+        <%= number_field_tag :amount, nil, min: 1, max: 500, required: true, style: "width:6rem;" %>
+      </label>
+      <label style="flex:1 1 12rem;">
+        <%= t("decidim.bih.admin.citizens.show.reason_label") %><br>
+        <%= text_field_tag :reason, nil, required: true, placeholder: t("decidim.bih.admin.citizens.show.reason_placeholder"), style: "width:100%;" %>
+      </label>
+      <%= submit_tag t("decidim.bih.admin.citizens.show.award_submit"), class: "button button__sm button__secondary" %>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<% if defined?(@open_fulfillments) && @open_fulfillments %>
+<div class="card" id="citizen-open-fulfillments">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.citizens.show.open_fulfillments_title") %></h2>
+  </div>
+  <% if @open_fulfillments.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.when") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.reward") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.status") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @open_fulfillments.each do |f| %>
+            <% reward_name = Decidim::Bih::Goodwill::RewardsCatalog.find(f.reward_key, current_organization)&.name || f.reward_key %>
+            <tr>
+              <td><%= l(f.created_at, format: :short) %></td>
+              <td><%= reward_name %></td>
+              <td><%= t("decidim.bih.admin.goodwill.index.reward_status.#{f.status}", default: f.status) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.citizens.show.no_open_fulfillments") %></p></div>
+  <% end %>
+</div>
+<% end %>
+
+<% if defined?(@ledger_entries) && @ledger_entries %>
+<div class="card" id="citizen-ledger">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.citizens.show.ledger_title") %></h2>
+  </div>
+  <% if @ledger_entries.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.when") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.kind") %></th>
+            <th><%= t("decidim.bih.admin.goodwill.index.reason") %></th>
+            <th><%= t("decidim.bih.admin.citizens.show.amount") %></th>
+            <th><%= t("decidim.bih.admin.citizens.show.actions", default: "Actions") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @ledger_entries.each do |entry| %>
+            <% txn = entry.ledger_transaction %>
+            <%# Reversible: an ORIGINAL (non-adjustment, non-reversal) txn that has
+                not already been reversed. The controller re-checks all of this
+                before posting, so this only governs whether the button is shown. %>
+            <% reversible = txn.kind != "adjustment" && !txn.reversing? && !@reversed_transaction_ids.include?(txn.id) %>
+            <tr>
+              <td><%= l(entry.created_at, format: :short) %></td>
+              <td><%= txn.kind %></td>
+              <td><%= txn.reason %></td>
+              <td style="color:<%= entry.amount >= 0 ? 'var(--mi-coral-600)' : '#c0392b' %>; font-weight:700;">
+                <%= entry.amount >= 0 ? "+#{entry.amount}" : entry.amount %>
+              </td>
+              <td>
+                <% if reversible && bih_allowed?(:goodwill_reverse_transaction) %>
+                  <%= form_tag(reverse_transaction_admin_bih_citizen_path(@citizen, transaction_id: txn.id), method: :post, class: "form form-defaults") do %>
+                    <label for="citizen_transaction_<%= txn.id %>_private_reason">
+                      <%= t("decidim.bih.admin.private_action_reason.label", default: "Private operator reason") %>
+                    </label>
+                    <%= text_field_tag :private_reason,
+                                       nil,
+                                       id: "citizen_transaction_#{txn.id}_private_reason",
+                                       required: true,
+                                       maxlength: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH %>
+                    <small><%= t("decidim.bih.admin.private_action_reason.help",
+                                 count: Decidim::Bih::Admin::PrivateActionReason::MAX_LENGTH,
+                                 default: "Required for cancellation or reversal (maximum %{count} characters). Stored in the private operator audit.") %></small>
+                    <%= submit_tag t("decidim.bih.admin.citizens.show.reverse", default: "Reverse"),
+                                   class: "button button__sm button__transparent-secondary mi-admin-action--danger",
+                                   data: { confirm: t("decidim.bih.admin.citizens.show.reverse_confirm",
+                                                      default: "Reverse this ledger entry? A mirror adjustment will be posted.") } %>
+                  <% end %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <%= paginate @ledger_entries, param_name: :ledger_page %>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.citizens.show.no_ledger_entries") %></p></div>
+  <% end %>
+</div>
+<% end %>
+
+<% if defined?(@referrals) && @referrals %>
+<div class="card" id="citizen-referrals">
+  <div class="item_show__header">
+    <h2 class="item_show__header-title"><%= t("decidim.bih.admin.citizens.show.referrals_title") %></h2>
+  </div>
+  <% if @referrals.any? %>
+    <div class="table-stacked">
+      <table class="table-list">
+        <thead>
+          <tr>
+            <th><%= t("decidim.bih.admin.goodwill.index.when") %></th>
+            <th><%= t("decidim.bih.admin.citizens.show.referral_status") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @referrals.each do |ref| %>
+            <tr>
+              <td><%= l(ref.created_at, format: :short) %></td>
+              <td><%= ref.status %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-section"><p><%= t("decidim.bih.admin.citizens.show.no_referrals") %></p></div>
+  <% end %>
+</div>
+<% end %>

@@ -1,0 +1,40 @@
+sr:
+  decidim:
+    bih:
+      dialogue:
+        neighborhood_activity_choice: "Šta želiš pogledati: javne prijave problema, servisne informacije (voda, struja ili grijanje), ili objave članova komšiluka? Samo za objave članova treba odgovarajući pristup."
+        neighborhood_service_choice: "Za koju uslugu želiš obavještenja — vodu, struju ili grijanje? Ako još nisi navela mjesto, dodaj naselje ili ulicu."
+        neighborhood_no_notices: "Među prikupljenim javnim servisnim obavještenjima nisam našla podudaranje za ovo područje i traženi period. To ne znači da nema prekida ili drugih dešavanja; nemam potpun pregled stanja u komšiluku."
+        neighborhood_public_reports: "Javne prijave problema možeš pogledati na gradskoj mapi: %{url}\nMapa prikazuje prijave iz cijelog grada, nije filtrirana samo na tvoj komšiluk i nije potpun pregled svega što se tamo dešava."
+sr-Cyrl:
+  decidim:
+    bih:
+      dialogue:
+        neighborhood_activity_choice: "Шта желиш погледати: јавне пријаве проблема, сервисне информације (вода, струја или гријање), или објаве чланова комшилука? Само за објаве чланова треба одговарајући приступ."
+        neighborhood_service_choice: "За коју услугу желиш обавјештења — воду, струју или гријање? Ако још ниси навела мјесто, додај насеље или улицу."
+        neighborhood_no_notices: "Међу прикупљеним јавним сервисним обавјештењима нисам нашла подударање за ово подручје и тражени период. То не значи да нема прекида или других дешавања; немам потпун преглед стања у комшилуку."
+        neighborhood_public_reports: "Јавне пријаве проблема можеш погледати на градској мапи: %{url}\nМапа приказује пријаве из цијелог града, није филтрирана само на твој комшилук и није потпун преглед свега што се тамо дешава."
+bs:
+  decidim:
+    bih:
+      dialogue:
+        neighborhood_activity_choice: "Šta želiš pogledati: javne prijave problema, servisne informacije (voda, struja ili grijanje), ili objave članova komšiluka? Samo za objave članova treba odgovarajući pristup."
+        neighborhood_service_choice: "Za koju uslugu želiš obavještenja — vodu, struju ili grijanje? Ako još nisi navela mjesto, dodaj naselje ili ulicu."
+        neighborhood_no_notices: "Među prikupljenim javnim servisnim obavještenjima nisam našla podudaranje za ovo područje i traženi period. To ne znači da nema prekida ili drugih dešavanja; nemam potpun pregled stanja u komšiluku."
+        neighborhood_public_reports: "Javne prijave problema možeš pogledati na gradskoj mapi: %{url}\nMapa prikazuje prijave iz cijelog grada, nije filtrirana samo na tvoj komšiluk i nije potpun pregled svega što se tamo dešava."
+hr:
+  decidim:
+    bih:
+      dialogue:
+        neighborhood_activity_choice: "Što želiš pogledati: javne prijave problema, servisne informacije (voda, struja ili grijanje), ili objave članova susjedstva? Samo za objave članova treba odgovarajući pristup."
+        neighborhood_service_choice: "Za koju uslugu želiš obavijesti — vodu, struju ili grijanje? Ako još nisi navela mjesto, dodaj naselje ili ulicu."
+        neighborhood_no_notices: "Među prikupljenim javnim servisnim obavijestima nisam našla podudaranje za ovo područje i traženo razdoblje. To ne znači da nema prekida ili drugih događanja; nemam potpun pregled stanja u susjedstvu."
+        neighborhood_public_reports: "Javne prijave problema možeš pogledati na gradskoj karti: %{url}\nKarta prikazuje prijave iz cijelog grada, nije filtrirana samo na tvoje susjedstvo i nije potpun pregled svega što se tamo događa."
+en:
+  decidim:
+    bih:
+      dialogue:
+        neighborhood_activity_choice: "What would you like to see: public problem reports, service notices (water, electricity or heating), or members' neighborhood posts? Only members' posts require the appropriate access."
+        neighborhood_service_choice: "Which service do you want notices for — water, electricity or heating? If you have not supplied a place yet, add the neighborhood or street."
+        neighborhood_no_notices: "I found no matching collected public service notices for this area and the requested period. That does not mean there are no interruptions or other events; I do not have a complete picture of neighborhood activity."
+        neighborhood_public_reports: "You can view public problem reports on the city map: %{url}\nThis map covers the whole city, is not filtered to your neighborhood and is not a complete account of everything happening there."

@@ -1,0 +1,41 @@
+---
+sr:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            report_mail_linked: Prepiska povezana sa prijavama
+            report_mail_unlinked: Prepiska bez povezane prijave
+bs:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            report_mail_linked: Prepiska povezana s prijavama
+            report_mail_unlinked: Prepiska bez povezane prijave
+hr:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            report_mail_linked: Prepiska povezana s prijavama
+            report_mail_unlinked: Prepiska bez povezane prijave
+en:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            report_mail_linked: Correspondence linked to reports
+            report_mail_unlinked: Correspondence without a linked report
+sr-Cyrl:
+  decidim:
+    bih:
+      admin:
+        privacy_retention:
+          buckets:
+            report_mail_linked: Преписка повезана са пријавама
+            report_mail_unlinked: Преписка без повезане пријаве

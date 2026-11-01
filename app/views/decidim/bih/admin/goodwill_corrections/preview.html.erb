@@ -1,0 +1,21 @@
+<% add_decidim_page_title(t("decidim.bih.admin.goodwill_corrections.preview")) %>
+<%= render "decidim/bih/admin/shared/navigation", current_item: :goodwill %>
+<div class="card"><div class="card-section">
+  <h1><%= t("decidim.bih.admin.goodwill_corrections.preview") %> — <%= @report.reference %></h1>
+  <% if @preview %>
+    <dl>
+      <dt><%= t("decidim.bih.admin.goodwill_corrections.recognition") %></dt><dd><%= @preview[:previous_target] %> → <%= @preview[:target_amount] %></dd>
+      <dt><%= t("decidim.bih.admin.goodwill_corrections.wallet") %></dt><dd><%= @preview[:wallet_before] %> → <%= @preview[:status] == "admin_pending" ? @preview[:wallet_before] : @preview[:wallet_after] %></dd>
+      <dt><%= t("decidim.bih.admin.goodwill_corrections.level") %></dt><dd><%= @preview[:level_before] %> → <%= @preview[:level_after] %></dd>
+      <dt><%= t("decidim.bih.admin.goodwill_corrections.status") %></dt><dd><%= t("decidim.bih.admin.goodwill_corrections.statuses.#{@preview[:status]}") %></dd>
+    </dl>
+    <p><%= t("decidim.bih.admin.goodwill_corrections.preview_hint") %></p>
+    <%= form_tag goodwill_corrections_path, method: :post, class: "form form-defaults" do %>
+      <%= hidden_field_tag :preview_token, @token %>
+      <%= label_tag :reason, t("decidim.bih.admin.goodwill_corrections.reason") %>
+      <%= text_area_tag :reason, nil, required: true, maxlength: 1000 %>
+      <%= submit_tag t("decidim.bih.admin.goodwill_corrections.apply"), class: "button button__secondary" %>
+    <% end %>
+  <% else %><p><%= t("decidim.bih.admin.goodwill_corrections.no_award") %></p><% end %>
+  <%= link_to t("decidim.bih.admin.goodwill_corrections.back"), goodwill_corrections_path %>
+</div></div>

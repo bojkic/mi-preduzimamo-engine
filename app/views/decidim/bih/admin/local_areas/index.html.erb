@@ -1,0 +1,191 @@
+<%#
+  Admin index for Mjesne zajednice and Komšiluci. The routine contact work,
+  Komšiluk routing review, and aggregate routing impact are separated into
+  workflow tabs so operators do not scan one mixed technical table.
+%>
+<% add_decidim_page_title(t("decidim.bih.admin.local_areas.index.title")) %>
+
+<%= render "decidim/bih/admin/shared/navigation", current_item: :local_areas %>
+
+<div class="card" id="local-areas-header" data-local-areas-active-tab="<%= @active_local_areas_tab %>">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t("decidim.bih.admin.local_areas.index.title") %></h1>
+  </div>
+  <div class="card-section">
+    <p><%= t("decidim.bih.admin.local_areas.index.intro") %></p>
+    <div class="callout warning" id="local-areas-impact">
+      <strong><%= t("decidim.bih.admin.local_areas.index.impact_title") %></strong>
+      <p style="margin-bottom:0;"><%= t("decidim.bih.admin.local_areas.index.impact_body") %></p>
+    </div>
+    <nav id="local-areas-workflow-nav" aria-label="<%= t("decidim.bih.admin.local_areas.index.workflow_nav_label") %>" style="display:flex; gap:0.45rem; flex-wrap:wrap;">
+      <%= link_to t("decidim.bih.admin.local_areas.index.workflow_mz", count: @local_area_counts.fetch("mz", 0)),
+                  local_areas_path(tab: "mz"),
+                  class: ["button", "button__sm", (@active_local_areas_tab == "mz" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_local_areas_tab == "mz") },
+                  data: { local_areas_workflow_tab: "mz" } %>
+      <%= link_to t("decidim.bih.admin.local_areas.index.workflow_komsiluk", count: @local_area_counts.fetch("komsiluk", 0)),
+                  local_areas_path(tab: "komsiluk"),
+                  class: ["button", "button__sm", (@active_local_areas_tab == "komsiluk" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_local_areas_tab == "komsiluk") },
+                  data: { local_areas_workflow_tab: "komsiluk" } %>
+      <%= link_to t("decidim.bih.admin.local_areas.index.workflow_routing"),
+                  local_areas_path(tab: "routing"),
+                  class: ["button", "button__sm", (@active_local_areas_tab == "routing" ? "button__secondary" : "button__transparent-secondary")].join(" "),
+                  aria: { current: ("page" if @active_local_areas_tab == "routing") },
+                  data: { local_areas_workflow_tab: "routing" } %>
+    </nav>
+  </div>
+</div>
+
+<% if @active_local_areas_tab == "mz" %>
+  <div class="card" id="local-areas-mz-list">
+    <div class="item_show__header">
+      <h2 class="item_show__header-title"><%= t("decidim.bih.admin.local_areas.index.mz_title") %></h2>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.local_areas.index.mz_intro") %></p>
+    </div>
+    <% if @local_areas.any? %>
+      <div class="table-stacked">
+        <table class="table-list">
+          <thead>
+            <tr>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_name") %></th>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_predsjednik") %></th>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_telefon") %></th>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_note") %></th>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_actions") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @local_areas.each do |area| %>
+              <tr>
+                <td><%= area.translated_name %></td>
+                <td><%= area.display_predsjednik.presence || t("decidim.bih.admin.local_areas.index.not_set") %></td>
+                <td><%= area.telefon.presence || t("decidim.bih.admin.local_areas.index.not_set") %></td>
+                <td><%= area.metadata.is_a?(Hash) ? area.metadata["napomena"].presence || "—" : "—" %></td>
+                <td>
+                  <%= link_to t("decidim.bih.admin.local_areas.index.edit"),
+                              edit_local_area_path(area), class: "button button__sm button__secondary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="card-section">
+        <p><%= t("decidim.bih.admin.local_areas.index.empty_mz") %></p>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @active_local_areas_tab == "komsiluk" %>
+  <div class="card" id="local-areas-komsiluk-list">
+    <div class="item_show__header">
+      <h2 class="item_show__header-title"><%= t("decidim.bih.admin.local_areas.index.komsiluk_title") %></h2>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.local_areas.index.komsiluk_intro") %></p>
+    </div>
+    <% if @local_areas.any? %>
+      <div class="table-stacked">
+        <table class="table-list">
+          <thead>
+            <tr>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_name") %></th>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_primary_mz") %></th>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_overlapping_mz") %></th>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_actions") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @local_areas.each do |area| %>
+              <% overlapping_slugs = Array(area.overlapping_mz_slugs).compact_blank %>
+              <tr>
+                <td>
+                  <%= area.translated_name %><br>
+                  <small><code><%= area.slug %></code></small>
+                </td>
+                <td>
+                  <% if area.primary_mz_slug.present? && @mz_by_slug[area.primary_mz_slug] %>
+                    <%= @mz_by_slug[area.primary_mz_slug].translated_name %>
+                  <% else %>
+                    <%= t("decidim.bih.admin.local_areas.index.not_set") %>
+                  <% end %>
+                </td>
+                <td>
+                  <% if overlapping_slugs.any? %>
+                    <%= overlapping_slugs.filter_map { |slug| @mz_by_slug[slug]&.translated_name }.join(", ").presence || overlapping_slugs.join(", ") %>
+                  <% else %>
+                    <%= t("decidim.bih.admin.local_areas.index.no_overlap") %>
+                  <% end %>
+                </td>
+                <td>
+                  <%= link_to t("decidim.bih.admin.local_areas.index.edit"),
+                              edit_local_area_path(area), class: "button button__sm button__secondary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="card-section">
+        <p><%= t("decidim.bih.admin.local_areas.index.empty_komsiluk") %></p>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @active_local_areas_tab == "routing" %>
+  <%
+    routing_rows = @komsiluk_routing_rows || []
+    missing_contact_count = @local_areas.to_a.count { |area| area.kind == "mz" && (area.predsjednik.blank? || area.telefon.blank?) }
+    missing_primary_count = routing_rows.count { |row| row[:area].primary_mz_slug.blank? || row[:primary_mz].blank? }
+  %>
+  <div class="card" id="local-areas-routing-impact">
+    <div class="item_show__header">
+      <h2 class="item_show__header-title"><%= t("decidim.bih.admin.local_areas.index.routing_title") %></h2>
+    </div>
+    <div class="card-section">
+      <p><%= t("decidim.bih.admin.local_areas.index.routing_intro") %></p>
+      <dl>
+        <dt><%= t("decidim.bih.admin.local_areas.index.summary_mz_count") %></dt>
+        <dd><%= @local_area_counts.fetch("mz", 0) %></dd>
+        <dt><%= t("decidim.bih.admin.local_areas.index.summary_komsiluk_count") %></dt>
+        <dd><%= @local_area_counts.fetch("komsiluk", 0) %></dd>
+        <dt><%= t("decidim.bih.admin.local_areas.index.summary_missing_contacts") %></dt>
+        <dd><%= missing_contact_count %></dd>
+        <dt><%= t("decidim.bih.admin.local_areas.index.summary_missing_primary") %></dt>
+        <dd><%= missing_primary_count %></dd>
+      </dl>
+    </div>
+    <% if routing_rows.any? %>
+      <div class="table-stacked">
+        <table class="table-list">
+          <thead>
+            <tr>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_name") %></th>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_primary_mz") %></th>
+              <th><%= t("decidim.bih.admin.local_areas.index.col_overlapping_mz") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% routing_rows.each do |row| %>
+              <tr>
+                <td><%= row[:area].translated_name %></td>
+                <td><%= row[:primary_mz]&.translated_name || row[:area].primary_mz_slug.presence || t("decidim.bih.admin.local_areas.index.not_set") %></td>
+                <td>
+                  <% names = row[:overlapping_mz].map(&:translated_name) %>
+                  <%= names.join(", ").presence || row[:overlapping_slugs].join(", ").presence || t("decidim.bih.admin.local_areas.index.no_overlap") %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+<% end %>

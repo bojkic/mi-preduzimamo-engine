@@ -1,0 +1,425 @@
+# The shared operator composer (Phase 5, Task 5.1).
+#
+# `sr-Cyrl` is TRANSLITERATED from `sr` with Decidim::Bih::Transliterator —
+# never hand-edited. `bs` and `hr` are seeded from `sr`.
+---
+en:
+  decidim:
+    bih:
+      admin:
+        composer:
+          title: Before you send
+          audience:
+            title: Who this reaches
+            eligible: Will receive
+            suppressed: Chose not to / blocked
+            undeliverable: Cannot be reached
+            unavailable: The audience could not be counted right now. No number is shown rather than a possibly wrong one.
+          reasons:
+            preference_blocked: Turned this off
+            preference_absent: Never chose this
+            transport_suppressed: Durable provider STOP
+            provider_opt_out: Opted out at the provider
+            optional_unsubscribe: Unsubscribed
+            destination_unknown: No address on record
+            channel_unconfigured: Channel not configured
+            template_required: No approved template
+            connection_required: No linked conversation
+            session_expired: Linked conversation expired
+            account_unavailable: Account blocked or deleted
+            dispatch_disabled: Sending is switched off
+            rate_limited: Rate limited
+            expired: Past its useful lifetime
+            unsupported_channel: This message never uses that channel
+            decision_unavailable: Could not be decided
+          content:
+            title: What each channel carries
+            variant: 'variant: %{variant}'
+            not_previewable: No text to preview for this channel yet.
+            unsupported: "%{channel}: this message class carries nothing on that channel."
+          readiness:
+            title: What is blocking this
+            ready: Nothing is blocking this send right now.
+            unknown: Readiness could not be established. The same checks run again at send time.
+            open_governance: Review the owner decision
+          blockers:
+            not_authorized: You do not hold the permission this send needs.
+            governance_missing: There is no current owner decision for this channel.
+            preview_expired: The preview is older than ten minutes. Preview again.
+            preview_mismatch: What is on screen is no longer what would be sent. Preview again.
+            audience_changed: The audience changed since the preview. Preview again.
+            expired: This message is past its useful lifetime.
+            channel_not_ready: The provider settings or health for this channel are not ready.
+          cost:
+            title: What this costs
+            unavailable: The cost could not be estimated.
+            segments_only: "%{count} billable message(s). The unit price is not on record here, so no amount is shown."
+            segments_and_amount: "%{count} billable message(s), about %{amount} %{currency}."
+          confirm:
+            title: Confirm
+            reviewed: I have reviewed the text and the audience above.
+          channels:
+            bell: Notification bell
+            push: Browser push
+            email: E-mail
+            sms: SMS
+            viber: Viber
+            whatsapp: WhatsApp
+            messenger: Messenger
+            instagram: Instagram
+            postal: Post
+            web_chat: Web chat
+        send_consequences:
+          title: This action also sends
+          intro: Saving this will trigger the messages below. They are not a bulk campaign and need no confirmation step.
+          to:
+            account: the citizen
+            staff: the operator team
+            pending_authentication: the number being verified
+            anonymous_report_contact: the report's own contact address
+            external_institution: the institution
+            operator_mailbox: the operator mailbox
+            provider_inbound_identity: the chat identity
+          via: via %{channels}
+          boundary: "%{purpose}: MI does not send this; it is handled outside the platform."
+        newsletter:
+          audience:
+            suppression_applied: Addresses that bounced, complained or asked to stop are already excluded.
+            proven_address_only: Only citizens whose current address has been proven are counted.
+            all_subscribed: Every subscribed citizen is counted; proven-address narrowing is off.
+sr:
+  decidim:
+    bih:
+      admin:
+        composer:
+          title: Prije slanja
+          audience:
+            title: Koga ovo dostiže
+            eligible: Primiće
+            suppressed: Odbili ili blokirani
+            undeliverable: Nedostupni
+            unavailable: Publiku trenutno nije moguće prebrojati. Radije ne prikazujemo broj nego pogrešan broj.
+          reasons:
+            preference_blocked: Isključili su ovo
+            preference_absent: Nikada nisu izabrali
+            transport_suppressed: Trajno zaustavljeno kod pružaoca
+            provider_opt_out: Odjavili se kod pružaoca
+            optional_unsubscribe: Odjavili se
+            destination_unknown: Nema adrese u evidenciji
+            channel_unconfigured: Kanal nije podešen
+            template_required: Nema odobrenog obrasca
+            connection_required: Nema povezanog razgovora
+            session_expired: Povezani razgovor je istekao
+            account_unavailable: Nalog blokiran ili obrisan
+            dispatch_disabled: Slanje je isključeno
+            rate_limited: Ograničenje učestalosti
+            expired: Isteklo je vrijeme poruke
+            unsupported_channel: Ova poruka ne koristi taj kanal
+            decision_unavailable: Nije bilo moguće odlučiti
+          content:
+            title: Šta nosi svaki kanal
+            variant: 'oblik: %{variant}'
+            not_previewable: Za ovaj kanal još nema teksta za pregled.
+            unsupported: "%{channel}: ova vrsta poruke ne šalje ništa tim kanalom."
+          readiness:
+            title: Šta trenutno blokira slanje
+            ready: Trenutno ništa ne blokira ovo slanje.
+            unknown: Spremnost nije bilo moguće utvrditi. Iste provjere se ponavljaju neposredno prije slanja.
+            open_governance: Pregledaj vlasničku odluku
+          blockers:
+            not_authorized: Nemate ovlašćenje koje ovo slanje traži.
+            governance_missing: Ne postoji važeća vlasnička odluka za ovaj kanal.
+            preview_expired: Pregled je stariji od deset minuta. Napravite novi pregled.
+            preview_mismatch: Ono što je na ekranu više nije ono što bi bilo poslato. Napravite novi pregled.
+            audience_changed: Publika se promijenila od pregleda. Napravite novi pregled.
+            expired: Ovoj poruci je isteklo vrijeme.
+            channel_not_ready: Postavke ili stanje pružaoca za ovaj kanal nisu spremni.
+          cost:
+            title: Koliko ovo košta
+            unavailable: Trošak nije bilo moguće procijeniti.
+            segments_only: "%{count} naplativih poruka. Jedinična cijena ovdje nije u evidenciji, pa iznos ne prikazujemo."
+            segments_and_amount: "%{count} naplativih poruka, oko %{amount} %{currency}."
+          confirm:
+            title: Potvrda
+            reviewed: Pregledao/la sam tekst i publiku iznad.
+          channels:
+            bell: Zvono obavještenja
+            push: Push u pregledaču
+            email: E-pošta
+            sms: SMS
+            viber: Viber
+            whatsapp: WhatsApp
+            messenger: Messenger
+            instagram: Instagram
+            postal: Pošta
+            web_chat: Veb razgovor
+        send_consequences:
+          title: Ova radnja takođe šalje
+          intro: Čuvanje pokreće poruke ispod. To nije masovna kampanja i ne traži dodatnu potvrdu.
+          to:
+            account: građaninu
+            staff: operativnom timu
+            pending_authentication: broju koji se potvrđuje
+            anonymous_report_contact: kontaktu sa same prijave
+            external_institution: instituciji
+            operator_mailbox: operativnom sandučetu
+            provider_inbound_identity: identitetu iz razgovora
+          via: 'putem: %{channels}'
+          boundary: "%{purpose}: MI ovo ne šalje; obavlja se izvan platforme."
+        newsletter:
+          audience:
+            suppression_applied: Adrese koje su odbijene, prijavljene ili su tražile prestanak već su isključene.
+            proven_address_only: Broje se samo građani čija je trenutna adresa dokazana.
+            all_subscribed: Broje se svi prijavljeni građani; sužavanje na dokazanu adresu je isključeno.
+sr-Cyrl:
+  decidim:
+    bih:
+      admin:
+        composer:
+          title: Прије слања
+          audience:
+            title: Кога ово достиже
+            eligible: Примиће
+            suppressed: Одбили или блокирани
+            undeliverable: Недоступни
+            unavailable: Публику тренутно није могуће пребројати. Радије не приказујемо број него погрешан број.
+          reasons:
+            preference_blocked: Искључили су ово
+            preference_absent: Никада нису изабрали
+            transport_suppressed: Трајно заустављено код пружаоца
+            provider_opt_out: Одјавили се код пружаоца
+            optional_unsubscribe: Одјавили се
+            destination_unknown: Нема адресе у евиденцији
+            channel_unconfigured: Канал није подешен
+            template_required: Нема одобреног обрасца
+            connection_required: Нема повезаног разговора
+            session_expired: Повезани разговор је истекао
+            account_unavailable: Налог блокиран или обрисан
+            dispatch_disabled: Слање је искључено
+            rate_limited: Ограничење учесталости
+            expired: Истекло је вријеме поруке
+            unsupported_channel: Ова порука не користи тај канал
+            decision_unavailable: Није било могуће одлучити
+          content:
+            title: Шта носи сваки канал
+            variant: 'облик: %{variant}'
+            not_previewable: За овај канал још нема текста за преглед.
+            unsupported: "%{channel}: ова врста поруке не шаље ништа тим каналом."
+          readiness:
+            title: Шта тренутно блокира слање
+            ready: Тренутно ништа не блокира ово слање.
+            unknown: Спремност није било могуће утврдити. Исте провјере се понављају непосредно прије слања.
+            open_governance: Прегледај власничку одлуку
+          blockers:
+            not_authorized: Немате овлашћење које ово слање тражи.
+            governance_missing: Не постоји важећа власничка одлука за овај канал.
+            preview_expired: Преглед је старији од десет минута. Направите нови преглед.
+            preview_mismatch: Оно што је на екрану више није оно што би било послато. Направите нови преглед.
+            audience_changed: Публика се промијенила од прегледа. Направите нови преглед.
+            expired: Овој поруци је истекло вријеме.
+            channel_not_ready: Поставке или стање пружаоца за овај канал нису спремни.
+          cost:
+            title: Колико ово кошта
+            unavailable: Трошак није било могуће процијенити.
+            segments_only: "%{count} наплативих порука. Јединична цијена овдје није у евиденцији, па износ не приказујемо."
+            segments_and_amount: "%{count} наплативих порука, око %{amount} %{currency}."
+          confirm:
+            title: Потврда
+            reviewed: Прегледао/ла сам текст и публику изнад.
+          channels:
+            bell: Звоно обавјештења
+            push: Пусх у прегледачу
+            email: Е-пошта
+            sms: СМС
+            viber: Вибер
+            whatsapp: WhatsApp
+            messenger: Messenger
+            instagram: Инстаграм
+            postal: Пошта
+            web_chat: Веб разговор
+        send_consequences:
+          title: Ова радња такође шаље
+          intro: Чување покреће поруке испод. То није масовна кампања и не тражи додатну потврду.
+          to:
+            account: грађанину
+            staff: оперативном тиму
+            pending_authentication: броју који се потврђује
+            anonymous_report_contact: контакту са саме пријаве
+            external_institution: институцији
+            operator_mailbox: оперативном сандучету
+            provider_inbound_identity: идентитету из разговора
+          via: 'путем: %{channels}'
+          boundary: "%{purpose}: МИ ово не шаље; обавља се изван платформе."
+        newsletter:
+          audience:
+            suppression_applied: Адресе које су одбијене, пријављене или су тражиле престанак већ су искључене.
+            proven_address_only: Броје се само грађани чија је тренутна адреса доказана.
+            all_subscribed: Броје се сви пријављени грађани; сужавање на доказану адресу је искључено.
+bs:
+  decidim:
+    bih:
+      admin:
+        composer:
+          title: Prije slanja
+          audience:
+            title: Koga ovo dostiže
+            eligible: Primiće
+            suppressed: Odbili ili blokirani
+            undeliverable: Nedostupni
+            unavailable: Publiku trenutno nije moguće prebrojati. Radije ne prikazujemo broj nego pogrešan broj.
+          reasons:
+            preference_blocked: Isključili su ovo
+            preference_absent: Nikada nisu izabrali
+            transport_suppressed: Trajno zaustavljeno kod pružaoca
+            provider_opt_out: Odjavili se kod pružaoca
+            optional_unsubscribe: Odjavili se
+            destination_unknown: Nema adrese u evidenciji
+            channel_unconfigured: Kanal nije podešen
+            template_required: Nema odobrenog obrasca
+            connection_required: Nema povezanog razgovora
+            session_expired: Povezani razgovor je istekao
+            account_unavailable: Nalog blokiran ili obrisan
+            dispatch_disabled: Slanje je isključeno
+            rate_limited: Ograničenje učestalosti
+            expired: Isteklo je vrijeme poruke
+            unsupported_channel: Ova poruka ne koristi taj kanal
+            decision_unavailable: Nije bilo moguće odlučiti
+          content:
+            title: Šta nosi svaki kanal
+            variant: 'oblik: %{variant}'
+            not_previewable: Za ovaj kanal još nema teksta za pregled.
+            unsupported: "%{channel}: ova vrsta poruke ne šalje ništa tim kanalom."
+          readiness:
+            title: Šta trenutno blokira slanje
+            ready: Trenutno ništa ne blokira ovo slanje.
+            unknown: Spremnost nije bilo moguće utvrditi. Iste provjere se ponavljaju neposredno prije slanja.
+            open_governance: Pregledaj vlasničku odluku
+          blockers:
+            not_authorized: Nemate ovlašćenje koje ovo slanje traži.
+            governance_missing: Ne postoji važeća vlasnička odluka za ovaj kanal.
+            preview_expired: Pregled je stariji od deset minuta. Napravite novi pregled.
+            preview_mismatch: Ono što je na ekranu više nije ono što bi bilo poslato. Napravite novi pregled.
+            audience_changed: Publika se promijenila od pregleda. Napravite novi pregled.
+            expired: Ovoj poruci je isteklo vrijeme.
+            channel_not_ready: Postavke ili stanje pružaoca za ovaj kanal nisu spremni.
+          cost:
+            title: Koliko ovo košta
+            unavailable: Trošak nije bilo moguće procijeniti.
+            segments_only: "%{count} naplativih poruka. Jedinična cijena ovdje nije u evidenciji, pa iznos ne prikazujemo."
+            segments_and_amount: "%{count} naplativih poruka, oko %{amount} %{currency}."
+          confirm:
+            title: Potvrda
+            reviewed: Pregledao/la sam tekst i publiku iznad.
+          channels:
+            bell: Zvono obavještenja
+            push: Push u pregledaču
+            email: E-pošta
+            sms: SMS
+            viber: Viber
+            whatsapp: WhatsApp
+            messenger: Messenger
+            instagram: Instagram
+            postal: Pošta
+            web_chat: Veb razgovor
+        send_consequences:
+          title: Ova radnja takođe šalje
+          intro: Čuvanje pokreće poruke ispod. To nije masovna kampanja i ne traži dodatnu potvrdu.
+          to:
+            account: građaninu
+            staff: operativnom timu
+            pending_authentication: broju koji se potvrđuje
+            anonymous_report_contact: kontaktu sa same prijave
+            external_institution: instituciji
+            operator_mailbox: operativnom sandučetu
+            provider_inbound_identity: identitetu iz razgovora
+          via: 'putem: %{channels}'
+          boundary: "%{purpose}: MI ovo ne šalje; obavlja se izvan platforme."
+        newsletter:
+          audience:
+            suppression_applied: Adrese koje su odbijene, prijavljene ili su tražile prestanak već su isključene.
+            proven_address_only: Broje se samo građani čija je trenutna adresa dokazana.
+            all_subscribed: Broje se svi prijavljeni građani; sužavanje na dokazanu adresu je isključeno.
+hr:
+  decidim:
+    bih:
+      admin:
+        composer:
+          title: Prije slanja
+          audience:
+            title: Koga ovo dostiže
+            eligible: Primiće
+            suppressed: Odbili ili blokirani
+            undeliverable: Nedostupni
+            unavailable: Publiku trenutno nije moguće prebrojati. Radije ne prikazujemo broj nego pogrešan broj.
+          reasons:
+            preference_blocked: Isključili su ovo
+            preference_absent: Nikada nisu izabrali
+            transport_suppressed: Trajno zaustavljeno kod pružaoca
+            provider_opt_out: Odjavili se kod pružaoca
+            optional_unsubscribe: Odjavili se
+            destination_unknown: Nema adrese u evidenciji
+            channel_unconfigured: Kanal nije podešen
+            template_required: Nema odobrenog obrasca
+            connection_required: Nema povezanog razgovora
+            session_expired: Povezani razgovor je istekao
+            account_unavailable: Nalog blokiran ili obrisan
+            dispatch_disabled: Slanje je isključeno
+            rate_limited: Ograničenje učestalosti
+            expired: Isteklo je vrijeme poruke
+            unsupported_channel: Ova poruka ne koristi taj kanal
+            decision_unavailable: Nije bilo moguće odlučiti
+          content:
+            title: Šta nosi svaki kanal
+            variant: 'oblik: %{variant}'
+            not_previewable: Za ovaj kanal još nema teksta za pregled.
+            unsupported: "%{channel}: ova vrsta poruke ne šalje ništa tim kanalom."
+          readiness:
+            title: Šta trenutno blokira slanje
+            ready: Trenutno ništa ne blokira ovo slanje.
+            unknown: Spremnost nije bilo moguće utvrditi. Iste provjere se ponavljaju neposredno prije slanja.
+            open_governance: Pregledaj vlasničku odluku
+          blockers:
+            not_authorized: Nemate ovlašćenje koje ovo slanje traži.
+            governance_missing: Ne postoji važeća vlasnička odluka za ovaj kanal.
+            preview_expired: Pregled je stariji od deset minuta. Napravite novi pregled.
+            preview_mismatch: Ono što je na ekranu više nije ono što bi bilo poslato. Napravite novi pregled.
+            audience_changed: Publika se promijenila od pregleda. Napravite novi pregled.
+            expired: Ovoj poruci je isteklo vrijeme.
+            channel_not_ready: Postavke ili stanje pružaoca za ovaj kanal nisu spremni.
+          cost:
+            title: Koliko ovo košta
+            unavailable: Trošak nije bilo moguće procijeniti.
+            segments_only: "%{count} naplativih poruka. Jedinična cijena ovdje nije u evidenciji, pa iznos ne prikazujemo."
+            segments_and_amount: "%{count} naplativih poruka, oko %{amount} %{currency}."
+          confirm:
+            title: Potvrda
+            reviewed: Pregledao/la sam tekst i publiku iznad.
+          channels:
+            bell: Zvono obavještenja
+            push: Push u pregledaču
+            email: E-pošta
+            sms: SMS
+            viber: Viber
+            whatsapp: WhatsApp
+            messenger: Messenger
+            instagram: Instagram
+            postal: Pošta
+            web_chat: Veb razgovor
+        send_consequences:
+          title: Ova radnja takođe šalje
+          intro: Čuvanje pokreće poruke ispod. To nije masovna kampanja i ne traži dodatnu potvrdu.
+          to:
+            account: građaninu
+            staff: operativnom timu
+            pending_authentication: broju koji se potvrđuje
+            anonymous_report_contact: kontaktu sa same prijave
+            external_institution: instituciji
+            operator_mailbox: operativnom sandučetu
+            provider_inbound_identity: identitetu iz razgovora
+          via: 'putem: %{channels}'
+          boundary: "%{purpose}: MI ovo ne šalje; obavlja se izvan platforme."
+        newsletter:
+          audience:
+            suppression_applied: Adrese koje su odbijene, prijavljene ili su tražile prestanak već su isključene.
+            proven_address_only: Broje se samo građani čija je trenutna adresa dokazana.
+            all_subscribed: Broje se svi prijavljeni građani; sužavanje na dokazanu adresu je isključeno.

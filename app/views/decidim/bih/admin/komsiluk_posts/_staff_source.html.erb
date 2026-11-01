@@ -1,0 +1,14 @@
+<% copy = "decidim.bih.admin.board_correction"; source = @post.details.to_h["source_record"] %>
+<% if @post.origin == "staff" && source.is_a?(Hash) %>
+  <section class="callout secondary" id="board-source-review">
+    <h2><%= t("#{copy}.linked_source") %></h2>
+    <p><%= t("#{copy}.source_kinds.#{source['kind']}", default: t("#{copy}.linked_source")) %></p>
+    <% if source["unavailable_at"].present? %><p role="status"><%= t("#{copy}.source_unavailable") %></p>
+    <% elsif source["changed_at"].present? %><p role="status"><%= t("#{copy}.source_changed") %></p><% end %>
+    <% path = source["url"].to_s %>
+    <% if path.match?(%r{\A/(?!/)[^\\\x00-\x20]*\z}) %><%= link_to t("#{copy}.open_source"), path, target: "_blank", rel: "noopener noreferrer" %><% end %>
+  </section>
+<% end %>
+<% if @post.origin == "staff" && @post.body.present? && @post.publication_key.present? && bih_allowed?(:broadcast_preview) && bih_allowed?(:broadcast_send_bell) %>
+  <p><%= link_to t("#{copy}.title"), edit_admin_bih_board_notice_path(@post), class: "button button__sm button__secondary" %></p>
+<% end %>

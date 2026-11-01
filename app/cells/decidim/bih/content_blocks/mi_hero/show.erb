@@ -1,0 +1,124 @@
+<%# MI PRE(D)UZIMAMO! — homepage poster hero content block (engine-owned).
+    Navy poster stack + CTAs on the left, live-activity ticker card on the
+    right, org stats strip under the divider. Styling lives in the host
+    theme (public/mi/mi-theme.css). %>
+<section id="mi-hero" class="mi-hero">
+  <img class="mi-hero__watermark" src="<%= heart_mark_path %>" alt="" aria-hidden="true" width="728" height="745" loading="eager" fetchpriority="high">
+
+  <div class="mi-hero__wrap">
+    <div class="mi-hero__copy">
+      <p class="mi-eyebrow mi-hero__eyebrow"><%= t_scope("eyebrow") %></p>
+
+      <h1 class="mi-hero__poster">
+        <span class="mi-poster-word mi-poster-word--mi"><%= t_scope("poster.mi") %></span>
+        <% poster_words.each do |word| %>
+          <span class="mi-poster-word mi-poster-word--<%= word %>"><%= t_scope("poster.#{word}") %></span>
+        <% end %>
+        <% if (identity = t_scope("identity", default: "")).present? %>
+          <span class="mi-hero__identity"><%= identity %></span>
+        <% end %>
+      </h1>
+
+      <p class="mi-hero__sub"><%== t_scope("sub_html") %></p>
+
+      <% if (learn_more = t_scope("learn_more_html", default: "")).present? %>
+        <p class="mi-hero__learn-more"><%== learn_more %></p>
+      <% end %>
+
+      <div class="mi-hero__ctas">
+        <% hero_ctas.each do |cta| %>
+          <%= link_to cta[:href],
+                      class: "mi-btn #{cta[:style]} mi-btn--lg",
+                      data: (cta[:chat] ? { mi_bot_open: true } : {}) do %>
+            <% if cta[:icon] %>
+              <%= icon cta[:icon], role: "img", "aria-hidden": true %>
+            <% end %>
+            <%= cta[:label] %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <p class="mi-hero__trust">
+        <%= icon "shield-check-line", role: "img", "aria-hidden": true %>
+        <%= t_scope("trust") %>
+      </p>
+    </div>
+
+    <div class="mi-hero__side">
+      <aside class="mi-hero-register" aria-label="<%= t_scope("register.aria_label") %>">
+        <div class="mi-hero-register__header">
+          <div class="mi-hero-register__copy">
+            <strong><%= t_scope(registered_user? ? "register.signed_in_title" : "register.title") %></strong>
+            <span><%= t_scope(registered_user? ? "register.signed_in_body" : "register.body") %></span>
+          </div>
+          <%= link_to t_scope(registered_user? ? "register.signed_in_cta" : "register.cta"),
+                      account_or_registration_href,
+                      class: "mi-btn mi-btn--sun mi-btn--sm" %>
+        </div>
+
+        <% unless registered_user? %>
+          <ul class="mi-hero-register__benefits">
+            <% registration_panel_benefits.each do |benefit| %>
+              <li>
+                <%= icon benefit[:icon], role: "img", "aria-hidden": true %>
+                <span><%= benefit[:text] %></span>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      </aside>
+
+      <% if ticker_activities.any? %>
+        <div class="mi-ticker">
+          <div class="mi-ticker__head">
+            <span class="mi-ticker__dot" aria-hidden="true"></span>
+            <span class="mi-ticker__label"><%= t("decidim.bih.homepage_activity.title") %></span>
+          </div>
+          <div class="mi-ticker__items">
+            <% ticker_activities.each do |activity| %>
+              <div class="mi-ticker__item">
+                <span class="mi-ticker__icon"><%= ticker_icon(activity) %></span>
+                <div class="mi-ticker__body">
+                  <b><%= ticker_actor_name(activity) %></b>
+                  <%= ticker_action_phrase(activity) %>
+                  <% if (path = ticker_path(activity)) %>
+                    <%= link_to ticker_title(activity), path, class: "mi-ticker__target" %>
+                  <% else %>
+                    <span class="mi-ticker__target"><%= ticker_title(activity) %></span>
+                  <% end %>
+                  <span class="mi-ticker__when"><%= ticker_time(activity) %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if visible_stats.any? %>
+    <div class="mi-hero-stats__divider">
+      <div class="mi-hero-stats">
+        <% visible_stats.each do |stat| %>
+          <%# Kampanjska pločica je istaknuta i vodi na /trka; ostale su statične.
+              Etiketa se pluralizuje samo kad stat nosi count (procenti i
+              kampanjski iznos nisu brojive imenice pa šalju count: nil). %>
+          <% campaign = stat[:key] == "campaign" %>
+          <% item_classes = ["mi-hero-stats__item", ("mi-hero-stats__item--hi" if campaign)].compact.join(" ") %>
+          <% label = stat[:count].nil? ? t_scope("stats.#{stat[:key]}") : t_scope("stats.#{stat[:key]}", count: stat[:count]) %>
+          <% if campaign %>
+            <a class="<%= item_classes %>" href="<%= campaign_stat_href %>">
+              <div class="mi-hero-stats__value"><%= stat[:value] %></div>
+              <div class="mi-hero-stats__label"><%= label %></div>
+            </a>
+          <% else %>
+            <div class="<%= item_classes %>">
+              <div class="mi-hero-stats__value"><%= stat[:value] %></div>
+              <div class="mi-hero-stats__label"><%= label %></div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</section>

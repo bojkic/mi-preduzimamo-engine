@@ -1,0 +1,156 @@
+---
+sr:
+  decidim:
+    bih:
+      admin:
+        board_review:
+          tabs:
+            delivery: Isporuka
+        board_delivery_operations:
+          title: Isporuka za pregled
+          hint: Brojevi označavaju potvrde za članove, pokušaje po uređaju ili objave, kako je navedeno. Otvori objavu za pregled dokaza i, kada je dozvoljeno, pripremu novog tačnog plana slanja na telefone. Ovaj pregled ne ponavlja slanje.
+          thresholds: Čekanje se prikazuje poslije 15 minuta; započeti zahtjev na telefon poslije 30 minuta; prihvaćeni zahtjev nakon jednog sata bez provjere izvještaja. Greške push isporuke odnose se na važeće objave. Zahtjev sa nepoznatim ishodom možda je već prihvaćen kod pružaoca usluge.
+          empty: Za izabrane filtere nema isporuka sa table koje traže pregled.
+          review: Pregledaj isporuku
+          source_hint: Brojevi izvornog procesa obuhvataju sva gradska obavještenja kojima možeš upravljati, nezavisno od filtera table. Prikazano je do 10 odgovarajućih izvornih obavještenja.
+          source_reference: Pregledaj gradsko obavještenje br. %{id}
+          source_review: Otvori gradska obavještenja
+          issues:
+            inbox_stalled: Zaostale potvrde obavještenja na platformi
+            push_stalled: Zaostale potvrde push isporuke
+            push_failed: Neuspjeli push pokušaji po uređaju
+            push_uncertain: Push pokušaji sa neizvjesnim ishodom
+            phone_stalled: Zaostali zahtjevi za telefone
+            phone_failed: Odbijeni ili neuspjeli zahtjevi za telefone
+            phone_unknown: Zahtjevi za telefone sa nepoznatim ishodom
+            phone_expired: Istekli zahtjevi za telefone koji čekaju zatvaranje
+            expiry_backlog: Istekle objave koje čekaju zatvaranje
+            source_failed: Gradska obavještenja sa greškom objavljivanja
+            source_stalled: Gradska obavještenja sa zaostalim objavljivanjem
+            source_expired: Gradska obavještenja istekla bez objave
+          intro: Otvori objavu za pregled isporuke.
+          counts_detail: Brojevi isporuka i rokovi
+bs:
+  decidim:
+    bih:
+      admin:
+        board_review:
+          tabs:
+            delivery: Isporuka
+        board_delivery_operations:
+          title: Isporuka za pregled
+          hint: Brojevi označavaju potvrde za članove, pokušaje po uređaju ili objave, kako je navedeno. Otvori objavu za pregled dokaza i, kada je dozvoljeno, pripremu novog tačnog plana slanja na telefone. Ovaj pregled ne ponavlja slanje.
+          thresholds: Čekanje se prikazuje poslije 15 minuta; započeti zahtjev na telefon poslije 30 minuta; prihvaćeni zahtjev nakon jednog sata bez provjere izvještaja. Greške push isporuke odnose se na važeće objave. Zahtjev sa nepoznatim ishodom možda je već prihvaćen kod pružaoca usluge.
+          empty: Za izabrane filtere nema isporuka sa table koje traže pregled.
+          review: Pregledaj isporuku
+          source_hint: Brojevi izvornog procesa obuhvataju sva gradska obavještenja kojima možeš upravljati, nezavisno od filtera table. Prikazano je do 10 odgovarajućih izvornih obavještenja.
+          source_reference: Pregledaj gradsko obavještenje br. %{id}
+          source_review: Otvori gradska obavještenja
+          issues:
+            inbox_stalled: Zaostale potvrde obavještenja na platformi
+            push_stalled: Zaostale potvrde push isporuke
+            push_failed: Neuspjeli push pokušaji po uređaju
+            push_uncertain: Push pokušaji sa neizvjesnim ishodom
+            phone_stalled: Zaostali zahtjevi za telefone
+            phone_failed: Odbijeni ili neuspjeli zahtjevi za telefone
+            phone_unknown: Zahtjevi za telefone sa nepoznatim ishodom
+            phone_expired: Istekli zahtjevi za telefone koji čekaju zatvaranje
+            expiry_backlog: Istekle objave koje čekaju zatvaranje
+            source_failed: Gradska obavještenja sa greškom objavljivanja
+            source_stalled: Gradska obavještenja sa zaostalim objavljivanjem
+            source_expired: Gradska obavještenja istekla bez objave
+          intro: Otvori objavu za pregled isporuke.
+          counts_detail: Brojevi isporuka i rokovi
+hr:
+  decidim:
+    bih:
+      admin:
+        board_review:
+          tabs:
+            delivery: Isporuka
+        board_delivery_operations:
+          title: Isporuka za pregled
+          hint: Brojevi označavaju potvrde za članove, pokušaje po uređaju ili objave, kako je navedeno. Otvori objavu za pregled dokaza i, kada je dozvoljeno, pripremu novog tačnog plana slanja na telefone. Ovaj pregled ne ponavlja slanje.
+          thresholds: Čekanje se prikazuje poslije 15 minuta; započeti zahtjev na telefon poslije 30 minuta; prihvaćeni zahtjev nakon jednog sata bez provjere izvještaja. Greške push isporuke odnose se na važeće objave. Zahtjev sa nepoznatim ishodom možda je već prihvaćen kod pružaoca usluge.
+          empty: Za izabrane filtere nema isporuka sa table koje traže pregled.
+          review: Pregledaj isporuku
+          source_hint: Brojevi izvornog procesa obuhvataju sva gradska obavještenja kojima možeš upravljati, nezavisno od filtera table. Prikazano je do 10 odgovarajućih izvornih obavještenja.
+          source_reference: Pregledaj gradsko obavještenje br. %{id}
+          source_review: Otvori gradska obavještenja
+          issues:
+            inbox_stalled: Zaostale potvrde obavještenja na platformi
+            push_stalled: Zaostale potvrde push isporuke
+            push_failed: Neuspjeli push pokušaji po uređaju
+            push_uncertain: Push pokušaji sa neizvjesnim ishodom
+            phone_stalled: Zaostali zahtjevi za telefone
+            phone_failed: Odbijeni ili neuspjeli zahtjevi za telefone
+            phone_unknown: Zahtjevi za telefone sa nepoznatim ishodom
+            phone_expired: Istekli zahtjevi za telefone koji čekaju zatvaranje
+            expiry_backlog: Istekle objave koje čekaju zatvaranje
+            source_failed: Gradska obavještenja sa greškom objavljivanja
+            source_stalled: Gradska obavještenja sa zaostalim objavljivanjem
+            source_expired: Gradska obavještenja istekla bez objave
+          intro: Otvori objavu za pregled isporuke.
+          counts_detail: Brojevi isporuka i rokovi
+en:
+  decidim:
+    bih:
+      admin:
+        board_review:
+          tabs:
+            delivery: Delivery
+        board_delivery_operations:
+          title: Delivery needing review
+          hint: Counts refer to recipient receipts, device attempts or notices as labelled. Open a notice to review its evidence and prepare a new exact phone plan only when eligible. No delivery is retried from this list.
+          thresholds: Waiting work appears after 15 minutes; a claimed phone request after 30 minutes; accepted phone requests after one hour without a report check. Push failures concern unexpired notices. Unknown outcomes may already have reached the provider.
+          empty: No board delivery work currently needs review for these filters.
+          review: Review delivery
+          source_hint: Source workflow counts cover all city notices you may manage, independently of the board filters. Up to 10 matching source links are shown.
+          source_reference: 'Review city notice #%{id}'
+          source_review: Open city notice workspace
+          issues:
+            inbox_stalled: Stalled inbox receipts
+            push_stalled: Stalled push receipts
+            push_failed: Failed push device attempts
+            push_uncertain: Uncertain push device attempts
+            phone_stalled: Stalled phone requests
+            phone_failed: Rejected or failed phone requests
+            phone_unknown: Phone requests with unknown outcomes
+            phone_expired: Expired phone requests awaiting closure
+            expiry_backlog: Expired notices awaiting closure
+            source_failed: City notices with publication errors
+            source_stalled: City notices with stalled publication work
+            source_expired: City notices that expired unpublished
+          intro: Open a notice to review its delivery.
+          counts_detail: Delivery counts and timing
+sr-Cyrl:
+  decidim:
+    bih:
+      admin:
+        board_review:
+          tabs:
+            delivery: Испорука
+        board_delivery_operations:
+          title: Испорука за преглед
+          hint: Бројеви означавају потврде за чланове, покушаје по уређају или објаве, како је наведено. Отвори објаву за преглед доказа и, када је дозвољено, припрему новог тачног плана слања на телефоне. Овај преглед не понавља слање.
+          thresholds: Чекање се приказује послије 15 минута; започети захтјев на телефон послије 30 минута; прихваћени захтјев након једног сата без провјере извјештаја. Грешке пусх испоруке односе се на важеће објаве. Захтјев са непознатим исходом можда је већ прихваћен код пружаоца услуге.
+          empty: За изабране филтере нема испорука са табле које траже преглед.
+          review: Прегледај испоруку
+          source_hint: Бројеви изворног процеса обухватају сва градска обавјештења којима можеш управљати, независно од филтера табле. Приказано је до 10 одговарајућих изворних обавјештења.
+          source_reference: Прегледај градско обавјештење бр. %{id}
+          source_review: Отвори градска обавјештења
+          issues:
+            inbox_stalled: Заостале потврде обавјештења на платформи
+            push_stalled: Заостале потврде пусх испоруке
+            push_failed: Неуспјели пусх покушаји по уређају
+            push_uncertain: Пусх покушаји са неизвјесним исходом
+            phone_stalled: Заостали захтјеви за телефоне
+            phone_failed: Одбијени или неуспјели захтјеви за телефоне
+            phone_unknown: Захтјеви за телефоне са непознатим исходом
+            phone_expired: Истекли захтјеви за телефоне који чекају затварање
+            expiry_backlog: Истекле објаве које чекају затварање
+            source_failed: Градска обавјештења са грешком објављивања
+            source_stalled: Градска обавјештења са заосталим објављивањем
+            source_expired: Градска обавјештења истекла без објаве
+          intro: Отвори објаву за преглед испоруке.
+          counts_detail: Бројеви испорука и рокови

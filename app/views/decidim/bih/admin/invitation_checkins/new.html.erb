@@ -1,0 +1,22 @@
+<% add_decidim_page_title(t(".title")) %>
+
+<div class="card" id="admin-invitation-checkins-new">
+  <div class="item_show__header">
+    <h1 class="item_show__header-title"><%= t(".title") %></h1>
+  </div>
+  <div class="card-section">
+    <% if @result.present? %>
+      <% result_tone = { valid: "success", valid_unconfirmed: "warning" }.fetch(@result, "alert") %>
+      <div class="callout <%= result_tone %>" role="status">
+        <%= t("decidim.bih.admin.invitation_checkins.create.#{@result}") %>
+      </div>
+    <% end %>
+
+    <%= form_tag invitation_checkin_path, method: :post, class: "form form-defaults" do %>
+      <label for="entry_code"><%= t(".code_label") %></label>
+      <%= text_field_tag :entry_code, nil, id: "entry_code", autocomplete: "off",
+                         autofocus: true, placeholder: "MI-XXXXX-XXXXX" %>
+      <%= submit_tag t(".submit"), class: "button button__sm button__secondary" %>
+    <% end %>
+  </div>
+</div>

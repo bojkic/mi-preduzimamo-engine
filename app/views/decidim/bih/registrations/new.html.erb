@@ -1,0 +1,224 @@
+<% if Decidim::Bih.simplified_registration %>
+  <%= render "decidim/bih/registrations/compact" %>
+<% else %>
+<%#
+  "/registracija" — the whole account in one screen: a name, an e-mail address
+  nobody has proven yet, the phone number that becomes the login, a komšiluk
+  and the two consents.
+
+  There is deliberately NO password field. The phone is the credential, and a
+  password here would reintroduce the two-step sign-up this page replaces.
+
+  The komšiluk list is flat: komšiluci are decoupled from Mjesne zajednice by
+  design (they cross MZ borders), so there is no parent to group them under —
+  see Decidim::Bih::LocalArea. The <select> is the compact default; the
+  collapsed finder under it offers the same two helpers the picker has (an
+  address lookup and the polygon map) and both only ever SET the select —
+  the form still submits komsiluk_id alone. The typed address is never
+  stored (KomsilukController#suggest is public and stateless), and Leaflet is
+  fetched only when the finder is opened, so the plain form costs nothing.
+
+  ActionView's own FormBuilder, not Decidim's: Decidim::FormBuilder wraps
+  every field in a second <label> (human_attribute_name → "Vaše ime") with a
+  required asterisk, doubling the hand-written labels below.
+%>
+<% add_decidim_page_title(t(".title")) %>
+<% field_error = ->(attribute) { @form.errors[attribute].to_sentence.presence } %>
+<% map_center = Decidim::Bih.map_default_center %>
+
+<main class="wrapper">
+  <div class="mi-surface">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"), title: t(".title"), intro: t(".lead") %>
+
+    <section class="mi-account-panel mi-registration-form">
+      <div class="mi-notice mi-registration-login">
+        <strong><%= t(".have_account") %></strong>
+        <%= link_to t(".have_account_link"), decidim.new_user_session_path,
+                    class: "mi-btn mi-btn--primary" %>
+      </div>
+
+      <% if @form.errors.any? %>
+        <div class="callout alert" role="alert">
+          <p><%= t("decidim.bih.registrations.create.invalid") %></p>
+        </div>
+      <% end %>
+
+      <%= form_with model: @form, url: registration_form_path, method: :post,
+                    builder: ActionView::Helpers::FormBuilder,
+                    html: { id: "mi-registration-form", class: "mi-account-settings-form" } do |f| %>
+        <%# The invite code rides along in the form as well as in the session,
+            so a lost cookie does not lose the referral (see #create). %>
+        <% if referral_code_for_form %>
+          <%= hidden_field_tag :ref, referral_code_for_form, id: "mi-registration-ref" %>
+        <% end %>
+        <label for="mi-registration-name">
+          <%= t(".name_label") %>
+          <%# size: nil — ActionView copies maxlength into size, and size=100
+              makes the field ~980px wide, which zooms a phone out to fit it. %>
+          <%= f.text_field :name, id: "mi-registration-name", required: true, autocomplete: "name",
+                                  maxlength: Decidim::Bih::PhoneRegistrationForm::NAME_MAX_LENGTH, size: nil %>
+        </label>
+        <% if field_error.call(:name) %>
+          <span class="form-error is-visible" role="alert"><%= field_error.call(:name) %></span>
+        <% end %>
+
+        <label for="mi-registration-email">
+          <%= t(".email_label") %>
+          <%= f.email_field :email, id: "mi-registration-email", required: true, autocomplete: "email" %>
+        </label>
+        <p class="help-text"><%= t(".email_hint") %></p>
+        <% if field_error.call(:email) %>
+          <span class="form-error is-visible" role="alert"><%= field_error.call(:email) %></span>
+        <% end %>
+
+        <label for="mi-registration-phone">
+          <%= t(".phone_label") %>
+          <%= f.telephone_field :mobile_phone_number, id: "mi-registration-phone", required: true,
+                                                      inputmode: "tel", autocomplete: "tel" %>
+        </label>
+        <%# WhatsApp is named only where it can actually deliver a code (R-D9):
+            the AUTH template has to be configured for it to be in the chain at
+            all, and the page asks the controller rather than the provider
+            config (PhoneVerificationActions#whatsapp_code_copy?), which is the
+            same question the pending page asks. %>
+        <p class="help-text"><%= t(whatsapp_code_copy? ? ".phone_hint_whatsapp" : ".phone_hint") %></p>
+        <% if field_error.call(:mobile_phone_number) %>
+          <span class="form-error is-visible" role="alert"><%= field_error.call(:mobile_phone_number) %></span>
+        <% end %>
+
+        <%# Komšiluk is chosen on the MAP (default), or from a typed address
+            (secondary, collapsed). Both write into the one real field, the
+            <select> below, which is the form's only komšiluk input: hidden
+            while the map works, shown again by the script when Leaflet or the
+            polygons fail to load, and by <noscript> when there is no JS at
+            all. No PATCH, no hidden inputs, no coordinates ever leave the
+            page. Leaflet is injected by bih-komsiluk-map.js on load. %>
+        <fieldset class="mi-komsiluk-picker" data-mi-komsiluk-finder
+                  data-target-select="mi-registration-komsiluk"
+                  data-suggest-url="<%= decidim_bih.komsiluk_suggest_path %>">
+          <legend class="mi-komsiluk-picker__legend"><%= t(".komsiluk_label") %></legend>
+          <p class="help-text"><%= t(".komsiluk_hint") %></p>
+
+          <p class="mi-komsiluk-picker__chosen" data-mi-komsiluk-chosen aria-live="polite">
+            <span><%= t(".komsiluk_chosen") %>:</span>
+            <strong data-mi-komsiluk-chosen-name data-none="<%= t(".komsiluk_none") %>"><%= @form.komsiluk_options.find { |a| a.id == @form.komsiluk_id }&.translated_name || t(".komsiluk_none") %></strong>
+          </p>
+
+          <div class="mi-map-frame">
+            <div
+              id="bih-komsiluk-map"
+              class="mi-map-frame__canvas"
+              style="height:340px;"
+              data-target-select="mi-registration-komsiluk"
+              data-suggest-url="<%= decidim_bih.komsiluk_suggest_path %>"
+              data-leaflet-css="/leaflet/leaflet.css"
+              data-leaflet-js="/leaflet/leaflet.js"
+              data-areas-url="<%= decidim_bih.komsiluk_areas_path(format: :json) %>"
+              data-center-lat="<%= map_center.first %>"
+              data-center-lng="<%= map_center.last %>"
+              data-zoom="<%= Decidim::Bih.map_default_zoom %>"
+              data-tile-url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              data-tile-attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>"
+              data-label-confirm="<%= t("decidim.bih.komsiluk.edit.map_confirm") %>"
+              data-label-click-hint="<%= t(".map_click_hint") %>"
+              data-status-id="bih-komsiluk-map-status"
+              data-status-ready="<%= t(".map_ready") %>"
+              data-status-empty="<%= t(".map_empty") %>"
+              data-status-unavailable="<%= t(".map_unavailable") %>"
+              data-status-selected="<%= t(".map_selected", name: "%{name}") %>"
+              data-status-required="<%= t(".map_required") %>"></div>
+            <div id="bih-komsiluk-map-status" class="mi-notice" role="status" aria-live="polite" data-state="loading">
+              <%= t(".map_loading") %>
+            </div>
+          </div>
+
+          <details class="mi-komsiluk-finder" data-mi-komsiluk-address>
+            <summary><%= t(".address_summary") %></summary>
+            <div class="mi-komsiluk-finder__body" id="bih-address-suggest">
+              <div class="mi-komsiluk-finder__address">
+                <label for="bih-address-input" class="sr-only"><%= t(".address_label") %></label>
+                <input id="bih-address-input" type="text" autocomplete="street-address"
+                       placeholder="<%= t(".address_placeholder") %>">
+                <button id="bih-address-search" type="button" class="mi-btn mi-btn--ghost mi-btn--sm"
+                        data-suggest-url="<%= decidim_bih.komsiluk_suggest_path %>"><%= t(".address_search") %></button>
+              </div>
+              <%= render "decidim/bih/komsiluk/address_candidates" %>
+              <p id="bih-address-result" class="mi-komsiluk-finder__result" style="display:none" aria-live="polite">
+                <%= t(".address_suggested") %>: <strong id="bih-suggested-name"></strong>
+              </p>
+              <p id="bih-address-no-match" class="mi-komsiluk-finder__note" style="display:none" aria-live="polite">
+                <%= t(".address_no_match") %>
+              </p>
+              <p id="bih-address-unavailable" class="mi-komsiluk-finder__note" style="display:none" role="alert">
+                <%= t(".address_unavailable") %>
+              </p>
+              <p id="bih-address-searching" class="mi-komsiluk-finder__note" style="display:none" aria-live="polite">
+                <%= t(".address_searching") %>
+              </p>
+              <p class="help-text"><%= t(".address_not_stored") %></p>
+            </div>
+          </details>
+
+          <%# The real field. `required` is NOT set on it: a required control
+              that is display:none cannot be focused, and the browser would
+              refuse to submit the form with an error nobody can see. The
+              script checks the choice on submit; the server validates
+              presence regardless. %>
+          <div class="mi-komsiluk-picker__fallback" data-mi-komsiluk-fallback hidden>
+            <label for="mi-registration-komsiluk">
+              <%= t(".komsiluk_list_label") %>
+              <%= f.select :komsiluk_id,
+                           @form.komsiluk_options.map { |area| [area.translated_name, area.id] },
+                           { include_blank: t(".komsiluk_blank") },
+                           { id: "mi-registration-komsiluk" } %>
+            </label>
+          </div>
+          <noscript><style>.mi-komsiluk-picker__fallback[hidden] { display: block !important; } .mi-komsiluk-picker .mi-map-frame { display: none; }</style></noscript>
+          <% if field_error.call(:komsiluk_id) %>
+            <span class="form-error is-visible" role="alert"><%= field_error.call(:komsiluk_id) %></span>
+          <% end %>
+        </fieldset>
+
+        <div class="mi-registration-form__consents">
+          <%# Prechecked on first render; a re-render after a validation error
+              keeps whatever the citizen actually submitted. %>
+          <label for="mi-registration-tos">
+            <%= f.check_box :tos_agreement, id: "mi-registration-tos", required: true,
+                                            checked: @form.tos_agreement.nil? || @form.tos_agreement %>
+            <span>
+              <%# The terms page is Decidim's own static page, so the link comes
+                  from Decidim's own route rather than a path this engine invents.
+                  A host with further community-rules pages links them from the
+                  terms page itself — an engine has no business hardcoding a
+                  host's URLs. %>
+              <%= t(".tos_html", link: link_to(t(".tos_link"), decidim.page_path("terms-of-service"))) %>
+            </span>
+          </label>
+          <% if field_error.call(:tos_agreement) %>
+            <span class="form-error is-visible" role="alert"><%= t(".tos_required") %></span>
+          <% end %>
+
+          <label for="mi-registration-newsletter">
+            <%= f.check_box :newsletter, id: "mi-registration-newsletter",
+                                         checked: @form.newsletter == true, "aria-describedby": "mi-notification-registration-help" %>
+            <span><%= t("decidim.bih.communication_settings.registration.label") %></span>
+          </label>
+          <%= render "decidim/bih/shared/notification_registration_help" %>
+        </div>
+
+        <button type="submit" class="mi-btn mi-btn--primary"><%= t(".submit") %></button>
+      <% end %>
+
+      <p class="help-text">
+        <%= t(".have_account") %>
+        <%= link_to t(".have_account_link"), decidim.new_user_session_path %>
+      </p>
+    </section>
+  </div>
+</main>
+
+<% bih_komsiluk_v = (File.mtime(Rails.root.join("public/mi/bih-komsiluk-map.js")).to_i rescue 1) %>
+<script defer src="/mi/bih-komsiluk-map.js?v=<%= bih_komsiluk_v %>"></script>
+
+<% end %>

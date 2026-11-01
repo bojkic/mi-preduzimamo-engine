@@ -1,0 +1,169 @@
+<%#
+  Komšiluk picker — private neighbourhood self-assignment.
+  ADDRESS IS NEVER STORED: only komsiluk_id, mz_id, source and assigned_at
+  persist on CitizenProfile.
+%>
+<link rel="stylesheet" href="/leaflet/leaflet.css">
+<% add_decidim_page_title(t(".title")) %>
+
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <% if Decidim::Bih.simplified_registration && !@profile&.assigned? %>
+      <header class="mi-komsiluk-setup__header">
+        <h1><%= t("decidim.bih.simplified_registration.komsiluk_title") %></h1>
+        <p><%= t("decidim.bih.simplified_registration.komsiluk_intro") %></p>
+      </header>
+    <% else %>
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: t(".privacy_policy_note"),
+               action_label: t("decidim.bih.menu.komsiluk_board"),
+               action_path: komsiluk_board_index_path,
+               action_class: "mi-btn mi-btn--ghost" %>
+    <% end %>
+
+    <% if @profile&.assigned? %>
+      <section class="mi-account-panel" style="margin-bottom: 1rem;">
+        <div class="mi-account-panel__head">
+          <h2><%= t(".current_komsiluk") %></h2>
+          <%= link_to t("decidim.bih.menu.komsiluk_board"), komsiluk_board_index_path, class: "mi-btn mi-btn--primary mi-btn--sm" %>
+        </div>
+        <p>
+          <strong><%= @profile.komsiluk.translated_name %></strong>
+          <% if @profile.mz %>
+            <span>· <%= @profile.mz.translated_name %></span>
+          <% end %>
+        </p>
+        <p class="help-text">
+          <%= t(".reassignment_notice") %>
+          <%= link_to t(".manage_prior_posts"), komsiluk_board_index_path(view: "mine") %>
+        </p>
+      </section>
+    <% end %>
+
+    <% if Decidim::Bih.simplified_registration && !@profile&.assigned? %>
+      <section class="mi-komsiluk-setup">
+        <%= render "decidim/bih/komsiluk/map" %>
+        <%= render "decidim/bih/komsiluk/setup_address" %>
+      <aside class="mi-account-panel">
+        <h2><%= t("decidim.bih.simplified_registration.komsiluk_list_title") %></h2>
+        <p><%= t("decidim.bih.simplified_registration.komsiluk_list_hint") %></p>
+        <% if @komsiluk_list.any? %>
+          <%= form_tag(komsiluk_path, method: :patch, class: "mi-account-settings-form") do %>
+            <label for="mi-komsiluk-filter"><%= t("decidim.bih.simplified_registration.komsiluk_filter") %></label>
+            <input type="search" id="mi-komsiluk-filter" autocomplete="off">
+            <label for="bih-komsiluk-select">
+              <%= t(".dropdown_komsiluk_label") %>
+              <select id="bih-komsiluk-select" name="komsiluk_id" required>
+                <option value=""><%= t(".dropdown_select_komsiluk") %></option>
+                <% @komsiluk_list.each do |k| %>
+                  <option value="<%= k.id %>"><%= k.translated_name %></option>
+                <% end %>
+              </select>
+            </label>
+            <% if current_user.phone_only_registration? %>
+              <%= render "decidim/bih/komsiluk/notification_choice" %>
+            <% end %>
+            <input type="hidden" name="source" value="dropdown">
+            <button type="submit" class="mi-btn mi-btn--primary mi-btn--sm"><%= t(".dropdown_save") %></button>
+          <% end %>
+        <% else %>
+          <p><%= t(".no_areas_loaded") %></p>
+        <% end %>
+      </aside>
+        <p><%= link_to t("decidim.bih.simplified_registration.komsiluk_help"), Decidim::Bih.public_path("moj-nalog/poruke") %></p>
+      </section>
+    <% end %>
+
+    <section class="mi-notice mi-privacy-notice" style="margin-bottom: 1rem;">
+      <strong><%= t(".privacy_heading") %></strong>
+      <ul style="margin: .55rem 0 0; padding-left: 1.2rem;">
+        <li><%= t(".privacy_no_address") %></li>
+        <li><%= t(".privacy_private") %></li>
+        <li><%= t(".privacy_why") %></li>
+        <li><%= link_to t(".privacy_visibility_link"), account_overview_path(anchor: "osnovni-podaci") %></li>
+      </ul>
+    </section>
+
+    <section class="mi-account-grid">
+      <% unless Decidim::Bih.simplified_registration && !@profile&.assigned? %>
+        <%= render "decidim/bih/komsiluk/map" %>
+      <% end %>
+
+
+      <% unless Decidim::Bih.simplified_registration && !@profile&.assigned? %>
+      <aside class="mi-account-panel">
+        <h2><%= t(".method_dropdown") %></h2>
+        <p><%= t(".method_dropdown_hint") %></p>
+        <% if @komsiluk_list.any? %>
+          <%= form_tag(komsiluk_path, method: :patch, class: "mi-account-settings-form") do %>
+            <label for="bih-komsiluk-select">
+              <%= t(".dropdown_komsiluk_label") %>
+              <select id="bih-komsiluk-select" name="komsiluk_id" required>
+                <option value=""><%= t(".dropdown_select_komsiluk") %></option>
+                <% @komsiluk_list.each do |k| %>
+                  <option value="<%= k.id %>"><%= k.translated_name %></option>
+                <% end %>
+              </select>
+            </label>
+            <input type="hidden" name="source" value="dropdown">
+            <button type="submit" class="mi-btn mi-btn--primary mi-btn--sm"><%= t(".dropdown_save") %></button>
+          <% end %>
+        <% else %>
+          <p><%= t(".no_areas_loaded") %></p>
+        <% end %>
+      </aside>      <% end %>
+    </section>
+
+    <% unless Decidim::Bih.simplified_registration && !@profile&.assigned? %>
+    <section class="mi-account-panel" style="margin-bottom: 1rem;">
+      <h2><%= t(".method_address") %></h2>
+      <p><%= t(".method_address_hint") %></p>
+      <p><strong><%= t(".address_not_stored") %></strong></p>
+
+      <details open>
+        <summary class="show-for-sr"><%= t(".method_address") %></summary>
+        <div id="bih-address-suggest">
+          <label for="bih-address-input"><%= t(".method_address") %></label>
+          <div class="mi-filter-panel__search" style="margin-bottom: .75rem;">
+            <input
+              id="bih-address-input"
+              type="text"
+              placeholder="<%= t(".address_placeholder") %>"
+              autocomplete="street-address">
+            <button id="bih-address-search" type="button" class="mi-btn mi-btn--primary mi-btn--sm"><%= t(".address_search") %></button>
+          </div>
+
+              <%= render "decidim/bih/komsiluk/address_candidates" %>
+          <div id="bih-address-result" class="mi-notice" style="display:none; margin-bottom: .75rem;">
+            <p><%= t(".address_suggested") %>: <strong id="bih-suggested-name"></strong></p>
+            <%= form_tag(komsiluk_path, method: :patch, id: "bih-address-confirm-form") do %>
+              <input type="hidden" id="bih-address-komsiluk-id" name="komsiluk_id" value="">
+              <input type="hidden" id="bih-address-lat" name="lat" value="">
+              <input type="hidden" id="bih-address-lon" name="lon" value="">
+              <input type="hidden" name="source" value="address">
+              <button type="submit" class="mi-btn mi-btn--primary mi-btn--sm"><%= t(".address_confirm") %></button>
+            <% end %>
+          </div>
+
+          <div id="bih-address-no-match" style="display:none; color:var(--mi-navy-400); font-size:0.9rem;">
+            <%= t(".address_no_match") %>
+          </div>
+          <div id="bih-address-unavailable" style="display:none; color:var(--mi-navy-400); font-size:0.9rem;" role="alert">
+            <%= t(".address_unavailable") %>
+            <a href="#bih-komsiluk-select"><%= t(".manual_fallback") %></a>
+          </div>
+          <div id="bih-address-searching" style="display:none; color:var(--mi-navy-400); font-size:0.9rem;">
+            <%= t(".address_searching") %>
+          </div>
+        </div>
+      </details>
+    </section>
+    <% end %>
+  </div>
+</main>
+
+<script src="/leaflet/leaflet.js"></script>
+<% bih_komsiluk_v = (File.mtime(Rails.root.join("public/mi/bih-komsiluk-map.js")).to_i rescue 1) %>
+<script defer src="/mi/bih-komsiluk-map.js?v=<%= bih_komsiluk_v %>"></script>

@@ -1,0 +1,251 @@
+<link rel="stylesheet" href="/leaflet/leaflet.css">
+<% add_decidim_page_title(t(".title")) %>
+
+<%
+  field_error_id = lambda do |attribute|
+    @form.errors[attribute].any? ? "report_#{attribute}_error" : nil
+  end
+
+  field_invalid = lambda do |attribute|
+    @form.errors[attribute].any? ? true : nil
+  end
+
+  described_by = lambda do |*ids|
+    ids.compact.join(" ").presence
+  end
+
+  field_error = lambda do |attribute|
+    next unless @form.errors[attribute].any?
+
+    tag.p(
+      @form.errors.full_messages_for(attribute).join(", "),
+      id: field_error_id.call(attribute),
+      class: "form-error is-visible"
+    )
+  end
+
+  location_errors = @form.errors.full_messages_for(:latitude) + @form.errors.full_messages_for(:longitude)
+  location_error_id = location_errors.any? ? "report_location_error" : nil
+  signed_in = current_organization_user.present?
+  location_prefilled = @form.latitude.present? && @form.longitude.present?
+%>
+
+<main class="wrapper">
+  <div class="mi-surface mi-surface--wide">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: t(".intro") %>
+
+    <%= render "decidim/bih/shared/report_module_tabs", active: :new %>
+
+    <div class="mi-surface-card mi-surface-card--strip">
+      <div class="mi-card-strip" style="background: var(--mi-coral-600);"></div>
+      <div class="mi-surface-card__body">
+        <%= form_with model: @form, scope: :report, url: reports_path, method: :post, html: { multipart: true, class: "mi-report-form" } do |f| %>
+          <%# Spam honeypot: visually hidden off-screen and fully removed from the
+              accessibility tree (aria-hidden) and the tab order (tabindex=-1) so it
+              is invisible to both sighted and assistive-tech users; only bots that
+              auto-fill every field will populate it. Field name must stay "website". %>
+          <div aria-hidden="true" style="position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden;">
+            <%= f.label :website, "Website", "aria-hidden": "true", tabindex: "-1" %>
+            <%= f.text_field :website, label: false, tabindex: "-1", autocomplete: "off", "aria-hidden": "true" %>
+          </div>
+
+          <% if @form.errors.any? %>
+            <div class="callout alert" role="alert">
+              <p><%= t(".error") %></p>
+              <ul>
+                <% @form.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <%# Each field is wrapped in .mi-field with an explicit label, and the
+              Decidim helper's auto-label is suppressed (label: false). This gives
+              a deterministic label-then-input vertical order; the .mi-field CSS
+              (host theme) makes labels block and inputs full-width. %>
+          <fieldset class="mi-form-section">
+            <legend><%= t(".legend_problem") %></legend>
+
+            <div class="mi-field">
+              <%= f.label :description do %>
+                <%= t(".labels.description") %>
+                <span class="mi-required" title="<%= t(".required") %>"><span aria-hidden="true">*</span><span class="sr-only"><%= t(".required") %></span></span>
+              <% end %>
+              <%= f.text_area :description,
+                              label: false,
+                              rows: 5,
+                              required: true,
+                              aria: {
+                                describedby: described_by.call("report_description_hint", field_error_id.call(:description)),
+                                invalid: field_invalid.call(:description)
+                              } %>
+              <p class="help-text" id="report_description_hint"><%= t(".hints.description") %></p>
+              <%= field_error.call(:description) %>
+            </div>
+
+            <div class="mi-field">
+              <%= f.hidden_field :photo_draft_token if @form.photo_draft_token.present? %>
+              <% if @form.photo_draft_token.present? %>
+                <p class="help-text"><%= t("decidim.bih.photo_draft.saved") %></p>
+                <label for="report_remove_saved_photo">
+                  <%= f.check_box :remove_saved_photo, id: "report_remove_saved_photo" %>
+                  <%= t("decidim.bih.photo_draft.remove") %>
+                </label>
+              <% end %>
+              <%= f.label :photo, t(".labels.photo") %>
+              <div class="mi-photo-picker" id="bih-report-photo-picker">
+                <label class="mi-btn mi-btn--ghost mi-photo-picker__button" for="report_photo">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3 7.2 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9Zm3 5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z"/></svg>
+                  <span><%= t(".photo.choose") %></span>
+                </label>
+                <%= f.file_field :photo,
+                                 label: false,
+                                 id: "report_photo",
+                                 class: "mi-photo-picker__input",
+                                 accept: "image/png,image/jpeg,image/webp",
+                                 data: { none_label: t(".photo.none") },
+                                 aria: {
+                                   describedby: described_by.call("report_photo_hint", field_error_id.call(:photo)),
+                                   invalid: field_invalid.call(:photo)
+                                 } %>
+                <div class="mi-photo-picker__preview" id="bih-report-photo-preview" hidden>
+                  <img src="" alt="" id="bih-report-photo-thumb">
+                  <span class="mi-photo-picker__name" id="bih-report-photo-name"></span>
+                  <button type="button" class="mi-photo-picker__remove" id="bih-report-photo-remove"><%= t(".photo.remove") %></button>
+                </div>
+              </div>
+              <p class="help-text" id="report_photo_hint"><%= t(".hints.photo") %></p>
+              <%= field_error.call(:photo) %>
+            </div>
+          </fieldset>
+
+          <fieldset class="mi-form-section mi-location-block">
+            <legend><%= t(".location.title", default: "Gdje je problem?") %></legend>
+
+            <div class="mi-field">
+              <button type="button" class="mi-btn mi-btn--primary mi-location-block__geolocate" id="bih-report-geolocate">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm8.94 3A8.99 8.99 0 0 0 13 3.06V1h-2v2.06A8.99 8.99 0 0 0 3.06 11H1v2h2.06A8.99 8.99 0 0 0 11 20.94V23h2v-2.06A8.99 8.99 0 0 0 20.94 13H23v-2h-2.06ZM12 19a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg>
+                <span><%= t(".location.use_current") %></span>
+              </button>
+              <p class="mi-location-block__status" id="bih-report-location-status" role="status" aria-live="polite" data-tone="<%= location_prefilled ? "ok" : "empty" %>"><%= location_prefilled ? t(".location.selected") : t(".location.empty") %></p>
+              <% if location_errors.any? %>
+                <p class="form-error is-visible" id="<%= location_error_id %>"><%= location_errors.join(", ") %></p>
+              <% end %>
+              <%= f.hidden_field :latitude, id: "report_latitude" %>
+              <%= f.hidden_field :longitude, id: "report_longitude" %>
+            </div>
+
+            <div class="mi-field">
+              <%= f.label :address, t(".labels.address") %>
+              <div class="mi-location-block__address">
+                <%= f.text_field :address,
+                                 label: false,
+                                 id: "report_address",
+                                 autocomplete: "street-address",
+                                 aria: {
+                                   describedby: described_by.call("report_address_hint", field_error_id.call(:address)),
+                                   invalid: field_invalid.call(:address)
+                                 } %>
+                <button type="button" class="mi-btn mi-btn--ghost mi-btn--sm" id="bih-report-geocode" data-geocode-url="<%= komsiluk_suggest_path %>"><%= t(".location.find_address") %></button>
+              </div>
+              <p class="help-text" id="report_address_hint"><%= t(".hints.address") %></p>
+              <%= field_error.call(:address) %>
+            </div>
+
+            <details class="mi-map-details" id="bih-report-map-details"<%= " open" if location_prefilled %>>
+              <summary>
+                <span class="mi-map-details__label"><%= t(".location.map_toggle") %></span>
+              </summary>
+              <div
+                id="bih-report-location-map"
+                role="group"
+                tabindex="0"
+                aria-label="<%= t(".location.map_toggle") %>"
+                aria-describedby="<%= described_by.call("report_location_hint", "bih-report-location-status", location_error_id) %>"
+                class="mi-map-frame__canvas"
+                style="height: 320px;"
+                data-center-lat="<%= @map_center.first %>"
+                data-center-lng="<%= @map_center.last %>"
+                data-zoom="<%= @map_zoom %>"
+                data-tile-url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                data-tile-attribution="<%= t("decidim.bih.reports_map.show.attribution", default: "OpenStreetMap contributors") %>"
+                data-status-empty="<%= t(".location.empty") %>"
+                data-status-selected="<%= t(".location.selected") %>"
+                data-status-locating="<%= t(".location.locating") %>"
+                data-status-unavailable="<%= t(".location.unavailable") %>"
+                data-status-error="<%= t(".location.error") %>"
+                data-status-geocoding="<%= t(".location.geocoding") %>"
+                data-status-address-not-found="<%= t(".location.address_not_found") %>"
+                data-latitude-input-id="report_latitude"
+                data-longitude-input-id="report_longitude"
+                data-address-input-id="report_address"
+                data-geolocate-button-id="bih-report-geolocate"
+                data-geocode-button-id="bih-report-geocode"
+                data-details-id="bih-report-map-details"
+                data-status-id="bih-report-location-status"
+              ></div>
+              <p class="help-text" id="report_location_hint"><%= t(".location.hint") %></p>
+            </details>
+          </fieldset>
+
+          <% if signed_in %>
+            <fieldset class="mi-form-section">
+              <legend><%= t(".legend_contact_signed_in") %></legend>
+              <div class="mi-field mi-field--check">
+                <label><%= f.check_box :anonymous, label: false, aria: { describedby: "report_contact_hint" } %> <%= t(".labels.anonymous") %></label>
+                <p class="help-text" id="report_contact_hint"><%= t(".hints.anonymous_signed_in") %></p>
+              </div>
+            </fieldset>
+          <% else %>
+            <fieldset class="mi-form-section">
+              <legend><%= t(".legend_contact") %></legend>
+              <p class="help-text" id="report_contact_hint"><%= t(".hints.contact") %></p>
+
+              <div class="mi-field">
+                <%= f.label :reporter_phone, t(".labels.reporter_phone") %>
+                <%= f.telephone_field :reporter_phone,
+                                      label: false,
+                                      autocomplete: "tel",
+                                      inputmode: "tel",
+                                      aria: {
+                                        describedby: described_by.call("report_contact_hint", field_error_id.call(:reporter_phone)),
+                                        invalid: field_invalid.call(:reporter_phone)
+                                      } %>
+                <%= field_error.call(:reporter_phone) %>
+              </div>
+              <div class="mi-field">
+                <%= f.label :reporter_email, t(".labels.reporter_email") %>
+                <%= f.email_field :reporter_email,
+                                  label: false,
+                                  autocomplete: "email",
+                                  aria: {
+                                    describedby: described_by.call("report_contact_hint", field_error_id.call(:reporter_email)),
+                                    invalid: field_invalid.call(:reporter_email)
+                                  } %>
+                <%= field_error.call(:reporter_email) %>
+              </div>
+            </fieldset>
+          <% end %>
+
+          <section class="mi-notice mi-notice--compact" aria-labelledby="report-visibility-title">
+            <h2 id="report-visibility-title" class="heading5"><%= t(".visibility.title") %></h2>
+            <ul>
+              <li><%= t(".visibility.public") %></li>
+              <li><%= t(".visibility.private") %></li>
+            </ul>
+          </section>
+
+          <%= f.submit t(".submit"), class: "mi-btn mi-btn--primary mi-btn--lg mi-report-form__submit" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</main>
+
+<% bih_report_location_map_v = (File.mtime(Rails.root.join("public/mi/bih-report-location-map.js")).to_i rescue 1) %>
+<script src="/leaflet/leaflet.js"></script>
+<script defer src="/mi/bih-report-location-map.js?v=<%= bih_report_location_map_v %>"></script>

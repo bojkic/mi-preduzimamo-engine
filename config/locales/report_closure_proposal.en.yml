@@ -1,0 +1,5 @@
+en:
+  decidim:
+    bih:
+      report_case:
+        closure_proposed: "Report %{reference}: review administrative closure after no reply; staff approval required."

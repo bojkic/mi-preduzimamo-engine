@@ -1,0 +1,22 @@
+.mi-admin-surface .report-review-index a.button.button__secondary { color: #fff; }
+.report-review-index h2 { font-size: 1.2rem; font-weight: 650; margin-block: 0.5rem 1rem; }
+.report-review-index .card-section { padding: 1rem; }
+.report-review-index p { margin-block: 0.75rem; }
+.report-review-index summary { padding: 0.75rem; font-weight: 600; cursor: pointer; }
+.report-review-index :focus-visible { outline: 3px solid #1c3d53; outline-offset: 3px; }
+#report-review-metrics table { width: 100%; }
+#report-review-metrics th[scope=row] { text-align: left; font-weight: 600; }
+#report-review-metrics th:first-child { width: 60%; }
+@media (max-width: 720px) {
+  .report-review-index .card-section { padding: 0.5rem; }
+  #report-review-metrics th, #report-review-metrics td { padding: 0.5rem; overflow-wrap: anywhere; }
+}
+
+@media (max-width: 720px) {
+  #admin-reports-list table, #admin-reports-list tbody { display: block; width: 100%; }
+  #admin-reports-list thead { position: absolute; clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; }
+  #admin-reports-list tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border-bottom: 2px solid #ddd; padding-block: 0.5rem; }
+  #admin-reports-list td { display: block; min-width: 0; overflow-wrap: anywhere; padding: 0.5rem; text-align: left; }
+  #admin-reports-list td:first-child, #admin-reports-list td:nth-child(3), #admin-reports-list td:last-child { grid-column: 1 / -1; }
+  #admin-reports-list td::before { content: attr(data-label); display: block; font-size: 0.8rem; color: #465563; }
+}

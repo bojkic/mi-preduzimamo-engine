@@ -1,0 +1,540 @@
+#!/usr/bin/env bash
+
+# Shared database isolation for the generated-host verification scripts.
+# The caller must use set -euo pipefail before sourcing this file.
+
+decidim_bih_test_database_name_safe() {
+  local database_name="$1"
+
+  [[ "$database_name" =~ ^[a-z0-9_]+_test(-[0-9]+)?$ ]] || return 1
+  [[ ! "$database_name" =~ (^|[_-])(prod|production)([_-]|$) ]]
+}
+
+decidim_bih_prepare_database_isolation() {
+  local harness_kind="$1"
+  local app_name="$2"
+  local disposable_database_name="${app_name}_test"
+  local base_database_name
+
+  [[ "$harness_kind" =~ ^(clean_host|rails_test)$ ]] || {
+    printf 'unsafe generated-host harness kind: %s\n' "$harness_kind" >&2
+    return 64
+  }
+  [[ "$app_name" =~ ^[a-z0-9_]+$ && "$disposable_database_name" =~ ^[a-z0-9_]+_test$ && \
+    ${#disposable_database_name} -le 63 ]] || {
+    printf 'unsafe generated-host database identity: %s\n' "$app_name" >&2
+    return 64
+  }
+
+  DECIDIM_BIH_GENERATED_HOST_DATABASE_OWNED=0
+  DECIDIM_BIH_GENERATED_HOST_OWNERSHIP_MARKER="decidim-bih-generated-host:${harness_kind}:${app_name}"
+  export DECIDIM_BIH_GENERATED_HOST_DATABASE_OWNED
+  export DECIDIM_BIH_GENERATED_HOST_OWNERSHIP_MARKER
+
+  if [[ -n "${DATABASE_URL:-}" ]]; then
+    printf 'generated-host verification rejects DATABASE_URL; use an explicit safe DATABASE_* test connection\n' >&2
+    return 64
+  fi
+
+  base_database_name="${DECIDIM_BIH_GENERATED_HOST_TEST_DATABASE:-decidim_app_test}"
+  if ! decidim_bih_test_database_name_safe "$base_database_name"; then
+    printf 'generated-host schema isolation requires an explicit non-production test database: %s\n' \
+      "$base_database_name" >&2
+    return 64
+  fi
+
+  DECIDIM_BIH_GENERATED_HOST_TEST_DATABASE="$base_database_name"
+  DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA="dbih_${harness_kind}_${app_name##decidim_bih_${harness_kind}_}"
+  DECIDIM_BIH_GENERATED_HOST_EXTENSION_SCHEMA="decidim_bih_extensions"
+  if [[ ! "$DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA" =~ ^dbih_(clean_host|rails_test)_[0-9]{14}_[0-9]+_[0-9]+_[0-9]+$ || \
+    ${#DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA} -gt 63 ]]; then
+    printf 'unsafe generated-host schema name: %s\n' "$DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA" >&2
+    return 64
+  fi
+
+  DECIDIM_BIH_GENERATED_HOST_DATABASE_MODE="schema"
+  export DECIDIM_BIH_GENERATED_HOST_DATABASE_MODE
+  export DECIDIM_BIH_GENERATED_HOST_TEST_DATABASE
+  export DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA
+  export DECIDIM_BIH_GENERATED_HOST_EXTENSION_SCHEMA
+}
+
+decidim_bih_patch_generated_database_config() {
+  local database_config="$1"
+
+  [[ "${DECIDIM_BIH_GENERATED_HOST_DATABASE_MODE:-}" == "schema" ]] || return 0
+
+  ruby - "$database_config" <<'RUBY'
+path = ARGV.fetch(0)
+lines = File.readlines(path)
+test_start = lines.index { |line| line == "test:\n" }
+abort "generated host database config has no test section" unless test_start
+
+test_end = ((test_start + 1)...lines.length).find { |index| lines.fetch(index).match?(/\A\S.*:\s*\z/) } || lines.length
+database_line = (test_start...test_end).find { |index| lines.fetch(index).match?(/\A  database:/) }
+abort "generated host database config has no test database" unless database_line
+
+indexes_to_remove = (test_start...test_end).select do |index|
+  lines.fetch(index).match?(/\A  (?:schema_search_path|advisory_locks):/)
+end
+indexes_to_remove.reverse_each { |index| lines.delete_at(index) }
+database_line = (test_start...lines.length).find { |index| lines.fetch(index).match?(/\A  database:/) }
+lines[database_line] = %(  database: <%= ENV.fetch("DECIDIM_BIH_GENERATED_HOST_TEST_DATABASE") %>\n)
+lines.insert(
+  database_line + 1,
+  %(  schema_search_path: <%= ENV.fetch("DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA") %>,<%= ENV.fetch("DECIDIM_BIH_GENERATED_HOST_EXTENSION_SCHEMA") %>\n),
+  "  advisory_locks: false\n"
+)
+File.write(path, lines.join)
+RUBY
+}
+
+decidim_bih_install_schema_extension_guard() {
+  local initializer_path="$1"
+
+  [[ "${DECIDIM_BIH_GENERATED_HOST_DATABASE_MODE:-}" == "schema" ]] || return 0
+
+  mkdir -p "$(dirname "$initializer_path")"
+  ruby - "$initializer_path" <<'RUBY'
+path = ARGV.fetch(0)
+File.write(path, <<~'GUARD')
+  # frozen_string_literal: true
+
+  require "active_record/connection_adapters/postgresql_adapter"
+
+  # Generated-host schema isolation shares a test database. Extension changes
+  # and writes outside the owned run schema are forbidden.
+  module DecidimBihGeneratedHostExtensionGuard
+    FORBIDDEN_SQL = {
+      "shared schema reference" => /(?:\A|[^a-z0-9_])"?(?:public|decidim_bih_extensions)"?\s*\./i,
+      "database or schema DDL" => /\b(?:CREATE|ALTER|DROP)\s+(?:DATABASE|SCHEMA)\b/i,
+      "extension DDL" => /\b(?:CREATE|ALTER|DROP)\s+EXTENSION\b/i,
+      "privilege DDL" => /\b(?:GRANT|REVOKE)\b/i,
+      "search path mutation" => /\b(?:SET\s+(?:LOCAL\s+)?(?:search_path|SCHEMA)|set_config\s*\(\s*['"]search_path)/i,
+      "server or security DDL" => /(?:
+        \b(?:CREATE|ALTER|DROP)\s+(?:
+          ROLE|USER|GROUP|TABLESPACE|SERVER|PUBLICATION|SUBSCRIPTION|EVENT\s+TRIGGER|
+          FOREIGN\s+DATA\s+WRAPPER|ACCESS\s+METHOD|USER\s+MAPPING
+        )\b|
+        \bALTER\s+SYSTEM\b|
+        \b(?:SET|RESET)\s+SESSION\s+AUTHORIZATION\b|
+        (?:\A|;)\s*(?:SET\s+(?:SESSION\s+|LOCAL\s+)?ROLE\b|RESET\s+ROLE\b)|
+        \bLOAD\s+['"]|
+        \bCOPY\b[^;]*?\bPROGRAM\b|
+        \bSECURITY\s+LABEL\b
+      )/imx,
+      "schema-qualified index target" => /\b(?:CREATE|DROP|ALTER)\s+(?:UNIQUE\s+)?INDEX(?:\s+(?:CONCURRENTLY\s+)?(?:IF\s+(?:NOT\s+)?EXISTS\s+)?)?"?[a-z_][a-z0-9_$]*"?\s*\./i
+    }.freeze
+
+    def enable_extension(name)
+      return if extension_enabled?(name)
+
+      raise "generated-host schema isolation cannot add database extension #{name.inspect}"
+    end
+
+    def disable_extension(name, **)
+      raise "generated-host schema isolation cannot remove database extension #{name.inspect}"
+    end
+
+    def create_database(*)
+      raise "generated-host schema isolation cannot create databases"
+    end
+
+    def drop_database(*)
+      raise "generated-host schema isolation cannot drop databases"
+    end
+
+    def create_schema(*)
+      raise "generated-host schema isolation cannot create schemas from migrations"
+    end
+
+    def drop_schema(*)
+      raise "generated-host schema isolation cannot drop schemas from migrations"
+    end
+
+    def schema_search_path=(schema_csv)
+      expected = [
+        ENV.fetch("DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA"),
+        ENV.fetch("DECIDIM_BIH_GENERATED_HOST_EXTENSION_SCHEMA")
+      ].join(",")
+      normalized = schema_csv.to_s.gsub(/\s+/, "")
+      raise "generated-host schema isolation rejected search path mutation" unless normalized == expected
+
+      @decidim_bih_setting_generated_host_search_path = true
+      super
+    ensure
+      @decidim_bih_setting_generated_host_search_path = false
+    end
+
+    def raw_execute(sql, ...)
+      validate_generated_host_sql!(sql.to_s)
+      super
+    end
+
+    private
+
+    def validate_generated_host_sql!(sql)
+      FORBIDDEN_SQL.each do |label, pattern|
+        next unless sql.match?(pattern)
+        next if label == "search path mutation" && @decidim_bih_setting_generated_host_search_path
+
+        raise "generated-host schema isolation rejected #{label}"
+      end
+      reject_unsafe_qualified_relations!(sql)
+    end
+
+    def reject_unsafe_qualified_relations!(sql)
+      pattern = /\b(?:FROM|JOIN|INTO|UPDATE|DELETE\s+FROM|TRUNCATE(?:\s+TABLE)?|REFERENCES|TABLE|VIEW|MATERIALIZED\s+VIEW|SEQUENCE|TYPE|DOMAIN|FUNCTION|PROCEDURE|TRIGGER)\s+(?:ONLY\s+)?"?([a-z_][a-z0-9_$]*)"?\s*\./i
+      allowed = [
+        "pg_catalog",
+        "information_schema",
+        ENV.fetch("DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA")
+      ]
+      schemas = sql.scan(pattern).flatten
+      rejected = schemas.reject { |schema| allowed.include?(schema.downcase) }
+      return if rejected.empty?
+
+      raise "generated-host schema isolation rejected schema-qualified relation"
+    end
+  end
+
+  ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.prepend(DecidimBihGeneratedHostExtensionGuard)
+GUARD
+RUBY
+}
+
+decidim_bih_preflight_database_isolation() {
+  local migration_root="$1"
+
+  [[ "${DECIDIM_BIH_GENERATED_HOST_DATABASE_MODE:-}" == "schema" ]] || return 0
+
+  DECIDIM_BIH_GENERATED_HOST_REQUIRED_EXTENSIONS="$(ruby - "$migration_root" <<'RUBY'
+root = ARGV.fetch(0)
+allowed = %w[ltree pg_trgm]
+declared = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_REQUIRED_EXTENSIONS", "").split(",").reject(&:empty?)
+
+Dir.glob(File.join(root, "*.rb")).sort.each do |migration|
+  source = File.read(migration)
+  server_or_security_sql = /(?:
+    \b(?:CREATE|ALTER|DROP)\s+(?:
+      ROLE|USER|GROUP|TABLESPACE|SERVER|PUBLICATION|SUBSCRIPTION|EVENT\s+TRIGGER|
+      FOREIGN\s+DATA\s+WRAPPER|ACCESS\s+METHOD|USER\s+MAPPING
+    )\b|
+    \bALTER\s+SYSTEM\b|
+    \b(?:SET|RESET)\s+SESSION\s+AUTHORIZATION\b|
+    \bLOAD\s+["']|
+    \bCOPY\b[^;]*?\bPROGRAM\b|
+    \bSECURITY\s+LABEL\b
+  )/imx
+  calls = source.scan(/\benable_extension\s*(?:\(\s*)?["']([a-z0-9_]+)["']/i).flatten
+  scrubbed = source.gsub(/\benable_extension\s*(?:\(\s*)?["'][a-z0-9_]+["']\s*\)?/i, "")
+  abort "dynamic extension enable is forbidden in #{migration}" if scrubbed.match?(/\benable_extension\b/)
+  abort "extension disable is forbidden in #{migration}" if source.match?(/\bdisable_extension\b/)
+  if source.match?(/\bexecute\b/i) && source.match?(/\b(?:CREATE|DROP|ALTER)\s+EXTENSION\b/i)
+    abort "raw extension DDL is forbidden in #{migration}"
+  end
+  if source.match?(/(?:\A|[^a-z0-9_])"?(?:public|decidim_bih_extensions)"?\s*\./i)
+    abort "shared schema reference is forbidden in #{migration}"
+  end
+  if source.match?(/\bexecute(?:_batch)?\b/i) &&
+     source.match?(/\b(?:CREATE|ALTER|DROP)\s+(?:DATABASE|SCHEMA)\b|\b(?:GRANT|REVOKE)\b|\bSET\s+(?:LOCAL\s+)?(?:search_path|SCHEMA)\b|\bset_config\s*\(\s*["']search_path/i)
+    abort "cross-boundary SQL is forbidden in #{migration}"
+  end
+  if source.match?(/\bexecute(?:_batch)?\b/i) && source.match?(server_or_security_sql)
+    abort "server or security SQL is forbidden in #{migration}"
+  end
+
+  declared.concat(calls)
+end
+
+declared.uniq!
+unexpected = declared - allowed
+abort "unsupported generated-host extensions: #{unexpected.join(", ")}" if unexpected.any?
+puts declared.sort.join(",")
+RUBY
+)"
+  export DECIDIM_BIH_GENERATED_HOST_REQUIRED_EXTENSIONS
+
+  env BUNDLE_GEMFILE="${BUNDLE_GEMFILE:-Gemfile}" bundle exec ruby -rpg <<'RUBY'
+database_name = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_TEST_DATABASE")
+schema_name = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA")
+extension_schema = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_EXTENSION_SCHEMA")
+required_extensions = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_REQUIRED_EXTENSIONS").split(",").reject(&:empty?)
+
+connection_parameters = { dbname: database_name }
+{
+  host: ENV["DATABASE_HOST"],
+  port: ENV["DATABASE_PORT"],
+  user: ENV["DATABASE_USERNAME"],
+  password: ENV["DATABASE_PASSWORD"]
+}.each { |key, value| connection_parameters[key] = value unless value.nil? || value.empty? }
+
+connection = nil
+begin
+  connection = PG.connect(connection_parameters)
+  actual_database = connection.exec("SELECT current_database()").getvalue(0, 0)
+  abort "generated-host database mismatch" unless actual_database == database_name
+
+  installed = connection.exec_params(
+    "SELECT e.extname FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace " \
+    "WHERE n.nspname = $1",
+    [extension_schema]
+  ).map { |row| row.fetch("extname") }
+  missing = required_extensions - installed
+  abort "generated-host test database is missing extensions: #{missing.join(", ")}" if missing.any?
+  unexpected_extensions = installed - required_extensions
+  if unexpected_extensions.any?
+    abort "generated-host extension schema has unsupported extensions: #{unexpected_extensions.join(", ")}"
+  end
+
+  unrelated_extension_objects = connection.exec_params(<<~SQL, [extension_schema, "{#{required_extensions.join(",")}}"])
+    WITH namespaced_objects AS (
+      SELECT 'pg_class'::regclass AS classid, c.oid AS objid, c.relname AS object_name
+      FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_proc'::regclass, p.oid, p.proname
+      FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_type'::regclass, t.oid, t.typname
+      FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_operator'::regclass, o.oid, o.oprname
+      FROM pg_operator o JOIN pg_namespace n ON n.oid = o.oprnamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_opclass'::regclass, o.oid, o.opcname
+      FROM pg_opclass o JOIN pg_namespace n ON n.oid = o.opcnamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_opfamily'::regclass, o.oid, o.opfname
+      FROM pg_opfamily o JOIN pg_namespace n ON n.oid = o.opfnamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_collation'::regclass, c.oid, c.collname
+      FROM pg_collation c JOIN pg_namespace n ON n.oid = c.collnamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_conversion'::regclass, c.oid, c.conname
+      FROM pg_conversion c JOIN pg_namespace n ON n.oid = c.connamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_ts_config'::regclass, c.oid, c.cfgname
+      FROM pg_ts_config c JOIN pg_namespace n ON n.oid = c.cfgnamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_ts_dict'::regclass, d.oid, d.dictname
+      FROM pg_ts_dict d JOIN pg_namespace n ON n.oid = d.dictnamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_ts_parser'::regclass, p.oid, p.prsname
+      FROM pg_ts_parser p JOIN pg_namespace n ON n.oid = p.prsnamespace WHERE n.nspname = $1
+      UNION ALL
+      SELECT 'pg_ts_template'::regclass, t.oid, t.tmplname
+      FROM pg_ts_template t JOIN pg_namespace n ON n.oid = t.tmplnamespace WHERE n.nspname = $1
+    )
+    SELECT DISTINCT objects.classid::regclass::text AS catalog, objects.object_name
+    FROM namespaced_objects objects
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM pg_depend d
+      JOIN pg_extension e ON e.oid = d.refobjid
+      WHERE d.classid = objects.classid
+        AND d.objid = objects.objid
+        AND d.refclassid = 'pg_extension'::regclass
+        AND d.deptype = 'e'
+        AND e.extname = ANY($2::text[])
+    )
+    ORDER BY catalog, object_name
+  SQL
+  unless unrelated_extension_objects.ntuples.zero?
+    names = unrelated_extension_objects.map { |row| "#{row.fetch("catalog")}:#{row.fetch("object_name")}" }
+    abort "generated-host extension schema has unrelated objects: #{names.join(", ")}"
+  end
+
+  can_create_schema = connection.exec(
+    "SELECT has_database_privilege(current_user, current_database(), 'CREATE')"
+  ).getvalue(0, 0) == "t"
+  abort "generated-host role cannot create isolated schemas" unless can_create_schema
+  can_write_extensions = connection.exec_params(
+    "SELECT has_schema_privilege(current_user, $1, 'CREATE')",
+    [extension_schema]
+  ).getvalue(0, 0) == "t"
+  abort "generated-host role must not have CREATE on extension schema" if can_write_extensions
+
+  schema_result = connection.exec_params(
+    "SELECT n.nspname, obj_description(n.oid, 'pg_namespace') AS marker " \
+    "FROM pg_namespace n WHERE n.nspname = $1",
+    [schema_name]
+  )
+  if ENV.fetch("DECIDIM_BIH_GENERATED_HOST_DATABASE_OWNED") == "1"
+    abort "owned generated-host schema is missing" unless schema_result.ntuples == 1
+    expected_marker = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_OWNERSHIP_MARKER")
+    abort "generated-host schema ownership marker mismatch" unless schema_result.getvalue(0, 1) == expected_marker
+  else
+    abort "generated-host target schema already exists" unless schema_result.ntuples.zero?
+  end
+ensure
+  connection&.close
+end
+RUBY
+}
+
+decidim_bih_schema_command() {
+  local operation="$1"
+
+  env DECIDIM_BIH_GENERATED_HOST_SCHEMA_OPERATION="$operation" \
+    BUNDLE_GEMFILE="${BUNDLE_GEMFILE:-Gemfile}" bundle exec ruby -rpg <<'RUBY'
+operation = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_SCHEMA_OPERATION")
+database_name = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_TEST_DATABASE")
+schema_name = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_TEST_SCHEMA")
+marker = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_OWNERSHIP_MARKER")
+required_extensions = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_REQUIRED_EXTENSIONS", "").split(",").reject(&:empty?)
+
+safe_database = /\A[a-z0-9_]+_test(?:-[0-9]+)?\z/i.match?(database_name)
+production_like = /(?:\A|[_-])(?:prod|production)(?:[_-]|\z)/i.match?(database_name)
+abort "unsafe generated-host base database" unless safe_database && !production_like
+abort "unsafe generated-host schema" unless /\Adbih_(?:clean_host|rails_test)_[0-9]{14}_[0-9]+_[0-9]+_[0-9]+\z/.match?(schema_name)
+abort "unsafe generated-host schema operation" unless %w[create drop].include?(operation)
+
+connection_parameters = { dbname: database_name }
+{
+  host: ENV["DATABASE_HOST"],
+  port: ENV["DATABASE_PORT"],
+  user: ENV["DATABASE_USERNAME"],
+  password: ENV["DATABASE_PASSWORD"]
+}.each { |key, value| connection_parameters[key] = value unless value.nil? || value.empty? }
+
+connection = nil
+begin
+  connection = PG.connect(connection_parameters)
+  actual_database = connection.exec("SELECT current_database()").getvalue(0, 0)
+  abort "generated-host database mismatch" unless actual_database == database_name
+
+  schema_result = connection.exec_params(
+    "SELECT pg_get_userbyid(n.nspowner), obj_description(n.oid, 'pg_namespace') " \
+    "FROM pg_namespace n WHERE n.nspname = $1",
+    [schema_name]
+  )
+
+  if operation == "create"
+    abort "generated-host target schema already exists" unless schema_result.ntuples.zero?
+
+    extension_schema = ENV.fetch("DECIDIM_BIH_GENERATED_HOST_EXTENSION_SCHEMA")
+    installed_extensions = connection.exec_params(
+      "SELECT e.extname FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace " \
+      "WHERE n.nspname = $1",
+      [extension_schema]
+    ).map { |row| row.fetch("extname") }
+    missing = required_extensions - installed_extensions
+    abort "generated-host test database is missing extensions: #{missing.join(", ")}" if missing.any?
+
+    connection.exec("BEGIN")
+    connection.exec(%(CREATE SCHEMA "#{schema_name}"))
+    connection.exec(%(COMMENT ON SCHEMA "#{schema_name}" IS #{connection.escape_literal(marker)}))
+    connection.exec(<<~SQL)
+      CREATE TABLE "#{schema_name}"."schema_migrations" (
+        "version" character varying NOT NULL PRIMARY KEY
+      )
+    SQL
+    connection.exec(<<~SQL)
+      CREATE TABLE "#{schema_name}"."ar_internal_metadata" (
+        "key" character varying NOT NULL PRIMARY KEY,
+        "value" character varying,
+        "created_at" timestamp(6) without time zone NOT NULL,
+        "updated_at" timestamp(6) without time zone NOT NULL
+      )
+    SQL
+    connection.exec("COMMIT")
+  else
+    abort "generated-host owned schema is missing" unless schema_result.ntuples == 1
+    abort "generated-host schema owner mismatch" unless schema_result.getvalue(0, 0) == connection.user
+    abort "generated-host schema ownership marker mismatch" unless schema_result.getvalue(0, 1) == marker
+
+    external_dependencies = connection.exec_params(<<~SQL, [schema_name])
+      WITH run_objects AS (
+        SELECT 'pg_namespace'::regclass AS classid, n.oid AS objid
+        FROM pg_namespace n WHERE n.nspname = $1
+        UNION ALL
+        SELECT 'pg_class'::regclass, c.oid
+        FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = $1
+        UNION ALL
+        SELECT 'pg_proc'::regclass, p.oid
+        FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = $1
+        UNION ALL
+        SELECT 'pg_type'::regclass, t.oid
+        FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace WHERE n.nspname = $1
+        UNION ALL
+        SELECT 'pg_constraint'::regclass, c.oid
+        FROM pg_constraint c JOIN pg_namespace n ON n.oid = c.connamespace WHERE n.nspname = $1
+        UNION ALL
+        SELECT 'pg_operator'::regclass, o.oid
+        FROM pg_operator o JOIN pg_namespace n ON n.oid = o.oprnamespace WHERE n.nspname = $1
+      ), dependent_objects AS (
+        SELECT 'pg_class'::regclass AS classid, c.oid AS objid, n.nspname, c.relname AS object_name
+        FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+        UNION ALL
+        SELECT 'pg_proc'::regclass, p.oid, n.nspname, p.proname
+        FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+        UNION ALL
+        SELECT 'pg_type'::regclass, t.oid, n.nspname, t.typname
+        FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace
+        UNION ALL
+        SELECT 'pg_constraint'::regclass, c.oid, n.nspname, c.conname
+        FROM pg_constraint c JOIN pg_namespace n ON n.oid = c.connamespace
+        UNION ALL
+        SELECT 'pg_rewrite'::regclass, r.oid, n.nspname, c.relname
+        FROM pg_rewrite r JOIN pg_class c ON c.oid = r.ev_class JOIN pg_namespace n ON n.oid = c.relnamespace
+        UNION ALL
+        SELECT 'pg_trigger'::regclass, t.oid, n.nspname, t.tgname
+        FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace
+        UNION ALL
+        SELECT 'pg_attrdef'::regclass, a.oid, n.nspname, c.relname || '.' || pa.attname
+        FROM pg_attrdef a
+        JOIN pg_class c ON c.oid = a.adrelid
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        JOIN pg_attribute pa ON pa.attrelid = a.adrelid AND pa.attnum = a.adnum
+        UNION ALL
+        SELECT 'pg_policy'::regclass, p.oid, n.nspname, p.polname
+        FROM pg_policy p JOIN pg_class c ON c.oid = p.polrelid JOIN pg_namespace n ON n.oid = c.relnamespace
+        UNION ALL
+        SELECT 'pg_operator'::regclass, o.oid, n.nspname, o.oprname
+        FROM pg_operator o JOIN pg_namespace n ON n.oid = o.oprnamespace
+      )
+      SELECT DISTINCT dependent.nspname, dependent.object_name
+      FROM pg_depend dependency
+      JOIN run_objects referenced
+        ON referenced.classid = dependency.refclassid
+       AND referenced.objid = dependency.refobjid
+      JOIN dependent_objects dependent
+        ON dependent.classid = dependency.classid
+       AND dependent.objid = dependency.objid
+      WHERE dependent.nspname <> $1
+        AND dependent.nspname NOT LIKE 'pg_toast%'
+      ORDER BY dependent.nspname, dependent.object_name
+    SQL
+    unless external_dependencies.ntuples.zero?
+      names = external_dependencies.map { |row| "#{row.fetch("nspname")}.#{row.fetch("object_name")}" }
+      abort "generated-host schema has external dependents: #{names.join(", ")}"
+    end
+
+    connection.exec(%(DROP SCHEMA "#{schema_name}" CASCADE))
+  end
+ensure
+  connection&.close
+end
+RUBY
+}
+
+decidim_bih_create_database_isolation() {
+  [[ "${DECIDIM_BIH_GENERATED_HOST_DATABASE_OWNED:-0}" == "0" ]] || {
+    printf 'generated-host database isolation is already owned\n' >&2
+    return 64
+  }
+
+  decidim_bih_schema_command create || return $?
+
+  DECIDIM_BIH_GENERATED_HOST_DATABASE_OWNED=1
+  export DECIDIM_BIH_GENERATED_HOST_DATABASE_OWNED
+}
+
+decidim_bih_cleanup_database_isolation() {
+  [[ "${DECIDIM_BIH_GENERATED_HOST_DATABASE_OWNED:-0}" == "1" ]] || return 0
+
+  decidim_bih_schema_command drop || return $?
+
+  DECIDIM_BIH_GENERATED_HOST_DATABASE_OWNED=0
+  export DECIDIM_BIH_GENERATED_HOST_DATABASE_OWNED
+}

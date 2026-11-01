@@ -1,0 +1,215 @@
+<% if (next_action = Decidim::Bih::ReportObligations.next_action(@report)) %>
+<p class="report-next-action"><%= Decidim::Bih::ReportObligations.label(next_action) %></p>
+<% end %>
+<% add_decidim_page_title(t(".title")) %>
+<%#
+  Public status / confirmation page for a single report, addressed by its
+  human reference. Styled as the brand "CardPrijava": a coral top-strip, a
+  heart-mark icon tile, and a status pill tinted by the report's status.
+%>
+<%
+  status = Decidim::Bih::ReportStatusPresenter.status_key(@report)
+  service_request = Decidim::Bih::ReportServiceRequest.new(@report)
+  timeline = service_request.update_history
+  # bg / ink / dot, kept on the Bijeljina palette and tinted by status.
+  tone = Decidim::Bih::ReportStatusPresenter.tone(status)
+%>
+<div class="wrapper">
+  <div class="mi-surface">
+    <%= render "decidim/bih/shared/surface_header",
+               eyebrow: t(".eyebrow"),
+               title: t(".title"),
+               intro: "#{t(".reference")} #{@report.reference}",
+               action_label: t("decidim.bih.reports.new.title"),
+               action_path: new_report_path,
+               action_class: "mi-btn mi-btn--ghost" %>
+
+    <%= render "decidim/bih/shared/report_module_tabs", active: :index %>
+    <%= render "decidim/bih/shared/report_summary_cards", summary: @report_summary %>
+
+    <div class="mi-surface-card mi-surface-card--strip">
+      <div class="mi-card-strip" style="background: var(--mi-coral-600);"></div>
+      <div class="mi-surface-card__body">
+        <%#
+          Goodwill recognition banner — shown ONLY on the redirect right after a
+          logged-in citizen submits a report (the controller sets a one-shot
+          flash with the credited amount). It links into the community hub so the
+          citizen sees where their "bodovi zajedništva" live. Never weights the
+          binding vote; this is recognition only. Absent on later status revisits
+          and for signed-out reports (no points => no flash => no banner).
+        %>
+        <% if flash[:bih_points_awarded].to_i.positive? %>
+          <div class="mi-notice" style="display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1.1rem;">
+            <span aria-hidden="true" style="font-size: 1.4rem;">🌱</span>
+            <span style="flex: 1; min-width: 0; color: var(--mi-navy-700);">
+              <%= t(".points_earned", points: flash[:bih_points_awarded].to_i) %>
+              <%= link_to t(".points_hub_link"), community_hub_path, style: "color: var(--mi-coral-600); font-weight: 700; text-decoration: underline;" %>
+            </span>
+          </div>
+        <% end %>
+
+        <p class="mi-eyebrow" style="margin-bottom: 0.85rem;"><%= t(".eyebrow") %></p>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.1rem;">
+          <span style="width: 48px; height: 48px; border-radius: 14px; background: var(--mi-coral-100); display: inline-flex; align-items: center; justify-content: center; flex: none;">
+            <img src="/mi/heart-mark.png" alt="" aria-hidden="true" style="height: 28px;">
+          </span>
+          <div style="flex: 1; min-width: 0;">
+            <h1 class="heading4" style="margin: 0; color: var(--mi-navy-700);"><%= t(".title") %></h1>
+            <p style="margin: 0.1rem 0 0; font-family: var(--mi-font-display); font-weight: 700; letter-spacing: 0.02em; color: var(--mi-navy-400);">
+              <span style="text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.12em;"><%= t(".reference") %></span>
+              <%= @report.reference %>
+            </p>
+          </div>
+        </div>
+
+        <span style="display: inline-flex; align-items: center; gap: 0.45rem; background: <%= tone[0] %>; color: <%= tone[1] %>; border-radius: 999px; padding: 0.4rem 0.9rem; font-family: var(--mi-font-display); font-weight: 600; font-size: 0.9rem;">
+          <span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: <%= tone[2] %>;"></span>
+          <%= service_request.public_status_label %>
+        </span>
+
+        <% if @private_report && @report.second_reminder&.outcome == "delivered" && @report.second_reminder.response_due_at %>
+          <p class="mi-notice"><%= t("decidim.bih.report_case.second_reminder_due", due: l(@report.second_reminder.response_due_at, format: :long)) %></p>
+        <% end %>
+
+        <% if service_request.current_action %>
+          <section id="report-current-action" class="mi-notice" aria-labelledby="report-current-action-title" style="margin-top:1rem">
+            <h2 id="report-current-action-title" class="heading5"><%= t("decidim.bih.reports.current_action.title") %></h2>
+            <p><%= service_request.current_action_label %></p>
+          </section>
+        <% end %>
+
+        <% if @report.duplicate? %>
+          <section class="mi-notice" data-report-duplicate>
+            <p><%= Decidim::Bih::ReportStatusPresenter.duplicate_message(@report) %></p>
+            <% if (main_report = Decidim::Bih::ReportStatusPresenter.main_report(@report)) %>
+              <%= link_to main_report.reference, report_path(reference: main_report.reference) %>
+              <p><%= t("decidim.bih.reports.duplicate_display.main_status", status: Decidim::Bih::ReportStatusPresenter.label(main_report)) %></p>
+            <% end %>
+          </section>
+        <% end %>
+
+        <%# Public corroboration tally — "N citizens reported the same problem".
+            A simple +1 counter from the duplicate-intake flow, NOT the binding
+            vote. Only shown once at least one other citizen corroborated. %>
+        <% if @report.corroboration_count.to_i.positive? %>
+          <p style="margin: 0.85rem 0 0; display: inline-flex; align-items: center; gap: 0.45rem; color: var(--mi-navy-600); font-family: var(--mi-font-display); font-weight: 600;">
+            <span aria-hidden="true">🙋</span>
+            <%= t(".corroboration", count: @report.corroboration_count) %>
+          </p>
+        <% end %>
+
+        <dl style="margin: 1.4rem 0 0; display: grid; grid-template-columns: auto 1fr; gap: 0.55rem 1.5rem;">
+          <% if @report.category.present? %>
+            <dt style="font-family: var(--mi-font-display); font-weight: 600; color: var(--mi-navy-400);"><%= t(".category") %></dt>
+            <dd style="margin: 0; color: var(--mi-navy-700);"><%= t("decidim.bih.reports.categories.#{@report.category}", default: @report.category) %></dd>
+          <% end %>
+
+          <% if @report.severity.present? %>
+            <dt style="font-family: var(--mi-font-display); font-weight: 600; color: var(--mi-navy-400);"><%= t(".severity") %></dt>
+            <dd style="margin: 0; color: var(--mi-navy-700);"><%= t("decidim.bih.reports.severities.#{@report.severity}", default: @report.severity) %></dd>
+          <% end %>
+
+          <dt style="font-family: var(--mi-font-display); font-weight: 600; color: var(--mi-navy-400);"><%= t(".submitted_at") %></dt>
+          <dd style="margin: 0; color: var(--mi-navy-700);"><%= l(@report.created_at, format: :long) %></dd>
+
+          <% if @report.sistem48_status_known? %>
+            <dt style="font-family: var(--mi-font-display); font-weight: 600; color: var(--mi-navy-400);"><%= t("decidim.bih.reports.sistem48.city_status") %></dt>
+            <dd style="margin: 0; color: var(--mi-navy-700);">
+              <%= @report.sistem48_status %>
+              <% if @report.sistem48_synced_at.present? %>
+                <br>
+                <small style="color: var(--mi-navy-400);"><%= t("decidim.bih.reports.sistem48.synced_at", time: l(@report.sistem48_synced_at, format: :long)) %></small>
+              <% end %>
+            </dd>
+          <% end %>
+        </dl>
+
+        <%#
+          Resolution timeline: makes the city's responsiveness visible. Each
+          reached lifecycle stage carries the time it was reached (sourced from
+          status_history, with a graceful fallback for legacy rows). PII-safe —
+          only status labels and timestamps are rendered.
+        %>
+        <section style="margin-top: 1.6rem; border-top: 1.5px solid var(--mi-line); padding-top: 1.25rem;">
+          <h2 class="mi-eyebrow" style="margin: 0 0 1rem;"><%= t(".timeline.title") %></h2>
+          <ol style="list-style: none; margin: 0; padding: 0; position: relative;">
+            <% timeline.each_with_index do |stage, idx| %>
+              <%
+                reached = stage[:reached]
+                is_current = stage[:current]
+                dot_bg = reached ? (is_current ? tone[2] : "var(--mi-leaf-500, #9bbb5f)") : "#d7dde2"
+                ink = reached ? "var(--mi-navy-700)" : "var(--mi-navy-300, #9ca3af)"
+                last = idx == timeline.size - 1
+              %>
+              <li style="display: flex; gap: 0.85rem; align-items: flex-start; padding-bottom: <%= last ? "0" : "1rem" %>; position: relative;">
+                <span aria-hidden="true" style="display: flex; flex-direction: column; align-items: center; flex: none;">
+                  <span style="width: 14px; height: 14px; border-radius: 50%; background: <%= dot_bg %>; box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(28,61,83,.12);"></span>
+                  <% unless last %>
+                    <span style="width: 2px; flex: 1; min-height: 1.4rem; background: <%= reached ? "var(--mi-leaf-300, #cfe0a8)" : "#e6eaee" %>; margin-top: 2px;"></span>
+                  <% end %>
+                </span>
+                <span style="flex: 1; min-width: 0; padding-top: -2px;">
+                  <span style="display: block; font-family: var(--mi-font-display); font-weight: <%= is_current ? "700" : "600" %>; color: <%= ink %>;">
+                    <%= stage[:public_status_label] %>
+                    <% if is_current %>
+                      <span style="font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: <%= tone[1] %>; background: <%= tone[0] %>; border-radius: 999px; padding: 0.1rem 0.5rem; margin-left: 0.35rem;"><%= t(".timeline.current") %></span>
+                    <% end %>
+                  </span>
+                  <% if stage[:at].present? %>
+                    <small style="color: var(--mi-navy-400);"><%= l(stage[:at], format: :long) %></small>
+                  <% else %>
+                    <small style="color: var(--mi-navy-300, #9ca3af);"><%= t(".timeline.pending") %></small>
+                  <% end %>
+                </span>
+              </li>
+            <% end %>
+          </ol>
+
+          <%#
+            Surface the status_note only when it is the public-safe rejection
+            reason — mirrors ReporterMailer, which exposes the note ONLY for
+            "odbijeno". For every other status the note is an internal operator
+            comment and must stay hidden.
+          %>
+          <% if @report.status == "odbijeno" && !@report.duplicate? && @report.status_note.present? %>
+            <p style="margin: 0.5rem 0 0; padding: 0.75rem 0.9rem; background: var(--mi-cream-100); border-radius: 10px; color: var(--mi-navy-700);">
+              <%= @report.status_note %>
+            </p>
+          <% end %>
+        </section>
+      </div>
+    </div>
+
+    <p class="mi-action-row" style="justify-content: center; margin-top: 1rem;">
+      <%= link_to t(".back"), new_report_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+      <%= link_to t("decidim.bih.reports.index.title"), reports_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+      <%= link_to t(".map_link"), reports_map_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+      <%= link_to t(".points_link"), community_hub_path, class: "mi-btn mi-btn--ghost mi-btn--sm" %>
+    </p>
+  </div>
+</div>
+
+<% if @private_report %>
+  <% c = "decidim.bih.report_case" %>
+  <section class="mi-card" id="report-private-conversation" style="max-width:52rem;margin:1.5rem auto;padding:1.5rem;overflow-wrap:anywhere;scroll-margin-top:6rem">
+    <h2><%= t("#{c}.conversation") %></h2>
+    <%= render "decidim/bih/reports/case_messages", report: @report, staff: false %>
+    <%= form_tag "", multipart: true, class: "form form-defaults" do %>
+      <% question_ids = Decidim::Bih::ReportObligations.for_report(@report).select { |task| task.kind == "info_request" && task.source_type == "Decidim::Bih::ReportMessage" }.map(&:source_id).compact.uniq %>
+      <% questions = @report.case_messages.where(id: question_ids, actor_role: "staff", kind: "question").order(:id).to_a %>
+      <% if questions.one? %>
+        <%= hidden_field_tag "case_message[answers_message_id]", questions.first.id %>
+      <% elsif questions.many? %>
+        <label><%= t("#{c}.answer_question") %><%= select_tag "case_message[answers_message_id]", options_for_select(questions.map { |question| [question.body.truncate(140), question.id] }), include_blank: t("#{c}.answer_question_unspecified") %></label>
+      <% end %>
+      <% if @report.status == "rijeseno" %>
+        <label><%= t("#{c}.feedback") %><%= select_tag "case_message[feedback]", options_for_select(%w(accepted problem_persists).map { |v| [t("#{c}.feedback_options.#{v}"), v] }) %></label>
+      <% end %>
+      <label style="display:block;margin:1rem 0"><%= t("#{c}.message") %><%= text_area_tag "case_message[body]", nil, required: true, maxlength: 3000, rows: 4, style: "display:block;width:100%;margin-top:.5rem" %></label>
+      <label><%= t("decidim.bih.report_evidence.photo") %><%= file_field_tag "case_message[photo]", accept: "image/jpeg,image/png,image/webp" %></label>
+      <p><%= t("decidim.bih.report_evidence.photo_help") %></p>
+      <%= submit_tag t("#{c}.reply"), class: "mi-btn mi-btn--primary" %>
+    <% end %>
+  </section>
+<% end %>

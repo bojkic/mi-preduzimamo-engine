@@ -1,0 +1,100 @@
+{
+  "en": {
+    "decidim": {
+      "bih": {
+        "report_planning": {
+          "location_title": "Edit location",
+          "location_help": "Record the citizen clarification. For a street section, describe both endpoints. Only enter verified coordinates. The original location is retained; exact location is not published.",
+          "address": "Address / street section",
+          "location_kind": "Location type",
+          "location_kinds": {
+            "description": "Description",
+            "point": "Point",
+            "segment": "Street section"
+          },
+          "latitude": "Latitude / start",
+          "longitude": "Longitude / start",
+          "location_end_latitude": "End latitude",
+          "location_end_longitude": "End longitude",
+          "map_target": "Map click sets",
+          "start": "Point / start",
+          "end": "End",
+          "clear_coordinates": "Clear coordinates",
+          "map_help": "Click the map or drag a marker. For a street section select both ends. Leave coordinates empty when only the description is known.",
+          "save_location": "Save location",
+          "location_reviewed": "Location edited by",
+          "original_location": "Original location",
+          "title": "Planned / long term",
+          "help": "Add the report to a collective request. Individual city forwarding is blocked while the report belongs to a collection.",
+          "collections": "Collective requests",
+          "collection": "Collective request",
+          "subtype": "Subtype (e.g. signage and traffic calming)",
+          "report_summary": "Reviewed city summary — no personal details",
+          "confirm_review": "I reviewed the report and summary and accept it for planned handling.",
+          "save_planning": "Save as planned / long term",
+          "unplan": "Return to regular handling",
+          "collection_title": "Collection title",
+          "topic": "Topic",
+          "owner": "Assigned operator",
+          "due": "Collection review deadline",
+          "summary": "Combined city request",
+          "save": "Save",
+          "saved": "Saved.",
+          "workflow": "Collect → review combined request → ready for one submission → record city receipt. Preparation and export never send messages to the city.",
+          "back_reports": "Back to reports",
+          "state": "Stage",
+          "states": {
+            "collecting": "Collecting",
+            "ready": "Ready for combined submission",
+            "submitted": "Submitted to city",
+            "closed": "Closed"
+          },
+          "new_collection": "New collective request",
+          "members": "Included reports",
+          "add_help": "Add reports from their Planned / long term section. Each retains its conversation and outcome.",
+          "ready": "Confirm review and prepare combined request",
+          "combined_preview": "Combined request preview",
+          "export": "Download combined request (.txt)",
+          "record_submission": "Record collective submission",
+          "record_help": "Submit the reviewed combined request through your chosen channel. Afterwards record its recipient and receipt. This action does not send a message.",
+          "recipient": "Recipient / responsible service",
+          "receipt": "Registry reference or submission evidence",
+          "confirm_submission": "I confirm this combined request was actually submitted to the city.",
+          "citizen_help": "Your report is accepted for planned handling and included in a collective request being prepared. It has not yet been submitted to the city. The conversation remains open.",
+          "errors": {
+            "sent_locked": "Submitted details are locked. Record changes in a new follow-up.",
+            "location_invalid": "Enter a description and valid coordinate pairs; a street section needs both ends or only a text description.",
+            "collection_required": "Choose a collective request.",
+            "collection_locked": "First return the report to regular handling in the planning section.",
+            "confirm_required": "Confirm the review or submission.",
+            "summary_required": "Enter a reviewed city summary.",
+            "owner_due_required": "Choose an authorized operator and a future review deadline.",
+            "not_ready": "The collection is not ready or has changed. Check members, locations and summaries and confirm review again.",
+            "receipt_required": "Enter a recipient and receipt or submission reference.",
+            "use_planning": "Use the planning section for this status."
+          },
+          "citizen_notification": "We have reviewed your report and included it in a collective submission that we will send to the City alongside similar reports. It has not yet been submitted. We will notify you when it is submitted and when we receive a response."
+        },
+        "reports": {
+          "statuses": {
+            "planirano": "Planned / long term"
+          },
+          "public_statuses": {
+            "planned": "Planned / long term"
+          }
+        },
+        "admin": {
+          "reports": {
+            "events": {
+              "types": {
+                "case_location_updated": "Location updated",
+                "case_planning_updated": "Planned handling updated",
+                "case_collection_submitted": "Submitted in collective request"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
