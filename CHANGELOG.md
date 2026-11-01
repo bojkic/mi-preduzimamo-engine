@@ -1,5 +1,10 @@
 # Istorija izdanja
 
+## v0.1.1
+
+- BIH administracija koristi jezičke putanje Decidim-a 0.32; stari GET linkovi vode do dostupne stranice, a raniji POST/PATCH endpoint-i ostaju kompatibilni.
+- Usklađene su provjere jezičkih putanja i linkova prijava, uz zadržanu provjeru obrade prijava i ovlašćenja.
+
 ## v0.1.0
 
 Prvo javno izdanje zajedničkog engine-a MI preduzimamo, za kompatibilnu referentnu aplikaciju zasnovanu na Decidim-u. Oznaka javnog izdanja ne mijenja internu verziju gema; distribucija ide preko Git-a i tačnog commit-a/tag-a.

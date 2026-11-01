@@ -281,7 +281,14 @@ module Decidim
 
       initializer "decidim_bih.admin_mount_routes" do
         Decidim::Core::Engine.routes do
-          mount Decidim::Bih::AdminEngine, at: "/admin/bih", as: "decidim_admin_bih"
+          extend Decidim::Routes::LocaleRedirects
+
+          # Core 0.32 redirects legacy admin GETs into the locale scope.
+          scope "/:locale", **locale_scope_options do
+            mount Decidim::Bih::AdminEngine, at: "/admin/bih", as: "decidim_admin_bih"
+          end
+          # Keep existing mutation endpoints valid; GETs use Core's redirect.
+          mount Decidim::Bih::AdminEngine, at: "/admin/bih", as: "decidim_admin_bih_legacy"
         end
       end
 
