@@ -40,7 +40,7 @@ module Decidim
 
         def setup
           @previous_adapter = SendPhoneMessageJob.queue_adapter
-          @adapter = ActiveJob::QueueAdapters::TestAdapter.new(enqueue_after_transaction_commit: false)
+          @adapter = ActiveJob::QueueAdapters::TestAdapter.new
           SendPhoneMessageJob.queue_adapter = @adapter
           # The unconfigured-client path records IntegrationHealth through the
           # process singleton. Give every test an in-memory store so no test

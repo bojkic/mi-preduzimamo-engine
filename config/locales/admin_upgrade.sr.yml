@@ -1,0 +1,81 @@
+{
+  "sr": {
+    "date": {
+      "buttons": {
+        "close": "Zatvori",
+        "select": "Izaberi"
+      },
+      "formats": {
+        "order": "d-m-y",
+        "separator": ".",
+        "help": {
+          "date_format": "Format: dd.mm.gggg"
+        }
+      }
+    },
+    "time": {
+      "clock_format": 24,
+      "buttons": {
+        "close": "Zatvori",
+        "select": "Izaberi",
+        "reset": "Poništi"
+      },
+      "formats": {
+        "help": {
+          "time_format": "Format: čč:mm"
+        }
+      }
+    },
+    "decidim": {
+      "admin": {
+        "dashboard": {
+          "show": {
+            "title": "Kontrolna tabla",
+            "view_more_logs": "Prikaži još zapisa"
+          }
+        },
+        "titles": {
+          "statistics": "Statistika"
+        },
+        "users_statistics": {
+          "users_count": {
+            "admins": "Administratori",
+            "participants": "Učesnici",
+            "last_day": "Posljednji dan",
+            "last_week": "Posljednja nedjelja",
+            "last_month": "Posljednji mjesec",
+            "no_users_count_statistics_yet": "Statistika učesnika još nije dostupna."
+          }
+        },
+        "logs": {
+          "index": {
+            "title": "Dnevnik administracije"
+          },
+          "logs_list": {
+            "no_logs_yet": "Još nema zapisa.",
+            "no_matching_logs": "Nema zapisa za izabrane filtere. Promijeni filtere i pokušaj ponovo."
+          }
+        },
+        "admin_terms": {
+          "show": {
+            "title": "Uslovi za administratore"
+          }
+        },
+        "admin_terms_of_service": {
+          "accept": {
+            "success": "Prihvatili ste uslove za administratore."
+          },
+          "actions": {
+            "accept": "Prihvatam uslove"
+          }
+        },
+        "menu": {
+          "see_site": "Pogledaj sajt",
+          "participatory_processes": "Procesi",
+          "assemblies": "Skupštine",
+          "moderation": "Zajednička moderacija"
+        }
+      }
+    }
+  }
+}

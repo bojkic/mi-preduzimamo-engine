@@ -198,7 +198,7 @@ module Decidim
             return
           end
 
-          client = Decidim::Bih::Infobip::Client.new
+          client = Decidim::Bih.phone_auth_delivery_client
           unless client.configured?
             Decidim::Bih::IntegrationHealth.instance.record(
               "decidim_bih.infobip.request",

@@ -1,0 +1,81 @@
+{
+  "sr-Cyrl": {
+    "date": {
+      "buttons": {
+        "close": "Затвори",
+        "select": "Изабери"
+      },
+      "formats": {
+        "order": "d-m-y",
+        "separator": ".",
+        "help": {
+          "date_format": "Формат: дд.мм.гггг"
+        }
+      }
+    },
+    "time": {
+      "clock_format": 24,
+      "buttons": {
+        "close": "Затвори",
+        "select": "Изабери",
+        "reset": "Поништи"
+      },
+      "formats": {
+        "help": {
+          "time_format": "Формат: чч:мм"
+        }
+      }
+    },
+    "decidim": {
+      "admin": {
+        "dashboard": {
+          "show": {
+            "title": "Контролна табла",
+            "view_more_logs": "Прикажи још записа"
+          }
+        },
+        "titles": {
+          "statistics": "Статистика"
+        },
+        "users_statistics": {
+          "users_count": {
+            "admins": "Администратори",
+            "participants": "Учесници",
+            "last_day": "Посљедњи дан",
+            "last_week": "Посљедња недјеља",
+            "last_month": "Посљедњи мјесец",
+            "no_users_count_statistics_yet": "Статистика учесника још није доступна."
+          }
+        },
+        "logs": {
+          "index": {
+            "title": "Дневник администрације"
+          },
+          "logs_list": {
+            "no_logs_yet": "Још нема записа.",
+            "no_matching_logs": "Нема записа за изабране филтере. Промијени филтере и покушај поново."
+          }
+        },
+        "admin_terms": {
+          "show": {
+            "title": "Услови за администраторе"
+          }
+        },
+        "admin_terms_of_service": {
+          "accept": {
+            "success": "Прихватили сте услове за администраторе."
+          },
+          "actions": {
+            "accept": "Прихватам услове"
+          }
+        },
+        "menu": {
+          "see_site": "Погледај сајт",
+          "participatory_processes": "Процеси",
+          "assemblies": "Скупштине",
+          "moderation": "Заједничка модерација"
+        }
+      }
+    }
+  }
+}

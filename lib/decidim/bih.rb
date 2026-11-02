@@ -21,6 +21,24 @@ module Decidim
   module Bih
     include ActiveSupport::Configurable
 
+    # Explicit adapter for an isolated local demo. Provider readiness continues
+    # to use Infobip::Client itself and must never be claimed by this adapter.
+    config_accessor(:phone_auth_demo_client_factory) { nil }
+
+    def self.phone_auth_delivery_client
+      factory = phone_auth_demo_client_factory
+      return Decidim::Bih::Infobip::Client.new unless factory
+
+      unless ENV["MI_INSTALL_PROFILE"] == "demo" && ENV["MI_LOCAL_HTTP"] == "true" && ENV["MI_DEMO_PHONE_CAPTURE"] == "true"
+        raise ArgumentError, "Demo authentication transport requires explicit local demo profile"
+      end
+
+      client = factory.call
+      raise ArgumentError, "Authentication demo transport must identify as simulated" unless client.respond_to?(:simulated?) && client.simulated?
+
+      client
+    end
+
     config_accessor(:report_reply_mailbox) { nil }
     config_accessor(:report_mail_transport) { "relay" }
 
@@ -1529,7 +1547,7 @@ module Decidim
         relative_path = asset.fetch(:relative_path)
         source_path = required_public_asset_source_path(relative_path, source_root:)
         asset.merge(
-          source_path: source_path,
+          source_path:,
           source_exists: File.file?(source_path),
           source_size_bytes: File.file?(source_path) ? File.size(source_path) : nil
         )
@@ -1562,7 +1580,7 @@ module Decidim
         copied << relative_path
       end
 
-      { copied: copied, skipped: skipped, public_root: root, source_root: File.expand_path(source_root) }
+      { copied:, skipped:, public_root: root, source_root: File.expand_path(source_root) }
     end
 
     def self.install_required_public_assets!(public_root:, source_root: public_asset_source_root, overwrite: false)
@@ -1686,10 +1704,10 @@ module Decidim
         ),
         required_public_write_routes: required_public_write_routes_for_mount(mount_path: mount),
         required_public_surfaces: required_public_surfaces_for_mount(mount_path: mount),
-        required_brand_asset_reviews: required_brand_asset_reviews,
-        required_decidim_modules: required_decidim_modules,
+        required_brand_asset_reviews:,
+        required_decidim_modules:,
         privacy_audit_contract: privacy_audit_contract_manifest(mount_path: mount),
-        required_provider_contracts: required_provider_contracts
+        required_provider_contracts:
       }
     end
 

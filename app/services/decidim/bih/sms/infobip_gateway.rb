@@ -136,11 +136,11 @@ module Decidim
           I18n.with_locale(sms_locale) do
             I18n.t(
               "decidim.bih.sms.verification_link",
-              code: code,
-              url: url,
+              code:,
+              url:,
               default: format(
                 "MI: %{code} je tvoj kod. Ne dijeli ga. Potvrda jednim dodirom: %{url} (vazi 24 sata)",
-                url: url, code: code
+                url:, code:
               )
             )
           end
@@ -159,7 +159,7 @@ module Decidim
         def viber_text(url)
           I18n.t(
             "decidim.bih.sms.viber_verify_link",
-            url: url,
+            url:,
             default: "MI: potvrdi broj i uđi jednim dodirom: #{url} (važi 24 sata)"
           )
         end
@@ -218,7 +218,7 @@ module Decidim
         end
 
         def client
-          @client ||= Decidim::Bih::Infobip::Client.new
+          @client ||= Decidim::Bih.phone_auth_delivery_client
         end
       end
     end

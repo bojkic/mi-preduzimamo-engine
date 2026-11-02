@@ -1,5 +1,9 @@
 # Istorija izdanja
 
+## v0.1.4-rc1 — Demo transport i administrativni prevodi
+
+Izričit lokalni demo transport telefonske autorizacije, uz očuvan stvarni provider-readiness status i odbijanje produkcione upotrebe demo factory-ja. Dopunjeni su dashboard/date-picker prevodi u četiri jezika i usklađeni upstream dashboard ključevi. P0 OTP ispravka iz v0.1.3 ostaje uključena.
+
 ## v0.1.3 — 2026-11-02
 
 - Ispravljen poziv Decidim 0.32 komande za telefonsku i imenovanu/poštansku autorizaciju; privremeni host adapter nije potreban.
