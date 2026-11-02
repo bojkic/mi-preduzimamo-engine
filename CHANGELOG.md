@@ -1,5 +1,9 @@
 # Istorija izdanja
 
+## v0.1.4-rc2 — kandidat za nezavisnu probu
+
+Dopunjeni su prevodi pogođenih administratorskih tokova na sva četiri jezika, uz inventar ključeva i regresione provjere kalendara. Stranica otvorenog koda dobila je offline navigacionu rutu. Produkcioni build ne isporučuje source mape sa internim putanjama domaćina. Upozorenja o velikim paketima ostaju vidljiva. Ove native provjere ne potvrđuju novu čistu Docker/WSL instalaciju, Docker restore/nadogradnju ili VPS/TLS/reboot.
+
 ## v0.1.4-rc1 — Demo transport i administrativni prevodi
 
 Izričit lokalni demo transport telefonske autorizacije, uz očuvan stvarni provider-readiness status i odbijanje produkcione upotrebe demo factory-ja. Dopunjeni su dashboard/date-picker prevodi u četiri jezika i usklađeni upstream dashboard ključevi. P0 OTP ispravka iz v0.1.3 ostaje uključena.

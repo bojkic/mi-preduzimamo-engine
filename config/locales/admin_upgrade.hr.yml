@@ -35,7 +35,8 @@
           }
         },
         "titles": {
-          "statistics": "Statistika"
+          "statistics": "Statistika",
+          "panel": "Administracija"
         },
         "users_statistics": {
           "users_count": {
@@ -73,7 +74,215 @@
           "see_site": "Pogledaj stranicu",
           "participatory_processes": "Procesi",
           "assemblies": "Skupštine",
-          "moderation": "Zajednička moderacija"
+          "moderation": "Zajednička moderacija",
+          "static_pages": "Stranice",
+          "users": "Sudionici",
+          "newsletters": "Bilteni",
+          "settings": "Postavke",
+          "admin_log": "Dnevnik administracije",
+          "insights": "Uvidi",
+          "decidim_awesome": "Decidim Awesome",
+          "participatory_process_groups": "Grupe procesa",
+          "manage": "Upravljanje"
+        },
+        "filters": {
+          "filter_label": "Filtriraj",
+          "with_any_access_mode": {
+            "label": "Način pristupa",
+            "values": {
+              "open": "Otvoren",
+              "transparent": "Javno vidljiv",
+              "restricted": "Ograničen"
+            }
+          },
+          "published_at_null": {
+            "label": "Objavljeno",
+            "values": {
+              "true": "Nije objavljeno",
+              "false": "Objavljeno"
+            }
+          },
+          "decidim_participatory_process_group_id_eq": {
+            "label": "Po grupi procesa"
+          }
+        },
+        "models": {
+          "participatory_process": {
+            "fields": {
+              "title": "Naslov",
+              "created_at": "Datum kreiranja",
+              "access_mode": "Način pristupa",
+              "published": "Objavljeno",
+              "actions": "Radnje"
+            }
+          }
+        },
+        "actions": {
+          "view_deleted_processes": "Prikaži obrisane procese",
+          "new_process": "Novi proces",
+          "import_process": "Uvezi"
+        },
+        "tooltips": {
+          "deleted_processes_info": "Proces se može obrisati samo kada nije objavljen."
+        },
+        "participatory_processes": {
+          "index": {
+            "access_modes": {
+              "open": "Otvoren",
+              "transparent": "Javno vidljiv",
+              "restricted": "Ograničen"
+            }
+          },
+          "new": {
+            "create": "Kreiraj"
+          }
+        }
+      },
+      "blogs": {
+        "models": {
+          "post": {
+            "fields": {
+              "official_blog_post": "Službena objava"
+            }
+          }
+        }
+      },
+      "decidim_awesome": {
+        "config": {
+          "intergram": {
+            "title_closed": "Kliknite za razgovor!",
+            "title_open": "Započnimo razgovor!",
+            "intro_message": "Pozdrav! Kako vam možemo pomoći?",
+            "auto_response": "Tražimo slobodnog administratora. To može potrajati koju minutu.",
+            "auto_no_response": "Trenutačno nitko nije dostupan za odgovor. Ostavite nam kontakt i javit ćemo vam se čim budemo mogli."
+          }
+        }
+      },
+      "shared": {
+        "confirm_modal": {
+          "close_modal": "Zatvori prozor"
+        }
+      },
+      "participatory_processes": {
+        "admin": {
+          "participatory_processes": {
+            "index": {
+              "title": "Procesi"
+            },
+            "new": {
+              "title": "Novi proces"
+            },
+            "form": {
+              "title": "Osnovni podaci",
+              "duration": "Trajanje",
+              "images": "Slike",
+              "metadata": "Dodatni podaci",
+              "taxonomies": "Taksonomije",
+              "no_taxonomy_filters_found": "Nema filtara taksonomije.",
+              "define_taxonomy_filters": "Prije uporabe ove postavke definirajte filtre za ovaj prostor sudjelovanja.",
+              "access": {
+                "label": "Pristup",
+                "set_this_space_as": "Postavi način pristupa ovom prostoru",
+                "options": {
+                  "open": "Svi mogu vidjeti proces i sudjelovati.",
+                  "transparent": "Svi mogu vidjeti proces, ali samo članovi i administratori mogu sudjelovati.",
+                  "restricted": "Samo članovi i administratori mogu vidjeti proces i sudjelovati. Proces nije vidljiv u općoj pretrazi, API-ju ni otvorenim podacima."
+                }
+              },
+              "has_members_help": "Moći ćete dodavati i objavljivati članove",
+              "visibility": "Vidljivost",
+              "select_process_group": "Odaberite grupu procesa",
+              "related_processes": "Povezani procesi"
+            }
+          }
+        }
+      },
+      "editor_images": {
+        "drag_and_drop_help": "Dodajte slike prevlačenjem ili lijepljenjem."
+      },
+      "forms": {
+        "upload": {
+          "labels": {
+            "add_image": "Dodaj sliku",
+            "edit_image": "Uredi sliku",
+            "replace": "Zamijeni",
+            "error": "Greška!",
+            "title_required": "Naslov je obavezan!",
+            "filename": "Naziv datoteke",
+            "remove": "Ukloni",
+            "title": "Naslov",
+            "uploaded": "Preneseno",
+            "validating": "Provjera je u toku…",
+            "validation_error": "Provjera nije uspjela. Provjerite dopušteni format i veličinu datoteke.",
+            "save": "Spremi"
+          },
+          "select_file": "Odaberi datoteku"
+        },
+        "file_help": {
+          "image": {
+            "message_1": "Preporučuje se vodoravna slika bez teksta.",
+            "message_2": "Slika će biti izrezana radi prikaza."
+          }
+        },
+        "upload_help": {
+          "dropzone": "Povucite datoteke ovdje ili kliknite gumb za prijenos"
+        }
+      }
+    },
+    "layouts": {
+      "decidim": {
+        "decidim_awesome": {
+          "awesome_config": {
+            "drag_and_drop_image": "Dodajte slike prevlačenjem ili lijepljenjem.",
+            "autosaved_success": "Podaci su spremljeni u lokalnoj memoriji preglednika",
+            "autosaved_error": "Preglednik ne podržava lokalnu memoriju. Obrazac se ne može automatski spremiti.",
+            "autosaved_retrieved": "Podaci obrasca vraćeni su iz prethodne sesije",
+            "taxonomies": "Taksonomije",
+            "hashtags": "Oznake (#)",
+            "proposals": "Prijedlozi",
+            "meetings": "Sastanci",
+            "amendments": "Amandmani",
+            "items": "stavke",
+            "select_deselect_all": "Odaberi sve / poništi odabir",
+            "awesome_authorization_groups_placeholder": "Dopuštene su sve grupe"
+          }
+        }
+      }
+    },
+    "activerecord": {
+      "models": {
+        "decidim/participatory_process": {
+          "one": "Proces",
+          "few": "Procesi",
+          "other": "Procesi"
+        }
+      }
+    },
+    "activemodel": {
+      "attributes": {
+        "participatory_process": {
+          "title": "Naslov",
+          "subtitle": "Podnaslov",
+          "weight": "Redoslijed",
+          "slug": "URL oznaka",
+          "short_description": "Kratak opis",
+          "description": "Opis",
+          "start_date": "Datum početka",
+          "end_date": "Datum završetka",
+          "hero_image": "Naslovna slika",
+          "developer_group": "Grupa pokretača",
+          "local_area": "Područje organizacije",
+          "meta_scope": "Podaci o obuhvatu",
+          "target": "Tko sudjeluje",
+          "participatory_scope": "O čemu se odlučuje",
+          "participatory_structure": "Kako se odlučuje",
+          "has_members": "Ovaj prostor ima članove",
+          "participatory_process_group_id": "Grupa procesa",
+          "promoted": "Istaknuto",
+          "related_process_ids": "Povezani procesi"
+        },
+        "editor_image": {
+          "file": "Datoteka"
         }
       }
     }
