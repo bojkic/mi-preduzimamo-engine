@@ -7,8 +7,8 @@ module Decidim
   module Bih
     module PhoneVerification
       # Server-side counter of wrong codes per verification challenge (spec
-      # 5.4.2). Decidim's own ConfirmUserAuthorization only sleeps and counts
-      # in the session, so it protects nothing across sessions or IPs. The key
+      # 5.4.2), before a proven challenge reaches Decidim's separate persistent
+      # confirmation lock/counter. The key
       # is an HMAC of organization + authorization + challenge version, and no
       # raw id ever reaches Redis. The challenge version is the authorization's
       # created_at, NOT the current code: a resend deliberately does NOT start

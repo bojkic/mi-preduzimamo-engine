@@ -37,10 +37,9 @@ module Decidim
     # need +protect_response+ and which need an authorization loaded differs
     # between the two pages.
     #
-    # Throttling of the typed code is ours (Decidim::Bih::PhoneVerification::
-    # AttemptLimiter), not Decidim's: upstream ConfirmUserAuthorization only
-    # counts in the session and sleeps, which protects nothing across sessions
-    # and would sleep inside the user row lock Complete holds.
+    # AttemptLimiter bounds user-supplied code attempts before Complete replays
+    # the proven challenge. Decidim 0.32 additionally enforces its persistent
+    # authorization lock/expiry when that challenge is granted.
     module PhoneVerificationActions
       extend ActiveSupport::Concern
 

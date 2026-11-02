@@ -1,5 +1,9 @@
 # Istorija izdanja
 
+## v0.1.3 — 2026-11-02
+
+- Ispravljen poziv Decidim 0.32 komande za telefonsku i imenovanu/poštansku autorizaciju; privremeni host adapter nije potreban.
+
 ## v0.1.2 — 2026-11-01
 
 - Dodata kompaktna komponenta javnih aktivnosti za glavni meni Decidim-a 0.32, uz postojeće provjere vidljivosti i odvojenu keš memoriju.

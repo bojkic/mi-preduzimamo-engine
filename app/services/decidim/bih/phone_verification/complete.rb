@@ -28,10 +28,9 @@ module Decidim
           new(user:, phone:, session:).call
         end
 
-        # +session+ is accepted so every caller keeps one signature (the Viber
-        # inbound path has none to give). It is kept here and deliberately
-        # NEVER read: see #confirm! for why the confirmation is handed a
-        # throwaway hash instead of the caller's real session.
+        # Keep the public session keyword for existing browser/Viber callers.
+        # Decidim 0.32 persists confirmation locks and counters on the
+        # authorization; the upstream command no longer accepts a session.
         def initialize(user:, phone:, session: nil)
           @user = user
           @phone = Decidim::Bih::SmsAuthorization.normalize(phone)
@@ -91,18 +90,15 @@ module Decidim
         # verification_metadata through Decidim's canonical command, so the
         # grant stays 100% upstream machinery (broadcast, grant!, callbacks).
         #
-        # The command is handed a THROWAWAY hash, never the caller's session,
-        # whatever `session:` was passed. Decidim keeps its failed-attempt
-        # counter there and, past MAX_FAILED_ATTEMPTS, #throttle! calls `sleep`
-        # — which here would sleep while holding the user row lock (and, on the
-        # web paths, a pooled database connection). Throttling on this platform
-        # is owned by Decidim::Bih::PhoneVerification::AttemptLimiter, so the
-        # counter has somewhere to live and simply does not survive the call.
+        # The entrypoint must first validate the citizen's proof and enforce
+        # AttemptLimiter. This replay completes that proven challenge; it is
+        # not itself validation of a user-supplied code. Decidim 0.32 also
+        # enforces persistent confirmation locks/expiry on the authorization.
         def confirm!(authorization)
           form = Decidim::Verifications::Sms::ConfirmationForm.from_params(
             verification_code: authorization.verification_metadata["verification_code"]
           )
-          events = Decidim::Verifications::ConfirmUserAuthorization.call(authorization, form, {})
+          events = Decidim::Verifications::ConfirmUserAuthorization.call(authorization, form)
           # :already_confirmed is defensive and, from #complete_locked, dead:
           # that path only reaches here for a row it has just seen ungranted
           # while holding the user lock. It is kept because the cost of being

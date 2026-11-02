@@ -19,18 +19,18 @@ module Decidim
     module GrantsAuthorization
       # Grant the pending authorization named +auth_name+ for +user+.
       #
-      # +session+ may be nil (non-browser paths). +ConfirmUserAuthorization+ uses
-      # the session only for attempt-throttle state; nil is substituted with {}
-      # so the throttle tracking works without raising NoMethodError.
+      # Keep the optional session argument for existing callers. Decidim 0.32
+      # persists confirmation locks/counters and accepts only authorization
+      # and form; no caller's session is passed to its command.
       #
       # Returns true on a successful grant, false on any guard failure or error.
-      def grant_named_authorization(user, auth_name, session = nil)
+      def grant_named_authorization(user, auth_name, _session = nil)
         return false unless active_grantable_user?(user)
 
         authorization = Decidim::Authorization.find_by(user:, name: auth_name)
         return false if authorization.blank? || authorization.granted?
 
-        confirm_named_authorization(authorization, session)
+        confirm_named_authorization(authorization)
       rescue StandardError => e
         Rails.logger.error(
           "[GrantsAuthorization] failed for user #{user.id} / #{auth_name}: " \
@@ -46,7 +46,7 @@ module Decidim
         user&.active_for_authentication? && !user.blocked? && !user.deleted?
       end
 
-      def confirm_named_authorization(authorization, session)
+      def confirm_named_authorization(authorization)
         # Replay the verification code already stored in the pending
         # authorization's verification_metadata through the canonical command
         # so all upstream callbacks (grant!, broadcasts, after_commit hooks) fire.
@@ -73,10 +73,9 @@ module Decidim
         return false if code_value.blank?
 
         # Build a minimal form that matches ConfirmUserAuthorization's contract.
-        form = PostalConfirmationForm.new(code_key: code_key, code_value: code_value)
-        effective_session = session || {}
+        form = PostalConfirmationForm.new(code_key:, code_value:)
         granted = false
-        Decidim::Verifications::ConfirmUserAuthorization.call(authorization, form, effective_session) do
+        Decidim::Verifications::ConfirmUserAuthorization.call(authorization, form) do
           on(:ok) { granted = true }
           on(:invalid) { granted = false }
         end
