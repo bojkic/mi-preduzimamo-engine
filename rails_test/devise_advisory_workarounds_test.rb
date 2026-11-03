@@ -177,15 +177,15 @@ module Decidim
           host! organization.host
           user = FactoryBot.create(:user, :confirmed, organization:)
           sign_in user
-          get "/account"
+          get "/sr/account"
           assert_redirected_to Decidim::Bih.public_path("moj-nalog")
           assert_equal user.id, request.env.fetch("warden").user(:user)&.id
           assert_equal 1.minute, user.timeout_in
           assert_operator Rails.application.config.session_options.fetch(:expire_after), :>, 2.minutes
 
           travel(2.minutes) do
-            put "/account", params: { user: { name: "Promjena" } },
-                            headers: { "HTTP_REFERER" => "https://evil.example/phish?x=1" }
+            put "/sr/account", params: { user: { name: "Promjena" } },
+                               headers: { "HTTP_REFERER" => "https://evil.example/phish?x=1" }
           end
 
           assert_response :redirect

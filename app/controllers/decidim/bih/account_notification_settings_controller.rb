@@ -79,7 +79,7 @@ module Decidim
         response.headers["Referrer-Policy"] = "same-origin"
         return if current_organization_user
 
-        destination = decidim_bih.account_notification_settings_path
+        destination = Decidim::Bih.public_path("moj-nalog/poruke")
         CitizenReturnPath.store(session, organization: current_organization, path: destination) if request.get?
         redirect_to decidim.new_user_session_path(redirect_url: destination)
       end

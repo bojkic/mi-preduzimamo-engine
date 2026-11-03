@@ -330,7 +330,7 @@ module Decidim
             post "#{page_path}/kod", params: { phone: PHONE }
           end
 
-          assert_redirected_to page_path
+          assert_redirected_to "#{page_path}?locale=sr"
           follow_redirect!
           assert_includes response.body, sr("confirm.reverify_not_saved")
           refute_includes response.body, sr("show.reverify_saved"), "nothing was saved, so nothing may say so"
@@ -363,7 +363,7 @@ module Decidim
           granted_without_phone!
 
           post "#{page_path}/kod", params: { phone: "+38765999999" }
-          assert_redirected_to page_path
+          assert_redirected_to "#{page_path}?locale=sr"
           follow_redirect!
           assert_includes response.body, sr("confirm.reverify_mismatch")
           assert @authorization.reload.granted?
@@ -374,7 +374,7 @@ module Decidim
           granted_without_phone!
 
           post "#{page_path}/ponovo"
-          assert_redirected_to page_path
+          assert_redirected_to "#{page_path}?locale=sr"
           assert @authorization.reload.granted?
           assert_nil Decidim::Bih::CitizenPhone.for(@citizen)
         end
@@ -396,7 +396,7 @@ module Decidim
           sign_in other
 
           post "#{page_path}/kod", params: { phone: PHONE }
-          assert_redirected_to page_path
+          assert_redirected_to "#{page_path}?locale=sr"
 
           assert other_auth.reload.granted?, "B's own authorization is untouched"
           assert_nil Decidim::Bih::CitizenPhone.for(other), "A's number must never match B's grant"
@@ -421,10 +421,10 @@ module Decidim
           Decidim::Bih.phone_first_registration = false
           granted_without_phone!
           Decidim::Bih::VerifiedPhone.synchronize!(user: @citizen, organization: @organization, phone: PHONE)
-          checklist = "#{Decidim::Bih.public_path("moj-nalog")}#zavrsi-nalog"
+          checklist = "#{Decidim::Bih.public_path("moj-nalog")}?locale=sr#zavrsi-nalog"
 
           get page_path
-          assert_redirected_to checklist
+          assert_redirected_to "#{Decidim::Bih.public_path("moj-nalog")}?locale=sr#zavrsi-nalog"
 
           get "#{page_path}/status.json"
           assert_equal "verified", response.parsed_body["state"]
@@ -536,7 +536,7 @@ module Decidim
 
           post "#{page_path}/kod", params: { verification_code: fresh_code }
           refute @authorization.reload.granted?, "the attempt budget outlives one code"
-          assert_redirected_to page_path
+          assert_redirected_to "#{page_path}?locale=sr"
           follow_redirect!
           assert_includes response.body, sr("confirm.exhausted")
         end
@@ -559,7 +559,7 @@ module Decidim
 
           post "#{page_path}/kod", params: { verification_code: "123456" }
           refute @authorization.reload.granted?, "the limiter stays fail-closed"
-          assert_redirected_to page_path
+          assert_redirected_to "#{page_path}?locale=sr"
           follow_redirect!
           assert_includes response.body, sr("confirm.unavailable")
           refute_includes response.body, sr("confirm.exhausted")
@@ -571,7 +571,7 @@ module Decidim
           pending!
 
           post "#{page_path}/ponovo"
-          assert_redirected_to page_path
+          assert_redirected_to "#{page_path}?locale=sr"
           follow_redirect!
           assert_includes response.body, sr("resend.too_soon")
 
@@ -626,7 +626,7 @@ module Decidim
             assert_equal 5, RecordingGateway.contexts.size, "the sixth never reaches the gateway"
           end
 
-          assert_redirected_to page_path
+          assert_redirected_to "#{page_path}?locale=sr"
           follow_redirect!
           assert_includes response.body, sr("resend.exhausted")
           refute_includes response.body, sr("resend.too_soon"), "the minute had passed; the budget had not"
@@ -682,7 +682,7 @@ module Decidim
             assert_empty RecordingGateway.contexts, "an uncountable message is not sent"
           end
 
-          assert_redirected_to page_path
+          assert_redirected_to "#{page_path}?locale=sr"
           follow_redirect!
           assert_includes response.body, sr("resend.unavailable")
           refute_includes response.body, sr("resend.exhausted"),
@@ -724,7 +724,7 @@ module Decidim
             assert_equal 1, RefusingGateway.calls
           end
 
-          assert_redirected_to page_path
+          assert_redirected_to "#{page_path}?locale=sr"
           follow_redirect!
           assert_includes response.body, sr("resend.failed")
           assert_includes response.body, "prethodni link"

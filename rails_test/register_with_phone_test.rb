@@ -391,7 +391,7 @@ module Decidim
 
         test "an invited private-space member is never adopted" do
           invited = invite!
-          Decidim::ParticipatorySpacePrivateUser.create!(user: invited, privatable_to: process)
+          Decidim::ParticipatorySpace::Member.create!(user: invited, participatory_space: process)
           refute Decidim::Bih::RegisterWithPhone.adoptable?(invited)
 
           assert_no_difference("Decidim::User.count") do

@@ -45,7 +45,7 @@ module Decidim
         # The controller builds its form with from_model, so the POST carries no
         # params at all.
         def print_letter!
-          post decidim_admin_postal_letter.pending_authorization_postage_path(@authorization)
+          post decidim_admin_postal_letter.pending_authorization_postage_path(@authorization, locale: :sr)
         end
 
         def test_the_printed_letter_carries_a_real_svg_qr_code

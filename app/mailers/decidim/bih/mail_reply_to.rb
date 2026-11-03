@@ -12,7 +12,9 @@ module Decidim
         private
 
         def set_smtp
-          Decidim::Bih::MailReplyTo.delivering_email(mail)
+          # Read the existing message; mail() can start template rendering even
+          # when the action intentionally returned without building a message.
+          Decidim::Bih::MailReplyTo.delivering_email(message)
           super
         end
       end

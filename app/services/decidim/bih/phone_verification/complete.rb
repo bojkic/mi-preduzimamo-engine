@@ -98,7 +98,7 @@ module Decidim
           form = Decidim::Verifications::Sms::ConfirmationForm.from_params(
             verification_code: authorization.verification_metadata["verification_code"]
           )
-          events = Decidim::Verifications::ConfirmUserAuthorization.call(authorization, form)
+          events = Decidim::Bih::PhoneVerification::ConfirmAuthorization.call(authorization, form)
           # :already_confirmed is defensive and, from #complete_locked, dead:
           # that path only reaches here for a row it has just seen ungranted
           # while holding the user lock. It is kept because the cost of being

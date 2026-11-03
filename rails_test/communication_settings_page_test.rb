@@ -50,7 +50,7 @@ module Decidim
         @user.update!(notification_settings: { "subscriptions" => { "device" => { "auth" => "key" } } })
         before = @user.notification_settings.deep_dup
         patch PAGE, params: { communication_settings: { report_updates: "0" }, user_id: other.id }
-        assert_redirected_to PAGE
+        assert_redirected_to "#{PAGE}?locale=sr"
         assert_not TopicPreferences.enabled?(@user.reload, topic: :report_updates)
         assert TopicPreferences.enabled?(@user, topic: :community_news)
         assert TopicPreferences.enabled?(other.reload, topic: :report_updates)
@@ -64,7 +64,7 @@ module Decidim
         sign_in @user
         before = @user.notification_settings.deep_dup
         patch PAGE, params: { communication_settings: TopicPreferences::TOPICS.index_with { "0" } }
-        assert_redirected_to PAGE
+        assert_redirected_to "#{PAGE}?locale=sr"
         TopicPreferences::TOPICS.each { |topic| assert_not TopicPreferences.enabled?(@user, topic:) }
         assert_equal "all", @user.reload.notification_types
         assert_equal before, @user.notification_settings
@@ -75,14 +75,14 @@ module Decidim
         before = @user.attributes.slice("notification_settings", "notification_types", "notifications_sending_frequency")
         patch PAGE, params: { topic: "community_news", channel: "whatsapp", enabled: "0" }
         assert_response :unprocessable_entity
-        put "/notifications_settings", params: { notifications_from_own_activity: "0", notifications_from_followed: "0",
-                                                 newsletter_notifications: "0", notifications_sending_frequency: "none",
-                                                 notification_settings: { mi_report_updates_viber: "0" } }
+        put "/sr/notifications_settings", params: { notifications_from_own_activity: "0", notifications_from_followed: "0",
+                                                    newsletter_notifications: "0", notifications_sending_frequency: "none",
+                                                    notification_settings: { mi_report_updates_viber: "0" } }
         assert_response :see_other
         assert_redirected_to PAGE
         assert_equal before, @user.reload.attributes.slice(*before.keys)
         assert TopicPreferences.enabled?(@user, topic: :platform_news)
-        get "/notifications_settings", params: { legacy: "true" }
+        get "/sr/notifications_settings", params: { legacy: "true" }
         assert_redirected_to PAGE
       end
 
@@ -120,7 +120,7 @@ module Decidim
         sign_in @user
         patch PRIVACY, params: { message_privacy: { allow_public_contact: "0", email_on_assigned_proposals: "0",
                                                     email_on_moderations: "0" } }
-        assert_redirected_to "#{Decidim::Bih.public_path("moj-nalog")}#privatnost-poruka"
+        assert_redirected_to "#{Decidim::Bih.public_path("moj-nalog")}?locale=sr#privatnost-poruka"
         assert_equal "followed-only", @user.reload.direct_message_types
         assert_equal true, @user.email_on_assigned_proposals
         assert_equal true, @user.email_on_moderations

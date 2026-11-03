@@ -85,7 +85,21 @@
           "admin_log": "Дневник администрације",
           "manage": "Управљање",
           "participatory_processes_submenu": {
-            "steps": "Фазе"
+            "steps": "Фазе",
+            "landing_page": "Изглед почетне странице",
+            "attachments": "Прилози",
+            "attachment_collections": "Фасцикле",
+            "attachment_files": "Фајлови",
+            "components": "Компоненте",
+            "members": "Чланови",
+            "moderations": "Модерација",
+            "process_admins": "Администратори процеса"
+          },
+          "components": "Компоненте",
+          "participants": "Учесници",
+          "share_tokens": "Приступни линкови",
+          "participatory_process_groups_submenu": {
+            "landing_page": "Изглед почетне странице"
           }
         },
         "filters": {
@@ -107,6 +121,10 @@
               "true": "Није објављено",
               "false": "Објављено"
             }
+          },
+          "search_label": "Претрага",
+          "search_placeholder": {
+            "title_cont": "Претражи по наслову — %{collection}"
           }
         },
         "models": {
@@ -229,6 +247,21 @@
             "error": "Није успјело ажурирање фазе процеса.",
             "success": "Фаза процеса је ажурирана."
           }
+        },
+        "officializations": {
+          "index": {
+            "title": "Учесници"
+          }
+        },
+        "participatory_process_publications": {
+          "create": {
+            "success": "Процес је успјешно објављен.",
+            "error": "Процес није могуће објавити."
+          },
+          "destroy": {
+            "success": "Објава процеса је успјешно повучена.",
+            "error": "Објаву процеса није могуће повући."
+          }
         }
       },
       "blogs": {
@@ -286,6 +319,9 @@
               "visibility": "Видљивост",
               "select_process_group": "Изаберите групу процеса",
               "related_processes": "Повезани процеси"
+            },
+            "edit": {
+              "title": "О овом процесу"
             }
           },
           "participatory_process_steps": {
@@ -298,6 +334,19 @@
             "new": {
               "title": "Нова фаза процеса"
             }
+          },
+          "participatory_process_groups": {
+            "form": {
+              "title": "О овом процесу"
+            }
+          }
+        },
+        "participatory_processes": {
+          "description": {
+            "title": "О овом процесу"
+          },
+          "show": {
+            "title": "О овом процесу"
           }
         }
       },
@@ -331,6 +380,9 @@
         "upload_help": {
           "dropzone": "Превуците фајлове овдје или кликните дугме за отпремање"
         }
+      },
+      "accessibility": {
+        "logo": "Званични лого — %{organization}"
       }
     },
     "layouts": {
@@ -356,9 +408,9 @@
     "activerecord": {
       "models": {
         "decidim/participatory_process": {
-          "one": "Процес",
+          "one": "Партиципативни процес",
           "few": "Процеси",
-          "other": "Процеси"
+          "other": "Партиципативни процеси"
         },
         "decidim/participatory_process_step": {
           "one": "Фаза",

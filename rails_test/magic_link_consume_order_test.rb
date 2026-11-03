@@ -87,7 +87,8 @@ module Decidim
           refute_includes log, "65000000", "nor the number the authorization was bound to"
 
           get Decidim::Bih.public_path("moj-nalog")
-          assert_equal path_of(decidim.new_user_session_path), path_of(response.location),
+          assert_equal @organization.host, URI.parse(response.location).host
+          assert_equal "/sr/users/sign_in", path_of(response.location),
                        "still anonymous: the account page bounces to sign-in"
         end
 
@@ -110,7 +111,7 @@ module Decidim
 
           post consume_path(raw)
 
-          assert_redirected_to "#{Decidim::Bih.public_path("moj-nalog")}#zavrsi-nalog"
+          assert_redirected_to "#{Decidim::Bih.public_path("moj-nalog")}?locale=sr#zavrsi-nalog"
           refute_equal Decidim::Bih::Onboarding::NextStep.sms_new_path(locale: :sr), path_of(response.location),
                        "an address proof must never be answered with the SMS phone form"
           assert_equal @citizen.id, signed_in_user_id, "the postal citizen is signed in"

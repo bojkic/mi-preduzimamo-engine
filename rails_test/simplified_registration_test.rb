@@ -239,7 +239,7 @@ module Decidim
           TopicPreferences.set_all!(user, enabled: false)
           other_area = build_komsiluk!(@organization)
           patch Decidim::Bih.public_path("komsiluk"), params: { komsiluk_id: other_area.id, source: "dropdown", komsiluk_notifications: "1" }
-          assert_redirected_to Decidim::Bih.public_path("komsiluk")
+          assert_redirected_to "#{Decidim::Bih.public_path("komsiluk")}?locale=sr"
           assert_equal @komsiluk.id, member.reload.komsiluk_id
           assert_equal qualified_at, member.qualified_at
           TopicPreferences::TOPICS.each { |topic| assert_not TopicPreferences.enabled?(user.reload, topic:) }
@@ -251,7 +251,7 @@ module Decidim
           Decidim::Authorization.create!(user:, name: "sms", granted_at: Time.current)
           sign_in user
           patch Decidim::Bih.public_path("komsiluk"), params: { komsiluk_id: @komsiluk.id, source: "dropdown", komsiluk_notifications: "1" }
-          assert_redirected_to Decidim::Bih.public_path("komsiluk")
+          assert_redirected_to "#{Decidim::Bih.public_path("komsiluk")}?locale=sr"
           assert CitizenProfile.find_by!(decidim_user_id: user.id).assigned?
           TopicPreferences::TOPICS.each { |topic| assert_not TopicPreferences.enabled?(user.reload, topic:) }
           assert_nil user.newsletter_notifications_at
@@ -524,7 +524,7 @@ module Decidim
           assert_no_enqueued_jobs(only: Decidim::Bih::EmailConfirmationDeliveryJob) do
             post Decidim::Bih.public_path("potvrdi-email")
           end
-          assert_redirected_to Decidim::Bih.public_path("moj-nalog")
+          assert_redirected_to "#{Decidim::Bih.public_path("moj-nalog")}?locale=sr"
           assert_nil user.reload.extended_data[EmailConfirmationsController::REQUESTED_AT_KEY]
         end
       end

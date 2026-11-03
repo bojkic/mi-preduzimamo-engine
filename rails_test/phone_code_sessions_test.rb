@@ -189,10 +189,8 @@ module Decidim
           with_phone_challenge do |delivery|
             post Decidim::Bih.public_path("prijava"), params: { phone: PHONE, locale: "sr-Cyrl" }
             assert_response :redirect
-            # Decidim appends the current locale to generated URLs whenever it
-            # differs from the organization default, so the redirect itself is
-            # the proof that the request really ran under sr-Cyrl.
-            assert_includes response.location, "locale=sr-Cyrl"
+            # Core 0.32 carries this locale in the path, not a query parameter.
+            assert_equal "/sr-Cyrl/users/sign_in", URI.parse(response.location).path
 
             refute_match(/\p{Cyrillic}/, delivery.fetch(:text),
                          "a Cyrillic SMS is UCS-2, two segments, and machine-misspelled")

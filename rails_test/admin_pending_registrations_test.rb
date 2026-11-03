@@ -43,7 +43,7 @@ module Decidim
           RecordingGateway.contexts = []
         end
 
-        def resend_path(user) = "/admin/bih/pending-registrations/#{user.id}/resend"
+        def resend_path(user) = "/sr/admin/bih/pending-registrations/#{user.id}/resend"
 
         def with_recording_gateway
           previous = Decidim.sms_gateway_service
@@ -55,7 +55,7 @@ module Decidim
 
         test "the participants list shows the resend item for a stub only" do
           sign_in @admin
-          get "/admin/officializations"
+          get "/sr/admin/officializations"
 
           assert_response :success
           assert_select "form[action='#{resend_path(@stub)}']", 1
@@ -66,7 +66,7 @@ module Decidim
           sign_in @admin
           with_recording_gateway { post resend_path(@stub) }
 
-          assert_redirected_to "/admin/officializations"
+          assert_redirected_to "/sr/admin/officializations"
           assert_equal 1, RecordingGateway.contexts.size
           follow_redirect!
           assert_includes response.body, I18n.t("decidim.bih.admin.pending_registrations.resend.sent", locale: :sr)
@@ -85,7 +85,7 @@ module Decidim
           assert_empty RecordingGateway.contexts
           assert_response :redirect
           assert_equal @organization.host, URI.parse(response.location).host
-          assert_equal "/admin/", URI.parse(response.location).path
+          assert_equal "/sr/admin/", URI.parse(response.location).path
         end
 
         test "a blocked administrator cannot resend" do
@@ -99,14 +99,14 @@ module Decidim
           assert_empty RecordingGateway.contexts
           assert_response :redirect
           assert_equal @organization.host, URI.parse(response.location).host
-          assert_equal "/admin/", URI.parse(response.location).path
+          assert_equal "/sr/admin/", URI.parse(response.location).path
         end
 
         test "a member is refused with a flash, never a 500" do
           sign_in @admin
           with_recording_gateway { post resend_path(@member) }
 
-          assert_redirected_to "/admin/officializations"
+          assert_redirected_to "/sr/admin/officializations"
           assert_empty RecordingGateway.contexts
           follow_redirect!
           assert_includes response.body, I18n.t("decidim.bih.admin.pending_registrations.resend.not_a_stub", locale: :sr)
@@ -118,7 +118,7 @@ module Decidim
           sign_in @admin
           with_recording_gateway { post resend_path(@stub) }
 
-          assert_redirected_to "/admin/officializations"
+          assert_redirected_to "/sr/admin/officializations"
           assert_equal 1, RecordingGateway.contexts.size
           assert_equal 1, ActionMailer::Base.deliveries.size
         end

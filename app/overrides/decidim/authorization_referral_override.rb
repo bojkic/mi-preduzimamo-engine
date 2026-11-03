@@ -18,22 +18,23 @@ module Decidim
   module Bih
     module Goodwill
       module AuthorizationReferralOverride
+        FIRST_GRANT_EFFECTS = [
+          :reward_goodwill_referral_if_granted,
+          :notify_referrer_of_verified_invitee,
+          :set_verified_citizen_badge_if_granted,
+          :award_verification_welcome_if_granted,
+          :award_postal_verified_if_granted,
+          :update_komsiluk_from_postal_if_granted,
+          :award_komsiluk_selected_if_verified,
+          :publish_phone_first_welcome_if_verified
+        ].freeze
+
         def self.prepended(base)
-          # Use after_commit (not after_save) so the referral reward job,
-          # badge set, and welcome award fire only after the authorization row
-          # is fully committed to the DB. This prevents race conditions where a
-          # background job reads the Authorization before the transaction commits
-          # and finds it still nil / in a previous state.
-          # saved_change_to_granted_at? and saved_changes are preserved through
-          # after_commit in Rails 7 (ActiveModel::Dirty guarantees this).
-          base.after_commit :reward_goodwill_referral_if_granted
-          base.after_commit :notify_referrer_of_verified_invitee
-          base.after_commit :set_verified_citizen_badge_if_granted
-          base.after_commit :award_verification_welcome_if_granted
-          base.after_commit :award_postal_verified_if_granted
-          base.after_commit :update_komsiluk_from_postal_if_granted
-          base.after_commit :award_komsiluk_selected_if_verified
-          base.after_commit :publish_phone_first_welcome_if_verified
+          # Decidim 0.32 saves again to reset confirmation attempts after grant!.
+          # saved_changes then describes that later save, not the grant. Capture
+          # the transition while it exists, but dispatch only after commit.
+          base.after_save :remember_first_grant_transition
+          base.after_commit :dispatch_first_grant_effects
         end
 
         def reward_goodwill_referral_if_granted
@@ -112,16 +113,16 @@ module Decidim
         #
         # IMPORTANT: grant! clears verification_metadata before committing, so
         # by the time this after_commit fires, verification_metadata is {}. We
-        # recover the mailing address from saved_changes["verification_metadata"][0]
-        # (the pre-grant value). The address is used in-process and never re-stored.
+        # recover the mailing address from the captured pre-grant metadata
+        # (the reset-attempts save must not replace that snapshot). The address is used in-process and never re-stored.
         def update_komsiluk_from_postal_if_granted
           return unless granted_at_transitioned_from_nil?
           return unless name == "postal_letter"
 
-          pre_grant_metadata = saved_changes.dig("verification_metadata", 0) || {}
+          pre_grant_metadata = @bih_first_grant_changes&.dig("verification_metadata", 0) || {}
           Decidim::Bih::Postal::PostalKomsilukService.call_with_address(
             user:,
-            address: pre_grant_metadata["address"]
+            address: decrypt_hash_values(pre_grant_metadata)["address"]
           )
         rescue StandardError => e
           Rails.logger.error("[postal] komsiluk update: #{e.class}: #{e.message}")
@@ -201,13 +202,27 @@ module Decidim
 
         private
 
-        # True only on the FIRST grant: saved_change_to_granted_at? AND the
-        # previous value was nil. This excludes re-grants where granted_at was
-        # already set (renewals, re-saves) so we never double-award or double-badge.
+        def remember_first_grant_transition
+          return if @bih_first_grant_changes
+          return unless saved_change_to_granted_at? && granted_at.present? && saved_changes["granted_at"].first.nil?
+
+          @bih_first_grant_changes = saved_changes.slice("granted_at", "verification_metadata").deep_dup
+          # Attach cleanup to the transaction which captured the grant. An
+          # unrelated rolled-back savepoint must not erase an outer grant;
+          # a grant in a rolled-back savepoint must never escape to commit.
+          self.class.current_transaction.after_rollback { @bih_first_grant_changes = nil }
+        end
+
+        def dispatch_first_grant_effects
+          return unless granted_at_transitioned_from_nil?
+
+          FIRST_GRANT_EFFECTS.each { |effect| public_send(effect) }
+        ensure
+          @bih_first_grant_changes = nil
+        end
+
         def granted_at_transitioned_from_nil?
-          saved_change_to_granted_at? &&
-            granted_at.present? &&
-            saved_changes["granted_at"].first.nil?
+          @bih_first_grant_changes.present? && granted_at.present?
         end
       end
     end

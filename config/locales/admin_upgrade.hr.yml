@@ -85,7 +85,21 @@
           "participatory_process_groups": "Grupe procesa",
           "manage": "Upravljanje",
           "participatory_processes_submenu": {
-            "steps": "Faze"
+            "steps": "Faze",
+            "landing_page": "Izgled početne stranice",
+            "attachments": "Privitci",
+            "attachment_collections": "Mape",
+            "attachment_files": "Datoteke",
+            "components": "Komponente",
+            "members": "Članovi",
+            "moderations": "Moderacija",
+            "process_admins": "Administratori procesa"
+          },
+          "components": "Komponente",
+          "participants": "Sudionici",
+          "share_tokens": "Pristupne poveznice",
+          "participatory_process_groups_submenu": {
+            "landing_page": "Izgled početne stranice"
           }
         },
         "filters": {
@@ -107,6 +121,10 @@
           },
           "decidim_participatory_process_group_id_eq": {
             "label": "Po grupi procesa"
+          },
+          "search_label": "Pretraga",
+          "search_placeholder": {
+            "title_cont": "Pretraži po naslovu — %{collection}"
           }
         },
         "models": {
@@ -229,6 +247,21 @@
             "error": "Nije uspjelo ažuriranje faze procesa.",
             "success": "Faza procesa je ažurirana."
           }
+        },
+        "officializations": {
+          "index": {
+            "title": "Sudionici"
+          }
+        },
+        "participatory_process_publications": {
+          "create": {
+            "success": "Proces je uspješno objavljen.",
+            "error": "Proces nije moguće objaviti."
+          },
+          "destroy": {
+            "success": "Objava procesa je uspješno povučena.",
+            "error": "Objavu procesa nije moguće povući."
+          }
         }
       },
       "blogs": {
@@ -286,6 +319,9 @@
               "visibility": "Vidljivost",
               "select_process_group": "Odaberite grupu procesa",
               "related_processes": "Povezani procesi"
+            },
+            "edit": {
+              "title": "O ovom procesu"
             }
           },
           "participatory_process_steps": {
@@ -298,6 +334,19 @@
             "new": {
               "title": "Nova faza procesa"
             }
+          },
+          "participatory_process_groups": {
+            "form": {
+              "title": "O ovom procesu"
+            }
+          }
+        },
+        "participatory_processes": {
+          "description": {
+            "title": "O ovom procesu"
+          },
+          "show": {
+            "title": "O ovom procesu"
           }
         }
       },
@@ -331,6 +380,9 @@
         "upload_help": {
           "dropzone": "Povucite datoteke ovdje ili kliknite gumb za prijenos"
         }
+      },
+      "accessibility": {
+        "logo": "Službeni logotip — %{organization}"
       }
     },
     "layouts": {
@@ -356,9 +408,9 @@
     "activerecord": {
       "models": {
         "decidim/participatory_process": {
-          "one": "Proces",
+          "one": "Participativni proces",
           "few": "Procesi",
-          "other": "Procesi"
+          "other": "Participativni procesi"
         },
         "decidim/participatory_process_step": {
           "one": "Faza",

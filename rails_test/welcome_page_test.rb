@@ -73,9 +73,15 @@ module Decidim
           assert_includes response.body, I18n.t("decidim.bih.welcome.show.points", count: 20, locale: :sr)
           assert_includes response.body, I18n.t("decidim.bih.welcome.show.community_next", locale: :sr)
           assert_select ".mi-welcome__invitation", count: 0
-          assert_select "a[href=?]", Decidim::Bih.public_path("prijave/new")
+          assert_select "a[href=?]", "#{Decidim::Bih.public_path("prijave/new")}?locale=sr"
           assert_select "a[href=?]", "/processes"
-          assert_select "a[href=?]", "#{Decidim::Bih.public_path("zajednistvo")}?tab=pozovi"
+          invitation_links = css_select("a[href]").filter_map do |anchor|
+            uri = URI.parse(anchor["href"])
+            next unless uri.scheme.nil? && uri.host.nil? && uri.path == Decidim::Bih.public_path("zajednistvo")
+
+            Rack::Utils.parse_nested_query(uri.query)
+          end
+          assert_includes invitation_links, { "locale" => "sr", "tab" => "pozovi" }
           # No Milica button on the welcome page since 2026-09-07: the chat
           # bubble is on every page already.
           assert_select "[data-mi-bot-open]", count: 0

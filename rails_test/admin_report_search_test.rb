@@ -18,7 +18,7 @@ module Decidim
       class AdminReportSearchTest < ActionDispatch::IntegrationTest
         include ::Devise::Test::IntegrationHelpers
 
-        INDEX_PATH = "/admin/bih/reports"
+        INDEX_PATH = "/sr/admin/bih/reports"
         DECOY = "Rupa na kolovozu u Racanskoj ulici."
 
         setup do

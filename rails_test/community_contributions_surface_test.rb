@@ -157,12 +157,12 @@ module Decidim
           other_submission = create_other_tenant_submission!(other_organization)
 
           sign_in reviewer
-          get "/admin/bih/community-contributions"
+          get "/sr/admin/bih/community-contributions"
           assert_response :success
           assert_includes response.body, submission.title
           assert_not_includes response.body, other_submission.title
 
-          post "/admin/bih/community-contributions/projects/#{submission.id}/approve",
+          post "/sr/admin/bih/community-contributions/projects/#{submission.id}/approve",
                params: { campaign_key: "Not a valid key!" }
           assert_response :unprocessable_entity
           assert_select "input[name=campaign_key][value='Not a valid key!']", count: 1
@@ -188,14 +188,19 @@ module Decidim
           admin = FactoryBot.create(:user, :admin, :confirmed, organization: @organization)
 
           sign_in admin
-          patch native_project_soft_delete_path(project)
+          %w(sr sr-Cyrl bs hr).each do |locale|
+            path = native_project_soft_delete_path(project, locale:)
+            assert_match %r{\A/#{Regexp.escape(locale)}/admin/}, path,
+                         "the mounted admin path must carry the requested locale"
+            patch path
 
-          assert_response :redirect
-          assert_nil project.reload.deleted_at
-          assert_equal I18n.t(
-            "decidim.bih.admin.community_contributions.project_delete_blocked",
-            locale: @organization.default_locale
-          ), flash[:alert]
+            assert_response :redirect
+            assert_nil project.reload.deleted_at
+            assert_equal I18n.t(
+              "decidim.bih.admin.community_contributions.project_delete_blocked",
+              locale:
+            ), flash[:alert]
+          end
         end
 
         private
@@ -207,15 +212,21 @@ module Decidim
         def native_project_path(project)
           Decidim::EngineRouter.main_proxy(project.component).budget_project_path(
             budget_id: project.budget.id,
-            id: project.id
+            id: project.id,
+            locale: :sr
           )
         end
 
-        def native_project_soft_delete_path(project)
-          Decidim::EngineRouter.admin_proxy(project.component).soft_delete_budget_project_path(
-            budget_id: project.budget.id,
-            id: project.id
-          )
+        def native_project_soft_delete_path(project, locale: @organization.default_locale)
+          # Upstream admin_proxy rewrites the path segment from I18n.locale,
+          # even if the nested helper receives an explicit locale option.
+          I18n.with_locale(locale) do
+            Decidim::EngineRouter.admin_proxy(project.component).soft_delete_budget_project_path(
+              budget_id: project.budget.id,
+              id: project.id,
+              locale:
+            )
+          end
         end
 
         def create_partner_profile!(slug, organization: @organization)

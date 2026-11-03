@@ -121,7 +121,7 @@ module Decidim
         return true if @user
 
         flash[:alert] = t("decidim.bih.account.show.login_required")
-        destination = decidim_bih.account_overview_path
+        destination = Decidim::Bih.public_path("moj-nalog")
         CitizenReturnPath.store(session, organization: current_organization, path: destination) if request.get?
         redirect_to(decidim.new_user_session_path(redirect_url: destination))
         false

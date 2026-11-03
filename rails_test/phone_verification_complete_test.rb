@@ -49,6 +49,38 @@ module Decidim
           assert_equal 0, Decidim::Bih::LoginToken.where(user: @citizen, purpose: "verify", consumed_at: nil).count, "live verify tokens are voided"
         end
 
+        test "bih verification remains valid beyond core expiry but inside the promised verification window" do
+          authorization = pending_authorization!
+          authorization.update!(verification_metadata: {
+                                  "verification_code" => "123456", "code_sent_at" => 23.hours.ago.iso8601
+                                })
+          result = complete
+          assert result.granted?
+          assert authorization.reload.granted?
+          assert_equal PHONE, Decidim::Bih::CitizenPhone.for(@citizen)
+        end
+
+        test "verification beyond the bih window remains refused without stored phone or grant" do
+          authorization = pending_authorization!
+          authorization.update!(verification_metadata: {
+                                  "verification_code" => "123456", "code_sent_at" => (Decidim::Bih::LoginToken::VERIFY_TTL + 1.minute).ago.iso8601
+                                })
+          result = complete
+          refute result.granted?
+          refute authorization.reload.granted?
+          assert_nil Decidim::Bih::CitizenPhone.for(@citizen)
+        end
+
+        test "a locked confirmation remains refused even inside the bih expiry window" do
+          authorization = pending_authorization!
+          authorization.update!(locked_at: Time.current, failed_attempts: 5)
+          result = complete
+          refute result.granted?
+          refute authorization.reload.granted?
+          assert_equal 5, authorization.failed_attempts
+          assert_nil Decidim::Bih::CitizenPhone.for(@citizen)
+        end
+
         test "an already granted authorization without phone rows gets its rows on re-verification" do
           granted_authorization!
           assert_nil Decidim::Bih::CitizenPhone.for(@citizen)

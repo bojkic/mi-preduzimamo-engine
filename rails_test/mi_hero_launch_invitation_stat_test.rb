@@ -30,7 +30,7 @@ module Decidim
           )
           Rails.cache.clear
 
-          get "/"
+          get "/sr/"
 
           assert_response :success
           assert_includes response.body, "preostale pozivnice za lansiranje"
@@ -46,7 +46,7 @@ module Decidim
           )
           Rails.cache.clear
 
-          get "/"
+          get "/sr/"
 
           assert_response :success
           refute_includes response.body, "preostale pozivnice za lansiranje"

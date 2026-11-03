@@ -73,7 +73,7 @@ module Decidim
         end
 
         test "an anonymous balance request requires sign in without an invitation threshold promise" do
-          reply = build_responder.respond(Message.new(text: "Koliko bodova imam?"))
+          reply = I18n.with_locale(:sr) { build_responder.respond(Message.new(text: "Koliko bodova imam?")) }
 
           assert_equal "goodwill", reply.answer_intent
           assert_includes reply.text, "/sr/users/sign_in"

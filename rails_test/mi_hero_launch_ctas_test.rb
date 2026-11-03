@@ -74,7 +74,7 @@ module Decidim
           Decidim::Bih.registration_path = "/registracija-test"
           Decidim::Bih.mi_hero_ctas = launch_ctas
 
-          get "/"
+          get "/sr/"
 
           assert_launch_ctas_rendered
           # registration_path also owns the side register panel, not just the CTA row.
@@ -95,7 +95,7 @@ module Decidim
           Decidim::Bih.mi_hero_ctas = -> { ctas }
           Decidim::Bih.mi_hero_stat_min = -> { 20 }
 
-          get "/"
+          get "/sr/"
 
           assert_launch_ctas_rendered
           assert_select ".mi-hero-stats__item .mi-hero-stats__label",
@@ -119,7 +119,7 @@ module Decidim
             20
           end
 
-          get "/"
+          get "/sr/"
 
           assert_launch_ctas_rendered
           assert_equal [@organization], cta_organizations
@@ -147,7 +147,7 @@ module Decidim
           Decidim::Bih.mi_hero_ctas = cta_source
           Decidim::Bih.mi_hero_stat_min = stat_source.method(:configured_minimum)
 
-          get "/"
+          get "/sr/"
 
           assert_launch_ctas_rendered
           assert_equal [@organization], cta_organizations
@@ -171,7 +171,7 @@ module Decidim
           ]
           account_path = Decidim::Bih.public_path("moj-doprinos")
 
-          get "/"
+          get "/sr/"
 
           assert_response :success
           assert_select ".mi-hero__ctas a.mi-btn--primary[href='#{account_path}']",
@@ -188,7 +188,7 @@ module Decidim
             { label_key: "#{CTA_SCOPE}.report", href: "/biceriseno/prijave/new", style: "ghost" }
           ]
 
-          get "/"
+          get "/sr/"
 
           assert_response :success
           assert_select ".mi-hero__ctas a.mi-btn", count: 1
@@ -207,7 +207,7 @@ module Decidim
           reports_total_label = I18n.t("#{HERO_SCOPE}.stats.reports_total", count: 2, locale: :sr)
           campaign_label = I18n.t("#{HERO_SCOPE}.stats.campaign", locale: :sr)
 
-          get "/"
+          get "/sr/"
 
           assert_response :success
           assert_select ".mi-hero-stats__item .mi-hero-stats__value", text: "3"
@@ -217,7 +217,7 @@ module Decidim
           Decidim::Bih.mi_hero_stat_min = 20
           Rails.cache.clear
 
-          get "/"
+          get "/sr/"
 
           assert_response :success
           assert_select ".mi-hero-stats__item .mi-hero-stats__label", text: citizens_label, count: 0
@@ -226,7 +226,7 @@ module Decidim
         end
 
         test "the omni band has a button that opens the chat" do
-          get "/"
+          get "/sr/"
 
           assert_response :success
           assert_select ".mi-omni-band a[data-mi-bot-open]",

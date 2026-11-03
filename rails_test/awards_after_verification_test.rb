@@ -109,6 +109,80 @@ module Decidim
           end
         end
 
+        test "upstream confirmation pays both awards even after resetting confirmation attempts" do
+          assign_komsiluk!(source: "dropdown")
+          authorization = Decidim::Authorization.create!(
+            user: @citizen, name: "sms", unique_id: "confirmation-#{@citizen.id}",
+            verification_metadata: { "verification_code" => "483921" }
+          )
+          form = Decidim::Verifications::Sms::ConfirmationForm.from_params(verification_code: "483921")
+          events = nil
+          perform_enqueued_jobs(only: AWARD_JOB) do
+            events = Decidim::Verifications::ConfirmUserAuthorization.call(authorization, form)
+          end
+
+          assert events.has_key?(:ok)
+          assert authorization.reload.granted?
+          assert_equal 0, authorization.failed_attempts
+          assert_equal 20, balance
+          assert_equal 1, komsiluk_award_transactions
+
+          # Resetting attempts or renewing later must not replay the first grant.
+          perform_enqueued_jobs(only: AWARD_JOB) do
+            authorization.reset_failed_attempts!
+            authorization.grant!
+          end
+          assert_equal 20, balance
+          assert_equal 1, komsiluk_award_transactions
+        end
+
+        test "a rolled back grant pays nothing and a subsequent confirmation can pay once" do
+          assign_komsiluk!(source: "dropdown")
+          authorization = Decidim::Authorization.create!(
+            user: @citizen, name: "sms", unique_id: "rollback-#{@citizen.id}",
+            verification_metadata: { "verification_code" => "483921" }
+          )
+          assert_no_enqueued_jobs(only: AWARD_JOB) do
+            Decidim::Authorization.transaction(requires_new: true) do
+              authorization.grant!
+              authorization.reset_failed_attempts!
+              raise ActiveRecord::Rollback
+            end
+          end
+          assert_not authorization.reload.granted?
+          assert_equal 0, balance
+
+          form = Decidim::Verifications::Sms::ConfirmationForm.from_params(verification_code: "483921")
+          perform_enqueued_jobs(only: AWARD_JOB) do
+            assert Decidim::Verifications::ConfirmUserAuthorization.call(authorization, form).has_key?(:ok)
+          end
+          assert_equal 20, balance
+          assert_equal 1, komsiluk_award_transactions
+        end
+
+        test "postal metadata reaches the geocoder only after commit despite a later counter save" do
+          authorization = Decidim::Authorization.create!(
+            user: @citizen, name: "postal_letter", unique_id: "metadata-#{@citizen.id}",
+            verification_metadata: { "address" => "Fixture street 1" }
+          )
+          assert_not_equal "Fixture street 1", authorization[:verification_metadata]["address"],
+                           "the snapshot must come from an actually encrypted stored attribute"
+          addresses = []
+          receiver = lambda do |user:, address:|
+            assert_equal @citizen.id, user.id
+            addresses << address
+          end
+          Decidim::Bih::Postal::PostalKomsilukService.stub(:call_with_address, receiver) do
+            Decidim::Authorization.transaction(requires_new: true) do
+              authorization.grant!
+              authorization.reset_failed_attempts!
+              assert_empty addresses
+            end
+          end
+          assert_equal ["Fixture street 1"], addresses
+          assert_empty authorization.reload.verification_metadata
+        end
+
         test "choosing a komsiluk before verification earns nothing; verification then pays both awards once" do
           sign_in @citizen
           perform_enqueued_jobs(only: AWARD_JOB) { choose_komsiluk! }

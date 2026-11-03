@@ -73,6 +73,7 @@ module Decidim
         Decidim::ParticipatoryProcessUserRole
         Decidim::AssemblyUserRole
         Decidim::ParticipatorySpacePrivateUser
+        Decidim::ParticipatorySpace::Member
       ).freeze
 
       # Everything that makes a row worth stealing, or not a plain citizen's.

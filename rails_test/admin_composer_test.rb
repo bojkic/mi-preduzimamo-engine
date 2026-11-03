@@ -28,7 +28,7 @@ module Decidim
         end
 
         def preview!
-          post "/admin/bih/board-notices/preview", params: { notice: publication_attributes }
+          post "/sr/admin/bih/board-notices/preview", params: { notice: publication_attributes }
           assert_response :success
           css_select("input[name=confirmation_token]").first["value"]
         end
@@ -38,7 +38,7 @@ module Decidim
           assert_no_difference [-> { Broadcast.count }, -> { KomsilukPost.count }, -> { KomsilukPhoneDelivery.count }] do
             post "/admin/bih/broadcasts", params: { local_area_id: @area.id, message: "Old request", confirm_preview: "1" }
           end
-          assert_redirected_to "/admin/bih/board-notices/new"
+          assert_redirected_to "/admin/bih/board-notices/new?locale=sr"
         end
 
         test "the publication preview exposes aggregate audience without recipients or delivery" do
@@ -57,7 +57,7 @@ module Decidim
 
         test "phone channels are explicit and unselected by default" do
           sign_in @admin
-          get "/admin/bih/board-notices/new"
+          get "/sr/admin/bih/board-notices/new"
           assert_response :success
           assert_select "input[name='notice[channels][]']", 3
           assert_select "input[name='notice[channels][]'][checked]", 0
@@ -69,13 +69,13 @@ module Decidim
           assert_no_difference -> { KomsilukPhoneDelivery.count } do
             assert_difference -> { KomsilukPost.where(organization: @organization).count }, 1 do
               2.times do
-                post "/admin/bih/board-notices/confirm", params: { confirmation_token: token, notice: { body: "Unreviewed text" } }
+                post "/sr/admin/bih/board-notices/confirm", params: { confirmation_token: token, notice: { body: "Unreviewed text" } }
               end
             end
           end
           published = KomsilukPost.find_by!(organization: @organization)
           assert_equal publication_attributes[:body], published.body
-          assert_redirected_to "/admin/bih/komsiluk-posts/#{published.id}"
+          assert_redirected_to "/sr/admin/bih/komsiluk-posts/#{published.id}"
         end
 
         test "an expired preview cannot publish or send" do
@@ -83,7 +83,7 @@ module Decidim
           token = preview!
           travel Komsiluk::NoticeComposer::PREVIEW_TTL + 1.minute do
             assert_no_difference [-> { KomsilukPost.count }, -> { KomsilukPhoneDelivery.count }] do
-              post "/admin/bih/board-notices/confirm", params: { confirmation_token: token }
+              post "/sr/admin/bih/board-notices/confirm", params: { confirmation_token: token }
             end
           end
           assert_not KomsilukSendIntent.find_by!(organization: @organization).state == "confirmed"
@@ -94,7 +94,7 @@ module Decidim
           token = preview!
           CitizenProfile.for_user(@citizen, organization: @organization).assign_komsiluk!(@area, source: "dropdown")
           assert_no_difference -> { KomsilukPost.count } do
-            post "/admin/bih/board-notices/confirm", params: { confirmation_token: token }
+            post "/sr/admin/bih/board-notices/confirm", params: { confirmation_token: token }
           end
           assert_response :unprocessable_entity
         end
@@ -108,7 +108,7 @@ module Decidim
           first_profile.update!(komsiluk: nil)
           CitizenProfile.for_user(replacement, organization: @organization).assign_komsiluk!(@area, source: "dropdown")
           assert_no_difference -> { KomsilukPost.count } do
-            post "/admin/bih/board-notices/confirm", params: { confirmation_token: token }
+            post "/sr/admin/bih/board-notices/confirm", params: { confirmation_token: token }
           end
           assert_response :unprocessable_entity
         end
@@ -118,7 +118,7 @@ module Decidim
           token = preview!
           sign_in FactoryBot.create(:user, :admin, :confirmed, organization: @organization)
           assert_no_difference -> { KomsilukPost.count } do
-            post "/admin/bih/board-notices/confirm", params: { confirmation_token: token }
+            post "/sr/admin/bih/board-notices/confirm", params: { confirmation_token: token }
           end
           assert_response :redirect
         end
@@ -134,7 +134,7 @@ module Decidim
         test "the operator composer renders inside an authorized case and names the recipient" do
           report = report_for(@citizen)
           sign_in @admin
-          post "/admin/bih/messages", params: {
+          post "/sr/admin/bih/messages", params: {
             context_type: "report", context_id: report.id, subject: "Status", body: "Radimo na tome.",
             external_copy: "1", delivery_preview: "1"
           }
@@ -147,7 +147,7 @@ module Decidim
         test "an operator message with an expired delivery token is refused, and nothing is sent" do
           report = report_for(@citizen)
           sign_in @admin
-          post "/admin/bih/messages", params: {
+          post "/sr/admin/bih/messages", params: {
             context_type: "report", context_id: report.id, subject: "Status", body: "Radimo na tome.",
             external_copy: "1", delivery_preview: "1"
           }
@@ -156,7 +156,7 @@ module Decidim
 
           travel 11.minutes do
             assert_no_difference -> { Decidim::Bih::OperatorMessage.count } do
-              post "/admin/bih/messages", params: {
+              post "/sr/admin/bih/messages", params: {
                 context_type: "report", context_id: report.id, subject: "Status", body: "Radimo na tome.",
                 external_copy: "1", message_reviewed: "1", delivery_token: token
               }
@@ -170,7 +170,7 @@ module Decidim
         test "a report page tells the operator which messages a status change triggers" do
           report = report_for(@citizen)
           sign_in @admin
-          get "/admin/bih/reports/#{report.reference}"
+          get "/sr/admin/bih/reports/#{report.reference}"
 
           assert_response :success
           assert_select "[data-send-consequence='report.reporter_status_email']", 1
@@ -183,7 +183,7 @@ module Decidim
           # Devise tracks this first authenticated request by updating the
           # user's descendants; no report, mail or notification job may enqueue.
           assert_no_enqueued_jobs except: Decidim::FindAndUpdateDescendantsJob do
-            patch "/admin/bih/reports/#{report.reference}/status", params: { status: "u_obradi" }
+            patch "/sr/admin/bih/reports/#{report.reference}/status", params: { status: "u_obradi" }
           end
 
           assert_response :redirect
@@ -195,7 +195,7 @@ module Decidim
         test "the report page renders no composer, because a case is not a bulk send" do
           report = report_for(@citizen)
           sign_in @admin
-          get "/admin/bih/reports/#{report.reference}"
+          get "/sr/admin/bih/reports/#{report.reference}"
 
           assert_select "[data-composer]", 0
           assert_select "[data-composer-confirm]", 0
@@ -203,7 +203,7 @@ module Decidim
 
         test "awarding points states that a message follows and by which channels" do
           sign_in @admin
-          get "/admin/bih/citizens/#{@citizen.id}"
+          get "/sr/admin/bih/citizens/#{@citizen.id}"
 
           assert_response :success
           assert_select "[data-send-consequence='goodwill.points_earned']", 1
@@ -214,7 +214,7 @@ module Decidim
         # nothing rather than a reassuring empty box.
         test "a surface that sends nothing renders no consequences strip" do
           sign_in @admin
-          get "/admin/bih/rewards"
+          get "/sr/admin/bih/rewards"
 
           assert_response :success
           assert_select "[data-send-consequences]", 0
@@ -224,7 +224,7 @@ module Decidim
           report = report_for(@citizen)
           sign_in @admin
           assert_difference -> { Decidim::Bih::OperatorMessage.count }, 1 do
-            post "/admin/bih/messages", params: {
+            post "/sr/admin/bih/messages", params: {
               context_type: "report", context_id: report.id, subject: "Status", body: "Radimo na tome.",
               message_reviewed: "1"
             }
