@@ -111,7 +111,7 @@
           <% end %>
 
           <dt style="font-family: var(--mi-font-display); font-weight: 600; color: var(--mi-navy-400);"><%= t(".submitted_at") %></dt>
-          <dd style="margin: 0; color: var(--mi-navy-700);"><%= l(@report.created_at, format: :long) %></dd>
+          <dd style="margin: 0; color: var(--mi-navy-700);"><%= l(@report.created_at.in_time_zone(Rails.application.config.time_zone), format: :long) %></dd>
 
           <% if @report.sistem48_status_known? %>
             <dt style="font-family: var(--mi-font-display); font-weight: 600; color: var(--mi-navy-400);"><%= t("decidim.bih.reports.sistem48.city_status") %></dt>
@@ -157,7 +157,7 @@
                     <% end %>
                   </span>
                   <% if stage[:at].present? %>
-                    <small style="color: var(--mi-navy-400);"><%= l(stage[:at], format: :long) %></small>
+                    <small style="color: var(--mi-navy-400);"><%= l(stage[:at].in_time_zone(Rails.application.config.time_zone), format: :long) %></small>
                   <% else %>
                     <small style="color: var(--mi-navy-300, #9ca3af);"><%= t(".timeline.pending") %></small>
                   <% end %>

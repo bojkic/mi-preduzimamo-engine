@@ -89,7 +89,7 @@ module Decidim
       end
 
       def email_confirmed?
-        user.respond_to?(:confirmed?) && user.confirmed?
+        EmailConfirmation.confirmed?(user)
       end
 
       def sms_verified?

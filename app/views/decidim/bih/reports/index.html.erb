@@ -118,7 +118,7 @@
                 </p>
               <% end %>
 
-              <p class="mi-report-card__date"><%= l(report.created_at.to_date, format: :long) %></p>
+              <p class="mi-report-card__date"><%= l(report.created_at.in_time_zone(Rails.application.config.time_zone).to_date, format: :long) %></p>
             </article>
           <% end %>
         <% end %>

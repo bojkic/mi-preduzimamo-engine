@@ -5,7 +5,7 @@
 <ol style="padding-left:1.25rem;overflow-wrap:anywhere">
   <% messages.each do |message| %>
     <li id="report-message-<%= message.id %>" tabindex="-1" style="margin-bottom:1rem">
-      <strong><%= t("#{c}.roles.#{message.actor_role}") %></strong> · <%= l(message.created_at, format: :short) %>
+      <strong><%= t("#{c}.roles.#{message.actor_role}") %></strong> · <%= l(message.created_at.in_time_zone(Rails.application.config.time_zone), format: :short) %>
       <%= simple_format(message.body) %>
       <% if message.photo.attached? %><p><%= link_to t("decidim.bih.report_evidence.download"), "?photo_message_id=#{message.id}" %></p><% end %>
       <% if (delivery = message.account_notification) %>

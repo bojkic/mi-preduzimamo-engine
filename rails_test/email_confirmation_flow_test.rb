@@ -43,6 +43,27 @@ module Decidim
                        @citizen.extended_data[Decidim::Bih::EmailConfirmation::KEY]["address"]
         end
 
+        test "account checklist and email panel agree before proof, after proof and after address change" do
+          get ACCOUNT_PATH
+          assert_response :success
+          refute Decidim::Bih::AccountSummary.new(organization: @organization, user: @citizen).email_confirmed?
+          assert_select "#potvrda-emaila .mi-account-email-confirmation__status",
+                        text: I18n.t("decidim.bih.account.email_confirmation.unconfirmed", locale: :sr)
+
+          get request_confirmation_link
+          @citizen.reload
+          assert Decidim::Bih::AccountSummary.new(organization: @organization, user: @citizen).email_confirmed?
+          get ACCOUNT_PATH
+          assert_select "#potvrda-emaila .mi-account-email-confirmation__status",
+                        text: I18n.t("decidim.bih.account.email_confirmation.confirmed", locale: :sr)
+
+          @citizen.update_columns(email: "changed-#{@citizen.id}@example.invalid") # rubocop:disable Rails/SkipsModelValidations
+          refute Decidim::Bih::AccountSummary.new(organization: @organization, user: @citizen.reload).email_confirmed?
+          get ACCOUNT_PATH
+          assert_select "#potvrda-emaila .mi-account-email-confirmation__status",
+                        text: I18n.t("decidim.bih.account.email_confirmation.unconfirmed", locale: :sr)
+        end
+
         # The message goes to the address being proven and to nobody else, and
         # it carries exactly one credential — a second link (a stale one left in
         # a template, a duplicated paragraph) would be a second thing to leak.
