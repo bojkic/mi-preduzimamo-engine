@@ -111,7 +111,7 @@ module Decidim
           post consume_path(raw)
 
           assert_redirected_to "#{Decidim::Bih.public_path("moj-nalog")}#zavrsi-nalog"
-          refute_equal Decidim::Bih::Onboarding::NextStep::SMS_NEW_PATH, path_of(response.location),
+          refute_equal Decidim::Bih::Onboarding::NextStep.sms_new_path(locale: :sr), path_of(response.location),
                        "an address proof must never be answered with the SMS phone form"
           assert_equal @citizen.id, signed_in_user_id, "the postal citizen is signed in"
           assert Decidim::Authorization.find_by(user: @citizen, name: "postal_letter").granted?

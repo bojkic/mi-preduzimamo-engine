@@ -106,7 +106,7 @@ if (faker_spec = Gem.loaded_specs["faker"])
   I18n.load_path += Dir[File.join(faker_spec.gem_dir, "lib/locales/en/*.yml")]
 end
 
-BIH_RAILS_TEST_LOCALES = %w(en bs hr sr).freeze
+BIH_RAILS_TEST_LOCALES = %w(en bs hr sr sr-Cyrl).freeze
 
 I18n.available_locales = (I18n.available_locales + BIH_RAILS_TEST_LOCALES.map(&:to_sym)).uniq
 require "i18n/backend/fallbacks"

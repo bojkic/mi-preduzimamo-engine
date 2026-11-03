@@ -19,6 +19,17 @@ module Decidim
         assert_equal expected, Transliterator.call(source)
       end
 
+      def test_preserves_editor_client_placeholders
+        assert_equal "Наслов %level%", Transliterator.call("Naslov %level%")
+        assert_equal "Промијени величину (%position%)", Transliterator.call("Promijeni veličinu (%position%)")
+      end
+
+      def test_editor_placeholders_do_not_swallow_adjacent_strftime_directives
+        ["%Y%m%d", "%d%m%Y", "%_d%m", "%-d%-m%Y", "%03d%m"].each do |format|
+          assert_equal format, Transliterator.call(format)
+        end
+      end
+
       def test_preserves_latin_brand_tokens
         assert_equal "Свака ознака води у Odoo кампању", Transliterator.call("Svaka oznaka vodi u Odoo kampanju")
         assert_equal "Web chat на сајту", Transliterator.call("Web chat na sajtu")

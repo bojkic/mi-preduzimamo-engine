@@ -257,6 +257,10 @@ class GeneratedHostDatabaseIsolationTest < Minitest::Test
       assert status.success?, stderr
 
       probe = <<~RUBY
+        require "ostruct"
+        module Rails
+          def self.application = @application ||= OpenStruct.new(config: OpenStruct.new(active_record: OpenStruct.new(dump_schema_after_migration: true)))
+        end
         module ActiveRecord
           module ConnectionAdapters
             class PostgreSQLAdapter
@@ -274,6 +278,7 @@ class GeneratedHostDatabaseIsolationTest < Minitest::Test
         end
 
         load ENV.fetch("INITIALIZER_PATH")
+        abort "automatic schema dump still enabled" if Rails.application.config.active_record.dump_schema_after_migration
         adapter = ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.new
         adapter.send(:raw_execute, "SELECT * FROM citizens x JOIN wards y ON x.ward_id = y.id")
         adapter.send(:raw_execute, "SELECT * FROM pg_catalog.pg_class")

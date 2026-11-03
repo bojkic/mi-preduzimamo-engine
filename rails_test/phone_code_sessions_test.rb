@@ -284,7 +284,7 @@ module Decidim
 
           get Decidim::Bih.public_path("prijava")
 
-          assert_redirected_to "/users/sign_in"
+          assert_redirected_to "/sr/users/sign_in"
           follow_redirect!
           assert_response :success
           # The page's own CTA, by its label: Decidim's layout carries "sign up"

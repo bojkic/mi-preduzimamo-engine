@@ -31,7 +31,7 @@ module Decidim
 
         test "requesting a reset for an unproven address sends nothing but answers like success" do
           assert_no_enqueued_jobs(only: ActionMailer::MailDeliveryJob) do
-            post "/users/password", params: { user: { email: @citizen.email } }
+            post "/sr/users/password", params: { user: { email: @citizen.email } }
           end
 
           assert_response :redirect
@@ -41,10 +41,10 @@ module Decidim
         # The endpoint must not become an account oracle: a refused request has
         # to look exactly like a request for an address that does not exist.
         test "the refusal is indistinguishable from a reset for an unknown address" do
-          post "/users/password", params: { user: { email: @citizen.email } }
+          post "/sr/users/password", params: { user: { email: @citizen.email } }
           refused = [response.status, response.location, flash[:notice], flash[:alert]]
 
-          post "/users/password", params: { user: { email: "niko-#{SecureRandom.hex(6)}@example.org" } }
+          post "/sr/users/password", params: { user: { email: "niko-#{SecureRandom.hex(6)}@example.org" } }
           unknown = [response.status, response.location, flash[:notice], flash[:alert]]
 
           assert_equal unknown, refused
@@ -54,7 +54,7 @@ module Decidim
           Decidim::Bih::EmailConfirmation.mark_confirmed!(@citizen)
 
           assert_enqueued_jobs(1, only: ActionMailer::MailDeliveryJob) do
-            post "/users/password", params: { user: { email: @citizen.email } }
+            post "/sr/users/password", params: { user: { email: @citizen.email } }
           end
 
           assert @citizen.reload.reset_password_token.present?
@@ -67,9 +67,9 @@ module Decidim
           @citizen.update_columns(email: "promijenjen-#{@citizen.id}@example.org") # proof no longer matches
           # rubocop:enable Rails/SkipsModelValidations
 
-          put "/users/password", params: { user: { reset_password_token: raw, password: NEW_PASSWORD } }
+          put "/sr/users/password", params: { user: { reset_password_token: raw, password: NEW_PASSWORD } }
 
-          assert_redirected_to "/users/password/new"
+          assert_redirected_to "/sr/users/password/new"
           assert_equal I18n.t("decidim.bih.passwords.unconfirmed_email", locale: :sr), flash[:alert]
           refute @citizen.reload.valid_password?(NEW_PASSWORD)
         end
@@ -84,7 +84,7 @@ module Decidim
           # date but has not flipped the switch yet. EmailConfirmation would call
           # this account unproven; the guard must not care.
           assert_enqueued_jobs(1, only: ActionMailer::MailDeliveryJob) do
-            post "/users/password", params: { user: { email: @citizen.email } }
+            post "/sr/users/password", params: { user: { email: @citizen.email } }
           end
 
           assert @citizen.reload.reset_password_token.present?
@@ -101,7 +101,7 @@ module Decidim
 
           refute pending.confirmed?
           assert_enqueued_jobs(1, only: ActionMailer::MailDeliveryJob) do
-            post "/users/password", params: { user: { email: pending.email } }
+            post "/sr/users/password", params: { user: { email: pending.email } }
           end
 
           assert pending.reload.reset_password_token.present?
@@ -113,7 +113,7 @@ module Decidim
           Decidim::Bih::EmailConfirmation.mark_confirmed!(@citizen)
           raw = @citizen.send_reset_password_instructions
 
-          put "/users/password", params: { user: { reset_password_token: raw, password: NEW_PASSWORD } }
+          put "/sr/users/password", params: { user: { reset_password_token: raw, password: NEW_PASSWORD } }
 
           assert @citizen.reload.valid_password?(NEW_PASSWORD)
         end

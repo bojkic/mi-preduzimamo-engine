@@ -35,6 +35,8 @@ RUN_NONCE="${DECIDIM_BIH_GENERATED_HOST_NONCE:-${BASHPID}_${RANDOM}_${RANDOM}}"
 APP_NAME="${APP_NAME:-decidim_bih_rails_test_$(date -u +%Y%m%d%H%M%S)_${RUN_NONCE}}"
 APP_ROOT="$WORK_ROOT/$APP_NAME"
 WRAPPER_ROOT="$WORK_ROOT/npm-wrapper-$APP_NAME"
+APP_WORKDIR_OWNED=0
+WRAPPER_WORKDIR_OWNED=0
 MOUNT_PATH="${MOUNT_PATH:-/moja-platforma}"
 SHORT_MAGIC_LINKS="${SHORT_MAGIC_LINKS:-0}"
 KEEP_WORKDIR="${KEEP_DECIDIM_BIH_RAILS_TEST:-0}"
@@ -67,6 +69,21 @@ truthy() {
   [[ "$1" =~ ^(1|true|yes)$ ]]
 }
 
+test_files=("$ENGINE_ROOT"/rails_test/*_test.rb)
+if [[ -n "${DECIDIM_BIH_RAILS_TEST_FILES:-}" ]]; then
+  read -r -a selected_tests <<< "$DECIDIM_BIH_RAILS_TEST_FILES"
+  test_files=()
+  for name in "${selected_tests[@]}"; do
+    [[ "$name" =~ ^[a-zA-Z0-9_]+_test\.rb$ && -f "$ENGINE_ROOT/rails_test/$name" && ! -L "$ENGINE_ROOT/rails_test/$name" ]] || {
+      echo 'Invalid generated-host test selection; use existing rails_test basenames.' >&2
+      exit 64
+    }
+    test_files+=("$ENGINE_ROOT/rails_test/$name")
+  done
+  (( ${#test_files[@]} > 0 )) || exit 64
+fi
+log "selected ${#test_files[@]} Rails harness files (default is the full suite)"
+
 decidim_bih_prepare_database_isolation rails_test "$APP_NAME"
 
 cleanup() {
@@ -92,8 +109,8 @@ cleanup() {
     exit "$status"
   fi
 
-  rm -rf "$APP_ROOT"
-  rm -rf "$WRAPPER_ROOT"
+  [[ "$APP_WORKDIR_OWNED" != 1 ]] || rm -rf "$APP_ROOT"
+  [[ "$WRAPPER_WORKDIR_OWNED" != 1 ]] || rm -rf "$WRAPPER_ROOT"
   exit "$status"
 }
 
@@ -110,13 +127,24 @@ if [[ ! -x "$DECIDIM_EXECUTABLE" ]]; then
 fi
 
 mkdir -p "$WORK_ROOT"
-rm -rf "$APP_ROOT"
-rm -rf "$WRAPPER_ROOT"
+if [[ -e "$APP_ROOT" || -L "$APP_ROOT" || -e "$WRAPPER_ROOT" || -L "$WRAPPER_ROOT" ]]; then
+  echo 'Generated-host destination already exists; preserving all files. Choose a new APP_NAME.' >&2
+  exit 64
+fi
+mkdir "$APP_ROOT"
+APP_WORKDIR_OWNED=1
+mkdir "$WRAPPER_ROOT"
+WRAPPER_WORKDIR_OWNED=1
+
+# The disposable host must not inherit the caller's Gemfile, frozen/private
+# bundle config or Bundler preload. Preserve the explicitly chosen cache path.
+unset BUNDLE_GEMFILE BUNDLE_APP_CONFIG BUNDLE_FROZEN BUNDLE_DEPLOYMENT RUBYOPT RUBYLIB
+export BUNDLE_APP_CONFIG="$APP_ROOT/.bundle"
+export BUNDLE_IGNORE_CONFIG=1
 
 REAL_NPM_PATH="$(command -v npm)"
 DECIDIM_NPM_VERSION="${DECIDIM_NPM_VERSION:-0.32.2}"
 export REAL_NPM_PATH DECIDIM_NPM_VERSION
-mkdir -p "$WRAPPER_ROOT"
 cat > "$WRAPPER_ROOT/npm" <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -147,10 +175,23 @@ export PATH="$WRAPPER_ROOT:$PATH"
 log "generating disposable Decidim host: $APP_ROOT"
 (
   cd "$WORK_ROOT"
-  "$DECIDIM_EXECUTABLE" "$APP_NAME" --force_ssl=false --locales=en,bs,hr,sr
+  "$DECIDIM_EXECUTABLE" "$APP_NAME" --force_ssl=false --locales=en,bs,hr,sr,sr-Cyrl
 )
 
 cd "$APP_ROOT"
+log "aligning generated-host dependencies with supported app/engine versions"
+ruby <<'RUBY'
+path = "Gemfile"
+source = File.read(path)
+{ "ransack" => "4.4.4", "minitest" => "~> 5.27" }.each do |name, version|
+  declaration = /^\s*gem ["']#{Regexp.escape(name)}["'].*$/
+  line = %(gem "#{name}", "#{version}")
+  source = source.match?(declaration) ? source.gsub(declaration, line) : "#{source}\n#{line}\n"
+end
+File.write(path, source)
+RUBY
+bundle update ransack minitest --conservative
+
 decidim_bih_patch_generated_database_config "config/database.yml"
 decidim_bih_install_schema_extension_guard "config/initializers/decidim_bih_generated_host_database_guard.rb"
 
@@ -219,7 +260,6 @@ if ! env RAILS_ENV=test DISABLE_SPRING=1 bin/rails db:migrate > "$migration_log"
 fi
 
 log "running Rails-backed test harness"
-test_files=("$ENGINE_ROOT"/rails_test/*_test.rb)
 env RAILS_ENV=test DISABLE_SPRING=1 PARALLEL_WORKERS=1 \
   DECIDIM_BIH_RAILS_APP="$APP_ROOT" ENGINE_ROOT="$ENGINE_ROOT" \
   ruby -I"$ENGINE_ROOT/rails_test" -e 'ARGV.each { |file| require File.expand_path(file) }' "${test_files[@]}"

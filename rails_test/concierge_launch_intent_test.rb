@@ -76,7 +76,7 @@ module Decidim
           reply = build_responder.respond(Message.new(text: "Koliko bodova imam?"))
 
           assert_equal "goodwill", reply.answer_intent
-          assert_includes reply.text, "/users/sign_in"
+          assert_includes reply.text, "/sr/users/sign_in"
           assert_includes reply.text, Decidim::Bih.public_path("moj-doprinos")
           refute_match(/pozivnic|20 bodova/i, reply.text)
         end

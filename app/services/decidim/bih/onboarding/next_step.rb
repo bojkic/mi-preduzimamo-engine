@@ -15,28 +15,22 @@ module Decidim
       # phone-verified citizen who has not yet picked a komšiluk. The row is
       # created where the citizen actually picks one, not where we ask.
       module NextStep
-        # Decidim mounts the verifications engine at "/" and each workflow at
-        # "/<name>", so the core SMS phone form is a fixed path. Engine
-        # services have no route helpers, exactly like the hero cell's host
-        # paths, so this is a literal.
-        #
-        # decidim-verifications registers the :sms workflow — and mounts these
-        # routes — only when the host sets `Decidim.sms_gateway_service` (this
-        # app does, in config/initializers/decidim_sms.rb). The rails harness's
-        # generated host now does the same: script/decidim_bih_rails_test writes
-        # config/initializers/decidim_bih_generated_host_sms.rb into it, so the
-        # path really resolves there and rails_test/phone_first_registration_test.rb
-        # proves it by following the sign-up redirect to a 200. A host that has
-        # NOT opted into phone-first registers no such workflow, which is why
-        # every caller gates this destination on
-        # Decidim::Bih.phone_first_registration.
+        # Decidim 0.32 mounts verification workflows below /:locale. Keep the
+        # workflow suffix separate and apply the current request locale once.
         SMS_NEW_PATH = "/sms/authorizations/new"
 
         module_function
 
+        def sms_new_path(locale: I18n.locale)
+          locale = locale.to_s
+          raise ArgumentError, "Unsupported verification locale" unless I18n.available_locales.map(&:to_s).include?(locale)
+
+          "/#{locale}#{SMS_NEW_PATH}"
+        end
+
         def for(user, organization:)
           authorization = Decidim::Authorization.find_by(user:, name: "sms")
-          return SMS_NEW_PATH if authorization.nil?
+          return sms_new_path if authorization.nil?
           return Decidim::Bih.public_path("verifikacija/telefon") unless authorization.granted?
 
           # Read-only lookup, and nil-safe on purpose: "no profile row yet" and

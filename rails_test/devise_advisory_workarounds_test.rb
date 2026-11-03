@@ -94,7 +94,7 @@ module Decidim
             location = timeout_redirect(method: "POST", referer:)
 
             assert_equal HOST, location.host, referer.inspect
-            assert_equal "/users/sign_in", location.path, referer.inspect
+            assert_equal "/#{I18n.locale}/users/sign_in", location.path, referer.inspect
           end
         end
 
@@ -129,7 +129,7 @@ module Decidim
           assert_equal [HOST, "/account"], [get_location.host, get_location.path]
 
           other = failure_response(method: "POST", referer: "https://evil.example/", message: :invalid)
-          assert_equal [HOST, "/users/sign_in"], [URI(other.fetch("Location")).host, URI(other.fetch("Location")).path]
+          assert_equal [HOST, "/#{I18n.locale}/users/sign_in"], [URI(other.fetch("Location")).host, URI(other.fetch("Location")).path]
         end
 
         private

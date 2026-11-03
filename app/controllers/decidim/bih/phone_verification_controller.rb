@@ -94,7 +94,7 @@ module Decidim
       def sms_form_path
         return decidim_bih.account_overview_path(anchor: "zavrsi-nalog") unless Decidim::Bih.phone_first_registration
 
-        Decidim::Bih::Onboarding::NextStep::SMS_NEW_PATH
+        Decidim::Bih::Onboarding::NextStep.sms_new_path
       end
     end
   end

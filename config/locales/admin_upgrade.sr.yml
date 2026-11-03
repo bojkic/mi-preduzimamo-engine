@@ -109,7 +109,57 @@
         "actions": {
           "view_deleted_processes": "Prikaži obrisane procese",
           "new_process": "Novi proces",
-          "import_process": "Uvezi"
+          "import_process": "Uvezi",
+          "cancel": "Otkaži",
+          "attachment": {
+            "new": "Novi prilog"
+          },
+          "attachment_collection": {
+            "new": "Nova fascikla priloga"
+          },
+          "attachment_collections": "Dodaj fasciklu",
+          "attachments": "Dodaj prilog",
+          "configure": "Podesi",
+          "confirm_delete_component": "Da li želiš da obrišeš ovu komponentu?<br>\nKomponenta sadrži:<br>\n<ul class=\"list-disc ml-6 my-2\">\n  <li class=\"font-bold\">%{resources_count} resursa</li>\n</ul>\nKasnije je možeš vratiti.\n",
+          "export_all": "Izvezi sve",
+          "import": "Uvezi",
+          "member": {
+            "new": "Novi član"
+          },
+          "menu_hidden": "Sakrij iz menija",
+          "moderate": "Upravljaj moderacijom",
+          "newsletter": {
+            "new": "Novi bilten"
+          },
+          "permissions": "Upravljaj dozvolama",
+          "restore": "Vrati",
+          "send_me_a_test_email": "Pošalji mi probni e-mail",
+          "share": "Podijeli",
+          "share_tokens": "Podijeli link",
+          "soft_delete": "Premjesti u otpad",
+          "user": {
+            "new": "Novi administrator"
+          },
+          "view_deleted_components": "Prikaži obrisane komponente",
+          "activate": "Aktiviraj",
+          "confirm_delete_process": "Da li želiš da obrišeš ovaj proces? Kasnije ga možeš vratiti.",
+          "confirm_destroy": "Potvrdi brisanje",
+          "destroy": "Obriši",
+          "duplicate": "Napravi kopiju",
+          "edit": "Uredi",
+          "new_process_group": "Nova grupa procesa",
+          "new_process_step": "Nova faza",
+          "new_process_user_role": "Novi administrator procesa",
+          "preview": "Pregled",
+          "publish": "Objavi",
+          "resend_invitation": "Ponovo pošalji poziv",
+          "see_process": "Pogledaj proces",
+          "unpublish": "Povuci objavu",
+          "add": "Dodaj",
+          "browse": "Pregledaj",
+          "export": "Izvezi",
+          "export_selection": "Izvezi izabrano",
+          "per_page": "Po stranici"
         },
         "tooltips": {
           "deleted_processes_info": "Proces se može obrisati samo kada nije objavljen."
@@ -120,10 +170,50 @@
               "open": "Otvoren",
               "transparent": "Javno vidljiv",
               "restricted": "Ograničen"
-            }
+            },
+            "published": "Objavljeno",
+            "unpublished": "Nije objavljeno"
           },
           "new": {
             "create": "Kreiraj"
+          },
+          "create": {
+            "error": "Nije uspjelo kreiranje novog procesa.",
+            "success": "Proces je kreiran. Sada podesi njegove faze."
+          },
+          "edit": {
+            "update": "Sačuvaj izmjene"
+          },
+          "update": {
+            "error": "Nije uspjelo ažuriranje procesa.",
+            "success": "Proces je ažuriran."
+          }
+        },
+        "participatory_process_steps": {
+          "create": {
+            "error": "Nije uspjelo kreiranje nove faze procesa.",
+            "success": "Faza procesa je kreirana."
+          },
+          "default_title": "Uvod",
+          "destroy": {
+            "error": {
+              "active_step": "Aktivna faza se ne može obrisati.",
+              "last_step": "Posljednja faza procesa se ne može obrisati."
+            },
+            "success": "Faza procesa je obrisana."
+          },
+          "edit": {
+            "update": "Sačuvaj izmjene"
+          },
+          "new": {
+            "create": "Kreiraj"
+          },
+          "ordering": {
+            "error": "Nije uspjela promjena redoslijeda faza procesa."
+          },
+          "update": {
+            "error": "Nije uspjelo ažuriranje faze procesa.",
+            "success": "Faza procesa je ažurirana."
           }
         }
       },
@@ -182,6 +272,17 @@
               "visibility": "Vidljivost",
               "select_process_group": "Izaberite grupu procesa",
               "related_processes": "Povezani procesi"
+            }
+          },
+          "participatory_process_steps": {
+            "index": {
+              "title": "Faze"
+            },
+            "edit": {
+              "title": "Uredi fazu procesa"
+            },
+            "new": {
+              "title": "Nova faza procesa"
             }
           }
         }
@@ -296,6 +397,87 @@
           "date_button": "Izaberi datum za %{label}",
           "time_button": "Izaberi vrijeme za %{label}"
         }
+      }
+    },
+    "errors": {
+      "messages": {
+        "uppercase_only_letters_numbers": "mora sadržati samo velika slova i/ili brojeve"
+      }
+    },
+    "editor": {
+      "extensions": {
+        "image": {
+          "altLabel": "Alternativni tekst slike",
+          "nodeView": {
+            "resizer": {
+              "control": {
+                "resize": "Promijeni veličinu slike (%position%)"
+              },
+              "position": {
+                "bottomLeft": "donji lijevi ugao",
+                "bottomRight": "donji desni ugao",
+                "topLeft": "gornji lijevi ugao",
+                "topRight": "gornji desni ugao"
+              }
+            }
+          },
+          "uploadError": "Slanje fajla nije uspjelo."
+        },
+        "link": {
+          "bubbleMenu": {
+            "edit": "Uredi",
+            "remove": "Ukloni",
+            "url": "URL"
+          },
+          "hrefLabel": "Adresa linka",
+          "targetLabel": "Otvori u",
+          "targets": {
+            "blank": "Novoj kartici",
+            "default": "Istoj kartici"
+          }
+        },
+        "videoEmbed": {
+          "titleLabel": "Naslov",
+          "urlLabel": "Adresa videa"
+        }
+      },
+      "inputDialog": {
+        "buttons": {
+          "cancel": "Otkaži",
+          "remove": "Ukloni",
+          "save": "Sačuvaj"
+        },
+        "close": "Zatvori prozor"
+      },
+      "toolbar": {
+        "control": {
+          "blockquote": "Citat",
+          "bold": "Podebljano",
+          "bulletList": "Lista bez rednih brojeva",
+          "codeBlock": "Blok koda",
+          "common": {
+            "eraseStyles": "Ukloni oblikovanje"
+          },
+          "hardBreak": "Novi red",
+          "heading": "Stil teksta",
+          "image": "Slika",
+          "indent": {
+            "indent": "Uvuci",
+            "outdent": "Izvuci"
+          },
+          "italic": "Kurziv",
+          "link": "Link",
+          "orderedList": "Numerisana lista",
+          "underline": "Podvučeno",
+          "videoEmbed": "Ugradi video"
+        },
+        "textStyle": {
+          "heading": "Naslov %level%",
+          "normal": "Običan tekst"
+        }
+      },
+      "upload": {
+        "uploadedFile": "Poslati fajl"
       }
     }
   }

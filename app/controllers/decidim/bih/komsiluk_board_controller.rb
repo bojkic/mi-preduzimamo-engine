@@ -344,7 +344,7 @@ module Decidim
         authorization = Decidim::Authorization.find_by(user: current_organization_user, name: "sms")
         return decidim_bih.phone_verification_path(redirect_url: destination) if authorization
 
-        "#{Onboarding::NextStep::SMS_NEW_PATH}?#{{ redirect_url: destination }.to_query}"
+        "#{Onboarding::NextStep.sms_new_path}?#{{ redirect_url: destination }.to_query}"
       end
 
       def protect_board_response

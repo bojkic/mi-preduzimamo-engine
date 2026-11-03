@@ -29,7 +29,7 @@ module Decidim
         end
 
         test "without a pending sms authorization the next step is the phone form" do
-          assert_equal "/sms/authorizations/new", next_step
+          assert_equal "/#{I18n.locale}/sms/authorizations/new", next_step
         end
 
         test "with a pending sms authorization the next step is the link-sent page" do

@@ -18,7 +18,7 @@ module Decidim
 
       test "settings require an account in the current organization" do
         get PAGE
-        assert_redirected_to "/users/sign_in?#{{ redirect_url: PAGE }.to_query}"
+        assert_redirected_to "/sr/users/sign_in?#{{ redirect_url: PAGE }.to_query}"
         sign_in FactoryBot.create(:user, :confirmed, organization: create_organization)
         patch PAGE, params: { communication_settings: { community_news: "0" }, user_id: @user.id }
         assert_response :redirect

@@ -14,7 +14,7 @@ module Decidim
         include ActiveJob::TestHelper
 
         REQUEST_PATH = Decidim::Bih.public_path("potvrdi-email")
-        ACCOUNT_PATH = Decidim::Bih.public_path("moj-nalog")
+        ACCOUNT_PATH = "#{Decidim::Bih.public_path("moj-nalog")}?locale=sr".freeze
         TTL = Decidim::Bih::EmailConfirmationsController::TTL
 
         setup do
@@ -23,6 +23,7 @@ module Decidim
           Decidim::Bih.phone_first_registration = true
           Decidim::Bih.phone_first_registration_since = 1.day.ago.utc.to_s
           @citizen = FactoryBot.create(:user, :confirmed, organization: @organization)
+          @password = @citizen.password
           sign_in @citizen
         end
 
@@ -153,12 +154,12 @@ module Decidim
 
           get link
 
-          assert_redirected_to decidim.new_user_session_path
+          assert_redirected_to "/sr/users/sign_in"
           refute_includes response.location.to_s, "potvrdi-email",
                           "the token must not be copied into the sign-in URL"
           refute Decidim::Bih::EmailConfirmation.confirmed?(@citizen.reload)
 
-          post "/users/sign_in", params: { user: { email: @citizen.email, password: "decidim123456789" } }
+          post "/sr/users/sign_in", params: { user: { email: @citizen.email, password: @password } }
 
           assert_redirected_to link
           follow_redirect!

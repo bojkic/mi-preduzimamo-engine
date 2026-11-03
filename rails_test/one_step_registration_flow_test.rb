@@ -108,7 +108,7 @@ module Decidim
 
         def welcome_path = Decidim::Bih.public_path("dobrodosli")
 
-        def phone_login_path = "/users/sign_in"
+        def phone_login_path = "/sr/users/sign_in"
 
         def sr(key) = I18n.t("decidim.bih.registrations.#{key}", locale: :sr)
 

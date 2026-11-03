@@ -429,7 +429,7 @@ module Decidim
           first = signup
           second = signup(phone: "+38765111222")
           assert_no_enqueued_jobs(only: ActionMailer::MailDeliveryJob) do
-            post "/users/password", params: { user: { email: "" } }
+            post "/sr/users/password", params: { user: { email: "" } }
           end
           assert_nil first.reload.reset_password_token
           assert_nil second.reload.reset_password_token

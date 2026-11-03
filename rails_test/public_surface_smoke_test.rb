@@ -82,10 +82,10 @@ module Decidim
               assert_no_default_mount_link_leaks(path)
               assert_no_host_brand_text_leaks(path)
             when :sign_in_redirect
-              assert_redirected_to "/users/sign_in"
+              assert_redirected_to "/sr/users/sign_in"
               follow_redirect!
-              assert_successful_html("/users/sign_in")
-              assert_no_default_mount_link_leaks("/users/sign_in")
+              assert_successful_html("/sr/users/sign_in")
+              assert_no_default_mount_link_leaks("/sr/users/sign_in")
             when :json
               assert_successful_json(path)
               assert_not_includes response.body, default_mount_path

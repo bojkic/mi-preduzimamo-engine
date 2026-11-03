@@ -37,3 +37,7 @@ Ruby i JavaScript testovi: `bundle exec rake test`. Rails integracioni testovi u
 ## Održavanje, doprinosi i licenca
 
 Održavalac je Bojan Stojanović, za LF Bijeljina: bojan@fondacijabijeljina.com. Pogledajte CONTRIBUTING.md, SECURITY.md i CODE_OF_CONDUCT.md. Softver je pod AGPL-3.0-or-later; sačuvajte tuđe licence i napomene. Za objedinjenu uslugu hostinga, konfiguracije, obuke i podrške kontaktirajte office@fondacijabijeljina.com. Cijena i obim dogovaraju se ponudom; plaćena pomoć nije uslov za korišćenje softvera.
+
+## Provjera javnog para
+
+Postupak i bezbjedni preduslovi generisanog host-a opisani su u [docs/VERIFIKACIJA.md](docs/VERIFIKACIJA.md).

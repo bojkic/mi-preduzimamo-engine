@@ -102,6 +102,10 @@ File.write(path, <<~'GUARD')
 
   require "active_record/connection_adapters/postgresql_adapter"
 
+  # Rails' post-migration dumper changes search_path. This disposable shared-DB
+  # schema fixture has no need for a schema dump; keep all SQL guards intact.
+  Rails.application.config.active_record.dump_schema_after_migration = false
+
   # Generated-host schema isolation shares a test database. Extension changes
   # and writes outside the owned run schema are forbidden.
   module DecidimBihGeneratedHostExtensionGuard

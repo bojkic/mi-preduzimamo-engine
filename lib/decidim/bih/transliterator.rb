@@ -82,7 +82,7 @@ module Decidim
       ].sort_by { |word| -word.length }.freeze
 
       # Segments that must NOT be transliterated, captured so String#split keeps
-      # them: %{...} / %<...>x interpolations, strftime directives (%Y, %-d, %^B),
+      # them: %{...} / %<...>x / editor placeholders, strftime directives (%Y, %-d, %^B),
       # HTML tags, {{ ... }}/{% ... %}, and the PRESERVED_WORDS brand tokens
       # (single capture group — the split logic in #call relies on odd indices
       # being the preserved matches).
@@ -103,7 +103,7 @@ module Decidim
 
       PRESERVE = Regexp.new(
         "(#{URL_OR_EMAIL}" \
-        "|%\\{[^}]*\\}|%<[^>]*>[a-zA-Z]?|%[-_^0-9]*[a-zA-Z]|<[^>]+>" \
+        "|%\\{[^}]*\\}|%<[^>]*>[a-zA-Z]?|%(?:level|position)%|%[-_^0-9]*[a-zA-Z]|<[^>]+>" \
         "|\\{\\{[^}]*\\}\\}|\\{%[^%]*%\\}" \
         "|\\b(?:#{PRESERVED_WORDS.map { |word| Regexp.escape(word) }.join("|")})\\b)"
       )

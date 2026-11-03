@@ -9,7 +9,7 @@ module Decidim
         include ::Devise::Test::IntegrationHelpers
 
         setup do
-          @organization = create_organization
+          @organization = create_organization(available_authorizations: ["sms"])
           host! @organization.host
           Decidim::Bih.phone_first_registration = true
         end
@@ -17,7 +17,7 @@ module Decidim
         teardown { Decidim::Bih.phone_first_registration = false }
 
         test "core registration offers the topic choice without the newsletter submit blocker" do
-          get "/users/sign_up"
+          get "/sr/users/sign_up"
           assert_response :success
           assert_select "input[type=checkbox][name='user[newsletter]'][checked]", count: 1
           assert_select "details.mi-notification-registration-details summary", count: 1
@@ -26,7 +26,7 @@ module Decidim
         end
 
         def register!(email: "nova-#{SecureRandom.hex(3)}@example.org")
-          post "/users", params: {
+          post "/sr/users", params: {
             user: { name: "Nova Građanka", email:, password: "Stronger-password-2026", tos_agreement: "1", newsletter: "0" }
           }
           Decidim::User.find_by(email:, organization: @organization)
@@ -49,7 +49,7 @@ module Decidim
           user = register!
 
           assert user.confirmed?, "confirmed_at is set without an e-mail round trip"
-          assert_redirected_to Decidim::Bih::Onboarding::NextStep::SMS_NEW_PATH
+          assert_redirected_to Decidim::Bih::Onboarding::NextStep.sms_new_path(locale: :sr)
           follow_redirect!
           assert_response :success, "the citizen is signed in and may open the phone form"
           assert_no_enqueued_emails
@@ -60,27 +60,45 @@ module Decidim
           user = register!
 
           refute user.confirmed?
-          assert_redirected_to "/users/sign_in?redirect_url=#{CGI.escape(account_setup_path)}"
+          assert_redirected_to "/sr/users/sign_in?redirect_url=#{CGI.escape(account_setup_path)}"
         end
 
         test "an e-mail confirmation signs the citizen in and continues the phone-first chain" do
           citizen = unconfirmed_citizen!
 
-          get "/users/confirmation?confirmation_token=#{citizen.confirmation_token}"
+          get "/sr/users/confirmation?confirmation_token=#{citizen.confirmation_token}"
 
           assert citizen.reload.confirmed?
-          assert_redirected_to Decidim::Bih::Onboarding::NextStep::SMS_NEW_PATH
+          assert_redirected_to Decidim::Bih::Onboarding::NextStep.sms_new_path(locale: :sr)
           follow_redirect!
           # /sms/authorizations/* is mounted inside Devise's authenticate(:user)
           # constraint, so a 200 here is only reachable from a signed-in session.
           assert_response :success, "the confirmation signed the citizen in"
         end
 
+        test "changed email confirms normally and returns to a routable localized next step" do
+          citizen = FactoryBot.create(:user, :confirmed, organization: @organization, locale: "sr")
+          sign_in citizen
+          citizen.update!(email: "changed-#{citizen.id}@example.invalid")
+          assert citizen.reload.unconfirmed_email.present?
+          raw_token = nil
+          citizen.stub(:send_devise_notification, ->(_name, token, _options = {}) { raw_token = token }) do
+            citizen.resend_confirmation_instructions
+          end
+          assert raw_token.present?
+          get "/sr/users/confirmation", params: { confirmation_token: raw_token }
+          assert_redirected_to "/sr/sms/authorizations/new"
+          assert_equal "changed-#{citizen.id}@example.invalid", citizen.reload.email
+          assert Decidim::Bih::EmailConfirmation.confirmed?(citizen)
+          follow_redirect!
+          assert_response :success
+        end
+
         test "with the switch off an e-mail confirmation signs the citizen in and keeps the setup checklist" do
           Decidim::Bih.phone_first_registration = false
           citizen = unconfirmed_citizen!
 
-          get "/users/confirmation?confirmation_token=#{citizen.confirmation_token}"
+          get "/sr/users/confirmation?confirmation_token=#{citizen.confirmation_token}"
 
           assert citizen.reload.confirmed?
           assert_redirected_to account_setup_path

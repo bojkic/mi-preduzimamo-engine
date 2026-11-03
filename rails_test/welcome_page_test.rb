@@ -86,7 +86,7 @@ module Decidim
 
           assert_response :success
           assert_includes response.body, I18n.t("decidim.bih.welcome.show.logout_hint", locale: :sr)
-          assert_select "form[action=?]", "/users/sign_out"
+          assert_select "form[action=?]", "/sr/users/sign_out"
         end
 
         test "a GET never marks the citizen welcomed" do
@@ -111,7 +111,7 @@ module Decidim
 
           get welcome_page_path
 
-          assert_redirected_to "/users/sign_in"
+          assert_redirected_to "/sr/users/sign_in"
         end
 
         test "Krenimo marks the citizen welcomed and sends them to the account setup" do
@@ -140,7 +140,7 @@ module Decidim
 
           get welcome_page_path
 
-          assert_redirected_to Decidim::Bih::Onboarding::NextStep::SMS_NEW_PATH
+          assert_redirected_to Decidim::Bih::Onboarding::NextStep.sms_new_path(locale: :sr)
         end
 
         # Typing the URL before the phone is verified must not burn the welcome
@@ -151,7 +151,7 @@ module Decidim
 
           post welcome_page_path
 
-          assert_redirected_to Decidim::Bih::Onboarding::NextStep::SMS_NEW_PATH
+          assert_redirected_to Decidim::Bih::Onboarding::NextStep.sms_new_path(locale: :sr)
           assert_nil welcomed_at
         end
 
@@ -160,7 +160,7 @@ module Decidim
 
           post welcome_page_path
 
-          assert_redirected_to "/users/sign_in"
+          assert_redirected_to "/sr/users/sign_in"
           assert_nil welcomed_at
         end
 

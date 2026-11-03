@@ -2399,9 +2399,9 @@ module Decidim
         # Decidim's own sign-in page; on phone-first hosts the page itself
         # offers the phone login, so the concierge only ever links here.
         def sign_in_url
-          Decidim::Core::Engine.routes.url_helpers.new_user_session_path
+          Decidim::Core::Engine.routes.url_helpers.new_user_session_path(locale: I18n.locale)
         rescue StandardError
-          "/users/sign_in"
+          "/#{I18n.locale}/users/sign_in"
         end
 
         # The public points rules page (the single place the schedule is quoted).

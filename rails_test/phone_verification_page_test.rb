@@ -248,7 +248,7 @@ module Decidim
 
         test "without a pending authorization the page sends the citizen to the phone form" do
           get page_path
-          assert_redirected_to Decidim::Bih::Onboarding::NextStep::SMS_NEW_PATH
+          assert_redirected_to Decidim::Bih::Onboarding::NextStep.sms_new_path(locale: :sr)
         end
 
         # ------------------------------------------------------------ reverify
@@ -408,7 +408,7 @@ module Decidim
           granted_without_phone!
 
           delete page_path
-          assert_redirected_to Decidim::Bih::Onboarding::NextStep::SMS_NEW_PATH
+          assert_redirected_to Decidim::Bih::Onboarding::NextStep.sms_new_path(locale: :sr)
           assert_nil Decidim::Authorization.find_by(user: @citizen, name: "sms")
         end
 
@@ -502,7 +502,7 @@ module Decidim
           assert_nil response.parsed_body["next"]
 
           post "#{page_path}/kod", params: { verification_code: "123456" }
-          assert_redirected_to Decidim::Bih::Onboarding::NextStep::SMS_NEW_PATH
+          assert_redirected_to Decidim::Bih::Onboarding::NextStep.sms_new_path(locale: :sr)
           refute @authorization.reload.granted?
           assert_nil Decidim::Bih::CitizenPhone.for(@citizen)
         end
@@ -735,7 +735,7 @@ module Decidim
         test "changing the number voids the live link and returns to the phone form" do
           pending!
           delete page_path
-          assert_redirected_to Decidim::Bih::Onboarding::NextStep::SMS_NEW_PATH
+          assert_redirected_to Decidim::Bih::Onboarding::NextStep.sms_new_path(locale: :sr)
           assert_nil Decidim::Authorization.find_by(user: @citizen, name: "sms")
           assert_equal 0, Decidim::Bih::LoginToken.where(user: @citizen, purpose: "verify", consumed_at: nil).count
         end
@@ -744,10 +744,10 @@ module Decidim
 
         test "decidim's own code page redirects here, carrying the redirect_url" do
           pending!
-          get "/sms/authorizations/edit"
+          get "/sr/sms/authorizations/edit"
           assert_redirected_to page_path
 
-          get "/sms/authorizations/edit?redirect_url=%2Fprocesses%2Fx"
+          get "/sr/sms/authorizations/edit?redirect_url=%2Fprocesses%2Fx"
           assert_equal "/processes/x", query_param(response.location, "redirect_url")
         end
 
@@ -758,27 +758,27 @@ module Decidim
         test "an off-site redirect_url is dropped before it reaches our page" do
           pending!
 
-          get "/sms/authorizations/edit?redirect_url=%2F%2Fevil.example"
+          get "/sr/sms/authorizations/edit?redirect_url=%2F%2Fevil.example"
           assert_redirected_to page_path
           assert_nil query_param(response.location, "redirect_url")
 
-          get "/sms/authorizations/edit?redirect_url=https%3A%2F%2Fevil.example%2Fx"
+          get "/sr/sms/authorizations/edit?redirect_url=https%3A%2F%2Fevil.example%2Fx"
           assert_nil query_param(response.location, "redirect_url")
 
-          patch "/sms/authorizations", params: { redirect_url: "//evil.example" }
+          patch "/sr/sms/authorizations", params: { redirect_url: "//evil.example" }
           assert_nil query_param(response.location, "redirect_url")
         end
 
         test "decidim's own code POST redirects here too" do
           pending!
-          patch "/sms/authorizations", params: { verification_code: "123456" }
+          patch "/sr/sms/authorizations", params: { verification_code: "123456" }
           assert_redirected_to page_path
           refute @authorization.reload.granted?, "the stock code POST never grants under phone-first"
         end
 
         test "decidim's own destroy voids the live verify link" do
           pending!
-          delete "/sms/authorizations"
+          delete "/sr/sms/authorizations"
           assert_nil Decidim::Authorization.find_by(user: @citizen, name: "sms")
           assert_equal 0, Decidim::Bih::LoginToken.where(user: @citizen, purpose: "verify", consumed_at: nil).count
         end
@@ -787,7 +787,7 @@ module Decidim
           pending!
           Decidim::Bih.phone_first_registration = false
 
-          get "/sms/authorizations/edit"
+          get "/sr/sms/authorizations/edit"
           assert_response :success, "the stock page renders instead of redirecting to ours"
         end
 
