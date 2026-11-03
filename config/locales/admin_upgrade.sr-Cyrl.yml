@@ -83,7 +83,10 @@
           "newsletters": "Билтени",
           "settings": "Подешавања",
           "admin_log": "Дневник администрације",
-          "manage": "Управљање"
+          "manage": "Управљање",
+          "participatory_processes_submenu": {
+            "steps": "Фазе"
+          }
         },
         "filters": {
           "filter_label": "Филтрирај",
@@ -255,6 +258,11 @@
           "one": "Процес",
           "few": "Процеси",
           "other": "Процеси"
+        },
+        "decidim/participatory_process_step": {
+          "one": "Фаза",
+          "few": "Фазе",
+          "other": "Фазе"
         }
       }
     },
@@ -283,6 +291,24 @@
         },
         "editor_image": {
           "file": "Фајл"
+        },
+        "user": {
+          "about": "О мени"
+        },
+        "group": {
+          "about": "О групи"
+        }
+      }
+    },
+    "datetime": {
+      "widget": {
+        "label": {
+          "date": "%{label} — датум",
+          "time": "%{label} — вријеме"
+        },
+        "picker": {
+          "date_button": "Изабери датум за %{label}",
+          "time_button": "Изабери вријеме за %{label}"
         }
       }
     }

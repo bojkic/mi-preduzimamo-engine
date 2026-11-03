@@ -5,6 +5,7 @@ require "decidim/core"
 require "decidim/bih/mail_hooks"
 require "decidim/bih/private_blob_routes"
 require "decidim/bih/worker_shutdown"
+require "decidim/bih/date_picker_labels"
 
 module Decidim
   module Bih
@@ -94,6 +95,7 @@ module Decidim
 
       config.to_prepare do
         ActiveStorage::SetBlob.prepend(Decidim::Bih::PrivateBlobRoutes) unless ActiveStorage::SetBlob < Decidim::Bih::PrivateBlobRoutes
+        Decidim::FormBuilder.prepend(Decidim::Bih::DatePickerLabels) unless Decidim::FormBuilder < Decidim::Bih::DatePickerLabels
       end
 
       # Correlate outbound mail to the shared communication history.

@@ -119,3 +119,9 @@ Ciljane request provjere pokrivaju prikaz naslova, format datuma i nekoliko važ
 | `layouts.decidim.decidim_awesome.awesome_config.proposals` | bs, hr, sr, sr-Cyrl |
 | `layouts.decidim.decidim_awesome.awesome_config.select_deselect_all` | bs, hr, sr, sr-Cyrl |
 | `layouts.decidim.decidim_awesome.awesome_config.taxonomies` | bs, hr, sr, sr-Cyrl |
+
+## Dopuna nakon nezavisne RC4 probe — 3. novembar 2026.
+
+Raniji inventar ruta nije obuhvatio nedostajuće aria oznake date polja i latinične nazive mjeseci u widgetu. Novi DatePickerLabels proširuje i date i datetime polja uz očuvanje postojećih data/controller atributa; widget tekstovi su dati na sva četiri jezika. Referentni host u svom core pack proširenju uvozi `src/decidim/bih/calendar_locale`; taj engine modul traži `sr-Latn` samo za kalendare sr stranica, bez mijenjanja jezika ruta ili drugih locale-a. Dodati su i ključevi za phases navigaciju i about polja.
+
+Nove standalone provjere oznaka i JavaScript ponašanja prolaze. Stvarni prikaz novog kandidata, ARIA atributi i mjeseci u browser-u još traže novu render/browser provjeru; raniji browser rezultat se ne prenosi na ovaj kod. Operatorovi tekstovi poput sadržaja administratorskih uslova ostaju lokalni sadržaj i ne prepisuju se prevodima.

@@ -77,7 +77,10 @@
           "moderation": "Zajednička moderacija",
           "insights": "Uvidi",
           "decidim_awesome": "Decidim Awesome",
-          "participatory_process_groups": "Grupe procesa"
+          "participatory_process_groups": "Grupe procesa",
+          "participatory_processes_submenu": {
+            "steps": "Faze"
+          }
         },
         "filters": {
           "with_any_access_mode": {
@@ -241,6 +244,11 @@
           "one": "Proces",
           "few": "Procesi",
           "other": "Procesi"
+        },
+        "decidim/participatory_process_step": {
+          "one": "Faza",
+          "few": "Faze",
+          "other": "Faze"
         }
       }
     },
@@ -269,6 +277,24 @@
         },
         "editor_image": {
           "file": "Fajl"
+        },
+        "user": {
+          "about": "O meni"
+        },
+        "group": {
+          "about": "O grupi"
+        }
+      }
+    },
+    "datetime": {
+      "widget": {
+        "label": {
+          "date": "%{label} — datum",
+          "time": "%{label} — vrijeme"
+        },
+        "picker": {
+          "date_button": "Izaberi datum za %{label}",
+          "time_button": "Izaberi vrijeme za %{label}"
         }
       }
     }
