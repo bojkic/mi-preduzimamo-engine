@@ -389,7 +389,7 @@ class GeneratedHostDatabaseIsolationTest < Minitest::Test
 
       assert status.success?, stderr
       assert_equal(
-        %w(baseline_bundle_install baseline_bundle_prune schema_create baseline_migration
+        %w(generator_resolve baseline_bundle_install baseline_bundle_prune schema_create baseline_migration
            engine_bundle_install engine_generator engine_migration runner schema_drop),
         File.readlines(events_path, chomp: true)
       )
@@ -403,7 +403,7 @@ class GeneratedHostDatabaseIsolationTest < Minitest::Test
 
       refute status.success?
       assert_equal 31, status.exitstatus
-      assert_equal %w(baseline_bundle_install), File.readlines(events_path, chomp: true)
+      assert_equal %w(generator_resolve baseline_bundle_install), File.readlines(events_path, chomp: true)
     end
   end
 
@@ -413,7 +413,7 @@ class GeneratedHostDatabaseIsolationTest < Minitest::Test
       _stdout, _stderr, status = run_clean_host_smoke(directory, events_path, fail_baseline: true)
 
       assert_equal false, status.success?
-      assert_equal %w(baseline_bundle_install baseline_bundle_prune schema_create baseline_migration schema_drop), File.readlines(events_path, chomp: true)
+      assert_equal %w(generator_resolve baseline_bundle_install baseline_bundle_prune schema_create baseline_migration schema_drop), File.readlines(events_path, chomp: true)
     end
   end
 
@@ -594,6 +594,12 @@ class GeneratedHostDatabaseIsolationTest < Minitest::Test
 
       [[ "${1:-}" == "ruby" ]] || exit 0
       shift
+      if [[ "${1:-}" == "-e" && "${2:-}" == *"Gem::Specification.find_by_name"* ]]; then
+        [[ "${BUNDLE_GEMFILE:-}" == "${DECIDIM_BIH_CLEAN_HOST_GENERATOR_GEMFILE:-}" ]] || exit 34
+        printf 'generator_resolve\\n' >> "$EVENT_LOG"
+        command -v decidim
+        exit 0
+      fi
       source_code="$(cat)"
       if grep -q 'require "bundler"' <<<"$source_code"; then
         if [[ ! -f tmp/baseline_bundle.ready ]]; then

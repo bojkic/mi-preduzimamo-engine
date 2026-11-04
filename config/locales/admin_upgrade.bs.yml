@@ -305,7 +305,8 @@
               "has_members_help": "Moći ćete dodavati i objavljivati članove",
               "visibility": "Vidljivost",
               "select_process_group": "Izaberite grupu procesa",
-              "related_processes": "Povezani procesi"
+              "related_processes": "Povezani procesi",
+              "slug_help_html": "URL oznaka određuje adresu ovog procesa. Dopuštena su samo slova, brojevi i crtice, a prvi znak mora biti slovo. Primjer: %{url}"
             },
             "edit": {
               "title": "O ovom procesu"
@@ -325,6 +326,16 @@
           "participatory_process_groups": {
             "form": {
               "title": "O ovom procesu"
+            }
+          },
+          "participatory_process_duplicates": {
+            "form": {
+              "slug_help_html": "URL oznaka određuje adresu ovog procesa. Dopuštena su samo slova, brojevi i crtice, a prvi znak mora biti slovo. Primjer: %{url}"
+            }
+          },
+          "participatory_process_imports": {
+            "form": {
+              "slug_help_html": "URL oznaka određuje adresu ovog procesa. Dopuštena su samo slova, brojevi i crtice, a prvi znak mora biti slovo. Primjer: %{url}"
             }
           }
         },

@@ -8,6 +8,17 @@ class DecidimBihGemspecTest < Minitest::Test
     @spec ||= Gem::Specification.load(File.expand_path("../decidim-bih.gemspec", __dir__))
   end
 
+  def test_dependency_resolution_rejects_unpatched_ransack_before_boot
+    dependency = spec.runtime_dependencies.find { |item| item.name == "ransack" }
+    assert dependency, "the boot-time security guard must also constrain fresh dependency resolution"
+    %w(4.4.1 4.4.2 4.5.0 5.0.0).each do |version|
+      refute dependency.requirement.satisfied_by?(Gem::Version.new(version)), version
+    end
+    %w(4.4.3 4.4.4).each do |version|
+      assert dependency.requirement.satisfied_by?(Gem::Version.new(version)), version
+    end
+  end
+
   def test_engine_migrations_are_packaged
     assert spec.files.any? { |path| path.start_with?("db/migrate/") },
            "engine gem must package db/migrate so host apps can install migrations"
@@ -44,7 +55,6 @@ class DecidimBihGemspecTest < Minitest::Test
     script = File.read(File.expand_path("../script/decidim_bih_clean_host_smoke", __dir__))
 
     assert_includes script, "DECIDIM_BIH_CLEAN_HOST_GENERATOR_GEMFILE"
-    assert_includes script, 'env BUNDLE_GEMFILE="$GENERATOR_GEMFILE" bundle exec decidim'
     assert_includes script, "prune_unbundled_decidim_migrations"
     assert_includes script, 'suffix.sub(/\Adecidim_/, "decidim-")'
   end

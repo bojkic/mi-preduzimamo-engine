@@ -178,16 +178,16 @@ module Decidim
 
           def dump_step(step, run, index)
             result = run.fetch(:result)
-            lines = ["-- turn #{index + 1}", "prompt: #{step.fetch(:text).inspect}"]
+            lines = ["-- turn #{index + 1}", "prompt: #{stable_inspect(step.fetch(:text))}"]
             lines << "understanding: #{understanding_token(step)}"
             lines << "model_calls: #{run.fetch(:model_calls)}"
-            lines << "reads: #{run.fetch(:reads).map { |read| read_token(read) }.inspect}"
-            lines << "resolution: #{result.resolution.inspect}"
-            lines << "answer_intent: #{result.reply.answer_intent.inspect}"
-            lines << "tone: #{result.reply.tone.inspect}"
-            lines << "quick_replies: #{result.reply.quick_replies.inspect}"
-            lines << "report: #{result.reply.report.inspect}"
-            lines << "fact_ids: #{result.fact_ids.inspect}"
+            lines << "reads: #{stable_inspect(run.fetch(:reads).map { |read| read_token(read) })}"
+            lines << "resolution: #{stable_inspect(result.resolution)}"
+            lines << "answer_intent: #{stable_inspect(result.reply.answer_intent)}"
+            lines << "tone: #{stable_inspect(result.reply.tone)}"
+            lines << "quick_replies: #{stable_inspect(result.reply.quick_replies)}"
+            lines << "report: #{stable_inspect(result.reply.report)}"
+            lines << "fact_ids: #{stable_inspect(result.fact_ids)}"
             lines << "handoff: offered=#{result.handoff_offered} completed=#{result.handoff_completed}"
             lines << "state: #{state_token(result.state)}"
             lines << "stored: #{state_token(run.fetch(:stored))}"
@@ -261,10 +261,24 @@ module Decidim
           end
 
           def read_token(read)
-            return "#{read.fetch(:action)}/#{read.fetch(:topic)}/#{read.fetch(:entities).sort.to_h.inspect}/#{read.fetch(:locale)}" unless read[:follow_up]
+            return "#{read.fetch(:action)}/#{read.fetch(:topic)}/#{stable_inspect(read.fetch(:entities).sort.to_h)}/#{read.fetch(:locale)}" unless read[:follow_up]
 
             details = read.except(:follow_up, :context, :locale).sort.to_h
-            "follow_up:#{read.fetch(:follow_up)}/#{details.inspect}/#{read.fetch(:locale)}"
+            "follow_up:#{read.fetch(:follow_up)}/#{stable_inspect(details)}/#{read.fetch(:locale)}"
+          end
+
+          # Keep this historical transcript independent of Ruby 3.4's changed
+          # Hash#inspect spacing and symbol-key syntax. Values, order and reply
+          # text remain exact; the committed behaviour baseline is unchanged.
+          def stable_inspect(value)
+            case value
+            when Hash
+              "{#{value.map { |key, item| "#{stable_inspect(key)}=>#{stable_inspect(item)}" }.join(", ")}}"
+            when Array
+              "[#{value.map { |item| stable_inspect(item) }.join(", ")}]"
+            else
+              value.inspect
+            end
           end
 
           def state_token(state)
@@ -274,7 +288,7 @@ module Decidim
               "suspended_task" => state["suspended_task"] ? state["suspended_task"]["active_task"] : nil,
               "draft" => state["draft"] ? "present" : nil,
               "prior_evidence" => state["prior_evidence"] ? state["prior_evidence"]["kind"] : nil
-            ).inspect
+            ).then { |projection| stable_inspect(projection) }
           end
         end
       end

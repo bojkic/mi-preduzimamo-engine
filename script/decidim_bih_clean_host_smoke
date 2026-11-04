@@ -34,6 +34,8 @@ RUN_NONCE="${DECIDIM_BIH_GENERATED_HOST_NONCE:-${BASHPID}_${RANDOM}_${RANDOM}}"
 APP_NAME="${APP_NAME:-decidim_bih_clean_host_$(date -u +%Y%m%d%H%M%S)_${RUN_NONCE}}"
 APP_ROOT="$WORK_ROOT/$APP_NAME"
 WRAPPER_ROOT="$WORK_ROOT/npm-wrapper-$APP_NAME"
+APP_WORKDIR_OWNED=0
+WRAPPER_WORKDIR_OWNED=0
 MOUNT_PATH="${MOUNT_PATH:-/moja-platforma}"
 SHORT_MAGIC_LINKS="${SHORT_MAGIC_LINKS:-0}"
 KEEP_WORKDIR="${KEEP_DECIDIM_BIH_CLEAN_HOST:-0}"
@@ -52,6 +54,21 @@ require_command() {
     printf 'Missing required command: %s\n' "$1" >&2
     exit 127
   fi
+}
+
+resolve_decidim_executable() {
+  if [[ -n "${DECIDIM_EXECUTABLE:-}" ]]; then
+    printf '%s\n' "$DECIDIM_EXECUTABLE"
+    return
+  fi
+
+  # Resolve while the selected generator bundle still has its own config.
+  # Execute the resolved file after clearing that bundle from the host below.
+  (
+    cd "$ENGINE_ROOT"
+    env BUNDLE_GEMFILE="${GENERATOR_GEMFILE:-$ENGINE_ROOT/Gemfile}" bundle exec ruby \
+      -e 'spec = Gem::Specification.find_by_name("decidim-generators"); print File.join(spec.gem_dir, spec.bindir, "decidim")'
+  )
 }
 
 truthy() {
@@ -117,8 +134,8 @@ cleanup() {
     exit "$status"
   fi
 
-  rm -rf "$APP_ROOT"
-  rm -rf "$WRAPPER_ROOT"
+  [[ "$APP_WORKDIR_OWNED" != 1 ]] || rm -rf "$APP_ROOT"
+  [[ "$WRAPPER_WORKDIR_OWNED" != 1 ]] || rm -rf "$WRAPPER_ROOT"
   exit "$status"
 }
 
@@ -127,21 +144,36 @@ trap cleanup EXIT
 require_command bundle
 require_command npm
 require_command ruby
-if [[ -z "$GENERATOR_GEMFILE" ]]; then
-  require_command decidim
-elif [[ ! -f "$GENERATOR_GEMFILE" ]]; then
+if [[ -n "$GENERATOR_GEMFILE" && ! -f "$GENERATOR_GEMFILE" ]]; then
   printf 'Missing DECIDIM_BIH_CLEAN_HOST_GENERATOR_GEMFILE: %s\n' "$GENERATOR_GEMFILE" >&2
   exit 127
 fi
 
+DECIDIM_EXECUTABLE="$(resolve_decidim_executable)"
+if [[ ! -x "$DECIDIM_EXECUTABLE" ]]; then
+  printf 'Resolved Decidim generator is not executable: %s\n' "$DECIDIM_EXECUTABLE" >&2
+  exit 127
+fi
+
 mkdir -p "$WORK_ROOT"
-rm -rf "$APP_ROOT"
-rm -rf "$WRAPPER_ROOT"
+if [[ -e "$APP_ROOT" || -L "$APP_ROOT" || -e "$WRAPPER_ROOT" || -L "$WRAPPER_ROOT" ]]; then
+  echo 'Generated-host destination already exists; preserving all files. Choose a new APP_NAME.' >&2
+  exit 64
+fi
+mkdir "$APP_ROOT"
+APP_WORKDIR_OWNED=1
+mkdir "$WRAPPER_ROOT"
+WRAPPER_WORKDIR_OWNED=1
+
+# A generated host owns its bundle. Inheriting the caller's bundle configuration
+# can reuse incompatible native gems or freeze the wrong lockfile.
+unset BUNDLE_GEMFILE BUNDLE_APP_CONFIG BUNDLE_FROZEN BUNDLE_DEPLOYMENT RUBYOPT RUBYLIB
+export BUNDLE_APP_CONFIG="$APP_ROOT/.bundle"
+export BUNDLE_IGNORE_CONFIG=1
 
 REAL_NPM_PATH="$(command -v npm)"
 DECIDIM_NPM_VERSION="${DECIDIM_NPM_VERSION:-0.32.2}"
 export REAL_NPM_PATH DECIDIM_NPM_VERSION
-mkdir -p "$WRAPPER_ROOT"
 cat > "$WRAPPER_ROOT/npm" <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -172,11 +204,7 @@ export PATH="$WRAPPER_ROOT:$PATH"
 log "generating disposable Decidim host: $APP_ROOT"
 (
   cd "$WORK_ROOT"
-  if [[ -n "$GENERATOR_GEMFILE" ]]; then
-    env BUNDLE_GEMFILE="$GENERATOR_GEMFILE" bundle exec decidim "$APP_NAME" --force_ssl=false --locales=en,bs,hr,sr
-  else
-    decidim "$APP_NAME" --force_ssl=false --locales=en,bs,hr,sr
-  fi
+  "$DECIDIM_EXECUTABLE" "$APP_NAME" --force_ssl=false --locales=en,bs,hr,sr,sr-Cyrl
 )
 
 cd "$APP_ROOT"

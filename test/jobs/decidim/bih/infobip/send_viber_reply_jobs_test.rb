@@ -34,7 +34,7 @@ module Decidim
         def setup
           @previous_text_adapter = SendViberTextJob.queue_adapter
           @previous_image_adapter = SendViberImageJob.queue_adapter
-          @adapter = ActiveJob::QueueAdapters::TestAdapter.new(enqueue_after_transaction_commit: false)
+          @adapter = ActiveJob::QueueAdapters::TestAdapter.new
           SendViberTextJob.queue_adapter = @adapter
           SendViberImageJob.queue_adapter = @adapter
           # The Viber Bot is switched off for this deployment (Business Messages

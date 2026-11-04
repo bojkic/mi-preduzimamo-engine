@@ -20,13 +20,13 @@ end
 namespace :test do
   desc "Run the JavaScript unit tests under test/javascript with node --test"
   task :javascript do
-    files = Dir.glob(File.join(__dir__, "test/javascript/**/*_test.js"))
+    files = Dir.glob(File.join(__dir__, "test/javascript/**/*_test.{js,cjs}"))
     # The file list is expanded here rather than handed to node as a glob or
     # a directory: which of those a given node build accepts has moved
     # between releases, and an empty or misread argument fails as "no tests"
     # rather than as an error.
     if files.empty?
-      puts "[decidim-bih] no test/javascript/**/*_test.js files — nothing to run"
+      puts "[decidim-bih] no test/javascript/**/*_test.{js,cjs} files — nothing to run"
     elsif system("node", "--version", out: File::NULL, err: File::NULL)
       sh("node", "--test", *files)
     else

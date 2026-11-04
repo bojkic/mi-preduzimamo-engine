@@ -40,7 +40,7 @@ module Decidim
           ENV_KEYS.each { |key| ENV.delete(key) }
           Config.reset!
           @previous_adapter = SendChatTextJob.queue_adapter
-          @adapter = ActiveJob::QueueAdapters::TestAdapter.new(enqueue_after_transaction_commit: false)
+          @adapter = ActiveJob::QueueAdapters::TestAdapter.new
           SendChatTextJob.queue_adapter = @adapter
         end
 

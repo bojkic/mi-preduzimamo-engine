@@ -4,6 +4,8 @@ require "test_helper"
 require "fileutils"
 require "json"
 require "rake"
+require "open3"
+require "rbconfig"
 require "tmpdir"
 
 class DecidimBihHostContractTasksTest < Minitest::Test
@@ -16,6 +18,13 @@ class DecidimBihHostContractTasksTest < Minitest::Test
 
   def teardown
     Rake.application = @original_rake
+  end
+
+  def test_contract_can_be_loaded_without_a_host_or_preloaded_active_support
+    root = File.expand_path("../..", __dir__)
+    program = 'require "decidim/bih"; abort "missing asset contract" if Decidim::Bih.required_public_assets.empty?'
+    _stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-I#{root}/lib", "-e", program)
+    assert status.success?, stderr
   end
 
   def test_install_assets_task_copies_packaged_assets_to_public_root

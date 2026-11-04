@@ -8,20 +8,25 @@ module Decidim
       KEYS = %w(batch view q page status mz_slug age attention case_state case_owner).freeze
       attr_reader :params
 
-      def initialize(organization:, actor:, params: {})
+      def initialize(organization:, actor:, params: {}, path: PATH)
         @organization = organization
         @actor = actor
+        @path = self.class.queue_paths.include?(path) ? path : PATH
         @params = params.to_h.stringify_keys.slice(*KEYS).select { |_key, value| value.is_a?(String) }.transform_values { |value| value.first(120) }
         @params.delete("attention") if @params["attention"] == "needs_review"
       end
 
       def self.from_path(value, organization:, actor:)
         uri = URI.parse(value.to_s)
-        valid = uri.host.nil? && uri.scheme.nil? && uri.path == PATH && uri.fragment.nil?
+        valid = uri.host.nil? && uri.scheme.nil? && queue_paths.include?(uri.path) && uri.fragment.nil?
         parameters = valid ? Rack::Utils.parse_nested_query(uri.query) : {}
-        new(organization:, actor:, params: parameters)
+        new(organization:, actor:, params: parameters, path: valid ? uri.path : PATH)
       rescue URI::InvalidURIError, Rack::QueryParser::ParameterTypeError, Rack::QueryParser::InvalidParameterError
         new(organization:, actor:)
+      end
+
+      def self.queue_paths
+        [PATH, *Decidim.available_locales.map { |locale| "/#{locale}#{PATH}" }]
       end
 
       def view
@@ -31,7 +36,7 @@ module Decidim
       def path(page: nil)
         query = params.merge("view" => view)
         query["page"] = page.to_s if page
-        "#{PATH}?#{query.to_query}"
+        "#{@path}?#{query.to_query}"
       end
 
       def base_scope(apply_attention: true)

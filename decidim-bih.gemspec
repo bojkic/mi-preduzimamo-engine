@@ -29,6 +29,9 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "decidim-core", Decidim::Bih::COMPAT_DECIDIM_VERSION
+  # Reject vulnerable generator lockfile defaults during dependency resolution,
+  # before the runtime resource-bounds guard has to refuse boot.
+  spec.add_dependency "ransack", ">= 4.4.3", "< 4.5"
   # Engine overrides and public workflows currently assume these Decidim modules
   # are present. Treat them as hard requirements until those features are
   # explicitly guarded behind host-configurable flags.

@@ -233,6 +233,8 @@ module Decidim
       # Defines Decidim::Bih::Onboarding::NextStep and the phone-first switch
       # for the duration of the block, then takes both away again.
       def with_onboarding_chain(phone_first:)
+        previous_onboarding = Decidim::Bih.const_get(:Onboarding, false) if Decidim::Bih.const_defined?(:Onboarding, false)
+        Decidim::Bih.send(:remove_const, :Onboarding) if previous_onboarding
         onboarding = Module.new
         next_step = Module.new do
           define_singleton_method(:for) do |user, organization:|
@@ -248,6 +250,7 @@ module Decidim
         yield
       ensure
         Decidim::Bih.send(:remove_const, :Onboarding) if Decidim::Bih.const_defined?(:Onboarding, false)
+        Decidim::Bih.const_set(:Onboarding, previous_onboarding) if previous_onboarding
         restore&.call
       end
 

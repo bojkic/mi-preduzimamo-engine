@@ -1,0 +1,25 @@
+hr:
+  decidim:
+    bih:
+      report_mailbox:
+        title: "Pošta prijava za pregled"
+        senders: "Odobreni pošiljatelji službi"
+        sender: "Pošiljatelj"
+        subject: "Naslov"
+        received: "Primljeno"
+        references: "Brojevi prijava"
+        reason: "Razlog pregleda"
+        no_subject: "Bez naslova"
+        history: "Povijesna korespondencija"
+        link: "Poveži s prijavama"
+        import_history: "Uvezi kao povijest"
+        history_file: "Izvorna poruka (.eml, do 25 MB)"
+        history_import_hint: "Povijest se označava prije obrade i ne pokreće radnje na prijavi. Uvoz ne poništava ranije izvršene radnje."
+        history_already_effectful: "Poruka je već pokrenula radnje na prijavi. Oznaka povijesti ih ne može poništiti."
+        dismiss: "Odloži bez obrade"
+        deactivate: "Deaktiviraj"
+        label: "Naziv službe"
+        add: "Dodaj pošiljatelja"
+        correspondence: "Korespondencija sa službama"
+        open: "Otvori korespondenciju"
+        attachment_reply: "Građanin je poslao priloge."

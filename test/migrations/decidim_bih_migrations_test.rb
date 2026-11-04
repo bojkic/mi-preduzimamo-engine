@@ -64,10 +64,10 @@ class DecidimBihMigrationsTest < Minitest::Test
       filename = File.basename(path)
       expected_class_name = filename.delete_suffix(".rb").split("_")[1..].map(&:capitalize).join
       content = File.read(path)
-      migration_class_lines = content.scan(/^class\s+\w+\s+<\s+ActiveRecord::Migration\[7\.2\]$/)
+      migration_class_lines = content.scan(/^class\s+\w+\s+<\s+ActiveRecord::Migration\[(?:7\.2|8\.1)\]$/)
 
-      assert_equal 1, migration_class_lines.size, "#{filename} must declare exactly one Rails 7.2 migration class"
-      assert_includes content, "class #{expected_class_name} < ActiveRecord::Migration[7.2]"
+      assert_equal 1, migration_class_lines.size, "#{filename} must declare exactly one supported Rails migration class"
+      assert_match(/class #{Regexp.escape(expected_class_name)} < ActiveRecord::Migration\[(?:7\.2|8\.1)\]/, content)
     end
   end
 
