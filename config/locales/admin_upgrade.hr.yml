@@ -64,10 +64,19 @@
         },
         "admin_terms_of_service": {
           "accept": {
-            "success": "Prihvatili ste uvjete za administratore."
+            "success": "Prihvatili ste uvjete za administratore.",
+            "error": "Prihvaćanje uvjeta za administratore nije uspjelo."
           },
           "actions": {
-            "accept": "Prihvaćam uvjete"
+            "accept": "Prihvaćam uvjete",
+            "refuse": "Odbijam uvjete",
+            "are_you_sure": "Želiš li odbiti uvjete za administratore?",
+            "title": "Prihvaćanje uvjeta korištenja"
+          },
+          "required_review": {
+            "alert": "Obavezno: pregledaj uvjete za administratore",
+            "callout": "Pregledaj uvjete za administratore. Bez njihova prihvaćanja nije moguće upravljati platformom.",
+            "cta": "Pregledaj uvjete sada."
           }
         },
         "menu": {
@@ -134,6 +143,14 @@
               "created_at": "Datum kreiranja",
               "access_mode": "Način pristupa",
               "published": "Objavljeno",
+              "actions": "Radnje"
+            }
+          },
+          "participatory_process_step": {
+            "fields": {
+              "title": "Naslov",
+              "start_date": "Datum početka",
+              "end_date": "Datum završetka",
               "actions": "Radnje"
             }
           }

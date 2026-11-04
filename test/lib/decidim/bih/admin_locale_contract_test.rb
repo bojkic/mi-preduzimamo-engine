@@ -7,6 +7,17 @@ require "json"
 class AdminLocaleContractTest < Minitest::Test
   KEYS = JSON.parse(<<~JSON).freeze
     [
+      "decidim.admin.models.participatory_process_step.fields.title",
+      "decidim.admin.models.participatory_process_step.fields.start_date",
+      "decidim.admin.models.participatory_process_step.fields.end_date",
+      "decidim.admin.models.participatory_process_step.fields.actions",
+      "decidim.admin.admin_terms_of_service.actions.refuse",
+      "decidim.admin.admin_terms_of_service.actions.are_you_sure",
+      "decidim.admin.admin_terms_of_service.actions.title",
+      "decidim.admin.admin_terms_of_service.required_review.alert",
+      "decidim.admin.admin_terms_of_service.required_review.callout",
+      "decidim.admin.admin_terms_of_service.required_review.cta",
+      "decidim.admin.admin_terms_of_service.accept.error",
       "decidim.admin.actions.activate",
       "decidim.admin.actions.add",
       "decidim.admin.actions.attachment.new",
